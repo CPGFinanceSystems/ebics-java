@@ -254,7 +254,7 @@ public class EbicsClient {
         configuration.getTraceManager().setTraceDirectory(configuration.getTransferTraceDirectory(user));
 
         try {
-            keyManager.sendINI(null);
+            keyManager.sendINI();
         } catch (final IOException e) {
             throw new EbicsException(Messages.getString("ini.send.error", Constants.APPLICATION_BUNDLE_NAME, userId), e);
         }
@@ -288,7 +288,7 @@ public class EbicsClient {
         configuration.getTraceManager().setTraceDirectory(configuration.getTransferTraceDirectory(user));
 
         try {
-            keyManager.sendHIA(null);
+            keyManager.sendHIA();
         } catch (final IOException e) {
             throw new EbicsException(Messages.getString("hia.send.error", Constants.APPLICATION_BUNDLE_NAME, userId), e);
         }

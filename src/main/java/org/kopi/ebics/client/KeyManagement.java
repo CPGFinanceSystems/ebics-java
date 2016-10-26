@@ -60,18 +60,17 @@ public class KeyManagement {
      * Sends the user's signature key (A005) to the bank.
      * After successful operation the user is in state "initialized".
      *
-     * @param orderId the order ID. Let it null to generate a random one.
      * @throws EbicsException server generated error message
      * @throws IOException    communication error
      */
-    public void sendINI(final String orderId) throws EbicsException, IOException {
+    public void sendINI() throws EbicsException, IOException {
         final INIRequestElement request;
         final KeyManagementResponseElement response;
         final HttpRequestSender sender;
         final int httpCode;
 
         sender = new HttpRequestSender(session);
-        request = new INIRequestElement(session, orderId);
+        request = new INIRequestElement(session);
         request.build();
         request.validate();
         session.getConfiguration().getTraceManager().trace(request);
@@ -86,18 +85,17 @@ public class KeyManagement {
     /**
      * Sends the public part of the protocol keys to the bank.
      *
-     * @param orderId the order ID. Let it null to generate a random one.
      * @throws IOException    communication error
      * @throws EbicsException server generated error message
      */
-    public void sendHIA(final String orderId) throws IOException, EbicsException {
+    public void sendHIA() throws IOException, EbicsException {
         final HIARequestElement request;
         final KeyManagementResponseElement response;
         final HttpRequestSender sender;
         final int httpCode;
 
         sender = new HttpRequestSender(session);
-        request = new HIARequestElement(session, orderId);
+        request = new HIARequestElement(session);
         request.build();
         request.validate();
         session.getConfiguration().getTraceManager().trace(request);
@@ -114,7 +112,6 @@ public class KeyManagement {
      * This order is only allowed for a new user at the bank side that has been created by copying the A005 key.
      * The keys will be activated immediately after successful completion of the transfer.
      *
-     * @param orderId the order ID. Let it null to generate a random one.
      * @throws IOException              communication error
      * @throws GeneralSecurityException data decryption error
      * @throws EbicsException           server generated error message
