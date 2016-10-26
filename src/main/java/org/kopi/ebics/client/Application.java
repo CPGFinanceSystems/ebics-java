@@ -233,7 +233,7 @@ public class Application {
      * @param userId  the user ID
      * @param product the application product
      */
-    public void sendINIRequest(String userId, Product product) {
+    public User sendINIRequest(String userId, Product product) throws EbicsException {
         User user;
         EbicsSession session;
         KeyManagement keyManager;
@@ -245,7 +245,7 @@ public class Application {
 
         if (user.isInitialized()) {
             configuration.getLogger().info(Messages.getString("user.already.initialized", Constants.APPLICATION_BUNDLE_NAME, userId));
-            return;
+            return user;
         }
 
         session = new EbicsSession(user, configuration);
@@ -255,13 +255,13 @@ public class Application {
 
         try {
             keyManager.sendINI(null);
-        } catch (Exception e) {
-            configuration.getLogger().error(Messages.getString("ini.send.error", Constants.APPLICATION_BUNDLE_NAME, userId), e);
-            return;
+        } catch (final IOException e) {
+            throw new EbicsException(Messages.getString("ini.send.error", Constants.APPLICATION_BUNDLE_NAME, userId), e);
         }
 
         user.setInitialized(true);
         configuration.getLogger().info(Messages.getString("ini.send.success", Constants.APPLICATION_BUNDLE_NAME, userId));
+        return user;
     }
 
     /**
