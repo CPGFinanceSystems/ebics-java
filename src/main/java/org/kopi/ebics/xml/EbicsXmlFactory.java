@@ -27,50 +27,50 @@ import javax.xml.namespace.QName;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.kopi.ebics.schema.h003.AuthenticationPubKeyInfoType;
-import org.kopi.ebics.schema.h003.DataTransferRequestType;
-import org.kopi.ebics.schema.h003.EbicsNoPubKeyDigestsRequestDocument;
-import org.kopi.ebics.schema.h003.EbicsRequestDocument;
-import org.kopi.ebics.schema.h003.EbicsUnsecuredRequestDocument;
-import org.kopi.ebics.schema.h003.EmptyMutableHeaderType;
-import org.kopi.ebics.schema.h003.EncryptionPubKeyInfoType;
-import org.kopi.ebics.schema.h003.FDLOrderParamsDocument;
-import org.kopi.ebics.schema.h003.FDLOrderParamsType;
-import org.kopi.ebics.schema.h003.FULOrderParamsDocument;
-import org.kopi.ebics.schema.h003.FULOrderParamsType;
-import org.kopi.ebics.schema.h003.FileFormatType;
-import org.kopi.ebics.schema.h003.HIARequestOrderDataDocument;
-import org.kopi.ebics.schema.h003.HIARequestOrderDataType;
-import org.kopi.ebics.schema.h003.MutableHeaderType;
-import org.kopi.ebics.schema.h003.NoPubKeyDigestsRequestStaticHeaderType;
-import org.kopi.ebics.schema.h003.OrderDetailsType;
-import org.kopi.ebics.schema.h003.ProductElementType;
-import org.kopi.ebics.schema.h003.StandardOrderParamsDocument;
-import org.kopi.ebics.schema.h003.StandardOrderParamsType;
-import org.kopi.ebics.schema.h003.StaticHeaderOrderDetailsType;
-import org.kopi.ebics.schema.h003.StaticHeaderType;
-import org.kopi.ebics.schema.h003.UnsecuredRequestStaticHeaderType;
-import org.kopi.ebics.schema.h003.DataEncryptionInfoType.EncryptionPubKeyDigest;
-import org.kopi.ebics.schema.h003.DataTransferRequestType.DataEncryptionInfo;
-import org.kopi.ebics.schema.h003.DataTransferRequestType.SignatureData;
-import org.kopi.ebics.schema.h003.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest;
-import org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest;
-import org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body.TransferReceipt;
-import org.kopi.ebics.schema.h003.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest;
-import org.kopi.ebics.schema.h003.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body;
-import org.kopi.ebics.schema.h003.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Header;
-import org.kopi.ebics.schema.h003.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body.DataTransfer;
-import org.kopi.ebics.schema.h003.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body.DataTransfer.OrderData;
-import org.kopi.ebics.schema.h003.FDLOrderParamsType.DateRange;
-import org.kopi.ebics.schema.h003.MutableHeaderType.SegmentNumber;
-import org.kopi.ebics.schema.h003.ParameterDocument.Parameter;
-import org.kopi.ebics.schema.h003.ParameterDocument.Parameter.Value;
-import org.kopi.ebics.schema.h003.StaticHeaderOrderDetailsType.OrderType;
-import org.kopi.ebics.schema.h003.StaticHeaderType.BankPubKeyDigests;
-import org.kopi.ebics.schema.h003.StaticHeaderType.Product;
-import org.kopi.ebics.schema.h003.StaticHeaderType.BankPubKeyDigests.Authentication;
-import org.kopi.ebics.schema.h003.StaticHeaderType.BankPubKeyDigests.Encryption;
-import org.kopi.ebics.schema.h003.TransactionPhaseType.Enum;
+import org.kopi.ebics.schema.h004.AuthenticationPubKeyInfoType;
+import org.kopi.ebics.schema.h004.DataTransferRequestType;
+import org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument;
+import org.kopi.ebics.schema.h004.EbicsRequestDocument;
+import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument;
+import org.kopi.ebics.schema.h004.EmptyMutableHeaderType;
+import org.kopi.ebics.schema.h004.EncryptionPubKeyInfoType;
+import org.kopi.ebics.schema.h004.FDLOrderParamsDocument;
+import org.kopi.ebics.schema.h004.FDLOrderParamsType;
+import org.kopi.ebics.schema.h004.FULOrderParamsDocument;
+import org.kopi.ebics.schema.h004.FULOrderParamsType;
+import org.kopi.ebics.schema.h004.FileFormatType;
+import org.kopi.ebics.schema.h004.HIARequestOrderDataDocument;
+import org.kopi.ebics.schema.h004.HIARequestOrderDataType;
+import org.kopi.ebics.schema.h004.MutableHeaderType;
+import org.kopi.ebics.schema.h004.NoPubKeyDigestsRequestStaticHeaderType;
+import org.kopi.ebics.schema.h004.OrderDetailsType;
+import org.kopi.ebics.schema.h004.ProductElementType;
+import org.kopi.ebics.schema.h004.StandardOrderParamsDocument;
+import org.kopi.ebics.schema.h004.StandardOrderParamsType;
+import org.kopi.ebics.schema.h004.StaticHeaderOrderDetailsType;
+import org.kopi.ebics.schema.h004.StaticHeaderType;
+import org.kopi.ebics.schema.h004.UnsecuredRequestStaticHeaderType;
+import org.kopi.ebics.schema.h004.DataEncryptionInfoType.EncryptionPubKeyDigest;
+import org.kopi.ebics.schema.h004.DataTransferRequestType.DataEncryptionInfo;
+import org.kopi.ebics.schema.h004.DataTransferRequestType.SignatureData;
+import org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest;
+import org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest;
+import org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body.TransferReceipt;
+import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest;
+import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body;
+import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Header;
+import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body.DataTransfer;
+import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body.DataTransfer.OrderData;
+import org.kopi.ebics.schema.h004.FDLOrderParamsType.DateRange;
+import org.kopi.ebics.schema.h004.MutableHeaderType.SegmentNumber;
+import org.kopi.ebics.schema.h004.ParameterDocument.Parameter;
+import org.kopi.ebics.schema.h004.ParameterDocument.Parameter.Value;
+import org.kopi.ebics.schema.h004.StaticHeaderOrderDetailsType.OrderType;
+import org.kopi.ebics.schema.h004.StaticHeaderType.BankPubKeyDigests;
+import org.kopi.ebics.schema.h004.StaticHeaderType.Product;
+import org.kopi.ebics.schema.h004.StaticHeaderType.BankPubKeyDigests.Authentication;
+import org.kopi.ebics.schema.h004.StaticHeaderType.BankPubKeyDigests.Encryption;
+import org.kopi.ebics.schema.h004.TransactionPhaseType.Enum;
 import org.kopi.ebics.schema.s001.OrderSignatureDataType;
 import org.kopi.ebics.schema.s001.PubKeyValueType;
 import org.kopi.ebics.schema.s001.SignaturePubKeyInfoType;
@@ -492,17 +492,13 @@ public class EbicsXmlFactory {
   /**
    * Creates a new <code>OrderDetailsType</code> XML object
    * @param orderAttribute the order attribute
-   * @param orderId the order ID
    * @param orderType the order type
    * @return the <code>OrderDetailsType</code> XML object
    */
   @SuppressWarnings("deprecation")
-  public static OrderDetailsType createOrderDetailsType(String orderAttribute, String orderId, String orderType) {
+  public static OrderDetailsType createOrderDetailsType(String orderAttribute, String orderType) {
     OrderDetailsType newOrderDetailsType = OrderDetailsType.Factory.newInstance();
     newOrderDetailsType.setOrderAttribute(orderAttribute);
-    if (orderId != null) {
-      newOrderDetailsType.setOrderID(orderId);
-    }
     newOrderDetailsType.setOrderType(orderType);
 
     return newOrderDetailsType;
@@ -583,12 +579,12 @@ public class EbicsXmlFactory {
   /**
    * Creates a new <code>AuthenticationPubKeyInfoType</code> XML object
    * @param authenticationVersion the authentication version
-   * @param pubKeyValue the <code>org.kopi.ebics.schema.h003.PubKeyValueType</code> element
+   * @param pubKeyValue the <code>org.kopi.ebics.schema.h004.PubKeyValueType</code> element
    * @param x509Data the <code>X509DataType</code> element
    * @return the <code>AuthenticationPubKeyInfoType</code> XML object
    */
   public static AuthenticationPubKeyInfoType createAuthenticationPubKeyInfoType(String authenticationVersion,
-                                                                                org.kopi.ebics.schema.h003.PubKeyValueType pubKeyValue,
+                                                                                org.kopi.ebics.schema.h004.PubKeyValueType pubKeyValue,
                                                                                 X509DataType x509Data)
   {
     AuthenticationPubKeyInfoType newAuthenticationPubKeyInfoType = AuthenticationPubKeyInfoType.Factory.newInstance();
@@ -602,12 +598,12 @@ public class EbicsXmlFactory {
   /**
    * Creates a new <code>EncryptionPubKeyInfoType</code> XML object
    * @param encryptionVersion the encryption version
-   * @param pubKeyValue the <code>org.kopi.ebics.schema.h003.PubKeyValueType</code> element
+   * @param pubKeyValue the <code>org.kopi.ebics.schema.h004.PubKeyValueType</code> element
    * @param x509Data the <code>X509DataType</code> element
    * @return the <code>EncryptionPubKeyInfoType</code> XML object
    */
   public static EncryptionPubKeyInfoType createEncryptionPubKeyInfoType(String encryptionVersion,
-      									org.kopi.ebics.schema.h003.PubKeyValueType pubKeyValue,
+      									org.kopi.ebics.schema.h004.PubKeyValueType pubKeyValue,
       									X509DataType x509Data)
   {
     EncryptionPubKeyInfoType newEncryptionPubKeyInfoType = EncryptionPubKeyInfoType.Factory.newInstance();
@@ -619,13 +615,13 @@ public class EbicsXmlFactory {
   }
 
   /**
-   * Creates a new <code>org.kopi.ebics.schema.h003.PubKeyValueType</code> XML object
+   * Creates a new <code>org.kopi.ebics.schema.h004.PubKeyValueType</code> XML object
    * @param rsaKeyValue the <code>RSAKeyValueType</code> element
    * @param timeStamp the current time stamp
-   * @return the <code>org.kopi.ebics.schema.h003.PubKeyValueType</code> XML object
+   * @return the <code>org.kopi.ebics.schema.h004.PubKeyValueType</code> XML object
    */
-  public static org.kopi.ebics.schema.h003.PubKeyValueType createH003PubKeyValueType(RSAKeyValueType rsaKeyValue, Calendar timeStamp) {
-    org.kopi.ebics.schema.h003.PubKeyValueType newPubKeyValueType = org.kopi.ebics.schema.h003.PubKeyValueType.Factory.newInstance();
+  public static org.kopi.ebics.schema.h004.PubKeyValueType createH004PubKeyValueType(RSAKeyValueType rsaKeyValue, Calendar timeStamp) {
+    org.kopi.ebics.schema.h004.PubKeyValueType newPubKeyValueType = org.kopi.ebics.schema.h004.PubKeyValueType.Factory.newInstance();
     newPubKeyValueType.setRSAKeyValue(rsaKeyValue);
     newPubKeyValueType.setTimeStamp(timeStamp);
 
@@ -638,14 +634,14 @@ public class EbicsXmlFactory {
    * Creates a new <code>EbicsNoPubKeyDigestsRequest</code> XML object
    * @param revision the default revision
    * @param version the default version
-   * @param header the <code>org.kopi.ebics.schema.h003.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header</code> element
-   * @param body the <code>org.kopi.ebics.schema.h003.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body</code> element
+   * @param header the <code>org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header</code> element
+   * @param body the <code>org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body</code> element
    * @return the <code>EbicsNoPubKeyDigestsRequest</code> XML object
    */
   public static EbicsNoPubKeyDigestsRequest createEbicsNoPubKeyDigestsRequest(int revision,
                                                                               String version,
-                                                                              org.kopi.ebics.schema.h003.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header header,
-                                                                              org.kopi.ebics.schema.h003.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body body)
+                                                                              org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header header,
+                                                                              org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body body)
   {
     EbicsNoPubKeyDigestsRequest newEbicsNoPubKeyDigestsRequest = EbicsNoPubKeyDigestsRequest.Factory.newInstance();
     newEbicsNoPubKeyDigestsRequest.setRevision(revision);
@@ -657,17 +653,17 @@ public class EbicsXmlFactory {
   }
 
   /**
-   * Creates a new <code>org.kopi.ebics.schema.h003.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header</code> XML object
+   * Creates a new <code>org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header</code> XML object
    * @param authenticate should authenticate?
    * @param mutable the <code>EmptyMutableHeaderType</code> element
    * @param xstatic the <code>NoPubKeyDigestsRequestStaticHeaderType</code> element
-   * @return the <code>org.kopi.ebics.schema.h003.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header</code> XML object
+   * @return the <code>org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header</code> XML object
    */
-  public static org.kopi.ebics.schema.h003.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header createDigestsRequestHeader(boolean authenticate,
+  public static org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header createDigestsRequestHeader(boolean authenticate,
                                                                                                                                            EmptyMutableHeaderType mutable,
                                                                                                                                            NoPubKeyDigestsRequestStaticHeaderType xstatic)
   {
-    org.kopi.ebics.schema.h003.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header newHeader = org.kopi.ebics.schema.h003.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header.Factory.newInstance();
+    org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header newHeader = org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header.Factory.newInstance();
     newHeader.setAuthenticate(authenticate);
     newHeader.setMutable(mutable);
     newHeader.setStatic(xstatic);
@@ -710,11 +706,11 @@ public class EbicsXmlFactory {
   }
 
   /**
-   * Creates a new <code>org.kopi.ebics.schema.h003.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body</code> XML object
-   * @return the <code>org.kopi.ebics.schema.h003.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body</code> XML object
+   * Creates a new <code>org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body</code> XML object
+   * @return the <code>org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body</code> XML object
    */
-  public static org.kopi.ebics.schema.h003.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body createDigestsRequestBody() {
-    org.kopi.ebics.schema.h003.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body newBody = org.kopi.ebics.schema.h003.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body.Factory.newInstance();
+  public static org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body createDigestsRequestBody() {
+    org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body newBody = org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body.Factory.newInstance();
 
     return newBody;
   }
@@ -749,14 +745,14 @@ public class EbicsXmlFactory {
    * Creates a new <code>EbicsRequest</code> XML object
    * @param revision the default revision
    * @param version the default version
-   * @param header the <code>org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Header</code> element
-   * @param body the <code>org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body</code> element
+   * @param header the <code>org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Header</code> element
+   * @param body the <code>org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body</code> element
    * @return the <code>EbicsRequest</code> XML object
    */
   public static EbicsRequest createEbicsRequest(int revision,
                                                 String version,
-                                                org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Header header,
-                                                org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body body)
+                                                org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Header header,
+                                                org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body body)
   {
     EbicsRequest newEbicsRequest = EbicsRequest.Factory.newInstance();
     newEbicsRequest.setRevision(revision);
@@ -768,17 +764,17 @@ public class EbicsXmlFactory {
   }
 
   /**
-   * Creates a new <code>org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Header</code> XML object
+   * Creates a new <code>org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Header</code> XML object
    * @param authenticate should authenticate?
    * @param mutable the <code>MutableHeaderType</code> element
    * @param xstatic the <code>StaticHeaderType</code> element
-   * @return the <code>org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Header</code> XML object
+   * @return the <code>org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Header</code> XML object
    */
-  public static org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Header createEbicsRequestHeader(boolean authenticate,
+  public static org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Header createEbicsRequestHeader(boolean authenticate,
                                                                                                            MutableHeaderType mutable,
                                                                                                            StaticHeaderType xstatic)
   {
-    org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Header newHeader = org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Header.Factory.newInstance();
+    org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Header newHeader = org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Header.Factory.newInstance();
     newHeader.setAuthenticate(authenticate);
     newHeader.setMutable(mutable);
     newHeader.setStatic(xstatic);
@@ -911,7 +907,7 @@ public class EbicsXmlFactory {
     if (orderId != null) {
       newStaticHeaderOrderDetailsType.setOrderID(orderId);
     }
-    newStaticHeaderOrderDetailsType.setOrderAttribute(org.kopi.ebics.schema.h003.OrderAttributeType.Enum.forString(orderAttribute));
+    newStaticHeaderOrderDetailsType.setOrderAttribute(org.kopi.ebics.schema.h004.OrderAttributeType.Enum.forString(orderAttribute));
     newStaticHeaderOrderDetailsType.setOrderType(orderType);
     newStaticHeaderOrderDetailsType.setOrderParams(orderParams);
     qualifySubstitutionGroup(newStaticHeaderOrderDetailsType.getOrderParams(), FULOrderParamsDocument.type.getDocumentElementName(), null);
@@ -938,7 +934,7 @@ public class EbicsXmlFactory {
     if (orderId != null) {
       //newStaticHeaderOrderDetailsType.setOrderID(orderId);
     }
-    newStaticHeaderOrderDetailsType.setOrderAttribute(org.kopi.ebics.schema.h003.OrderAttributeType.Enum.forString(orderAttribute));
+    newStaticHeaderOrderDetailsType.setOrderAttribute(org.kopi.ebics.schema.h004.OrderAttributeType.Enum.forString(orderAttribute));
     newStaticHeaderOrderDetailsType.setOrderType(orderType);
     newStaticHeaderOrderDetailsType.setOrderParams(orderParams);
     qualifySubstitutionGroup(newStaticHeaderOrderDetailsType.getOrderParams(), FDLOrderParamsDocument.type.getDocumentElementName(), null);
@@ -961,7 +957,7 @@ public class EbicsXmlFactory {
   {
     StaticHeaderOrderDetailsType newStaticHeaderOrderDetailsType = StaticHeaderOrderDetailsType.Factory.newInstance();
     newStaticHeaderOrderDetailsType.setOrderID(orderId);
-    newStaticHeaderOrderDetailsType.setOrderAttribute(org.kopi.ebics.schema.h003.OrderAttributeType.Enum.forString(orderAttribute));
+    newStaticHeaderOrderDetailsType.setOrderAttribute(org.kopi.ebics.schema.h004.OrderAttributeType.Enum.forString(orderAttribute));
     newStaticHeaderOrderDetailsType.setOrderType(orderType);
     newStaticHeaderOrderDetailsType.setOrderParams(orderParams);
     qualifySubstitutionGroup(newStaticHeaderOrderDetailsType.getOrderParams(), StandardOrderParamsDocument.type.getDocumentElementName(), null);
@@ -1138,35 +1134,35 @@ public class EbicsXmlFactory {
   }
 
   /**
-   * Create the <code>org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body</code> XML object
+   * Create the <code>org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body</code> XML object
    * @param dataTransfer the <code>DataTransferRequestType</code> element
-   * @return the <code>org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body</code> XML object
+   * @return the <code>org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body</code> XML object
    */
-  public static org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body createEbicsRequestBody(DataTransferRequestType dataTransfer) {
-    org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body newBody = org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body.Factory.newInstance();
+  public static org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body createEbicsRequestBody(DataTransferRequestType dataTransfer) {
+    org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body newBody = org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body.Factory.newInstance();
     newBody.setDataTransfer(dataTransfer);
 
     return newBody;
   }
 
   /**
-   * Create the <code>org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body</code> XML object
-   * @return the <code>org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body</code> XML object
+   * Create the <code>org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body</code> XML object
+   * @return the <code>org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body</code> XML object
    */
-  public static org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body createEbicsRequestBody() {
-    org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body newBody = org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body.Factory.newInstance();
+  public static org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body createEbicsRequestBody() {
+    org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body newBody = org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body.Factory.newInstance();
 
     return newBody;
   }
 
 
   /**
-   * Create the <code>org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body</code> XML object
+   * Create the <code>org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body</code> XML object
    * @param transferReceipt the <code>TransferReceipt</code> element
-   * @return the <code>org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body</code> XML object
+   * @return the <code>org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body</code> XML object
    */
-  public static org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body createEbicsRequestBody(TransferReceipt transferReceipt) {
-    org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body newBody = org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body.Factory.newInstance();
+  public static org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body createEbicsRequestBody(TransferReceipt transferReceipt) {
+    org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body newBody = org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body.Factory.newInstance();
     newBody.setTransferReceipt(transferReceipt);
 
     return newBody;
@@ -1204,10 +1200,10 @@ public class EbicsXmlFactory {
 
   /**
    * Create the <code>DataTransferRequestType</code> XML object
-   * @param orderData the <code>org.kopi.ebics.schema.h003.DataTransferRequestType.OrderData</code> element
+   * @param orderData the <code>org.kopi.ebics.schema.h004.DataTransferRequestType.OrderData</code> element
    * @return the <code>DataTransferRequestType</code> XML object
    */
-  public static DataTransferRequestType createDataTransferRequestType(org.kopi.ebics.schema.h003.DataTransferRequestType.OrderData orderData) {
+  public static DataTransferRequestType createDataTransferRequestType(org.kopi.ebics.schema.h004.DataTransferRequestType.OrderData orderData) {
     DataTransferRequestType newDataTransferRequestType = DataTransferRequestType.Factory.newInstance();
     newDataTransferRequestType.setOrderData(orderData);
 
@@ -1215,12 +1211,12 @@ public class EbicsXmlFactory {
   }
 
   /**
-   * Create the <code>org.kopi.ebics.schema.h003.DataTransferRequestType.OrderData</code> XML object
+   * Create the <code>org.kopi.ebics.schema.h004.DataTransferRequestType.OrderData</code> XML object
    * @param orderDataValue the order data value
-   * @return the <code>org.kopi.ebics.schema.h003.DataTransferRequestType.OrderData</code> XML object
+   * @return the <code>org.kopi.ebics.schema.h004.DataTransferRequestType.OrderData</code> XML object
    */
-  public static org.kopi.ebics.schema.h003.DataTransferRequestType.OrderData createTransferRequestTypeOrderData(byte[] orderDataValue) {
-    org.kopi.ebics.schema.h003.DataTransferRequestType.OrderData newOrderData = org.kopi.ebics.schema.h003.DataTransferRequestType.OrderData.Factory.newInstance();
+  public static org.kopi.ebics.schema.h004.DataTransferRequestType.OrderData createTransferRequestTypeOrderData(byte[] orderDataValue) {
+    org.kopi.ebics.schema.h004.DataTransferRequestType.OrderData newOrderData = org.kopi.ebics.schema.h004.DataTransferRequestType.OrderData.Factory.newInstance();
     newOrderData.setByteArrayValue(orderDataValue);
 
     return newOrderData;
@@ -1262,12 +1258,12 @@ public class EbicsXmlFactory {
   }
 
   /**
-   * Create the <code>org.kopi.ebics.schema.h003.DataTransferRequestType.OrderData</code> XML object
+   * Create the <code>org.kopi.ebics.schema.h004.DataTransferRequestType.OrderData</code> XML object
    * @param oderData the order data value
-   * @return the the <code>org.kopi.ebics.schema.h003.DataTransferRequestType.OrderData</code> XML object
+   * @return the the <code>org.kopi.ebics.schema.h004.DataTransferRequestType.OrderData</code> XML object
    */
-  public static org.kopi.ebics.schema.h003.DataTransferRequestType.OrderData createEbicsRequestOrderData(byte[] oderData) {
-    org.kopi.ebics.schema.h003.DataTransferRequestType.OrderData newOrderData = org.kopi.ebics.schema.h003.DataTransferRequestType.OrderData.Factory.newInstance();
+  public static org.kopi.ebics.schema.h004.DataTransferRequestType.OrderData createEbicsRequestOrderData(byte[] oderData) {
+    org.kopi.ebics.schema.h004.DataTransferRequestType.OrderData newOrderData = org.kopi.ebics.schema.h004.DataTransferRequestType.OrderData.Factory.newInstance();
     newOrderData.setByteArrayValue(oderData);
 
     return newOrderData;

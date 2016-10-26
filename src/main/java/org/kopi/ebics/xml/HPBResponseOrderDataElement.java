@@ -21,8 +21,8 @@ package org.kopi.ebics.xml;
 
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
-import org.kopi.ebics.schema.h003.HPBResponseOrderDataDocument;
-import org.kopi.ebics.schema.h003.HPBResponseOrderDataType;
+import org.kopi.ebics.schema.h004.HPBResponseOrderDataDocument;
+import org.kopi.ebics.schema.h004.HPBResponseOrderDataType;
 
 /**
  * The <code>HPBResponseOrderDataElement</code> contains the public bank

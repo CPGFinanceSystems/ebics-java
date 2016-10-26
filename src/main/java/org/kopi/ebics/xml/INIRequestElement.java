@@ -40,7 +40,6 @@ public class INIRequestElement extends DefaultEbicsRootElement {
    */
   public INIRequestElement(EbicsSession session, String orderId) {
     super(session);
-    this.orderId = orderId;
   }
 
   @Override
@@ -56,7 +55,6 @@ public class INIRequestElement extends DefaultEbicsRootElement {
     signaturePubKey.build();
     unsecuredRequest = new UnsecuredRequestElement(session,
 	                                           OrderType.INI,
-	                                           orderId == null ? session.getUser().getPartner().nextOrderId() : orderId,
 	                                           Utils.zip(signaturePubKey.prettyPrint()));
     unsecuredRequest.build();
   }
@@ -77,7 +75,6 @@ public class INIRequestElement extends DefaultEbicsRootElement {
   // DATA MEMBERS
   // --------------------------------------------------------------------
 
-  private String			orderId;
   private UnsecuredRequestElement	unsecuredRequest;
   private static final long 		serialVersionUID = -1966559247739923555L;
 }

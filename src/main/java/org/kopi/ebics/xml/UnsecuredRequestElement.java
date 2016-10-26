@@ -20,15 +20,15 @@
 package org.kopi.ebics.xml;
 
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.schema.h003.EmptyMutableHeaderType;
-import org.kopi.ebics.schema.h003.OrderDetailsType;
-import org.kopi.ebics.schema.h003.ProductElementType;
-import org.kopi.ebics.schema.h003.UnsecuredRequestStaticHeaderType;
-import org.kopi.ebics.schema.h003.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest;
-import org.kopi.ebics.schema.h003.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body;
-import org.kopi.ebics.schema.h003.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Header;
-import org.kopi.ebics.schema.h003.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body.DataTransfer;
-import org.kopi.ebics.schema.h003.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body.DataTransfer.OrderData;
+import org.kopi.ebics.schema.h004.EmptyMutableHeaderType;
+import org.kopi.ebics.schema.h004.OrderDetailsType;
+import org.kopi.ebics.schema.h004.ProductElementType;
+import org.kopi.ebics.schema.h004.UnsecuredRequestStaticHeaderType;
+import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest;
+import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body;
+import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Header;
+import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body.DataTransfer;
+import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body.DataTransfer.OrderData;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
 
@@ -45,16 +45,13 @@ public class UnsecuredRequestElement extends DefaultEbicsRootElement {
    * Constructs a Unsecured Request Element.
    * @param session the ebics session.
    * @param orderType the order type (INI | HIA).
-   * @param orderId the order id, if null a random one is generated.
    */
   public UnsecuredRequestElement(EbicsSession session,
                                  OrderType orderType,
-                                 String orderId,
                                  byte[] orderData)
   {
     super(session);
     this.orderType = orderType;
-    this.orderId = orderId;
     this.orderData = orderData;
   }
 
@@ -70,9 +67,7 @@ public class UnsecuredRequestElement extends DefaultEbicsRootElement {
     OrderData 					orderData;
     EbicsUnsecuredRequest			request;
 
-    orderDetails = EbicsXmlFactory.createOrderDetailsType("DZNNN",
-						          orderId == null ? session.getUser().getPartner().nextOrderId() : orderId,
-	                                                  orderType.getOrderType());
+    orderDetails = EbicsXmlFactory.createOrderDetailsType("DZNNN", orderType.getOrderType());
 
     productType = EbicsXmlFactory.creatProductElementType(session.getProduct().getLanguage(),
 	                                                  session.getProduct().getName());
@@ -110,7 +105,6 @@ public class UnsecuredRequestElement extends DefaultEbicsRootElement {
   // --------------------------------------------------------------------
 
   private OrderType			orderType;
-  private String			orderId;
   private byte[]			orderData;
   private static final long 		serialVersionUID = -3548730114599886711L;
 }

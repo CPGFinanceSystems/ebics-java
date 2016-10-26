@@ -22,8 +22,8 @@ package org.kopi.ebics.xml;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.exception.ReturnCode;
 import org.kopi.ebics.interfaces.ContentFactory;
-import org.kopi.ebics.schema.h003.EbicsKeyManagementResponseDocument;
-import org.kopi.ebics.schema.h003.EbicsKeyManagementResponseDocument.EbicsKeyManagementResponse;
+import org.kopi.ebics.schema.h004.EbicsKeyManagementResponseDocument;
+import org.kopi.ebics.schema.h004.EbicsKeyManagementResponseDocument.EbicsKeyManagementResponse;
 
 /**
  * The <code>KeyManagementResponseElement</code> is the common element
