@@ -270,7 +270,7 @@ public class Application {
      * @param userId  the user ID.
      * @param product the application product.
      */
-    public void sendHIARequest(String userId, Product product) {
+    public User sendHIARequest(String userId, Product product) throws EbicsException {
         User user;
         EbicsSession session;
         KeyManagement keyManager;
@@ -280,7 +280,7 @@ public class Application {
         user.setInitializedHIA(false);
         if (user.isInitializedHIA()) {
             configuration.getLogger().info(Messages.getString("user.already.hia.initialized", Constants.APPLICATION_BUNDLE_NAME, userId));
-            return;
+            return user;
         }
         session = new EbicsSession(user, configuration);
         session.setProduct(product);
@@ -289,13 +289,13 @@ public class Application {
 
         try {
             keyManager.sendHIA(null);
-        } catch (Exception e) {
-            configuration.getLogger().error(Messages.getString("hia.send.error", Constants.APPLICATION_BUNDLE_NAME, userId), e);
-            return;
+        } catch (final IOException e) {
+            throw new EbicsException(Messages.getString("hia.send.error", Constants.APPLICATION_BUNDLE_NAME, userId), e);
         }
 
         user.setInitializedHIA(true);
         configuration.getLogger().info(Messages.getString("hia.send.success", Constants.APPLICATION_BUNDLE_NAME, userId));
+        return user;
     }
 
     /**
