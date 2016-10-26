@@ -49,7 +49,7 @@ public class DefaultTraceManager implements TraceManager {
      * @param traceDir       the trace directory
      * @param isTraceEnabled is trace enabled?
      */
-    public DefaultTraceManager(File traceDir, boolean isTraceEnabled) {
+    public DefaultTraceManager(final File traceDir, final boolean isTraceEnabled) {
         this.traceDir = traceDir;
         cache = new FileCache(isTraceEnabled);
     }
@@ -59,7 +59,7 @@ public class DefaultTraceManager implements TraceManager {
      *
      * @param isTraceEnabled is trace enabled?
      */
-    public DefaultTraceManager(boolean isTraceEnabled) {
+    public DefaultTraceManager(final boolean isTraceEnabled) {
         this(null, isTraceEnabled);
     }
 
@@ -71,22 +71,22 @@ public class DefaultTraceManager implements TraceManager {
     }
 
     @Override
-    public void trace(EbicsRootElement element) throws EbicsException {
+    public void trace(final EbicsRootElement element) throws EbicsException {
         try {
-            FileOutputStream out;
-            File file;
+            final FileOutputStream out;
+            final File file;
 
             file = IOUtils.createFile(traceDir, element.getName());
             out = new FileOutputStream(file);
             element.save(out);
             cache.add(file);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new EbicsException(e.getMessage());
         }
     }
 
     @Override
-    public void remove(EbicsRootElement element) {
+    public void remove(final EbicsRootElement element) {
         cache.remove(element.getName());
     }
 
@@ -96,12 +96,12 @@ public class DefaultTraceManager implements TraceManager {
     }
 
     @Override
-    public void setTraceDirectory(String traceDir) {
+    public void setTraceDirectory(final String traceDir) {
         this.traceDir = IOUtils.createFile(traceDir);
     }
 
     @Override
-    public void setTraceEnabled(boolean enabled) {
+    public void setTraceEnabled(final boolean enabled) {
         cache.setTraceEnabled(enabled);
     }
 

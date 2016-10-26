@@ -47,7 +47,7 @@ public class NoPubKeyDigestsRequestElement extends DefaultEbicsRootElement {
      *
      * @param session the current ebics session.
      */
-    public NoPubKeyDigestsRequestElement(EbicsSession session) {
+    public NoPubKeyDigestsRequestElement(final EbicsSession session) {
         super(session);
     }
 
@@ -62,9 +62,9 @@ public class NoPubKeyDigestsRequestElement extends DefaultEbicsRootElement {
 
         try {
             return MessageDigest.getInstance("SHA-256", "BC").digest(Utils.canonize(toByteArray()));
-        } catch (NoSuchAlgorithmException e) {
+        } catch (final NoSuchAlgorithmException e) {
             throw new EbicsException(e.getMessage());
-        } catch (NoSuchProviderException e) {
+        } catch (final NoSuchProviderException e) {
             throw new EbicsException(e.getMessage());
         }
     }
@@ -74,7 +74,7 @@ public class NoPubKeyDigestsRequestElement extends DefaultEbicsRootElement {
      *
      * @param authSignature the the authentication signature.
      */
-    public void setAuthSignature(SignatureType authSignature) {
+    public void setAuthSignature(final SignatureType authSignature) {
         ((EbicsNoPubKeyDigestsRequestDocument) document).getEbicsNoPubKeyDigestsRequest().setAuthSignature(authSignature);
     }
 
@@ -83,19 +83,19 @@ public class NoPubKeyDigestsRequestElement extends DefaultEbicsRootElement {
      *
      * @param signature the signature value
      */
-    public void setSignatureValue(byte[] signature) {
+    public void setSignatureValue(final byte[] signature) {
         ((EbicsNoPubKeyDigestsRequestDocument) document).getEbicsNoPubKeyDigestsRequest().getAuthSignature().setSignatureValue(EbicsXmlFactory.createSignatureValueType(signature));
     }
 
     @Override
     public void build() throws EbicsException {
-        EbicsNoPubKeyDigestsRequest request;
-        Body body;
-        Header header;
-        EmptyMutableHeaderType mutable;
-        NoPubKeyDigestsRequestStaticHeaderType xstatic;
-        ProductElementType product;
-        OrderDetailsType orderDetails;
+        final EbicsNoPubKeyDigestsRequest request;
+        final Body body;
+        final Header header;
+        final EmptyMutableHeaderType mutable;
+        final NoPubKeyDigestsRequestStaticHeaderType xstatic;
+        final ProductElementType product;
+        final OrderDetailsType orderDetails;
 
         product = EbicsXmlFactory.creatProductElementType(session.getProduct().getLanguage(), session.getProduct().getName());
         orderDetails = EbicsXmlFactory.createOrderDetailsType("DZHNN", OrderType.HPB.getOrderType());

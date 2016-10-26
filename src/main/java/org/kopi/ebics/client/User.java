@@ -68,13 +68,13 @@ public class User implements EbicsUser, Savable {
      * @throws IOException
      * @throws GeneralSecurityException
      */
-    public User(EbicsPartner partner,
-                String userId,
-                String name,
-                String email,
-                String country,
-                String organization,
-                PasswordCallback passwordCallback)
+    public User(final EbicsPartner partner,
+                final String userId,
+                final String name,
+                final String email,
+                final String country,
+                final String organization,
+                final PasswordCallback passwordCallback)
             throws GeneralSecurityException, IOException {
         this.partner = partner;
         this.userId = userId;
@@ -95,9 +95,9 @@ public class User implements EbicsUser, Savable {
      * @throws GeneralSecurityException if the supplies password is wrong.
      * @throws ClassNotFoundException
      */
-    public User(EbicsPartner partner,
-                ObjectInputStream ois,
-                PasswordCallback passwordCallback)
+    public User(final EbicsPartner partner,
+                final ObjectInputStream ois,
+                final PasswordCallback passwordCallback)
             throws IOException, GeneralSecurityException, ClassNotFoundException {
         this.partner = partner;
         this.passwordCallback = passwordCallback;
@@ -126,11 +126,11 @@ public class User implements EbicsUser, Savable {
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    public User(EbicsPartner partner,
-                String userId,
-                String name,
-                String keystorePath,
-                PasswordCallback passwordCallback)
+    public User(final EbicsPartner partner,
+                final String userId,
+                final String name,
+                final String keystorePath,
+                final PasswordCallback passwordCallback)
             throws GeneralSecurityException, IOException {
         this.partner = partner;
         this.userId = userId;
@@ -159,7 +159,7 @@ public class User implements EbicsUser, Savable {
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    public void saveUserCertificates(String path) throws GeneralSecurityException, IOException {
+    public void saveUserCertificates(final String path) throws GeneralSecurityException, IOException {
         if (manager == null) {
             throw new GeneralSecurityException("Cannot save user certificates");
         }
@@ -174,14 +174,14 @@ public class User implements EbicsUser, Savable {
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    private void loadCertificates(String keyStorePath)
+    private void loadCertificates(final String keyStorePath)
             throws GeneralSecurityException, IOException {
         manager = new CertificateManager(this);
         manager.load(keyStorePath, passwordCallback);
     }
 
     @Override
-    public void save(ObjectOutputStream oos) throws IOException {
+    public void save(final ObjectOutputStream oos) throws IOException {
         oos.writeUTF(userId);
         oos.writeUTF(name);
         oos.writeUTF(dn);
@@ -212,7 +212,7 @@ public class User implements EbicsUser, Savable {
      *
      * @param isInitialized transfer successful?
      */
-    public void setInitialized(boolean isInitialized) {
+    public void setInitialized(final boolean isInitialized) {
         this.isInitialized = isInitialized;
         needSave = true;
     }
@@ -231,7 +231,7 @@ public class User implements EbicsUser, Savable {
      *
      * @param isInitializedHIA transfer successful?
      */
-    public void setInitializedHIA(boolean isInitializedHIA) {
+    public void setInitializedHIA(final boolean isInitializedHIA) {
         this.isInitializedHIA = isInitializedHIA;
         needSave = true;
     }
@@ -244,7 +244,7 @@ public class User implements EbicsUser, Savable {
      * @throws EbicsException Exception during server request
      * @throws IOException    Exception during server request
      */
-    public void updateKeys(KeyManagement keymgmt, PasswordCallback passwordCallback)
+    public void updateKeys(final KeyManagement keymgmt, final PasswordCallback passwordCallback)
             throws EbicsException, IOException {
         needSave = true;
     }
@@ -262,8 +262,8 @@ public class User implements EbicsUser, Savable {
      * @param length the length
      * @return The byte buffer portion corresponding to the given length and offset
      */
-    public static byte[] removeOSSpecificChars(byte[] buf) {
-        ByteArrayOutputStream output;
+    public static byte[] removeOSSpecificChars(final byte[] buf) {
+        final ByteArrayOutputStream output;
 
         output = new ByteArrayOutputStream();
         for (int i = 0; i < buf.length; i++) {
@@ -291,11 +291,11 @@ public class User implements EbicsUser, Savable {
      * @param organization the user organization
      * @return
      */
-    private String makeDN(String name,
-                          String email,
-                          String country,
-                          String organization) {
-        StringBuffer buffer;
+    private String makeDN(final String name,
+                          final String email,
+                          final String country,
+                          final String organization) {
+        final StringBuffer buffer;
 
         buffer = new StringBuffer();
 
@@ -326,7 +326,7 @@ public class User implements EbicsUser, Savable {
     public byte[] getA005Certificate() throws EbicsException {
         try {
             return a005Certificate.getEncoded();
-        } catch (CertificateEncodingException e) {
+        } catch (final CertificateEncodingException e) {
             throw new EbicsException(e.getMessage());
         }
     }
@@ -335,7 +335,7 @@ public class User implements EbicsUser, Savable {
     public byte[] getE002Certificate() throws EbicsException {
         try {
             return e002Certificate.getEncoded();
-        } catch (CertificateEncodingException e) {
+        } catch (final CertificateEncodingException e) {
             throw new EbicsException(e.getMessage());
         }
     }
@@ -344,25 +344,25 @@ public class User implements EbicsUser, Savable {
     public byte[] getX002Certificate() throws EbicsException {
         try {
             return x002Certificate.getEncoded();
-        } catch (CertificateEncodingException e) {
+        } catch (final CertificateEncodingException e) {
             throw new EbicsException(e.getMessage());
         }
     }
 
     @Override
-    public void setA005Certificate(X509Certificate a005Certificate) {
+    public void setA005Certificate(final X509Certificate a005Certificate) {
         this.a005Certificate = a005Certificate;
         needSave = true;
     }
 
     @Override
-    public void setE002Certificate(X509Certificate e002Certificate) {
+    public void setE002Certificate(final X509Certificate e002Certificate) {
         this.e002Certificate = e002Certificate;
         needSave = true;
     }
 
     @Override
-    public void setX002Certificate(X509Certificate x002Certificate) {
+    public void setX002Certificate(final X509Certificate x002Certificate) {
         this.x002Certificate = x002Certificate;
         needSave = true;
     }
@@ -383,19 +383,19 @@ public class User implements EbicsUser, Savable {
     }
 
     @Override
-    public void setA005PrivateKey(PrivateKey a005PrivateKey) {
+    public void setA005PrivateKey(final PrivateKey a005PrivateKey) {
         this.a005PrivateKey = a005PrivateKey;
         needSave = true;
     }
 
     @Override
-    public void setX002PrivateKey(PrivateKey x002PrivateKey) {
+    public void setX002PrivateKey(final PrivateKey x002PrivateKey) {
         this.x002PrivateKey = x002PrivateKey;
         needSave = true;
     }
 
     @Override
-    public void setE002PrivateKey(PrivateKey e002PrivateKey) {
+    public void setE002PrivateKey(final PrivateKey e002PrivateKey) {
         this.e002PrivateKey = e002PrivateKey;
         needSave = true;
     }
@@ -468,8 +468,8 @@ public class User implements EbicsUser, Savable {
      * </ol>
      */
     @Override
-    public byte[] authenticate(byte[] digest) throws GeneralSecurityException {
-        Signature signature;
+    public byte[] authenticate(final byte[] digest) throws GeneralSecurityException {
+        final Signature signature;
 
         signature = Signature.getInstance("SHA256WithRSA", BouncyCastleProvider.PROVIDER_NAME);
         signature.initSign(x002PrivateKey);
@@ -523,8 +523,8 @@ public class User implements EbicsUser, Savable {
      * will be sent to the EBICS server.
      */
     @Override
-    public byte[] sign(byte[] digest) throws IOException, GeneralSecurityException {
-        Signature signature = Signature.getInstance("SHA256WithRSA", BouncyCastleProvider.PROVIDER_NAME);
+    public byte[] sign(final byte[] digest) throws IOException, GeneralSecurityException {
+        final Signature signature = Signature.getInstance("SHA256WithRSA", BouncyCastleProvider.PROVIDER_NAME);
         signature.initSign(a005PrivateKey);
         signature.update(removeOSSpecificChars(digest));
         return signature.sign();
@@ -544,11 +544,11 @@ public class User implements EbicsUser, Savable {
      * keys DEK<SUB>left</SUB> and DEK<SUB>right</SUB>.
      */
     @Override
-    public byte[] decrypt(byte[] encryptedData, byte[] transactionKey)
+    public byte[] decrypt(final byte[] encryptedData, final byte[] transactionKey)
             throws EbicsException, GeneralSecurityException, IOException {
-        Cipher cipher;
-        int blockSize;
-        ByteArrayOutputStream outputStream;
+        final Cipher cipher;
+        final int blockSize;
+        final ByteArrayOutputStream outputStream;
 
         cipher = Cipher.getInstance("RSA/NONE/PKCS1Padding", BouncyCastleProvider.PROVIDER_NAME);
         cipher.init(Cipher.DECRYPT_MODE, e002PrivateKey);
@@ -582,7 +582,7 @@ public class User implements EbicsUser, Savable {
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    private byte[] decryptData(byte[] input, byte[] key)
+    private byte[] decryptData(final byte[] input, final byte[] key)
             throws EbicsException {
         return Utils.decrypt(input, new SecretKeySpec(key, "EAS"));
     }

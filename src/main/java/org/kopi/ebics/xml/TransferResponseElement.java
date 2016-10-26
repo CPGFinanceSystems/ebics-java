@@ -40,14 +40,14 @@ public class TransferResponseElement extends DefaultResponseElement {
      * @param orderType the order type
      * @param name      the element name;
      */
-    public TransferResponseElement(ContentFactory factory, String name) {
+    public TransferResponseElement(final ContentFactory factory, final String name) {
         super(factory, name);
     }
 
     @Override
     public void build() throws EbicsException {
-        String code;
-        String text;
+        final String code;
+        final String text;
 
         parse(factory);
         response = ((EbicsResponseDocument) document).getEbicsResponse();

@@ -51,9 +51,9 @@ public abstract class InitializationRequestElement extends DefaultEbicsRootEleme
      * @param name    the element name.
      * @throws EbicsException
      */
-    public InitializationRequestElement(EbicsSession session,
-                                        OrderType type,
-                                        String name)
+    public InitializationRequestElement(final EbicsSession session,
+                                        final OrderType type,
+                                        final String name)
             throws EbicsException {
         super(session);
         this.type = type;
@@ -63,7 +63,7 @@ public abstract class InitializationRequestElement extends DefaultEbicsRootEleme
 
     @Override
     public void build() throws EbicsException {
-        SignedInfo signedInfo;
+        final SignedInfo signedInfo;
 
         buildInitialization();
         signedInfo = new SignedInfo(session.getUser(), getDigest());
@@ -95,9 +95,9 @@ public abstract class InitializationRequestElement extends DefaultEbicsRootEleme
 
         try {
             return MessageDigest.getInstance("SHA-256", "BC").digest(Utils.canonize(toByteArray()));
-        } catch (NoSuchAlgorithmException e) {
+        } catch (final NoSuchAlgorithmException e) {
             throw new EbicsException(e.getMessage());
-        } catch (NoSuchProviderException e) {
+        } catch (final NoSuchProviderException e) {
             throw new EbicsException(e.getMessage());
         }
     }
@@ -118,14 +118,14 @@ public abstract class InitializationRequestElement extends DefaultEbicsRootEleme
      * @return the decoded hexadecimal value
      * @throws EbicsException
      */
-    protected byte[] decodeHex(byte[] hex) throws EbicsException {
+    protected byte[] decodeHex(final byte[] hex) throws EbicsException {
         if (hex == null) {
             throw new EbicsException("Bank digest is empty, HPB request must be performed before");
         }
 
         try {
             return Hex.decodeHex((new String(hex)).toCharArray());
-        } catch (DecoderException e) {
+        } catch (final DecoderException e) {
             throw new EbicsException(e.getMessage());
         }
     }
@@ -137,13 +137,13 @@ public abstract class InitializationRequestElement extends DefaultEbicsRootEleme
      */
     protected byte[] generateTransactionKey() throws EbicsException {
         try {
-            Cipher cipher;
+            final Cipher cipher;
 
             cipher = Cipher.getInstance("RSA/NONE/PKCS1Padding", BouncyCastleProvider.PROVIDER_NAME);
             cipher.init(Cipher.ENCRYPT_MODE, session.getBankE002Key());
 
             return cipher.doFinal(nonce);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new EbicsException(e.getMessage());
         }
     }

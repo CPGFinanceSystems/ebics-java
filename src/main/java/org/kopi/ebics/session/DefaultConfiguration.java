@@ -45,7 +45,7 @@ public class DefaultConfiguration implements Configuration {
      *
      * @param rootDir the root directory
      */
-    public DefaultConfiguration(String rootDir) {
+    public DefaultConfiguration(final String rootDir) {
         this.rootDir = rootDir;
         bundle = ResourceBundle.getBundle(RESOURCE_DIR);
         properties = new Properties();
@@ -68,10 +68,10 @@ public class DefaultConfiguration implements Configuration {
      * @param key the property key
      * @return the property value.
      */
-    private String getString(String key) {
+    private String getString(final String key) {
         try {
             return bundle.getString(key);
-        } catch (MissingResourceException e) {
+        } catch (final MissingResourceException e) {
             return "!!" + key + "!!";
         }
     }
@@ -81,14 +81,14 @@ public class DefaultConfiguration implements Configuration {
      *
      * @throws EbicsException
      */
-    public void load(String configFile) throws EbicsException {
+    public void load(final String configFile) throws EbicsException {
         if (isConfigFileLoad) {
             return;
         }
 
         try {
             properties.load(new FileInputStream(new File(configFile)));
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new EbicsException(e.getMessage());
         }
 
@@ -143,7 +143,7 @@ public class DefaultConfiguration implements Configuration {
     }
 
     @Override
-    public String getProperty(String key) {
+    public String getProperty(final String key) {
         if (!isConfigFileLoad) {
             return null;
         }
@@ -156,12 +156,12 @@ public class DefaultConfiguration implements Configuration {
     }
 
     @Override
-    public String getKeystoreDirectory(EbicsUser user) {
+    public String getKeystoreDirectory(final EbicsUser user) {
         return getUserDirectory(user) + File.separator + getString("keystore.dir.name");
     }
 
     @Override
-    public String getTransferTraceDirectory(EbicsUser user) {
+    public String getTransferTraceDirectory(final EbicsUser user) {
         return getUserDirectory(user) + File.separator + getString("traces.dir.name");
     }
 
@@ -206,12 +206,12 @@ public class DefaultConfiguration implements Configuration {
     }
 
     @Override
-    public String getLettersDirectory(EbicsUser user) {
+    public String getLettersDirectory(final EbicsUser user) {
         return getUserDirectory(user) + File.separator + getString("letters.dir.name");
     }
 
     @Override
-    public String getUserDirectory(EbicsUser user) {
+    public String getUserDirectory(final EbicsUser user) {
         return getUsersDirectory() + File.separator + user.getUserId();
     }
 

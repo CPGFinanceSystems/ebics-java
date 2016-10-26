@@ -31,7 +31,7 @@ import java.io.Serializable;
  */
 public class TransferState implements Serializable {
 
-    public TransferState(int numSegments, byte[] transactionId) {
+    public TransferState(final int numSegments, final byte[] transactionId) {
         this.numSegments = numSegments;
         this.transactionId = transactionId;
     }
@@ -60,7 +60,7 @@ public class TransferState implements Serializable {
      *
      * @param segmentNumber the segment number
      */
-    public void setSegmentNumber(int segmentNumber) {
+    public void setSegmentNumber(final int segmentNumber) {
         this.segmentNumber = segmentNumber;
     }
 
@@ -83,7 +83,7 @@ public class TransferState implements Serializable {
     /**
      * @param transactionID the transactionID to set
      */
-    public void setTransactionId(byte[] transactionId) {
+    public void setTransactionId(final byte[] transactionId) {
         this.transactionId = transactionId;
     }
 
@@ -97,7 +97,7 @@ public class TransferState implements Serializable {
     /**
      * @param numSegments the numSegments to set
      */
-    public void setNumSegments(int numSegments) {
+    public void setNumSegments(final int numSegments) {
         this.numSegments = numSegments;
     }
 

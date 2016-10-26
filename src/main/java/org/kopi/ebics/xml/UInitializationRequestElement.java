@@ -61,9 +61,9 @@ public class UInitializationRequestElement extends InitializationRequestElement 
      * @param userData  the user data to be uploaded
      * @throws EbicsException
      */
-    public UInitializationRequestElement(EbicsSession session,
-                                         org.kopi.ebics.session.OrderType orderType,
-                                         byte[] userData)
+    public UInitializationRequestElement(final EbicsSession session,
+                                         final org.kopi.ebics.session.OrderType orderType,
+                                         final byte[] userData)
             throws EbicsException {
         super(session, orderType, generateName(orderType));
         this.userData = userData;
@@ -73,24 +73,24 @@ public class UInitializationRequestElement extends InitializationRequestElement 
 
     @Override
     public void buildInitialization() throws EbicsException {
-        EbicsRequest request;
-        Header header;
-        Body body;
-        MutableHeaderType mutable;
-        StaticHeaderType xstatic;
-        Product product;
-        BankPubKeyDigests bankPubKeyDigests;
-        Authentication authentication;
-        Encryption encryption;
-        DataTransferRequestType dataTransfer;
-        DataEncryptionInfo dataEncryptionInfo;
-        SignatureData signatureData;
-        EncryptionPubKeyDigest encryptionPubKeyDigest;
-        StaticHeaderOrderDetailsType orderDetails;
-        FULOrderParamsType fULOrderParams;
-        OrderType orderType;
-        FileFormatType fileFormat;
-        List<Parameter> parameters;
+        final EbicsRequest request;
+        final Header header;
+        final Body body;
+        final MutableHeaderType mutable;
+        final StaticHeaderType xstatic;
+        final Product product;
+        final BankPubKeyDigests bankPubKeyDigests;
+        final Authentication authentication;
+        final Encryption encryption;
+        final DataTransferRequestType dataTransfer;
+        final DataEncryptionInfo dataEncryptionInfo;
+        final SignatureData signatureData;
+        final EncryptionPubKeyDigest encryptionPubKeyDigest;
+        final StaticHeaderOrderDetailsType orderDetails;
+        final FULOrderParamsType fULOrderParams;
+        final OrderType orderType;
+        final FileFormatType fileFormat;
+        final List<Parameter> parameters;
 
         userSignature = new UserSignature(session.getUser(),
                 generateName("UserSignature"),
@@ -116,8 +116,8 @@ public class UInitializationRequestElement extends InitializationRequestElement 
         fULOrderParams = EbicsXmlFactory.createFULOrderParamsType(fileFormat);
         parameters = new ArrayList<Parameter>();
         if (Boolean.valueOf(session.getSessionParam("TEST")).booleanValue()) {
-            Parameter parameter;
-            Value value;
+            final Parameter parameter;
+            final Value value;
 
             value = EbicsXmlFactory.createValue("String", "TRUE");
             parameter = EbicsXmlFactory.createParameter("TEST", value);
@@ -125,8 +125,8 @@ public class UInitializationRequestElement extends InitializationRequestElement 
         }
 
         if (Boolean.valueOf(session.getSessionParam("EBCDIC")).booleanValue()) {
-            Parameter parameter;
-            Value value;
+            final Parameter parameter;
+            final Value value;
 
             value = EbicsXmlFactory.createValue("String", "TRUE");
             parameter = EbicsXmlFactory.createParameter("EBCDIC", value);
@@ -190,7 +190,7 @@ public class UInitializationRequestElement extends InitializationRequestElement 
      * @param segment the segment number
      * @return the content of the given segment
      */
-    public ContentFactory getContent(int segment) {
+    public ContentFactory getContent(final int segment) {
         return splitter.getContent(segment);
     }
 

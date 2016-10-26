@@ -48,12 +48,12 @@ public abstract class TransferRequestElement extends DefaultEbicsRootElement {
      * @param lastSegment   is it the last segment?
      * @param transactionID the transaction ID
      */
-    public TransferRequestElement(EbicsSession session,
-                                  String name,
-                                  OrderType type,
-                                  int segmentNumber,
-                                  boolean lastSegment,
-                                  byte[] transactionId) {
+    public TransferRequestElement(final EbicsSession session,
+                                  final String name,
+                                  final OrderType type,
+                                  final int segmentNumber,
+                                  final boolean lastSegment,
+                                  final byte[] transactionId) {
         super(session);
         this.type = type;
         this.name = name;
@@ -64,7 +64,7 @@ public abstract class TransferRequestElement extends DefaultEbicsRootElement {
 
     @Override
     public void build() throws EbicsException {
-        SignedInfo signedInfo;
+        final SignedInfo signedInfo;
 
         buildTransfer();
         signedInfo = new SignedInfo(session.getUser(), getDigest());
@@ -89,9 +89,9 @@ public abstract class TransferRequestElement extends DefaultEbicsRootElement {
 
         try {
             return MessageDigest.getInstance("SHA-256", "BC").digest(Utils.canonize(toByteArray()));
-        } catch (NoSuchAlgorithmException e) {
+        } catch (final NoSuchAlgorithmException e) {
             throw new EbicsException(e.getMessage());
-        } catch (NoSuchProviderException e) {
+        } catch (final NoSuchProviderException e) {
             throw new EbicsException(e.getMessage());
         }
     }

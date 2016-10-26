@@ -40,15 +40,15 @@ public class DInitializationResponseElement extends InitializationResponseElemen
      * @param orderType the order type
      * @param name      the element name
      */
-    public DInitializationResponseElement(ContentFactory factory,
-                                          OrderType orderType,
-                                          String name) {
+    public DInitializationResponseElement(final ContentFactory factory,
+                                          final OrderType orderType,
+                                          final String name) {
         super(factory, orderType, name);
     }
 
     @Override
     public void build() throws EbicsException {
-        String bodyRetCode;
+        final String bodyRetCode;
 
         super.build();
         bodyRetCode = response.getBody().getReturnCode().getStringValue();

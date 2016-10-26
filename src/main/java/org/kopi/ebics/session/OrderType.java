@@ -33,7 +33,7 @@ public class OrderType implements Serializable {
      *
      * @param orderType the order type
      */
-    public OrderType(String orderType) {
+    public OrderType(final String orderType) {
         this.orderType = orderType;
     }
 
@@ -47,7 +47,7 @@ public class OrderType implements Serializable {
     /**
      * @param orderType the orderType to set
      */
-    public void setOrderType(String orderType) {
+    public void setOrderType(final String orderType) {
         this.orderType = orderType;
     }
 
@@ -57,7 +57,7 @@ public class OrderType implements Serializable {
      * @param orderType the given order type.
      * @return the corresponding <code>OrderType</code>
      */
-    public static OrderType toOrderType(String orderType) {
+    public static OrderType toOrderType(final String orderType) {
         if (orderType.equals("INI")) {
             return INI;
         } else if (orderType.equals("HIA")) {
@@ -78,7 +78,7 @@ public class OrderType implements Serializable {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (obj instanceof OrderType) {
             return orderType.equals(((OrderType) obj).getOrderType());
         }

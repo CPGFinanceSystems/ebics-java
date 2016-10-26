@@ -40,7 +40,7 @@ public class Splitter {
      *
      * @param input the input byte array
      */
-    public Splitter(byte[] input) {
+    public Splitter(final byte[] input) {
         this.input = input;
     }
 
@@ -67,7 +67,7 @@ public class Splitter {
      * @param keySpec              the secret key spec
      * @throws EbicsException
      */
-    public final void readInput(boolean isCompressionEnabled, SecretKeySpec keySpec)
+    public final void readInput(final boolean isCompressionEnabled, final SecretKeySpec keySpec)
             throws EbicsException {
         try {
             if (isCompressionEnabled) {
@@ -75,7 +75,7 @@ public class Splitter {
             }
             content = Utils.encrypt(input, keySpec);
             segmentation();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new EbicsException(e.getMessage());
         }
     }
@@ -107,9 +107,9 @@ public class Splitter {
      * @param segmentNumber the segment number
      * @return
      */
-    public ContentFactory getContent(int segmentNumber) {
-        byte[] segment;
-        int offset;
+    public ContentFactory getContent(final int segmentNumber) {
+        final byte[] segment;
+        final int offset;
 
         offset = segmentSize * (segmentNumber - 1);
         if (content.length < segmentSize + offset) {

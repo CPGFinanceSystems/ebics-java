@@ -48,8 +48,8 @@ public class KeyStoreManager {
      * @return the certificate
      * @throws KeyStoreException
      */
-    public final X509Certificate getCertificate(String alias) throws KeyStoreException {
-        X509Certificate cert;
+    public final X509Certificate getCertificate(final String alias) throws KeyStoreException {
+        final X509Certificate cert;
 
         cert = (X509Certificate) keyStore.getCertificate(alias);
 
@@ -67,8 +67,8 @@ public class KeyStoreManager {
      * @return the private key
      * @throws GeneralSecurityException
      */
-    public final PrivateKey getPrivateKey(String alias) throws GeneralSecurityException {
-        PrivateKey key;
+    public final PrivateKey getPrivateKey(final String alias) throws GeneralSecurityException {
+        final PrivateKey key;
 
         key = (PrivateKey) keyStore.getKey(alias, password);
         if (key == null) {
@@ -86,7 +86,7 @@ public class KeyStoreManager {
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    public void load(String path, char[] password)
+    public void load(final String path, final char[] password)
             throws GeneralSecurityException, IOException {
         keyStore = KeyStore.getInstance("PKCS12", "BC");
         this.password = password;
@@ -100,7 +100,7 @@ public class KeyStoreManager {
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    private void load(String path) throws GeneralSecurityException, IOException {
+    private void load(final String path) throws GeneralSecurityException, IOException {
         if (path.equals("")) {
             this.keyStore.load(null, null);
         } else {
@@ -118,7 +118,7 @@ public class KeyStoreManager {
      * @throws CertificateException
      * @throws IOException
      */
-    public X509Certificate read(InputStream input, Provider provider)
+    public X509Certificate read(final InputStream input, final Provider provider)
             throws CertificateException, IOException {
         X509Certificate certificate;
 
@@ -139,9 +139,9 @@ public class KeyStoreManager {
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    public RSAPublicKey getPublicKey(InputStream input)
+    public RSAPublicKey getPublicKey(final InputStream input)
             throws GeneralSecurityException, IOException {
-        X509Certificate cert;
+        final X509Certificate cert;
 
         cert = read(input, keyStore.getProvider());
         return (RSAPublicKey) cert.getPublicKey();
@@ -155,7 +155,7 @@ public class KeyStoreManager {
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    public void setCertificateEntry(String alias, InputStream input)
+    public void setCertificateEntry(final String alias, final InputStream input)
             throws GeneralSecurityException, IOException {
         keyStore.setCertificateEntry(alias, read(input, keyStore.getProvider()));
     }
@@ -165,7 +165,7 @@ public class KeyStoreManager {
      *
      * @param output the output stream.
      */
-    public void save(OutputStream output)
+    public void save(final OutputStream output)
             throws GeneralSecurityException, IOException {
         keyStore.store(output, password);
     }
@@ -187,15 +187,15 @@ public class KeyStoreManager {
      * the key of the map is the certificate alias
      * @throws KeyStoreException
      */
-    public Map<String, X509Certificate> read(KeyStore keyStore)
+    public Map<String, X509Certificate> read(final KeyStore keyStore)
             throws KeyStoreException {
-        Map<String, X509Certificate> certificates;
-        Enumeration<String> enumeration;
+        final Map<String, X509Certificate> certificates;
+        final Enumeration<String> enumeration;
 
         certificates = new HashMap<String, X509Certificate>();
         enumeration = keyStore.aliases();
         while (enumeration.hasMoreElements()) {
-            String alias;
+            final String alias;
 
             alias = enumeration.nextElement();
             certificates.put(alias, (X509Certificate) keyStore.getCertificate(alias));

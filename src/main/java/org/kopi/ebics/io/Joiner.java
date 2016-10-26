@@ -42,16 +42,16 @@ public class Joiner {
      *
      * @param user the ebics user.
      */
-    public Joiner(EbicsUser user) {
+    public Joiner(final EbicsUser user) {
         this.user = user;
         buffer = new ByteArrayOutputStream();
     }
 
-    public void append(byte[] data) throws EbicsException {
+    public void append(final byte[] data) throws EbicsException {
         try {
             buffer.write(data);
             buffer.flush();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new EbicsException(e.getMessage());
         }
     }
@@ -63,18 +63,18 @@ public class Joiner {
      * @param transactionKey the transaction key
      * @throws EbicsException
      */
-    public void writeTo(OutputStream output, byte[] transactionKey)
+    public void writeTo(final OutputStream output, final byte[] transactionKey)
             throws EbicsException {
         try {
-            byte[] decrypted;
+            final byte[] decrypted;
 
             buffer.close();
             decrypted = user.decrypt(buffer.toByteArray(), transactionKey);
             output.write(Utils.unzip(decrypted));
             output.close();
-        } catch (GeneralSecurityException e) {
+        } catch (final GeneralSecurityException e) {
             throw new EbicsException(e.getMessage());
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new EbicsException(e.getMessage());
         }
     }

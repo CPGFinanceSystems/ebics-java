@@ -52,30 +52,30 @@ public class SPRRequestElement extends InitializationRequestElement {
      *
      * @param session the current ebic session.
      */
-    public SPRRequestElement(EbicsSession session) throws EbicsException {
+    public SPRRequestElement(final EbicsSession session) throws EbicsException {
         super(session, org.kopi.ebics.session.OrderType.SPR, "SPRRequest.xml");
         keySpec = new SecretKeySpec(nonce, "EAS");
     }
 
     @Override
     public void buildInitialization() throws EbicsException {
-        EbicsRequest request;
-        Header header;
-        Body body;
-        MutableHeaderType mutable;
-        StaticHeaderType xstatic;
-        Product product;
-        BankPubKeyDigests bankPubKeyDigests;
-        Authentication authentication;
-        Encryption encryption;
-        DataTransferRequestType dataTransfer;
-        DataEncryptionInfo dataEncryptionInfo;
-        SignatureData signatureData;
-        EncryptionPubKeyDigest encryptionPubKeyDigest;
-        StaticHeaderOrderDetailsType orderDetails;
-        OrderType orderType;
-        StandardOrderParamsType standardOrderParamsType;
-        UserSignature userSignature;
+        final EbicsRequest request;
+        final Header header;
+        final Body body;
+        final MutableHeaderType mutable;
+        final StaticHeaderType xstatic;
+        final Product product;
+        final BankPubKeyDigests bankPubKeyDigests;
+        final Authentication authentication;
+        final Encryption encryption;
+        final DataTransferRequestType dataTransfer;
+        final DataEncryptionInfo dataEncryptionInfo;
+        final SignatureData signatureData;
+        final EncryptionPubKeyDigest encryptionPubKeyDigest;
+        final StaticHeaderOrderDetailsType orderDetails;
+        final OrderType orderType;
+        final StandardOrderParamsType standardOrderParamsType;
+        final UserSignature userSignature;
 
         userSignature = new UserSignature(session.getUser(),
                 generateName("SIG"),

@@ -36,9 +36,9 @@ public class Product implements Serializable {
      * @param language    this is the language. If you use null, the language of the default locale is used.
      * @param instituteID the institute, this is an optional value, you can leave this parameter empty.
      */
-    public Product(String name,
-                   Locale language,
-                   String instituteID) {
+    public Product(final String name,
+                   final Locale language,
+                   final String instituteID) {
         this.name = name;
         this.language = language.getCountry().toLowerCase();
         this.instituteID = instituteID;
@@ -54,7 +54,7 @@ public class Product implements Serializable {
     /**
      * @param name the name to set
      */
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -68,7 +68,7 @@ public class Product implements Serializable {
     /**
      * @param language the language to set
      */
-    public void setLanguage(String language) {
+    public void setLanguage(final String language) {
         this.language = language;
     }
 
@@ -82,7 +82,7 @@ public class Product implements Serializable {
     /**
      * @param instituteID the instituteID to set
      */
-    public void setInstituteID(String instituteID) {
+    public void setInstituteID(final String instituteID) {
         this.instituteID = instituteID;
     }
 

@@ -55,10 +55,10 @@ public class DInitializationRequestElement extends InitializationRequestElement 
      * @param endRange   the end range download
      * @throws EbicsException
      */
-    public DInitializationRequestElement(EbicsSession session,
-                                         org.kopi.ebics.session.OrderType type,
-                                         Date startRange,
-                                         Date endRange)
+    public DInitializationRequestElement(final EbicsSession session,
+                                         final org.kopi.ebics.session.OrderType type,
+                                         final Date startRange,
+                                         final Date endRange)
             throws EbicsException {
         super(session, type, generateName(type));
         this.startRange = startRange;
@@ -67,17 +67,17 @@ public class DInitializationRequestElement extends InitializationRequestElement 
 
     @Override
     public void buildInitialization() throws EbicsException {
-        EbicsRequest request;
-        Header header;
-        Body body;
-        MutableHeaderType mutable;
-        StaticHeaderType xstatic;
-        Product product;
-        BankPubKeyDigests bankPubKeyDigests;
-        Authentication authentication;
-        Encryption encryption;
-        OrderType orderType;
-        StaticHeaderOrderDetailsType orderDetails;
+        final EbicsRequest request;
+        final Header header;
+        final Body body;
+        final MutableHeaderType mutable;
+        final StaticHeaderType xstatic;
+        final Product product;
+        final BankPubKeyDigests bankPubKeyDigests;
+        final Authentication authentication;
+        final Encryption encryption;
+        final OrderType orderType;
+        final StaticHeaderOrderDetailsType orderDetails;
 
         mutable = EbicsXmlFactory.createMutableHeaderType("Initialisation", null);
         product = EbicsXmlFactory.createProduct(session.getProduct().getLanguage(), session.getProduct().getName());
@@ -90,23 +90,23 @@ public class DInitializationRequestElement extends InitializationRequestElement 
         bankPubKeyDigests = EbicsXmlFactory.createBankPubKeyDigests(authentication, encryption);
         orderType = EbicsXmlFactory.createOrderType(type.getOrderType());
         if (type.equals(org.kopi.ebics.session.OrderType.FDL)) {
-            FDLOrderParamsType fDLOrderParamsType;
-            FileFormatType fileFormat;
+            final FDLOrderParamsType fDLOrderParamsType;
+            final FileFormatType fileFormat;
 
             fileFormat = EbicsXmlFactory.createFileFormatType(session.getConfiguration().getLocale().getCountry().toUpperCase(),
                     session.getSessionParam("FORMAT"));
             fDLOrderParamsType = EbicsXmlFactory.createFDLOrderParamsType(fileFormat);
 
             if (startRange != null && endRange != null) {
-                DateRange range;
+                final DateRange range;
 
                 range = EbicsXmlFactory.createDateRange(startRange, endRange);
                 fDLOrderParamsType.setDateRange(range);
             }
 
             if (Boolean.getBoolean(session.getSessionParam("TEST"))) {
-                Parameter parameter;
-                Value value;
+                final Parameter parameter;
+                final Value value;
 
                 value = EbicsXmlFactory.createValue("String", "TRUE");
                 parameter = EbicsXmlFactory.createParameter("TEST", value);
@@ -117,7 +117,7 @@ public class DInitializationRequestElement extends InitializationRequestElement 
                     orderType,
                     fDLOrderParamsType);
         } else {
-            StandardOrderParamsType standardOrderParamsType;
+            final StandardOrderParamsType standardOrderParamsType;
 
             standardOrderParamsType = EbicsXmlFactory.createStandardOrderParamsType();
             //FIXME Some banks cannot handle OrderID element in download process. Add parameter in configuration!!!

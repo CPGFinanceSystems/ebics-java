@@ -41,31 +41,31 @@ public class A005Letter extends AbstractInitLetter {
      *
      * @param locale the application local
      */
-    public A005Letter(Locale locale) {
+    public A005Letter(final Locale locale) {
         super(locale);
     }
 
     @Override
-    public void create(EbicsUser user) throws GeneralSecurityException, IOException, EbicsException {
+    public void create(final EbicsUser user) throws GeneralSecurityException, IOException, EbicsException {
         build(user.getPartner().getBank().getHostId(),
                 user.getPartner().getBank().getName(),
                 user.getUserId(),
                 user.getName(),
                 user.getPartner().getPartnerId(),
-                getString("INILetter.version", BUNDLE_NAME, locale),
-                getString("INILetter.certificate", BUNDLE_NAME, locale),
+                getString("INILetter.version", locale),
+                getString("INILetter.certificate", locale),
                 Base64.encodeBase64(user.getA005Certificate(), true),
-                getString("INILetter.digest", BUNDLE_NAME, locale),
+                getString("INILetter.digest", locale),
                 getHash(user.getA005Certificate()));
     }
 
     @Override
     public String getTitle() {
-        return getString("INILetter.title", BUNDLE_NAME, locale);
+        return getString("INILetter.title", locale);
     }
 
     @Override
     public String getName() {
-        return getString("INILetter.name", BUNDLE_NAME, locale) + ".txt";
+        return getString("INILetter.name", locale) + ".txt";
     }
 }

@@ -42,7 +42,7 @@ public class FileContentFactory implements ContentFactory {
      *
      * @param input the input file
      */
-    public FileContentFactory(File input) {
+    public FileContentFactory(final File input) {
         this.input = input;
     }
 

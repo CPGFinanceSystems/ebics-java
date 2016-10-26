@@ -39,15 +39,15 @@ public class ReceiptResponseElement extends DefaultResponseElement {
      * @param factory the content factory
      * @param name    the element name
      */
-    public ReceiptResponseElement(ContentFactory factory, String name) {
+    public ReceiptResponseElement(final ContentFactory factory, final String name) {
         super(factory, name);
     }
 
     @Override
     public void build() throws EbicsException {
-        String code;
-        String text;
-        EbicsResponse response;
+        final String code;
+        final String text;
+        final EbicsResponse response;
 
         parse(factory);
         response = ((EbicsResponseDocument) document).getEbicsResponse();

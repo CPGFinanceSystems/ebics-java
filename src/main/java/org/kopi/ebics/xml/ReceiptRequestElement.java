@@ -49,9 +49,9 @@ public class ReceiptRequestElement extends DefaultEbicsRootElement {
      * @param session the current ebics session
      * @param name    the element name
      */
-    public ReceiptRequestElement(EbicsSession session,
-                                 byte[] transactionId,
-                                 String name) {
+    public ReceiptRequestElement(final EbicsSession session,
+                                 final byte[] transactionId,
+                                 final String name) {
         super(session);
         this.transactionId = transactionId;
         this.name = name;
@@ -59,13 +59,13 @@ public class ReceiptRequestElement extends DefaultEbicsRootElement {
 
     @Override
     public void build() throws EbicsException {
-        EbicsRequest request;
-        Header header;
-        Body body;
-        MutableHeaderType mutable;
-        StaticHeaderType xstatic;
-        TransferReceipt transferReceipt;
-        SignedInfo signedInfo;
+        final EbicsRequest request;
+        final Header header;
+        final Body body;
+        final MutableHeaderType mutable;
+        final StaticHeaderType xstatic;
+        final TransferReceipt transferReceipt;
+        final SignedInfo signedInfo;
 
         mutable = EbicsXmlFactory.createMutableHeaderType("Receipt", null);
         xstatic = EbicsXmlFactory.createStaticHeaderType(session.getBankID(), transactionId);
@@ -106,9 +106,9 @@ public class ReceiptRequestElement extends DefaultEbicsRootElement {
 
         try {
             return MessageDigest.getInstance("SHA-256", "BC").digest(Utils.canonize(toByteArray()));
-        } catch (NoSuchAlgorithmException e) {
+        } catch (final NoSuchAlgorithmException e) {
             throw new EbicsException(e.getMessage());
-        } catch (NoSuchProviderException e) {
+        } catch (final NoSuchProviderException e) {
             throw new EbicsException(e.getMessage());
         }
     }

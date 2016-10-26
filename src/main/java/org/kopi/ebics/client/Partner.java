@@ -44,7 +44,7 @@ public class Partner implements EbicsPartner, Savable {
      * @param ois  the stream object
      * @throws IOException
      */
-    public Partner(EbicsBank bank, ObjectInputStream ois) throws IOException {
+    public Partner(final EbicsBank bank, final ObjectInputStream ois) throws IOException {
         this.bank = bank;
         this.partnerId = ois.readUTF();
         this.orderId = ois.readInt();
@@ -57,7 +57,7 @@ public class Partner implements EbicsPartner, Savable {
      * @param bank      the bank
      * @param partnerId the partner ID
      */
-    public Partner(EbicsBank bank, String partnerId) {
+    public Partner(final EbicsBank bank, final String partnerId) {
         this.bank = bank;
         this.partnerId = partnerId;
         needSave = true;
@@ -77,13 +77,13 @@ public class Partner implements EbicsPartner, Savable {
      *
      * @param orderId the order ID
      */
-    public void setOrderId(Integer orderId) {
+    public void setOrderId(final Integer orderId) {
         this.orderId = orderId.intValue();
         needSave = true;
     }
 
     @Override
-    public void save(ObjectOutputStream oos) throws IOException {
+    public void save(final ObjectOutputStream oos) throws IOException {
         oos.writeUTF(partnerId);
         oos.writeInt(orderId);
         oos.flush();
@@ -124,7 +124,7 @@ public class Partner implements EbicsPartner, Savable {
      */
     @Override
     public String nextOrderId() {
-        char[] chars = new char[4];
+        final char[] chars = new char[4];
 
         orderId += 1;
         if (orderId > 36 * 36 * 36 * 36 - 1) {

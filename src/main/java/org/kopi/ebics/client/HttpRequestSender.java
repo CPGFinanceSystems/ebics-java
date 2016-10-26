@@ -49,7 +49,7 @@ public class HttpRequestSender {
      *
      * @param session the ebics session
      */
-    public HttpRequestSender(EbicsSession session) {
+    public HttpRequestSender(final EbicsSession session) {
         this.session = session;
     }
 
@@ -61,31 +61,31 @@ public class HttpRequestSender {
      * @param request the ebics request
      * @return the HTTP return code
      */
-    public final int send(ContentFactory request) throws IOException {
-        HttpClient httpClient;
-        String proxyConfiguration;
-        PostMethod method;
-        RequestEntity requestEntity;
-        InputStream input;
+    public final int send(final ContentFactory request) throws IOException {
+        final HttpClient httpClient;
+        final String proxyConfiguration;
+        final PostMethod method;
+        final RequestEntity requestEntity;
+        final InputStream input;
         int retCode;
 
         httpClient = new HttpClient();
         proxyConfiguration = session.getConfiguration().getProperty("http.proxy.host");
 
         if (proxyConfiguration != null && !proxyConfiguration.equals("")) {
-            HostConfiguration hostConfig;
-            String proxyHost;
-            int proxyPort;
+            final HostConfiguration hostConfig;
+            final String proxyHost;
+            final int proxyPort;
 
             hostConfig = httpClient.getHostConfiguration();
             proxyHost = session.getConfiguration().getProperty("http.proxy.host").trim();
             proxyPort = Integer.parseInt(session.getConfiguration().getProperty("http.proxy.port").trim());
             hostConfig.setProxy(proxyHost, proxyPort);
             if (!session.getConfiguration().getProperty("http.proxy.user").equals("")) {
-                String user;
-                String pwd;
-                UsernamePasswordCredentials credentials;
-                AuthScope authscope;
+                final String user;
+                final String pwd;
+                final UsernamePasswordCredentials credentials;
+                final AuthScope authscope;
 
                 user = session.getConfiguration().getProperty("http.proxy.user").trim();
                 pwd = session.getConfiguration().getProperty("http.proxy.password").trim();

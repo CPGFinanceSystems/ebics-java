@@ -50,7 +50,7 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
      *
      * @param session the current ebics session
      */
-    public DefaultEbicsRootElement(EbicsSession session) {
+    public DefaultEbicsRootElement(final EbicsSession session) {
         this.session = session;
         suggestedPrefixes = new HashMap<String, String>();
     }
@@ -68,7 +68,7 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
      * @param uri    the namespace URI
      * @param prefix the namespace URI prefix
      */
-    protected static void setSaveSuggestedPrefixes(String uri, String prefix) {
+    protected static void setSaveSuggestedPrefixes(final String uri, final String prefix) {
         suggestedPrefixes.put(uri, prefix);
     }
 
@@ -80,10 +80,10 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
      * @throws EbicsException pretty print fails
      */
     public byte[] prettyPrint() throws EbicsException {
-        Document document;
-        XMLOutputter xmlOutputter;
-        SAXBuilder sxb;
-        ByteArrayOutputStream output;
+        final Document document;
+        final XMLOutputter xmlOutputter;
+        final SAXBuilder sxb;
+        final ByteArrayOutputStream output;
 
         sxb = new SAXBuilder();
         output = new ByteArrayOutputStream();
@@ -92,9 +92,9 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
         try {
             document = sxb.build(new InputStreamReader(new ByteArrayInputStream(toByteArray()), "UTF-8"));
             xmlOutputter.output(document, output);
-        } catch (JDOMException e) {
+        } catch (final JDOMException e) {
             throw new EbicsException(e.getMessage());
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new EbicsException(e.getMessage());
         }
 
@@ -109,11 +109,11 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
      * @param prefix       the prefix
      * @param value        the value
      */
-    public void insertSchemaLocation(String namespaceURI,
-                                     String localPart,
-                                     String prefix,
-                                     String value) {
-        XmlCursor cursor;
+    public void insertSchemaLocation(final String namespaceURI,
+                                     final String localPart,
+                                     final String prefix,
+                                     final String value) {
+        final XmlCursor cursor;
 
         cursor = document.newCursor();
         while (cursor.hasNextToken()) {
@@ -133,7 +133,7 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
      * @param type the order type.
      * @return the generated file name.
      */
-    public static String generateName(OrderType type) {
+    public static String generateName(final OrderType type) {
         return type.getOrderType() + new BigInteger(130, new SecureRandom()).toString(32);
     }
 
@@ -143,7 +143,7 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
      * @param type the prefix to use.
      * @return the generated file name.
      */
-    public static String generateName(String prefix) {
+    public static String generateName(final String prefix) {
         return prefix + new BigInteger(130, new SecureRandom()).toString(32);
     }
 
@@ -154,7 +154,7 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
 
     @Override
     public byte[] toByteArray() {
-        XmlOptions options;
+        final XmlOptions options;
 
         options = new XmlOptions();
         options.setSavePrettyPrint();
@@ -163,8 +163,8 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
     }
 
     @Override
-    public void addNamespaceDecl(String prefix, String uri) {
-        XmlCursor cursor;
+    public void addNamespaceDecl(final String prefix, final String uri) {
+        final XmlCursor cursor;
 
         cursor = document.newCursor();
         while (cursor.hasNextToken()) {
@@ -180,15 +180,15 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
 
     @Override
     public void validate() throws EbicsException {
-        ArrayList<XmlError> validationMessages;
-        boolean isValid;
+        final ArrayList<XmlError> validationMessages;
+        final boolean isValid;
 
         validationMessages = new ArrayList<XmlError>();
         isValid = document.validate(new XmlOptions().setErrorListener(validationMessages));
 
         if (!isValid) {
             String message;
-            Iterator<XmlError> iter;
+            final Iterator<XmlError> iter;
 
             iter = validationMessages.iterator();
             message = "";
@@ -204,21 +204,21 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
     }
 
     @Override
-    public void save(OutputStream out) throws EbicsException {
+    public void save(final OutputStream out) throws EbicsException {
         try {
-            byte[] element;
+            final byte[] element;
 
             element = prettyPrint();
             out.write(element);
             out.flush();
             out.close();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new EbicsException(e.getMessage());
         }
     }
 
     @Override
-    public void print(PrintStream stream) {
+    public void print(final PrintStream stream) {
         stream.println(document.toString());
     }
 

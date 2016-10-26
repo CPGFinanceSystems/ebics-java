@@ -42,7 +42,7 @@ public abstract class DefaultResponseElement extends DefaultEbicsRootElement {
      * @param factory the content factory containing the response.
      * @param name    the element name
      */
-    public DefaultResponseElement(ContentFactory factory, String name) {
+    public DefaultResponseElement(final ContentFactory factory, final String name) {
         this.factory = factory;
         this.name = name;
     }
@@ -53,12 +53,12 @@ public abstract class DefaultResponseElement extends DefaultEbicsRootElement {
      * @param factory the content factory
      * @throws EbicsException parse error
      */
-    protected void parse(ContentFactory factory) throws EbicsException {
+    protected void parse(final ContentFactory factory) throws EbicsException {
         try {
             document = XmlObject.Factory.parse(factory.getContent());
-        } catch (XmlException e) {
+        } catch (final XmlException e) {
             throw new EbicsException(e.getMessage());
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new EbicsException(e.getMessage());
         }
     }

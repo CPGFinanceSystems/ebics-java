@@ -27,7 +27,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.SecureRandom;
@@ -44,7 +43,7 @@ public class EbicsSocketFactory extends SSLSocketFactory {
      *
      * @param context the <code>SSLContext</code>
      */
-    public EbicsSocketFactory(SSLContext context) {
+    public EbicsSocketFactory(final SSLContext context) {
         this.context = context;
     }
 
@@ -61,12 +60,12 @@ public class EbicsSocketFactory extends SSLSocketFactory {
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    public EbicsSocketFactory(byte[] keystore,
-                              String keystoreType,
-                              char[] keystrorePass,
-                              byte[] truststore,
-                              String truststoreType,
-                              char[] truststorePass)
+    public EbicsSocketFactory(final byte[] keystore,
+                              final String keystoreType,
+                              final char[] keystrorePass,
+                              final byte[] truststore,
+                              final String truststoreType,
+                              final char[] truststorePass)
             throws IOException, GeneralSecurityException {
         this.context = getSSLContext(keystore,
                 keystoreType,
@@ -89,18 +88,18 @@ public class EbicsSocketFactory extends SSLSocketFactory {
      * @throws IOException
      * @throws GeneralSecurityException
      */
-    public SSLContext getSSLContext(byte[] keystore,
-                                    String keystoreType,
-                                    char[] keystrorePass,
-                                    byte[] truststore,
-                                    String truststoreType,
-                                    char[] truststorePass)
+    public SSLContext getSSLContext(final byte[] keystore,
+                                    final String keystoreType,
+                                    final char[] keystrorePass,
+                                    final byte[] truststore,
+                                    final String truststoreType,
+                                    final char[] truststorePass)
             throws IOException, GeneralSecurityException {
-        KeyStore kstore;
-        KeyStore tstore;
-        KeyManagerFactory kmf;
-        TrustManagerFactory tmf;
-        SSLContext context;
+        final KeyStore kstore;
+        final KeyStore tstore;
+        final KeyManagerFactory kmf;
+        final TrustManagerFactory tmf;
+        final SSLContext context;
 
         kstore = initKeyStore(keystore, keystrorePass, keystoreType);
         kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
@@ -123,24 +122,24 @@ public class EbicsSocketFactory extends SSLSocketFactory {
      * @return key store
      * @throws IOException
      */
-    protected KeyStore initKeyStore(byte[] keystore, char[] password, String type)
+    protected KeyStore initKeyStore(final byte[] keystore, final char[] password, final String type)
             throws IOException {
         try {
-            KeyStore kstore;
+            final KeyStore kstore;
 
             kstore = KeyStore.getInstance(type);
             kstore.load(new ByteArrayInputStream(keystore), password);
             return kstore;
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
             throw new IOException("Exception trying to load keystore " + type + ": " + e.toString());
         }
     }
 
     @Override
-    public Socket createSocket(Socket s, String host, int port, boolean autoClose)
+    public Socket createSocket(final Socket s, final String host, final int port, final boolean autoClose)
             throws IOException {
         return context.getSocketFactory().createSocket(s, host, port, autoClose);
     }
@@ -156,23 +155,23 @@ public class EbicsSocketFactory extends SSLSocketFactory {
     }
 
     @Override
-    public Socket createSocket(String host, int port) throws IOException {
+    public Socket createSocket(final String host, final int port) throws IOException {
         return context.getSocketFactory().createSocket(host, port);
     }
 
     @Override
-    public Socket createSocket(InetAddress host, int port) throws IOException {
+    public Socket createSocket(final InetAddress host, final int port) throws IOException {
         return context.getSocketFactory().createSocket(host, port);
     }
 
     @Override
-    public Socket createSocket(String host, int port, InetAddress localHost, int localPort)
+    public Socket createSocket(final String host, final int port, final InetAddress localHost, final int localPort)
             throws IOException {
         return context.getSocketFactory().createSocket(host, port, localHost, localPort);
     }
 
     @Override
-    public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort)
+    public Socket createSocket(final InetAddress address, final int port, final InetAddress localAddress, final int localPort)
             throws IOException {
         return context.getSocketFactory().createSocket(address, port, localAddress, localPort);
     }

@@ -40,7 +40,7 @@ public class InputStreamContentFactory implements ContentFactory {
      *
      * @param input the given input stream.
      */
-    public InputStreamContentFactory(InputStream input) {
+    public InputStreamContentFactory(final InputStream input) {
         this.input = input;
     }
 

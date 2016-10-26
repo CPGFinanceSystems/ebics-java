@@ -40,8 +40,8 @@ public class IOUtils {
      * @param child  the directory name
      * @return The created directory
      */
-    public static File createDirectory(File parent, String child) {
-        File directory;
+    public static File createDirectory(final File parent, final String child) {
+        final File directory;
 
         directory = new File(parent, child);
         directory.mkdir();
@@ -56,8 +56,8 @@ public class IOUtils {
      * @param child  the directory name
      * @return The created directory
      */
-    public static File createDirectory(String parent, String child) {
-        File directory;
+    public static File createDirectory(final String parent, final String child) {
+        final File directory;
 
         directory = new File(parent, child);
         directory.mkdir();
@@ -71,8 +71,8 @@ public class IOUtils {
      * @param name the absolute directory name
      * @return The created directory
      */
-    public static File createDirectory(String name) {
-        File directory;
+    public static File createDirectory(final String name) {
+        final File directory;
 
         directory = new File(name);
         directory.mkdir();
@@ -88,8 +88,8 @@ public class IOUtils {
      * @param fullName the full absolute path of the directories
      * @return The created directory
      */
-    public static File createDirectories(String fullName) {
-        File directory;
+    public static File createDirectories(final String fullName) {
+        final File directory;
 
         directory = new File(fullName);
         directory.mkdirs();
@@ -104,8 +104,8 @@ public class IOUtils {
      * @param name   the file name.
      * @return the created file.
      */
-    public static File createFile(String parent, String name) {
-        File file;
+    public static File createFile(final String parent, final String name) {
+        final File file;
 
         file = new File(parent, name);
 
@@ -119,8 +119,8 @@ public class IOUtils {
      * @param name   the file name.
      * @return the created file.
      */
-    public static File createFile(File parent, String name) {
-        File file;
+    public static File createFile(final File parent, final String name) {
+        final File file;
 
         file = new File(parent, name);
 
@@ -134,8 +134,8 @@ public class IOUtils {
      * @param name the file name
      * @return the created file
      */
-    public static File createFile(String name) {
-        File file;
+    public static File createFile(final String name) {
+        final File file;
 
         file = new File(name);
 
@@ -149,17 +149,17 @@ public class IOUtils {
      * @return the byte array content of the file
      * @throws EbicsException
      */
-    public static byte[] getFileContent(String path) throws EbicsException {
+    public static byte[] getFileContent(final String path) throws EbicsException {
         try {
-            InputStream input;
-            byte[] content;
+            final InputStream input;
+            final byte[] content;
 
             input = new FileInputStream(path);
             content = new byte[input.available()];
             input.read(content);
             input.close();
             return content;
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new EbicsException(e.getMessage());
         }
     }
@@ -171,11 +171,11 @@ public class IOUtils {
      * @return
      * @throws EbicsException
      */
-    public static byte[] getFactoryContent(ContentFactory content) throws EbicsException {
+    public static byte[] getFactoryContent(final ContentFactory content) throws EbicsException {
         try {
-            byte[] buffer;
-            ByteArrayOutputStream out;
-            InputStream in;
+            final byte[] buffer;
+            final ByteArrayOutputStream out;
+            final InputStream in;
             int len = -1;
 
             out = new ByteArrayOutputStream();
@@ -187,7 +187,7 @@ public class IOUtils {
             in.close();
             out.close();
             return out.toByteArray();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new EbicsException(e.getMessage());
         }
     }

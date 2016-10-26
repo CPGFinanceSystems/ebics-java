@@ -38,14 +38,14 @@ public class SPRResponseElement extends DefaultResponseElement {
      *
      * @param factory the content factory
      */
-    public SPRResponseElement(ContentFactory factory) {
+    public SPRResponseElement(final ContentFactory factory) {
         super(factory, "SPRResponse.xml");
     }
 
     @Override
     public void build() throws EbicsException {
-        String code;
-        String text;
+        final String code;
+        final String text;
 
         parse(factory);
         response = ((EbicsResponseDocument) document).getEbicsResponse();

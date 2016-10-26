@@ -41,7 +41,7 @@ import java.util.Date;
  */
 public class CertificateManager {
 
-    public CertificateManager(EbicsUser user) {
+    public CertificateManager(final EbicsUser user) {
         this.user = user;
         generator = new X509Generator();
     }
@@ -53,7 +53,7 @@ public class CertificateManager {
      * @throws IOException
      */
     public void create() throws GeneralSecurityException, IOException {
-        Calendar calendar;
+        final Calendar calendar;
 
         calendar = Calendar.getInstance();
         calendar.add(Calendar.DAY_OF_YEAR, X509Constants.DEFAULT_DURATION);
@@ -84,8 +84,8 @@ public class CertificateManager {
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    public void createA005Certificate(Date end) throws GeneralSecurityException, IOException {
-        KeyPair keypair;
+    public void createA005Certificate(final Date end) throws GeneralSecurityException, IOException {
+        final KeyPair keypair;
 
         keypair = KeyUtil.makeKeyPair(X509Constants.EBICS_KEY_SIZE);
         a005Certificate = generator.generateA005Certificate(keypair,
@@ -102,8 +102,8 @@ public class CertificateManager {
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    public void createX002Certificate(Date end) throws GeneralSecurityException, IOException {
-        KeyPair keypair;
+    public void createX002Certificate(final Date end) throws GeneralSecurityException, IOException {
+        final KeyPair keypair;
 
         keypair = KeyUtil.makeKeyPair(X509Constants.EBICS_KEY_SIZE);
         x002Certificate = generator.generateX002Certificate(keypair,
@@ -120,8 +120,8 @@ public class CertificateManager {
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    public void createE002Certificate(Date end) throws GeneralSecurityException, IOException {
-        KeyPair keypair;
+    public void createE002Certificate(final Date end) throws GeneralSecurityException, IOException {
+        final KeyPair keypair;
 
         keypair = KeyUtil.makeKeyPair(X509Constants.EBICS_KEY_SIZE);
         e002Certificate = generator.generateE002Certificate(keypair,
@@ -139,7 +139,7 @@ public class CertificateManager {
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    public void save(String path, PasswordCallback pwdCallBack)
+    public void save(final String path, final PasswordCallback pwdCallBack)
             throws GeneralSecurityException, IOException {
         writePKCS12Certificate(path + "/" + user.getUserId(), pwdCallBack.getPassword());
     }
@@ -152,9 +152,9 @@ public class CertificateManager {
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    public void load(String path, PasswordCallback pwdCallBack)
+    public void load(final String path, final PasswordCallback pwdCallBack)
             throws GeneralSecurityException, IOException {
-        KeyStoreManager loader;
+        final KeyStoreManager loader;
 
         loader = new KeyStoreManager();
 
@@ -176,7 +176,7 @@ public class CertificateManager {
      * @param password the key password
      * @throws IOException
      */
-    public void writePKCS12Certificate(String filename, char[] password)
+    public void writePKCS12Certificate(String filename, final char[] password)
             throws GeneralSecurityException, IOException {
         if (filename == null || "".equals(filename)) {
             throw new IOException("The file name cannot be empty");
@@ -186,7 +186,7 @@ public class CertificateManager {
             filename += ".p12";
         }
 
-        FileOutputStream fos = new FileOutputStream(filename);
+        final FileOutputStream fos = new FileOutputStream(filename);
         writePKCS12Certificate(password, fos);
         fos.close();
     }
@@ -199,9 +199,9 @@ public class CertificateManager {
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    public void writePKCS12Certificate(char[] password, OutputStream fos)
+    public void writePKCS12Certificate(final char[] password, final OutputStream fos)
             throws GeneralSecurityException, IOException {
-        KeyStore keystore;
+        final KeyStore keystore;
 
         keystore = KeyStore.getInstance("PKCS12", new BouncyCastleProvider());
         keystore.load(null, null);

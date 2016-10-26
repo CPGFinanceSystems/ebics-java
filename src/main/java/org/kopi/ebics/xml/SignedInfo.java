@@ -47,20 +47,20 @@ public class SignedInfo extends DefaultEbicsRootElement {
      *
      * @param digest the digest value
      */
-    public SignedInfo(EbicsUser user, byte[] digest) {
+    public SignedInfo(final EbicsUser user, final byte[] digest) {
         this.user = user;
         this.digest = digest;
     }
 
     @Override
     public void build() throws EbicsException {
-        CanonicalizationMethodType canonicalizationMethod;
-        SignatureMethodType signatureMethod;
-        ReferenceType reference;
-        TransformsType transforms;
-        DigestMethodType digestMethod;
-        TransformType transform;
-        SignedInfoType signedInfo;
+        final CanonicalizationMethodType canonicalizationMethod;
+        final SignatureMethodType signatureMethod;
+        final ReferenceType reference;
+        final TransformsType transforms;
+        final DigestMethodType digestMethod;
+        final TransformType transform;
+        final SignedInfoType signedInfo;
 
         if (digest == null) {
             throw new EbicsException("digest value cannot be null");
@@ -122,13 +122,13 @@ public class SignedInfo extends DefaultEbicsRootElement {
      * @return the signed input
      * @throws EbicsException signature fails.
      */
-    public byte[] sign(byte[] toSign) throws EbicsException {
+    public byte[] sign(final byte[] toSign) throws EbicsException {
         try {
-            DocumentBuilderFactory factory;
-            DocumentBuilder builder;
-            Document document;
-            Node node;
-            Canonicalizer canonicalizer;
+            final DocumentBuilderFactory factory;
+            final DocumentBuilder builder;
+            final Document document;
+            final Node node;
+            final Canonicalizer canonicalizer;
 
             factory = DocumentBuilderFactory.newInstance();
             factory.setNamespaceAware(true);
@@ -139,7 +139,7 @@ public class SignedInfo extends DefaultEbicsRootElement {
             node = XPathAPI.selectSingleNode(document, "//ds:SignedInfo");
             canonicalizer = Canonicalizer.getInstance(Canonicalizer.ALGO_ID_C14N_OMIT_COMMENTS);
             return user.authenticate(canonicalizer.canonicalizeSubtree(node));
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new EbicsException(e.getMessage());
         }
     }

@@ -46,9 +46,9 @@ public class UnsecuredRequestElement extends DefaultEbicsRootElement {
      * @param session   the ebics session.
      * @param orderType the order type (INI | HIA).
      */
-    public UnsecuredRequestElement(EbicsSession session,
-                                   OrderType orderType,
-                                   byte[] orderData) {
+    public UnsecuredRequestElement(final EbicsSession session,
+                                   final OrderType orderType,
+                                   final byte[] orderData) {
         super(session);
         this.orderType = orderType;
         this.orderData = orderData;
@@ -56,15 +56,15 @@ public class UnsecuredRequestElement extends DefaultEbicsRootElement {
 
     @Override
     public void build() throws EbicsException {
-        Header header;
-        Body body;
-        EmptyMutableHeaderType mutable;
-        UnsecuredRequestStaticHeaderType xstatic;
-        ProductElementType productType;
-        OrderDetailsType orderDetails;
-        DataTransfer dataTransfer;
-        OrderData orderData;
-        EbicsUnsecuredRequest request;
+        final Header header;
+        final Body body;
+        final EmptyMutableHeaderType mutable;
+        final UnsecuredRequestStaticHeaderType xstatic;
+        final ProductElementType productType;
+        final OrderDetailsType orderDetails;
+        final DataTransfer dataTransfer;
+        final OrderData orderData;
+        final EbicsUnsecuredRequest request;
 
         orderDetails = EbicsXmlFactory.createOrderDetailsType("DZNNN", orderType.getOrderType());
 

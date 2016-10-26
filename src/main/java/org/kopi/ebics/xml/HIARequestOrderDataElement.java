@@ -44,21 +44,21 @@ public class HIARequestOrderDataElement extends DefaultEbicsRootElement {
      *
      * @param session the current ebics session
      */
-    public HIARequestOrderDataElement(EbicsSession session) {
+    public HIARequestOrderDataElement(final EbicsSession session) {
         super(session);
     }
 
     @Override
     public void build() throws EbicsException {
-        HIARequestOrderDataType request;
-        AuthenticationPubKeyInfoType authenticationPubKeyInfo;
-        EncryptionPubKeyInfoType encryptionPubKeyInfo;
-        PubKeyValueType encryptionPubKeyValue;
-        X509DataType encryptionX509Data;
-        RSAKeyValueType encryptionRsaKeyValue;
-        PubKeyValueType authPubKeyValue;
-        X509DataType authX509Data;
-        RSAKeyValueType AuthRsaKeyValue;
+        final HIARequestOrderDataType request;
+        final AuthenticationPubKeyInfoType authenticationPubKeyInfo;
+        final EncryptionPubKeyInfoType encryptionPubKeyInfo;
+        final PubKeyValueType encryptionPubKeyValue;
+        final X509DataType encryptionX509Data;
+        final RSAKeyValueType encryptionRsaKeyValue;
+        final PubKeyValueType authPubKeyValue;
+        final X509DataType authX509Data;
+        final RSAKeyValueType AuthRsaKeyValue;
 
         encryptionX509Data = EbicsXmlFactory.createX509DataType(session.getUser().getDN(),
                 session.getUser().getE002Certificate());

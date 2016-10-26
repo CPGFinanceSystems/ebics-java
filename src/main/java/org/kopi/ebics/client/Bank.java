@@ -45,7 +45,7 @@ public class Bank implements EbicsBank, Savable {
      * @param name   the bank name
      * @param hostId the bank host ID
      */
-    public Bank(URL url, String name, String hostId) {
+    public Bank(final URL url, final String name, final String hostId) {
         this.url = url;
         this.name = name;
         this.hostId = hostId;
@@ -53,7 +53,7 @@ public class Bank implements EbicsBank, Savable {
     }
 
     @Override
-    public void save(ObjectOutputStream oos) throws IOException {
+    public void save(final ObjectOutputStream oos) throws IOException {
         oos.writeObject(this);
         oos.flush();
         oos.close();
@@ -77,7 +77,7 @@ public class Bank implements EbicsBank, Savable {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    private void readObject(ObjectInputStream ois)
+    private void readObject(final ObjectInputStream ois)
             throws IOException, ClassNotFoundException {
         ois.defaultReadObject();  // read the fields
     }
@@ -89,7 +89,7 @@ public class Bank implements EbicsBank, Savable {
      * @serialData the default write object.
      * throw an IOException if it does not.
      */
-    private void writeObject(ObjectOutputStream oos) throws IOException {
+    private void writeObject(final ObjectOutputStream oos) throws IOException {
         oos.defaultWriteObject(); // write the fields
     }
 
@@ -129,14 +129,14 @@ public class Bank implements EbicsBank, Savable {
     }
 
     @Override
-    public void setBankKeys(RSAPublicKey e002Key, RSAPublicKey x002Key) {
+    public void setBankKeys(final RSAPublicKey e002Key, final RSAPublicKey x002Key) {
         this.e002Key = e002Key;
         this.x002Key = x002Key;
         needSave = true;
     }
 
     @Override
-    public void setDigests(byte[] e002Digest, byte[] x002Digest) {
+    public void setDigests(final byte[] e002Digest, final byte[] x002Digest) {
         this.e002Digest = e002Digest;
         this.x002Digest = x002Digest;
         needSave = true;

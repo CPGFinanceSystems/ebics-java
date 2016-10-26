@@ -39,13 +39,13 @@ public class Messages {
      * @param params     the parameter
      * @return the corresponding key value
      */
-    public static String getString(String key, String bundleName, String param) {
+    public static String getString(final String key, final String bundleName, final String param) {
         try {
-            ResourceBundle resourceBundle;
+            final ResourceBundle resourceBundle;
 
             resourceBundle = ResourceBundle.getBundle(bundleName, locale);
             return MessageFormat.format(resourceBundle.getString(key), param);
-        } catch (MissingResourceException e) {
+        } catch (final MissingResourceException e) {
             return "!!" + key + "!!";
         }
     }
@@ -58,13 +58,13 @@ public class Messages {
      * @param param      the parameter
      * @return the corresponding key value
      */
-    public static String getString(String key, String bundleName, int param) {
+    public static String getString(final String key, final String bundleName, final int param) {
         try {
-            ResourceBundle resourceBundle;
+            final ResourceBundle resourceBundle;
 
             resourceBundle = ResourceBundle.getBundle(bundleName, locale);
             return MessageFormat.format(resourceBundle.getString(key), param);
-        } catch (MissingResourceException e) {
+        } catch (final MissingResourceException e) {
             return "!!" + key + "!!";
         }
     }
@@ -76,13 +76,13 @@ public class Messages {
      * @param bundleName the bundle name
      * @return the corresponding key value
      */
-    public static String getString(String key, String bundleName) {
+    public static String getString(final String key, final String bundleName) {
         try {
-            ResourceBundle resourceBundle;
+            final ResourceBundle resourceBundle;
 
             resourceBundle = ResourceBundle.getBundle(bundleName, locale);
             return resourceBundle.getString(key);
-        } catch (MissingResourceException e) {
+        } catch (final MissingResourceException e) {
             return "!!" + key + "!!";
         }
     }
@@ -96,13 +96,13 @@ public class Messages {
      * @param params     the parameter
      * @return the corresponding key value
      */
-    public static String getString(String key, String bundleName, Locale locale, String param) {
+    public static String getString(final String key, final String bundleName, final Locale locale, final String param) {
         try {
-            ResourceBundle resourceBundle;
+            final ResourceBundle resourceBundle;
 
             resourceBundle = ResourceBundle.getBundle(bundleName, locale);
             return MessageFormat.format(resourceBundle.getString(key), param);
-        } catch (MissingResourceException e) {
+        } catch (final MissingResourceException e) {
             return "!!" + key + "!!";
         }
     }
@@ -116,13 +116,13 @@ public class Messages {
      * @param param      the parameter
      * @return the corresponding key value
      */
-    public static String getString(String key, String bundleName, Locale locale, int param) {
+    public static String getString(final String key, final String bundleName, final Locale locale, final int param) {
         try {
-            ResourceBundle resourceBundle;
+            final ResourceBundle resourceBundle;
 
             resourceBundle = ResourceBundle.getBundle(bundleName, locale);
             return MessageFormat.format(resourceBundle.getString(key), param);
-        } catch (MissingResourceException e) {
+        } catch (final MissingResourceException e) {
             return "!!" + key + "!!";
         }
     }
@@ -135,13 +135,13 @@ public class Messages {
      * @param locale     the bundle locale
      * @return the corresponding key value
      */
-    public static String getString(String key, String bundleName, Locale locale) {
+    public static String getString(final String key, final String bundleName, final Locale locale) {
         try {
-            ResourceBundle resourceBundle;
+            final ResourceBundle resourceBundle;
 
             resourceBundle = ResourceBundle.getBundle(bundleName, locale);
             return resourceBundle.getString(key);
-        } catch (MissingResourceException e) {
+        } catch (final MissingResourceException e) {
             return "!!" + key + "!!";
         }
     }
@@ -151,7 +151,7 @@ public class Messages {
      *
      * @param locale the locale
      */
-    public static void setLocale(Locale locale) {
+    public static void setLocale(final Locale locale) {
         Messages.locale = locale;
     }
 

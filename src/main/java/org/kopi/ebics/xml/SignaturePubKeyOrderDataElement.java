@@ -43,17 +43,17 @@ public class SignaturePubKeyOrderDataElement extends DefaultEbicsRootElement {
      *
      * @param session the current ebics session
      */
-    public SignaturePubKeyOrderDataElement(EbicsSession session) {
+    public SignaturePubKeyOrderDataElement(final EbicsSession session) {
         super(session);
     }
 
     @Override
     public void build() throws EbicsException {
-        SignaturePubKeyInfoType signaturePubKeyInfo;
-        X509DataType x509Data;
-        RSAKeyValueType rsaKeyValue;
-        PubKeyValueType pubKeyValue;
-        SignaturePubKeyOrderDataType signaturePubKeyOrderData;
+        final SignaturePubKeyInfoType signaturePubKeyInfo;
+        final X509DataType x509Data;
+        final RSAKeyValueType rsaKeyValue;
+        final PubKeyValueType pubKeyValue;
+        final SignaturePubKeyOrderDataType signaturePubKeyOrderData;
 
         x509Data = EbicsXmlFactory.createX509DataType(session.getUser().getDN(),
                 session.getUser().getA005Certificate());

@@ -38,12 +38,12 @@ public abstract class AbstractInitLetter implements InitLetter {
      *
      * @param locale the application locale
      */
-    public AbstractInitLetter(Locale locale) {
+    public AbstractInitLetter(final Locale locale) {
         this.locale = locale;
     }
 
     @Override
-    public void save(OutputStream output) throws IOException {
+    public void save(final OutputStream output) throws IOException {
         output.write(letter.getLetter());
         output.flush();
         output.close();
@@ -64,16 +64,16 @@ public abstract class AbstractInitLetter implements InitLetter {
      * @param hash        the hash value
      * @throws IOException
      */
-    protected void build(String hostId,
-                         String bankName,
-                         String userId,
-                         String username,
-                         String partnerId,
-                         String version,
-                         String certTitle,
-                         byte[] certificate,
-                         String hashTitle,
-                         byte[] hash)
+    protected void build(final String hostId,
+                         final String bankName,
+                         final String userId,
+                         final String username,
+                         final String partnerId,
+                         final String version,
+                         final String certTitle,
+                         final byte[] certificate,
+                         final String hashTitle,
+                         final byte[] hash)
             throws IOException {
         letter = new Letter(getTitle(),
                 hostId,
@@ -89,12 +89,11 @@ public abstract class AbstractInitLetter implements InitLetter {
      * Returns the value of the property key.
      *
      * @param key        the property key
-     * @param bundleName the bundle name
      * @param locale     the bundle locale
      * @return the property value
      */
-    protected String getString(String key, String bundleName, Locale locale) {
-        return Messages.getString(key, bundleName, locale);
+    protected String getString(final String key, final Locale locale) {
+        return Messages.getString(key, AbstractInitLetter.BUNDLE_NAME, locale);
     }
 
     /**
@@ -104,8 +103,8 @@ public abstract class AbstractInitLetter implements InitLetter {
      * @return the certificate hash
      * @throws GeneralSecurityException
      */
-    protected byte[] getHash(byte[] certificate) throws GeneralSecurityException {
-        String hash256;
+    protected byte[] getHash(final byte[] certificate) throws GeneralSecurityException {
+        final String hash256;
 
         hash256 = new String(Hex.encodeHex(MessageDigest.getInstance("SHA-256").digest(certificate), false));
         return format(hash256).getBytes();
@@ -117,9 +116,9 @@ public abstract class AbstractInitLetter implements InitLetter {
      * @param hash256 the hash input
      * @return the formatted hash
      */
-    private String format(String hash256) {
-        StringBuffer buffer;
-        String formatted;
+    private String format(final String hash256) {
+        final StringBuffer buffer;
+        final String formatted;
 
         buffer = new StringBuffer();
         for (int i = 0; i < hash256.length(); i += 2) {
@@ -154,13 +153,13 @@ public abstract class AbstractInitLetter implements InitLetter {
          * @param partnerId the partner ID
          * @param version   the signature version
          */
-        public Letter(String title,
-                      String hostId,
-                      String bankName,
-                      String userId,
-                      String username,
-                      String partnerId,
-                      String version) {
+        public Letter(final String title,
+                      final String hostId,
+                      final String bankName,
+                      final String userId,
+                      final String username,
+                      final String partnerId,
+                      final String version) {
             this.title = title;
             this.hostId = hostId;
             this.bankName = bankName;
@@ -179,10 +178,10 @@ public abstract class AbstractInitLetter implements InitLetter {
          * @param hash        the hash content
          * @throws IOException
          */
-        public void build(String certTitle,
-                          byte[] certificate,
-                          String hashTitle,
-                          byte[] hash)
+        public void build(final String certTitle,
+                          final byte[] certificate,
+                          final String hashTitle,
+                          final byte[] hash)
                 throws IOException {
             out = new ByteArrayOutputStream();
             writer = new PrintWriter(out, true);
@@ -257,7 +256,7 @@ public abstract class AbstractInitLetter implements InitLetter {
          * @param cert  the certificate core
          * @throws IOException
          */
-        public void buildCertificate(String title, byte[] cert)
+        public void buildCertificate(final String title, final byte[] cert)
                 throws IOException {
             emit(title);
             emit(LINE_SEPARATOR);
@@ -276,7 +275,7 @@ public abstract class AbstractInitLetter implements InitLetter {
          * @param hash  the hash value
          * @throws IOException
          */
-        public void buildHash(String title, byte[] hash)
+        public void buildHash(final String title, final byte[] hash)
                 throws IOException {
             emit(title);
             emit(LINE_SEPARATOR);
@@ -317,7 +316,7 @@ public abstract class AbstractInitLetter implements InitLetter {
          * @param text the text to print
          * @throws IOException
          */
-        public void emit(String text) throws IOException {
+        public void emit(final String text) throws IOException {
             writer.write(text);
         }
 
@@ -327,8 +326,8 @@ public abstract class AbstractInitLetter implements InitLetter {
          * @param date the input date
          * @return the formatted date
          */
-        public String formatDate(Date date) {
-            SimpleDateFormat formatter;
+        public String formatDate(final Date date) {
+            final SimpleDateFormat formatter;
 
             formatter = new SimpleDateFormat(Messages.getString("Letter.dateFormat", BUNDLE_NAME, locale), locale);
             return formatter.format(date);
@@ -340,8 +339,8 @@ public abstract class AbstractInitLetter implements InitLetter {
          * @param time the input time
          * @return the formatted time
          */
-        public String formatTime(Date time) {
-            SimpleDateFormat formatter;
+        public String formatTime(final Date time) {
+            final SimpleDateFormat formatter;
 
             formatter = new SimpleDateFormat(Messages.getString("Letter.timeFormat", BUNDLE_NAME, locale), locale);
             return formatter.format(time);

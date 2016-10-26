@@ -57,7 +57,7 @@ public class Application {
      *
      * @param configuration the application configuration
      */
-    public Application(Configuration configuration) {
+    public Application(final Configuration configuration) {
         this.configuration = configuration;
         users = new Hashtable<String, User>();
         partners = new Hashtable<String, Partner>();
@@ -85,7 +85,7 @@ public class Application {
      *
      * @param user the concerned user
      */
-    public void createUserDirectories(EbicsUser user) {
+    public void createUserDirectories(final EbicsUser user) {
         configuration.getLogger().info(Messages.getString("user.create.directories", Constants.APPLICATION_BUNDLE_NAME, user.getUserId()));
         //Create the user directory
         IOUtils.createDirectories(configuration.getUserDirectory(user));
@@ -105,8 +105,8 @@ public class Application {
      * @param hostId the bank host ID
      * @return the created ebics bank
      */
-    public Bank createBank(URL url, String name, String hostId) {
-        Bank bank;
+    public Bank createBank(final URL url, final String name, final String hostId) {
+        final Bank bank;
 
         bank = new Bank(url, name, hostId);
         banks.put(hostId, bank);
@@ -119,8 +119,8 @@ public class Application {
      * @param bank      the bank
      * @param partnerId the partner ID
      */
-    public Partner createPartner(EbicsBank bank, String partnerId) {
-        Partner partner;
+    public Partner createPartner(final EbicsBank bank, final String partnerId) {
+        final Partner partner;
 
         partner = new Partner(bank, partnerId);
         partners.put(partnerId, partner);
@@ -143,23 +143,23 @@ public class Application {
      * @param passwordCallback a callback-handler that supplies us with the password.
      *                         This parameter can be null, in this case no password is used.
      */
-    public User createUser(URL url,
-                           String bankName,
-                           String hostId,
-                           String partnerId,
-                           String userId,
-                           String name,
-                           String email,
-                           String country,
-                           String organization,
-                           boolean saveCertificates,
-                           PasswordCallback passwordCallback) throws EbicsException {
-        Bank bank;
-        Partner partner;
-        User user;
-        InitLetter a005Letter;
-        InitLetter x002Letter;
-        InitLetter e002Letter;
+    public User createUser(final URL url,
+                           final String bankName,
+                           final String hostId,
+                           final String partnerId,
+                           final String userId,
+                           final String name,
+                           final String email,
+                           final String country,
+                           final String organization,
+                           final boolean saveCertificates,
+                           final PasswordCallback passwordCallback) throws EbicsException {
+        final Bank bank;
+        final Partner partner;
+        final User user;
+        final InitLetter a005Letter;
+        final InitLetter x002Letter;
+        final InitLetter e002Letter;
 
         configuration.getLogger().info(Messages.getString("user.create.info", Constants.APPLICATION_BUNDLE_NAME, userId));
 
@@ -198,16 +198,16 @@ public class Application {
      * @param partnerId the partner ID
      * @param userId    the user ID
      */
-    public User loadUser(String hostId,
-                         String partnerId,
-                         String userId,
-                         PasswordCallback passwordCallback) throws EbicsException {
+    public User loadUser(final String hostId,
+                         final String partnerId,
+                         final String userId,
+                         final PasswordCallback passwordCallback) throws EbicsException {
         configuration.getLogger().info(Messages.getString("user.load.info", Constants.APPLICATION_BUNDLE_NAME, userId));
 
         try {
-            Bank bank;
-            Partner partner;
-            User user;
+            final Bank bank;
+            final Partner partner;
+            final User user;
             ObjectInputStream input;
 
             input = configuration.getSerializationManager().deserialize(hostId);
@@ -233,10 +233,10 @@ public class Application {
      * @param userId  the user ID
      * @param product the application product
      */
-    public User sendINIRequest(String userId, Product product) throws EbicsException {
-        User user;
-        EbicsSession session;
-        KeyManagement keyManager;
+    public User sendINIRequest(final String userId, final Product product) throws EbicsException {
+        final User user;
+        final EbicsSession session;
+        final KeyManagement keyManager;
 
         configuration.getLogger().info(Messages.getString("ini.request.send", Constants.APPLICATION_BUNDLE_NAME, userId));
 
@@ -270,10 +270,10 @@ public class Application {
      * @param userId  the user ID.
      * @param product the application product.
      */
-    public User sendHIARequest(String userId, Product product) throws EbicsException {
-        User user;
-        EbicsSession session;
-        KeyManagement keyManager;
+    public User sendHIARequest(final String userId, final Product product) throws EbicsException {
+        final User user;
+        final EbicsSession session;
+        final KeyManagement keyManager;
 
         configuration.getLogger().info(Messages.getString("hia.request.send", Constants.APPLICATION_BUNDLE_NAME, userId));
         user = users.get(userId);
@@ -304,10 +304,10 @@ public class Application {
      * @param userId  the user ID.
      * @param product the application product.
      */
-    public void sendHPBRequest(String userId, Product product) {
-        User user;
-        EbicsSession session;
-        KeyManagement keyManager;
+    public void sendHPBRequest(final String userId, final Product product) {
+        final User user;
+        final EbicsSession session;
+        final KeyManagement keyManager;
 
         configuration.getLogger().info(Messages.getString("hpb.request.send", Constants.APPLICATION_BUNDLE_NAME, userId));
 
@@ -320,7 +320,7 @@ public class Application {
 
         try {
             keyManager.sendHPB();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             configuration.getLogger().error(Messages.getString("hpb.send.error", Constants.APPLICATION_BUNDLE_NAME, userId), e);
             return;
         }
@@ -334,10 +334,10 @@ public class Application {
      * @param userId  the user ID
      * @param product the session product
      */
-    public void revokeSubscriber(String userId, Product product) {
-        User user;
-        EbicsSession session;
-        KeyManagement keyManager;
+    public void revokeSubscriber(final String userId, final Product product) {
+        final User user;
+        final EbicsSession session;
+        final KeyManagement keyManager;
 
         configuration.getLogger().info(Messages.getString("spr.request.send", Constants.APPLICATION_BUNDLE_NAME, userId));
 
@@ -350,7 +350,7 @@ public class Application {
 
         try {
             keyManager.lockAccess();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             configuration.getLogger().error(Messages.getString("spr.send.error", Constants.APPLICATION_BUNDLE_NAME, userId), e);
             return;
         }
@@ -365,9 +365,9 @@ public class Application {
      * @param userId  the user ID that sends the file.
      * @param product the application product.
      */
-    public void sendFile(String path, String userId, Product product) {
-        FileTransfer transferManager;
-        EbicsSession session;
+    public void sendFile(final String path, final String userId, final Product product) {
+        final FileTransfer transferManager;
+        final EbicsSession session;
 
         session = new EbicsSession(users.get(userId), configuration);
         session.addSessionParam("FORMAT", "pain.xxx.cfonb160.dct");
@@ -380,22 +380,22 @@ public class Application {
 
         try {
             transferManager.sendFile(IOUtils.getFileContent(path), OrderType.FUL);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             configuration.getLogger().error(Messages.getString("upload.file.error", Constants.APPLICATION_BUNDLE_NAME, path), e);
-        } catch (EbicsException e) {
+        } catch (final EbicsException e) {
             configuration.getLogger().error(Messages.getString("upload.file.error", Constants.APPLICATION_BUNDLE_NAME, path), e);
         }
     }
 
-    public void fetchFile(String path,
-                          String userId,
-                          Product product,
-                          OrderType orderType,
-                          boolean isTest,
-                          Date start,
-                          Date end) {
-        FileTransfer transferManager;
-        EbicsSession session;
+    public void fetchFile(final String path,
+                          final String userId,
+                          final Product product,
+                          final OrderType orderType,
+                          final boolean isTest,
+                          final Date start,
+                          final Date end) {
+        final FileTransfer transferManager;
+        final EbicsSession session;
 
         session = new EbicsSession(users.get(userId), configuration);
         session.addSessionParam("FORMAT", "pain.xxx.cfonb160.dct");
@@ -409,9 +409,9 @@ public class Application {
 
         try {
             transferManager.fetchFile(orderType, start, end, new FileOutputStream(path));
-        } catch (IOException e) {
+        } catch (final IOException e) {
             configuration.getLogger().error(Messages.getString("download.file.error", Constants.APPLICATION_BUNDLE_NAME), e);
-        } catch (EbicsException e) {
+        } catch (final EbicsException e) {
             configuration.getLogger().error(Messages.getString("download.file.error", Constants.APPLICATION_BUNDLE_NAME), e);
         }
     }
@@ -421,7 +421,7 @@ public class Application {
      *
      * @param configuration the configuration
      */
-    public void setConfiguration(Configuration configuration) {
+    public void setConfiguration(final Configuration configuration) {
         this.configuration = configuration;
     }
 
@@ -430,27 +430,27 @@ public class Application {
      */
     public void quit() {
         try {
-            for (User user : users.values()) {
+            for (final User user : users.values()) {
                 if (user.needsSave()) {
                     configuration.getLogger().info(Messages.getString("app.quit.users", Constants.APPLICATION_BUNDLE_NAME, user.getUserId()));
                     configuration.getSerializationManager().serialize(user);
                 }
             }
 
-            for (Partner partner : partners.values()) {
+            for (final Partner partner : partners.values()) {
                 if (partner.needsSave()) {
                     configuration.getLogger().info(Messages.getString("app.quit.partners", Constants.APPLICATION_BUNDLE_NAME, partner.getPartnerId()));
                     configuration.getSerializationManager().serialize(partner);
                 }
             }
 
-            for (Bank bank : banks.values()) {
+            for (final Bank bank : banks.values()) {
                 if (bank.needsSave()) {
                     configuration.getLogger().info(Messages.getString("app.quit.banks", Constants.APPLICATION_BUNDLE_NAME, bank.getHostId()));
                     configuration.getSerializationManager().serialize(bank);
                 }
             }
-        } catch (EbicsException e) {
+        } catch (final EbicsException e) {
             configuration.getLogger().info(Messages.getString("app.quit.error", Constants.APPLICATION_BUNDLE_NAME));
         }
 
@@ -467,11 +467,11 @@ public class Application {
      *
      * @param args program arguments
      */
-    public static void main(String[] args) throws Exception {
-        DefaultConfiguration configuration;
-        PasswordCallback pwdHandler;
-        Application appli;
-        String userId;
+    public static void main(final String[] args) throws Exception {
+        final DefaultConfiguration configuration;
+        final PasswordCallback pwdHandler;
+        final Application appli;
+        final String userId;
 
         userId = "HEDI";
         configuration = new DefaultConfiguration();
@@ -490,7 +490,7 @@ public class Application {
 //	             "Euro-Information",
 //	             true,
 //	             pwdHandler);
-        Product product = new Product("kopiLeft Dev 1.0", Locale.FRANCE, null);
+        final Product product = new Product("kopiLeft Dev 1.0", Locale.FRANCE, null);
         appli.loadUser("EBIXQUAL", "EBIX", userId, pwdHandler);
 //    appli.sendINIRequest(userId, product);
 //    appli.sendHIARequest(userId, product);

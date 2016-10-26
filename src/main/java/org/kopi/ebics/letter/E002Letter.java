@@ -41,31 +41,31 @@ public class E002Letter extends AbstractInitLetter {
      *
      * @param locale the application locale
      */
-    public E002Letter(Locale locale) {
+    public E002Letter(final Locale locale) {
         super(locale);
     }
 
     @Override
-    public void create(EbicsUser user) throws GeneralSecurityException, IOException, EbicsException {
+    public void create(final EbicsUser user) throws GeneralSecurityException, IOException, EbicsException {
         build(user.getPartner().getBank().getHostId(),
                 user.getPartner().getBank().getName(),
                 user.getUserId(),
                 user.getName(),
                 user.getPartner().getPartnerId(),
-                getString("HIALetter.e002.version", BUNDLE_NAME, locale),
-                getString("HIALetter.e002.certificate", BUNDLE_NAME, locale),
+                getString("HIALetter.e002.version", locale),
+                getString("HIALetter.e002.certificate", locale),
                 Base64.encodeBase64(user.getE002Certificate(), true),
-                getString("HIALetter.e002.digest", BUNDLE_NAME, locale),
+                getString("HIALetter.e002.digest", locale),
                 getHash(user.getE002Certificate()));
     }
 
     @Override
     public String getTitle() {
-        return getString("HIALetter.e002.title", BUNDLE_NAME, locale);
+        return getString("HIALetter.e002.title", locale);
     }
 
     @Override
     public String getName() {
-        return getString("HIALetter.e002.name", BUNDLE_NAME, locale) + ".txt";
+        return getString("HIALetter.e002.name", locale) + ".txt";
     }
 }

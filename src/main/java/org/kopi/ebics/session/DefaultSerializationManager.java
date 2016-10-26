@@ -41,7 +41,7 @@ public class DefaultSerializationManager implements SerializationManager {
      *
      * @param serializationDir the serialization directory
      */
-    public DefaultSerializationManager(File serializationDir) {
+    public DefaultSerializationManager(final File serializationDir) {
         this.serializationDir = serializationDir;
     }
 
@@ -53,31 +53,31 @@ public class DefaultSerializationManager implements SerializationManager {
     }
 
     @Override
-    public void serialize(Savable object) throws EbicsException {
+    public void serialize(final Savable object) throws EbicsException {
         try {
-            ObjectOutputStream out;
+            final ObjectOutputStream out;
 
             out = new ObjectOutputStream(new FileOutputStream(IOUtils.createFile(serializationDir, object.getSaveName())));
             object.save(out);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new EbicsException(e.getMessage());
         }
     }
 
     @Override
-    public ObjectInputStream deserialize(String name) throws EbicsException {
+    public ObjectInputStream deserialize(final String name) throws EbicsException {
         try {
-            ObjectInputStream input;
+            final ObjectInputStream input;
 
             input = new ObjectInputStream(new FileInputStream(IOUtils.createFile(serializationDir, name + ".cer")));
             return input;
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new EbicsException(e.getMessage());
         }
     }
 
     @Override
-    public void setSerializationDirectory(String serializationDir) {
+    public void setSerializationDirectory(final String serializationDir) {
         this.serializationDir = new File(serializationDir);
     }
 

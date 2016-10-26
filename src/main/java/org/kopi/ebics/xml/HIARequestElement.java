@@ -39,7 +39,7 @@ public class HIARequestElement extends DefaultEbicsRootElement {
      * @param session the current ebics session
      * @param orderId the order id, if null a random one is generated.
      */
-    public HIARequestElement(EbicsSession session, String orderId) {
+    public HIARequestElement(final EbicsSession session, final String orderId) {
         super(session);
     }
 
@@ -50,7 +50,7 @@ public class HIARequestElement extends DefaultEbicsRootElement {
 
     @Override
     public void build() throws EbicsException {
-        HIARequestOrderDataElement requestOrderData;
+        final HIARequestOrderDataElement requestOrderData;
 
         requestOrderData = new HIARequestOrderDataElement(session);
         requestOrderData.build();

@@ -41,17 +41,17 @@ public class InitializationResponseElement extends DefaultResponseElement {
      * @param orderType the order type
      * @param name      the element name
      */
-    public InitializationResponseElement(ContentFactory factory,
-                                         OrderType orderType,
-                                         String name) {
+    public InitializationResponseElement(final ContentFactory factory,
+                                         final OrderType orderType,
+                                         final String name) {
         super(factory, name);
         this.orderType = orderType;
     }
 
     @Override
     public void build() throws EbicsException {
-        String code;
-        String text;
+        final String code;
+        final String text;
 
         parse(factory);
         response = ((EbicsResponseDocument) document).getEbicsResponse();

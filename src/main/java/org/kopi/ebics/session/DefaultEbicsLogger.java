@@ -33,32 +33,32 @@ import org.kopi.ebics.interfaces.EbicsLogger;
 public class DefaultEbicsLogger implements EbicsLogger {
 
     @Override
-    public void info(String message) {
+    public void info(final String message) {
         log.info(message);
     }
 
     @Override
-    public void warn(String message) {
+    public void warn(final String message) {
         log.warn(message);
     }
 
     @Override
-    public void warn(String message, Throwable throwable) {
+    public void warn(final String message, final Throwable throwable) {
         log.warn(message, throwable);
     }
 
     @Override
-    public void error(String message) {
+    public void error(final String message) {
         log.error(message);
     }
 
     @Override
-    public void error(String message, Throwable throwable) {
+    public void error(final String message, final Throwable throwable) {
         log.error(message, throwable);
     }
 
     @Override
-    public void report(ReturnCode returnCode) {
+    public void report(final ReturnCode returnCode) {
         if (returnCode.isOk()) {
             info(returnCode.getText());
         } else {

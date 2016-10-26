@@ -38,7 +38,7 @@ public class INIRequestElement extends DefaultEbicsRootElement {
      * @param session the ebics session.
      * @param orderId the order id, if null a random one is generated.
      */
-    public INIRequestElement(EbicsSession session, String orderId) {
+    public INIRequestElement(final EbicsSession session, final String orderId) {
         super(session);
     }
 
@@ -49,7 +49,7 @@ public class INIRequestElement extends DefaultEbicsRootElement {
 
     @Override
     public void build() throws EbicsException {
-        SignaturePubKeyOrderDataElement signaturePubKey;
+        final SignaturePubKeyOrderDataElement signaturePubKey;
 
         signaturePubKey = new SignaturePubKeyOrderDataElement(session);
         signaturePubKey.build();

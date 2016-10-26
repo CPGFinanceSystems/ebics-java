@@ -35,7 +35,7 @@ public class HPBRequestElement extends DefaultEbicsRootElement {
      *
      * @param session the current ebics session.
      */
-    public HPBRequestElement(EbicsSession session) {
+    public HPBRequestElement(final EbicsSession session) {
         super(session);
     }
 
@@ -46,8 +46,8 @@ public class HPBRequestElement extends DefaultEbicsRootElement {
 
     @Override
     public void build() throws EbicsException {
-        SignedInfo signedInfo;
-        byte[] signature;
+        final SignedInfo signedInfo;
+        final byte[] signature;
 
         noPubKeyDigestsRequest = new NoPubKeyDigestsRequestElement(session);
         noPubKeyDigestsRequest.build();

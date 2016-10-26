@@ -71,7 +71,7 @@ public class FileTransfer {
      *
      * @param session the user session
      */
-    public FileTransfer(EbicsSession session) {
+    public FileTransfer(final EbicsSession session) {
         this.session = session;
     }
 
@@ -83,13 +83,13 @@ public class FileTransfer {
      * @throws IOException
      * @throws EbicsException
      */
-    public void sendFile(byte[] content, OrderType orderType)
+    public void sendFile(final byte[] content, final OrderType orderType)
             throws IOException, EbicsException {
-        HttpRequestSender sender;
-        UInitializationRequestElement initializer;
-        InitializationResponseElement response;
-        int httpCode;
-        TransferState state;
+        final HttpRequestSender sender;
+        final UInitializationRequestElement initializer;
+        final InitializationResponseElement response;
+        final int httpCode;
+        final TransferState state;
 
         sender = new HttpRequestSender(session);
         initializer = new UInitializationRequestElement(session,
@@ -110,7 +110,7 @@ public class FileTransfer {
         state = new TransferState(initializer.getSegmentNumber(), response.getTransactionId());
 
         while (state.hasNext()) {
-            int segmentNumber;
+            final int segmentNumber;
 
             segmentNumber = state.next();
             sendFile(initializer.getContent(segmentNumber),
@@ -132,16 +132,16 @@ public class FileTransfer {
      * @throws IOException
      * @throws EbicsException
      */
-    public void sendFile(ContentFactory factory,
-                         int segmentNumber,
-                         boolean lastSegment,
-                         byte[] transactionId,
-                         OrderType orderType)
+    public void sendFile(final ContentFactory factory,
+                         final int segmentNumber,
+                         final boolean lastSegment,
+                         final byte[] transactionId,
+                         final OrderType orderType)
             throws IOException, EbicsException {
-        UTransferRequestElement uploader;
-        HttpRequestSender sender;
-        TransferResponseElement response;
-        int httpCode;
+        final UTransferRequestElement uploader;
+        final HttpRequestSender sender;
+        final TransferResponseElement response;
+        final int httpCode;
 
         session.getConfiguration().getLogger().info(Messages.getString("upload.segment",
                 Constants.APPLICATION_BUNDLE_NAME,
@@ -178,19 +178,19 @@ public class FileTransfer {
      * @throws IOException    communication error
      * @throws EbicsException server generated error
      */
-    public void fetchFile(OrderType orderType,
-                          Date start,
-                          Date end,
-                          OutputStream dest)
+    public void fetchFile(final OrderType orderType,
+                          final Date start,
+                          final Date end,
+                          final OutputStream dest)
             throws IOException, EbicsException {
-        HttpRequestSender sender;
-        DInitializationRequestElement initializer;
-        DInitializationResponseElement response;
-        ReceiptRequestElement receipt;
-        ReceiptResponseElement receiptResponse;
+        final HttpRequestSender sender;
+        final DInitializationRequestElement initializer;
+        final DInitializationResponseElement response;
+        final ReceiptRequestElement receipt;
+        final ReceiptResponseElement receiptResponse;
         int httpCode;
-        TransferState state;
-        Joiner joiner;
+        final TransferState state;
+        final Joiner joiner;
 
         sender = new HttpRequestSender(session);
         initializer = new DInitializationRequestElement(session,
@@ -213,7 +213,7 @@ public class FileTransfer {
         joiner = new Joiner(session.getUser());
         joiner.append(response.getOrderData());
         while (state.hasNext()) {
-            int segmentNumber;
+            final int segmentNumber;
 
             segmentNumber = state.next();
             fetchFile(orderType,
@@ -250,16 +250,16 @@ public class FileTransfer {
      * @throws IOException    communication error
      * @throws EbicsException server generated error
      */
-    public void fetchFile(OrderType orderType,
-                          int segmentNumber,
-                          boolean lastSegment,
-                          byte[] transactionId,
-                          Joiner joiner)
+    public void fetchFile(final OrderType orderType,
+                          final int segmentNumber,
+                          final boolean lastSegment,
+                          final byte[] transactionId,
+                          final Joiner joiner)
             throws IOException, EbicsException {
-        DTransferRequestElement downloader;
-        HttpRequestSender sender;
-        DTransferResponseElement response;
-        int httpCode;
+        final DTransferRequestElement downloader;
+        final HttpRequestSender sender;
+        final DTransferResponseElement response;
+        final int httpCode;
 
         sender = new HttpRequestSender(session);
         downloader = new DTransferRequestElement(session,

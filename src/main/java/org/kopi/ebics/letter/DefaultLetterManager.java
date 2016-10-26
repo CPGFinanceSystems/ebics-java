@@ -42,14 +42,14 @@ public class DefaultLetterManager implements LetterManager {
      *
      * @param locale the application locale.
      */
-    public DefaultLetterManager(Locale locale) {
+    public DefaultLetterManager(final Locale locale) {
         this.locale = locale;
     }
 
     @Override
-    public InitLetter createA005Letter(EbicsUser user)
+    public InitLetter createA005Letter(final EbicsUser user)
             throws GeneralSecurityException, IOException, EbicsException {
-        A005Letter letter;
+        final A005Letter letter;
 
         letter = new A005Letter(locale);
         letter.create(user);
@@ -57,9 +57,9 @@ public class DefaultLetterManager implements LetterManager {
     }
 
     @Override
-    public InitLetter createE002Letter(EbicsUser user)
+    public InitLetter createE002Letter(final EbicsUser user)
             throws GeneralSecurityException, IOException, EbicsException {
-        E002Letter letter;
+        final E002Letter letter;
 
         letter = new E002Letter(locale);
         letter.create(user);
@@ -67,9 +67,9 @@ public class DefaultLetterManager implements LetterManager {
     }
 
     @Override
-    public InitLetter createX002Letter(EbicsUser user)
+    public InitLetter createX002Letter(final EbicsUser user)
             throws GeneralSecurityException, IOException, EbicsException {
-        X002Letter letter;
+        final X002Letter letter;
 
         letter = new X002Letter(locale);
         letter.create(user);

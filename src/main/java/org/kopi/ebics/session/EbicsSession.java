@@ -42,7 +42,7 @@ public class EbicsSession {
      * @param user the ebics user
      * @param the  ebics client configuration
      */
-    public EbicsSession(EbicsUser user, Configuration configuration) {
+    public EbicsSession(final EbicsUser user, final Configuration configuration) {
         this.user = user;
         this.configuration = configuration;
         parameters = new HashMap<String, String>();
@@ -105,7 +105,7 @@ public class EbicsSession {
      *
      * @param product Product description
      */
-    public void setProduct(Product product) {
+    public void setProduct(final Product product) {
         this.product = product;
     }
 
@@ -122,7 +122,7 @@ public class EbicsSession {
      * @param key   the parameter key
      * @param value the parameter value
      */
-    public void addSessionParam(String key, String value) {
+    public void addSessionParam(final String key, final String value) {
         parameters.put(key, value);
     }
 
@@ -132,7 +132,7 @@ public class EbicsSession {
      * @param key the parameter key
      * @return the session parameter
      */
-    public String getSessionParam(String key) {
+    public String getSessionParam(final String key) {
         if (key == null) {
             return null;
         }

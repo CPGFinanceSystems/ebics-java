@@ -60,10 +60,10 @@ public class X509Generator {
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    public X509Certificate generateA005Certificate(KeyPair keypair,
-                                                   String issuer,
-                                                   Date notBefore,
-                                                   Date notAfter)
+    public X509Certificate generateA005Certificate(final KeyPair keypair,
+                                                   final String issuer,
+                                                   final Date notBefore,
+                                                   final Date notAfter)
             throws GeneralSecurityException, IOException {
         return generate(keypair,
                 issuer,
@@ -83,10 +83,10 @@ public class X509Generator {
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    public X509Certificate generateX002Certificate(KeyPair keypair,
-                                                   String issuer,
-                                                   Date notBefore,
-                                                   Date notAfter)
+    public X509Certificate generateX002Certificate(final KeyPair keypair,
+                                                   final String issuer,
+                                                   final Date notBefore,
+                                                   final Date notAfter)
             throws GeneralSecurityException, IOException {
         return generate(keypair,
                 issuer,
@@ -106,10 +106,10 @@ public class X509Generator {
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    public X509Certificate generateE002Certificate(KeyPair keypair,
-                                                   String issuer,
-                                                   Date notBefore,
-                                                   Date notAfter)
+    public X509Certificate generateE002Certificate(final KeyPair keypair,
+                                                   final String issuer,
+                                                   final Date notBefore,
+                                                   final Date notAfter)
             throws GeneralSecurityException, IOException {
         return generate(keypair,
                 issuer,
@@ -131,16 +131,16 @@ public class X509Generator {
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    public X509Certificate generate(KeyPair keypair,
-                                    String issuer,
-                                    Date notBefore,
-                                    Date notAfter,
-                                    int keyusage)
+    public X509Certificate generate(final KeyPair keypair,
+                                    final String issuer,
+                                    final Date notBefore,
+                                    final Date notAfter,
+                                    final int keyusage)
             throws GeneralSecurityException, IOException {
-        X509V3CertificateGenerator generator;
-        BigInteger serial;
-        X509Certificate certificate;
-        ASN1EncodableVector vector;
+        final X509V3CertificateGenerator generator;
+        final BigInteger serial;
+        final X509Certificate certificate;
+        final ASN1EncodableVector vector;
 
         serial = BigInteger.valueOf(generateSerial());
         generator = new X509V3CertificateGenerator();
@@ -200,13 +200,13 @@ public class X509Generator {
      * @return the authority key identifier of the public key
      * @throws IOException
      */
-    private AuthorityKeyIdentifier getAuthorityKeyIdentifier(PublicKey publicKey,
-                                                             String issuer,
-                                                             BigInteger serial)
+    private AuthorityKeyIdentifier getAuthorityKeyIdentifier(final PublicKey publicKey,
+                                                             final String issuer,
+                                                             final BigInteger serial)
             throws IOException {
-        InputStream input;
-        SubjectPublicKeyInfo keyInfo;
-        ASN1EncodableVector vector;
+        final InputStream input;
+        final SubjectPublicKeyInfo keyInfo;
+        final ASN1EncodableVector vector;
 
         input = new ByteArrayInputStream(publicKey.getEncoded());
         keyInfo = new SubjectPublicKeyInfo((ASN1Sequence) new ASN1InputStream(input).readObject());
@@ -224,10 +224,10 @@ public class X509Generator {
      * @return the subject key identifier
      * @throws IOException
      */
-    private SubjectKeyIdentifier getSubjectKeyIdentifier(PublicKey publicKey)
+    private SubjectKeyIdentifier getSubjectKeyIdentifier(final PublicKey publicKey)
             throws IOException {
-        InputStream input;
-        SubjectPublicKeyInfo keyInfo;
+        final InputStream input;
+        final SubjectPublicKeyInfo keyInfo;
 
         input = new ByteArrayInputStream(publicKey.getEncoded());
         keyInfo = new SubjectPublicKeyInfo((ASN1Sequence) new ASN1InputStream(input).readObject());
@@ -241,10 +241,10 @@ public class X509Generator {
      * @return the serial number
      */
     private long generateSerial() {
-        Date now;
+        final Date now;
 
         now = new Date();
-        String sNow = sdfSerial.format(now);
+        final String sNow = sdfSerial.format(now);
 
         return Long.valueOf(sNow).longValue();
     }
@@ -257,7 +257,7 @@ public class X509Generator {
 
     static {
         sdfSerial = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-        TimeZone tz = TimeZone.getTimeZone("UTC");
+        final TimeZone tz = TimeZone.getTimeZone("UTC");
         sdfSerial.setTimeZone(tz);
     }
 }

@@ -41,15 +41,13 @@ public class KeyUtil {
      * @return KeyPair the key pair
      * @throws NoSuchAlgorithmException
      */
-    public static KeyPair makeKeyPair(int keyLen) throws NoSuchAlgorithmException {
-        KeyPairGenerator keyGen;
+    public static KeyPair makeKeyPair(final int keyLen) throws NoSuchAlgorithmException {
+        final KeyPairGenerator keyGen;
 
         keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(keyLen, new SecureRandom());
 
-        KeyPair keypair = keyGen.generateKeyPair();
-
-        return keypair;
+        return keyGen.generateKeyPair();
 
     }
 
@@ -59,14 +57,14 @@ public class KeyUtil {
      * @return the password
      */
     public static String generatePassword() {
-        SecureRandom random;
+        final SecureRandom random;
 
         try {
             random = SecureRandom.getInstance("SHA1PRNG");
-            String pwd = Base64.encodeBase64String(random.generateSeed(5));
+            final String pwd = Base64.encodeBase64String(random.generateSeed(5));
 
             return pwd.substring(0, pwd.length() - 2);
-        } catch (NoSuchAlgorithmException e) {
+        } catch (final NoSuchAlgorithmException e) {
             return "changeit";
         }
     }
@@ -87,11 +85,11 @@ public class KeyUtil {
      * @return the digest value
      * @throws EbicsException
      */
-    public static byte[] getKeyDigest(RSAPublicKey publicKey) throws EbicsException {
-        String modulus;
-        String exponent;
+    public static byte[] getKeyDigest(final RSAPublicKey publicKey) throws EbicsException {
+        final String modulus;
+        final String exponent;
         String hash;
-        byte[] digest;
+        final byte[] digest;
 
         exponent = Hex.encodeHexString(publicKey.getPublicExponent().toByteArray());
         modulus = Hex.encodeHexString(removeFirstByte(publicKey.getModulus().toByteArray()));
@@ -103,9 +101,9 @@ public class KeyUtil {
 
         try {
             digest = MessageDigest.getInstance("SHA-256", "BC").digest(hash.getBytes("US-ASCII"));
-        } catch (GeneralSecurityException e) {
+        } catch (final GeneralSecurityException e) {
             throw new EbicsException(e.getMessage());
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new EbicsException(e.getMessage());
         }
 
@@ -117,8 +115,8 @@ public class KeyUtil {
      *
      * @return the array
      */
-    private static byte[] removeFirstByte(byte[] byteArray) {
-        byte[] b = new byte[byteArray.length - 1];
+    private static byte[] removeFirstByte(final byte[] byteArray) {
+        final byte[] b = new byte[byteArray.length - 1];
         System.arraycopy(byteArray, 1, b, 0, b.length);
         return b;
     }

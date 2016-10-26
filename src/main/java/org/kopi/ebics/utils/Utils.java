@@ -65,15 +65,15 @@ public class Utils {
      * @return the compressed input data
      * @throws IOException compression failed
      */
-    public static byte[] zip(byte[] toZip) throws EbicsException {
+    public static byte[] zip(final byte[] toZip) throws EbicsException {
 
         if (toZip == null) {
             throw new EbicsException("The input to be zipped cannot be null");
         }
 
-        Deflater compressor;
-        ByteArrayOutputStream output;
-        byte[] buffer;
+        final Deflater compressor;
+        final ByteArrayOutputStream output;
+        final byte[] buffer;
 
         output = new ByteArrayOutputStream(toZip.length);
         buffer = new byte[1024];
@@ -82,13 +82,13 @@ public class Utils {
         compressor.finish();
 
         while (!compressor.finished()) {
-            int count = compressor.deflate(buffer);
+            final int count = compressor.deflate(buffer);
             output.write(buffer, 0, count);
         }
 
         try {
             output.close();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new EbicsException(e.getMessage());
         }
         compressor.end();
@@ -113,12 +113,12 @@ public class Utils {
      * @throws EbicsException nonce generation fails.
      */
     public static byte[] generateNonce() throws EbicsException {
-        SecureRandom secureRandom;
+        final SecureRandom secureRandom;
 
         try {
             secureRandom = SecureRandom.getInstance("SHA1PRNG");
             return secureRandom.generateSeed(16);
-        } catch (NoSuchAlgorithmException e) {
+        } catch (final NoSuchAlgorithmException e) {
             throw new EbicsException(e.getMessage());
         }
     }
@@ -133,10 +133,10 @@ public class Utils {
      * @param zip the zipped input.
      * @return the uncompressed data.
      */
-    public static byte[] unzip(byte[] zip) throws EbicsException {
-        Inflater decompressor;
-        ByteArrayOutputStream output;
-        byte[] buf;
+    public static byte[] unzip(final byte[] zip) throws EbicsException {
+        final Inflater decompressor;
+        final ByteArrayOutputStream output;
+        final byte[] buf;
 
         decompressor = new Inflater();
         output = new ByteArrayOutputStream(zip.length);
@@ -144,11 +144,11 @@ public class Utils {
         buf = new byte[1024];
 
         while (!decompressor.finished()) {
-            int count;
+            final int count;
 
             try {
                 count = decompressor.inflate(buf);
-            } catch (DataFormatException e) {
+            } catch (final DataFormatException e) {
                 throw new EbicsException(e.getMessage());
             }
             output.write(buf, 0, count);
@@ -156,7 +156,7 @@ public class Utils {
 
         try {
             output.close();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new EbicsException(e.getMessage());
         }
 
@@ -184,12 +184,12 @@ public class Utils {
      * @return the canonized form of the given XML
      * @throws EbicsException
      */
-    public static byte[] canonize(byte[] input) throws EbicsException {
-        DocumentBuilderFactory factory;
-        DocumentBuilder builder;
-        Document document;
-        NodeIterator iter;
-        ByteArrayOutputStream output;
+    public static byte[] canonize(final byte[] input) throws EbicsException {
+        final DocumentBuilderFactory factory;
+        final DocumentBuilder builder;
+        final Document document;
+        final NodeIterator iter;
+        final ByteArrayOutputStream output;
         Node node;
 
         try {
@@ -202,14 +202,14 @@ public class Utils {
             iter = XPathAPI.selectNodeIterator(document, "//*[@authenticate='true']");
             output = new ByteArrayOutputStream();
             while ((node = iter.nextNode()) != null) {
-                Canonicalizer canonicalizer;
+                final Canonicalizer canonicalizer;
 
                 canonicalizer = Canonicalizer.getInstance(Canonicalizer.ALGO_ID_C14N_OMIT_COMMENTS);
                 output.write(canonicalizer.canonicalizeSubtree(node));
             }
 
             return output.toByteArray();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new EbicsException(e.getMessage());
         }
     }
@@ -243,7 +243,7 @@ public class Utils {
      * @return the encrypted input
      * @throws EbicsException
      */
-    public static byte[] encrypt(byte[] input, SecretKeySpec keySpec)
+    public static byte[] encrypt(final byte[] input, final SecretKeySpec keySpec)
             throws EbicsException {
         return encryptOrDecrypt(Cipher.ENCRYPT_MODE, input, keySpec);
     }
@@ -256,7 +256,7 @@ public class Utils {
      * @return the decrypted input
      * @throws EbicsException
      */
-    public static byte[] decrypt(byte[] input, SecretKeySpec keySpec)
+    public static byte[] decrypt(final byte[] input, final SecretKeySpec keySpec)
             throws EbicsException {
         return encryptOrDecrypt(Cipher.DECRYPT_MODE, input, keySpec);
     }
@@ -270,17 +270,17 @@ public class Utils {
      * @return the encrypted or decrypted data.
      * @throws GeneralSecurityException
      */
-    private static byte[] encryptOrDecrypt(int mode, byte[] input, SecretKeySpec keySpec)
+    private static byte[] encryptOrDecrypt(final int mode, final byte[] input, final SecretKeySpec keySpec)
             throws EbicsException {
-        IvParameterSpec iv;
-        Cipher cipher;
+        final IvParameterSpec iv;
+        final Cipher cipher;
 
         iv = new IvParameterSpec(new byte[16]);
         try {
             cipher = Cipher.getInstance("AES/CBC/ISO10126Padding", BouncyCastleProvider.PROVIDER_NAME);
             cipher.init(mode, keySpec, iv);
             return cipher.doFinal(input);
-        } catch (GeneralSecurityException e) {
+        } catch (final GeneralSecurityException e) {
             throw new EbicsException(e.getMessage());
         }
     }
@@ -291,10 +291,10 @@ public class Utils {
      * @param date the given string date
      * @return the date value
      */
-    public static Date parse(String date) throws EbicsException {
+    public static Date parse(final String date) throws EbicsException {
         try {
             return Constants.DEFAULT_DATE_FORMAT.parse(date);
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             throw new EbicsException(e.getMessage());
         }
     }
@@ -305,7 +305,7 @@ public class Utils {
      * @param httpCode the http code
      * @throws EbicsException
      */
-    public static void checkHttpCode(int httpCode) throws EbicsException {
+    public static void checkHttpCode(final int httpCode) throws EbicsException {
         if (httpCode != 200) {
             throw new EbicsException(Messages.getString("http.code.error",
                     Constants.APPLICATION_BUNDLE_NAME,

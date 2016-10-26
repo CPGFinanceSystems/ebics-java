@@ -51,26 +51,26 @@ public class UTransferRequestElement extends TransferRequestElement {
      * @param transactionId the transaction ID
      * @param content       the content factory
      */
-    public UTransferRequestElement(EbicsSession session,
-                                   OrderType orderType,
-                                   int segmentNumber,
-                                   boolean lastSegment,
-                                   byte[] transactionId,
-                                   ContentFactory content) {
+    public UTransferRequestElement(final EbicsSession session,
+                                   final OrderType orderType,
+                                   final int segmentNumber,
+                                   final boolean lastSegment,
+                                   final byte[] transactionId,
+                                   final ContentFactory content) {
         super(session, generateName(orderType), orderType, segmentNumber, lastSegment, transactionId);
         this.content = content;
     }
 
     @Override
     public void buildTransfer() throws EbicsException {
-        EbicsRequest request;
-        Header header;
-        Body body;
-        MutableHeaderType mutable;
-        SegmentNumber segmentNumber;
-        StaticHeaderType xstatic;
-        OrderData orderData;
-        DataTransferRequestType dataTransfer;
+        final EbicsRequest request;
+        final Header header;
+        final Body body;
+        final MutableHeaderType mutable;
+        final SegmentNumber segmentNumber;
+        final StaticHeaderType xstatic;
+        final OrderData orderData;
+        final DataTransferRequestType dataTransfer;
 
         segmentNumber = EbicsXmlFactory.createSegmentNumber(this.segmentNumber, lastSegment);
         mutable = EbicsXmlFactory.createMutableHeaderType("Transfer", segmentNumber);

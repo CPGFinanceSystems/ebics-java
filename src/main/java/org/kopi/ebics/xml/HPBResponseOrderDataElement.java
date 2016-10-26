@@ -39,7 +39,7 @@ public class HPBResponseOrderDataElement extends DefaultResponseElement {
      *
      * @param factory the content factory.
      */
-    public HPBResponseOrderDataElement(ContentFactory factory) {
+    public HPBResponseOrderDataElement(final ContentFactory factory) {
         super(factory, "HPBData");
     }
 

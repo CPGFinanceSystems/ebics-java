@@ -45,10 +45,10 @@ public class UserSignature extends DefaultEbicsRootElement {
      * @param signatureVersion the signature version
      * @param toSign           the data to be signed
      */
-    public UserSignature(EbicsUser user,
-                         String name,
-                         String signatureVersion,
-                         byte[] toSign) {
+    public UserSignature(final EbicsUser user,
+                         final String name,
+                         final String signatureVersion,
+                         final byte[] toSign) {
         this.user = user;
         this.toSign = toSign;
         this.name = name;
@@ -57,15 +57,15 @@ public class UserSignature extends DefaultEbicsRootElement {
 
     @Override
     public void build() throws EbicsException {
-        UserSignatureDataSigBookType userSignatureData;
-        OrderSignatureDataType orderSignatureData;
-        byte[] signature;
+        final UserSignatureDataSigBookType userSignatureData;
+        final OrderSignatureDataType orderSignatureData;
+        final byte[] signature;
 
         try {
             signature = user.sign(toSign);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new EbicsException(e.getMessage());
-        } catch (GeneralSecurityException e) {
+        } catch (final GeneralSecurityException e) {
             throw new EbicsException(e.getMessage());
         }
 

@@ -38,9 +38,9 @@ public class DTransferResponseElement extends TransferResponseElement {
      * @param orderType the order type
      * @param name      the element name.
      */
-    public DTransferResponseElement(ContentFactory factory,
-                                    OrderType orderType,
-                                    String name) {
+    public DTransferResponseElement(final ContentFactory factory,
+                                    final OrderType orderType,
+                                    final String name) {
         super(factory, name);
     }
 

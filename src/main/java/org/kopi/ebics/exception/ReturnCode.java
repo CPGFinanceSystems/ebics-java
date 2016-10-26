@@ -41,7 +41,7 @@ public class ReturnCode implements Serializable {
      * @param symbolicName the symbolic name.
      * @param the          code text
      */
-    public ReturnCode(String code, String symbolicName, String text) {
+    public ReturnCode(final String code, final String symbolicName, final String text) {
         this.code = code;
         this.symbolicName = symbolicName;
         this.text = text;
@@ -99,7 +99,7 @@ public class ReturnCode implements Serializable {
      * @param text the given code text
      * @return the equivalent <code>ReturnCode</code>
      */
-    public static ReturnCode toReturnCode(String code, String text) {
+    public static ReturnCode toReturnCode(final String code, final String text) {
         if (code.equals(EBICS_OK.code)) {
             return EBICS_OK;
         } else if (code.equals(EBICS_DOWNLOAD_POSTPROCESS_DONE.code)) {
@@ -154,7 +154,7 @@ public class ReturnCode implements Serializable {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (obj instanceof ReturnCode) {
             return this.code.equals(((ReturnCode) obj).code);
         }

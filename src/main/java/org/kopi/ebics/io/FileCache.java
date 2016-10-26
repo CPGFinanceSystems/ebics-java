@@ -35,7 +35,7 @@ public class FileCache {
      *
      * @param isTraceEnabled is trace enabled?
      */
-    public FileCache(boolean isTraceEnabled) {
+    public FileCache(final boolean isTraceEnabled) {
         this.isTraceEnabled = isTraceEnabled;
         cache = new Hashtable<String, File>();
     }
@@ -46,7 +46,7 @@ public class FileCache {
      * @param file the file to cache
      * @return True if the file is cached
      */
-    public boolean add(File file) {
+    public boolean add(final File file) {
         if (cache.containsKey(file.getName())) {
             return false;
         }
@@ -62,7 +62,7 @@ public class FileCache {
      * @param filename the file to remove
      * @return True if the file is removed
      */
-    public boolean remove(String filename) {
+    public boolean remove(final String filename) {
         if (!cache.containsKey(filename)) {
             return false;
         }
@@ -77,7 +77,7 @@ public class FileCache {
      */
     public void clear() {
         if (isTraceEnabled) {
-            for (File file : cache.values()) {
+            for (final File file : cache.values()) {
                 file.delete();
             }
         }
@@ -90,7 +90,7 @@ public class FileCache {
      *
      * @param enabled is trace enabled?
      */
-    public void setTraceEnabled(boolean enabled) {
+    public void setTraceEnabled(final boolean enabled) {
         this.isTraceEnabled = enabled;
     }
 

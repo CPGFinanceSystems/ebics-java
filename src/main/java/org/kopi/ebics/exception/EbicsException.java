@@ -37,7 +37,7 @@ public class EbicsException extends Exception {
      *
      * @param message the exception message
      */
-    public EbicsException(String message) {
+    public EbicsException(final String message) {
         super(message);
     }
 
@@ -50,7 +50,7 @@ public class EbicsException extends Exception {
      *
      * @param returnCode the ebics return code.
      */
-    public EbicsException(ReturnCode returnCode) {
+    public EbicsException(final ReturnCode returnCode) {
         this.returnCode = returnCode;
     }
 
@@ -60,7 +60,7 @@ public class EbicsException extends Exception {
      * @param returnCode the ebics return code.
      * @param message    the additional message.
      */
-    public EbicsException(ReturnCode returnCode, String message) {
+    public EbicsException(final ReturnCode returnCode, final String message) {
         super(message);
         this.returnCode = returnCode;
     }

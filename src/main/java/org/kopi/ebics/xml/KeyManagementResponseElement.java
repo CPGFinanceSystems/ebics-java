@@ -42,7 +42,7 @@ public class KeyManagementResponseElement extends DefaultResponseElement {
      * @param factory the content factory enclosing the ebics response
      * @param name    the element name
      */
-    public KeyManagementResponseElement(ContentFactory factory, String name) {
+    public KeyManagementResponseElement(final ContentFactory factory, final String name) {
         super(factory, name);
     }
 
@@ -67,8 +67,8 @@ public class KeyManagementResponseElement extends DefaultResponseElement {
 
     @Override
     public void build() throws EbicsException {
-        String code;
-        String text;
+        final String code;
+        final String text;
 
         parse(factory);
         response = ((EbicsKeyManagementResponseDocument) document).getEbicsKeyManagementResponse();

@@ -46,22 +46,22 @@ public class DTransferRequestElement extends TransferRequestElement {
      * @param lastSegment   is it the last segment?
      * @param transactionId the transaction ID
      */
-    public DTransferRequestElement(EbicsSession session,
-                                   OrderType type,
-                                   int segmentNumber,
-                                   boolean lastSegment,
-                                   byte[] transactionId) {
+    public DTransferRequestElement(final EbicsSession session,
+                                   final OrderType type,
+                                   final int segmentNumber,
+                                   final boolean lastSegment,
+                                   final byte[] transactionId) {
         super(session, generateName(type), type, segmentNumber, lastSegment, transactionId);
     }
 
     @Override
     public void buildTransfer() throws EbicsException {
-        EbicsRequest request;
-        Header header;
-        Body body;
-        MutableHeaderType mutable;
-        SegmentNumber segmentNumber;
-        StaticHeaderType xstatic;
+        final EbicsRequest request;
+        final Header header;
+        final Body body;
+        final MutableHeaderType mutable;
+        final SegmentNumber segmentNumber;
+        final StaticHeaderType xstatic;
 
         segmentNumber = EbicsXmlFactory.createSegmentNumber(this.segmentNumber, lastSegment);
         mutable = EbicsXmlFactory.createMutableHeaderType("Transfer", segmentNumber);

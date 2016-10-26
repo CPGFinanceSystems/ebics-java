@@ -36,14 +36,14 @@ public class UserPasswordHandler implements PasswordCallback {
      * @param userId the user id.
      * @param suffix the user suffix.
      */
-    public UserPasswordHandler(String userId, String suffix) {
+    public UserPasswordHandler(final String userId, final String suffix) {
         this.userId = userId;
         this.suffix = suffix;
     }
 
     @Override
     public char[] getPassword() {
-        String pwd;
+        final String pwd;
 
         pwd = userId + suffix;
         return pwd.toCharArray();

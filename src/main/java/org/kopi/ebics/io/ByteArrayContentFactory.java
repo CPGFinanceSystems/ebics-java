@@ -41,7 +41,7 @@ public class ByteArrayContentFactory implements ContentFactory {
      *
      * @param content the byte array content
      */
-    public ByteArrayContentFactory(byte[] content) {
+    public ByteArrayContentFactory(final byte[] content) {
         this.content = content;
     }
 
