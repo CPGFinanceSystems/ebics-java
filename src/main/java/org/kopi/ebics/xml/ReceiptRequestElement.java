@@ -85,7 +85,7 @@ public class ReceiptRequestElement extends DefaultEbicsRootElement {
 
     @Override
     public byte[] toByteArray() {
-        setSaveSuggestedPrefixes("http://www.ebics.org/H003", "");
+        setSaveSuggestedPrefixes("urn:org:ebics:H004", "");
 
         return super.toByteArray();
     }

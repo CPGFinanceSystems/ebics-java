@@ -62,7 +62,7 @@ public class HIARequestElement extends DefaultEbicsRootElement {
 
     @Override
     public byte[] toByteArray() {
-        setSaveSuggestedPrefixes("http://www.ebics.org/H003", "");
+        setSaveSuggestedPrefixes("urn:org:ebics:H004", "");
 
         return unsecuredRequest.toByteArray();
     }
