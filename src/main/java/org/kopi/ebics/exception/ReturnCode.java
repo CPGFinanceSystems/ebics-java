@@ -21,6 +21,7 @@ package org.kopi.ebics.exception;
 
 import org.kopi.ebics.messages.Messages;
 
+import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -128,7 +129,7 @@ public enum ReturnCode {
      * @throws EbicsException
      */
     public void throwException() throws EbicsException {
-        throw new EbicsException(this, getText());
+        throw new EbicsException(this, MessageFormat.format("{0} [{1}]: {2}", getCode(), getSymbolicName(), getText()));
     }
 
     /**
