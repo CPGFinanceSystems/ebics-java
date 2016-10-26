@@ -1,4 +1,4 @@
-[![Licence](https://img.shields.io/github/license/CPGFinanceSystems/ebics-java.svg)](https://github.com/CPGFinanceSystems/ebics-java/blob/master/LICENSE.txt)
+[![Licence](https://img.shields.io/github/license/CPGFinanceSystems/ebics-java.svg)](https://github.com/CPGFinanceSystems/ebics-java/blob/master/LICENSE)
 [![Java Development Kit 1.8](https://img.shields.io/badge/JDK-1.8-green.svg)](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.cpg.oss/ebics-java/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.cpg.oss/ebics-java)
 [![Build Status](https://api.travis-ci.org/CPGFinanceSystems/ebics-java.svg?branch=master)](https://travis-ci.org/CPGFinanceSystems/ebics-java)
