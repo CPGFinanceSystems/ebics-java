@@ -118,7 +118,6 @@ public class DefaultEbicsConfiguration implements EbicsConfiguration {
         IOUtils.createDirectories(getUsersDirectory());
 
         serializationManager.setSerializationDirectory(getSerializationDirectory());
-        traceManager.setTraceEnabled(isTraceEnabled());
         letterManager = new DefaultLetterManager(getLocale());
     }
 
@@ -233,11 +232,6 @@ public class DefaultEbicsConfiguration implements EbicsConfiguration {
     @Override
     public String getEncryptionVersion() {
         return getString("encryption.version");
-    }
-
-    @Override
-    public boolean isTraceEnabled() {
-        return true;
     }
 
     @Override

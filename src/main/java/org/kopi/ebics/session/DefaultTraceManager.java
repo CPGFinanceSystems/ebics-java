@@ -19,16 +19,18 @@
 
 package org.kopi.ebics.session;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.interfaces.EbicsConfiguration;
 import org.kopi.ebics.interfaces.EbicsRootElement;
 import org.kopi.ebics.interfaces.TraceManager;
-import org.kopi.ebics.io.FileCache;
 import org.kopi.ebics.io.IOUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.MessageFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 
 /**
@@ -37,72 +39,32 @@ import java.io.IOException;
  * then saved to a trace directory.
  * The manager can delete all traces file if the configuration does
  * not offer tracing support.
- * see {@link EbicsConfiguration#isTraceEnabled() isTraceEnabled()}
  *
  * @author hachani
  */
+@Slf4j
 public class DefaultTraceManager implements TraceManager {
-
-    /**
-     * Constructs a new <code>TraceManger</code> to manage transfer traces.
-     *
-     * @param traceDir       the trace directory
-     * @param isTraceEnabled is trace enabled?
-     */
-    public DefaultTraceManager(final File traceDir, final boolean isTraceEnabled) {
-        this.traceDir = traceDir;
-        cache = new FileCache(isTraceEnabled);
-    }
-
-    /**
-     * Constructs a new <code>TraceManger</code> to manage transfer traces.
-     *
-     * @param isTraceEnabled is trace enabled?
-     */
-    public DefaultTraceManager(final boolean isTraceEnabled) {
-        this(null, isTraceEnabled);
-    }
-
-    /**
-     * Constructs a new <code>TraceManger</code> with trace option enabled.
-     */
-    public DefaultTraceManager() {
-        this(null, true);
-    }
 
     @Override
     public void trace(final EbicsRootElement element) throws EbicsException {
-        try {
-            final FileOutputStream out;
-            final File file;
+        log.trace(element.toString());
+        if (null != traceDir) {
+            try {
+                final FileOutputStream out;
+                final File file;
 
-            file = IOUtils.createFile(traceDir, element.getName());
-            out = new FileOutputStream(file);
-            element.save(out);
-            cache.add(file);
-        } catch (final IOException e) {
-            throw new EbicsException(e.getMessage());
+                file = IOUtils.createFile(traceDir, MessageFormat.format("{0}_{1}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), element.getName()));
+                out = new FileOutputStream(file);
+                element.save(out);
+            } catch (final IOException e) {
+                throw new EbicsException(e.getMessage(), e);
+            }
         }
     }
 
     @Override
-    public void remove(final EbicsRootElement element) {
-        cache.remove(element.getName());
-    }
-
-    @Override
-    public void clear() {
-        cache.clear();
-    }
-
-    @Override
     public void setTraceDirectory(final String traceDir) {
-        this.traceDir = IOUtils.createFile(traceDir);
-    }
-
-    @Override
-    public void setTraceEnabled(final boolean enabled) {
-        cache.setTraceEnabled(enabled);
+        this.traceDir = IOUtils.createDirectory(traceDir);
     }
 
     // --------------------------------------------------------------------
@@ -110,5 +72,4 @@ public class DefaultTraceManager implements TraceManager {
     // --------------------------------------------------------------------
 
     private File traceDir;
-    private final FileCache cache;
 }

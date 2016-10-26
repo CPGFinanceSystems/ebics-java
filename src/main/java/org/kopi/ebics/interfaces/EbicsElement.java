@@ -21,7 +21,6 @@ package org.kopi.ebics.interfaces;
 
 import org.kopi.ebics.exception.EbicsException;
 
-import java.io.PrintStream;
 import java.io.Serializable;
 
 
@@ -40,13 +39,4 @@ public interface EbicsElement extends Serializable {
      * @throws EbicsException
      */
     void build() throws EbicsException;
-
-    /**
-     * Prints the <code>EbicsElement</code> into
-     * the given stream.
-     *
-     * @param stream the print stream
-     */
-    void print(PrintStream stream);
-
 }

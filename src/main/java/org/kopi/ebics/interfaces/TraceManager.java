@@ -37,33 +37,11 @@ public interface TraceManager {
      *
      * @param element the element to trace
      * @throws EbicsException cannot trace the ebics element
-     * @see EbicsConfiguration#isTraceEnabled() isTraceEnabled()
      */
     void trace(EbicsRootElement element) throws EbicsException;
-
-    /**
-     * Removes an <code>EbicsRootElement</code> from trace
-     * directory.
-     *
-     * @param element the element to ve removed.
-     */
-    void remove(EbicsRootElement element);
-
-    /**
-     * Clears the traces created for a given ebics session
-     */
-    void clear();
 
     /**
      * Sets the trace directory
      */
     void setTraceDirectory(String traceDir);
-
-    /**
-     * Enables or disables the trace feature
-     *
-     * @param enabled is trace enabled?
-     */
-    void setTraceEnabled(boolean enabled);
-
 }

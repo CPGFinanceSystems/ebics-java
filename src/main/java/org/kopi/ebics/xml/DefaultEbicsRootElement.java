@@ -37,10 +37,7 @@ import javax.xml.namespace.QName;
 import java.io.*;
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 
 public abstract class DefaultEbicsRootElement implements EbicsRootElement {
@@ -92,10 +89,8 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
         try {
             document = sxb.build(new InputStreamReader(new ByteArrayInputStream(toByteArray()), "UTF-8"));
             xmlOutputter.output(document, output);
-        } catch (final JDOMException e) {
-            throw new EbicsException(e.getMessage());
-        } catch (final IOException e) {
-            throw new EbicsException(e.getMessage());
+        } catch (final JDOMException | IOException e) {
+            throw new EbicsException(e.getMessage(), e);
         }
 
         return output.toByteArray();
@@ -149,17 +144,21 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
 
     @Override
     public String toString() {
-        return new String(toByteArray());
+        return Optional.ofNullable(toByteArray()).map(String::new).orElseGet(() -> "");
     }
 
     @Override
     public byte[] toByteArray() {
-        final XmlOptions options;
+        if (null != document) {
 
-        options = new XmlOptions();
-        options.setSavePrettyPrint();
-        options.setSaveSuggestedPrefixes(suggestedPrefixes);
-        return document.xmlText(options).getBytes();
+            final XmlOptions options;
+
+            options = new XmlOptions();
+            options.setSavePrettyPrint();
+            options.setSaveSuggestedPrefixes(suggestedPrefixes);
+            return document.xmlText(options).getBytes();
+        }
+        return null;
     }
 
     @Override
@@ -215,11 +214,6 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
         } catch (final IOException e) {
             throw new EbicsException(e.getMessage());
         }
-    }
-
-    @Override
-    public void print(final PrintStream stream) {
-        stream.println(document.toString());
     }
 
     // --------------------------------------------------------------------

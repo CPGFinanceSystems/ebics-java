@@ -56,10 +56,8 @@ public abstract class DefaultResponseElement extends DefaultEbicsRootElement {
     protected void parse(final ContentFactory factory) throws EbicsException {
         try {
             document = XmlObject.Factory.parse(factory.getContent());
-        } catch (final XmlException e) {
-            throw new EbicsException(e.getMessage());
-        } catch (final IOException e) {
-            throw new EbicsException(e.getMessage());
+        } catch (final XmlException | IOException e) {
+            throw new EbicsException(e.getMessage(), e);
         }
     }
 

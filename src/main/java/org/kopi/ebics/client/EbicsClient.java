@@ -453,9 +453,6 @@ public class EbicsClient {
         } catch (final EbicsException e) {
             configuration.getLogger().info(Messages.getString("app.quit.error", Constants.APPLICATION_BUNDLE_NAME));
         }
-
-        configuration.getLogger().info(Messages.getString("app.cache.clear", Constants.APPLICATION_BUNDLE_NAME));
-        //configuration.getTraceManager().clear();
     }
 
     // --------------------------------------------------------------------
