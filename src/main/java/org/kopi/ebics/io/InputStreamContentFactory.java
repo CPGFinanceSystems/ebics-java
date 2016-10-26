@@ -19,10 +19,10 @@
 
 package org.kopi.ebics.io;
 
+import org.kopi.ebics.interfaces.ContentFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
-
-import org.kopi.ebics.interfaces.ContentFactory;
 
 
 /**
@@ -32,27 +32,27 @@ import org.kopi.ebics.interfaces.ContentFactory;
  * file transfers.
  *
  * @author hachani
- *
  */
 public class InputStreamContentFactory implements ContentFactory {
 
-  /**
-   * Creates a new <code>ContentFactory</code> from an input stream
-   * @param input the given input stream.
-   */
-  public InputStreamContentFactory(InputStream input) {
-    this.input = input;
-  }
+    /**
+     * Creates a new <code>ContentFactory</code> from an input stream
+     *
+     * @param input the given input stream.
+     */
+    public InputStreamContentFactory(InputStream input) {
+        this.input = input;
+    }
 
-  @Override
-  public InputStream getContent() throws IOException {
-    return input;
-  }
+    @Override
+    public InputStream getContent() throws IOException {
+        return input;
+    }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    // --------------------------------------------------------------------
+    // DATA MEMBERS
+    // --------------------------------------------------------------------
 
-  private InputStream			input;
-  private static final long 		serialVersionUID = 2357104115203917168L;
+    private InputStream input;
+    private static final long serialVersionUID = 2357104115203917168L;
 }

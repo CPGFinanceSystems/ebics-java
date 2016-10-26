@@ -19,13 +19,13 @@
 
 package org.kopi.ebics.letter;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.Locale;
-
 import org.apache.commons.codec.binary.Base64;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.EbicsUser;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Locale;
 
 
 /**
@@ -33,39 +33,39 @@ import org.kopi.ebics.interfaces.EbicsUser;
  * for the authentication certificate.
  *
  * @author Hachani
- *
  */
 public class X002Letter extends AbstractInitLetter {
 
-  /**
-   * Constructs a new <code>X002Letter</code>
-   * @param locale the application locale
-   */
-  public X002Letter(Locale locale) {
-    super(locale);
-  }
+    /**
+     * Constructs a new <code>X002Letter</code>
+     *
+     * @param locale the application locale
+     */
+    public X002Letter(Locale locale) {
+        super(locale);
+    }
 
-  @Override
-  public void create(EbicsUser user) throws GeneralSecurityException, IOException, EbicsException {
-    build(user.getPartner().getBank().getHostId(),
-	  user.getPartner().getBank().getName(),
-	  user.getUserId(),
-	  user.getName(),
-	  user.getPartner().getPartnerId(),
-	  getString("HIALetter.x002.version", BUNDLE_NAME, locale),
-	  getString("HIALetter.x002.certificate", BUNDLE_NAME, locale),
-	  Base64.encodeBase64(user.getX002Certificate(), true),
-	  getString("HIALetter.x002.digest", BUNDLE_NAME, locale),
-	  getHash(user.getX002Certificate()));
-  }
+    @Override
+    public void create(EbicsUser user) throws GeneralSecurityException, IOException, EbicsException {
+        build(user.getPartner().getBank().getHostId(),
+                user.getPartner().getBank().getName(),
+                user.getUserId(),
+                user.getName(),
+                user.getPartner().getPartnerId(),
+                getString("HIALetter.x002.version", BUNDLE_NAME, locale),
+                getString("HIALetter.x002.certificate", BUNDLE_NAME, locale),
+                Base64.encodeBase64(user.getX002Certificate(), true),
+                getString("HIALetter.x002.digest", BUNDLE_NAME, locale),
+                getHash(user.getX002Certificate()));
+    }
 
-  @Override
-  public String getTitle() {
-    return getString("HIALetter.x002.title", BUNDLE_NAME, locale);
-  }
+    @Override
+    public String getTitle() {
+        return getString("HIALetter.x002.title", BUNDLE_NAME, locale);
+    }
 
-  @Override
-  public String getName() {
-    return getString("HIALetter.x002.name", BUNDLE_NAME, locale) + ".txt";
-  }
+    @Override
+    public String getName() {
+        return getString("HIALetter.x002.name", BUNDLE_NAME, locale) + ".txt";
+    }
 }

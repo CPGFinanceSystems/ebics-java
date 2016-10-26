@@ -19,10 +19,10 @@
 
 package org.kopi.ebics.interfaces;
 
+import org.kopi.ebics.exception.EbicsException;
+
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-
-import org.kopi.ebics.exception.EbicsException;
 
 
 /**
@@ -30,46 +30,48 @@ import org.kopi.ebics.exception.EbicsException;
  * Manages the INI, HIA and the HPB letters.
  *
  * @author Hachani
- *
  */
 public interface LetterManager {
 
-  /**
-   * Creates the initialization letter for the INI request.
-   * This letter contains information about the signature certificate
-   * of the given user.
-   * @param user the ebics user.
-   * @return the INI letter.
-   * @throws EbicsException
-   * @throws IOException
-   * @throws GeneralSecurityException
-   */
-  public InitLetter createA005Letter(EbicsUser user)
-    throws GeneralSecurityException, IOException, EbicsException;
+    /**
+     * Creates the initialization letter for the INI request.
+     * This letter contains information about the signature certificate
+     * of the given user.
+     *
+     * @param user the ebics user.
+     * @return the INI letter.
+     * @throws EbicsException
+     * @throws IOException
+     * @throws GeneralSecurityException
+     */
+    public InitLetter createA005Letter(EbicsUser user)
+            throws GeneralSecurityException, IOException, EbicsException;
 
-  /**
-   * Creates the initialization letter for the HIA request.
-   * This letter contains information about the encryption
-   * certificates of the given user.
-   * @param user the ebics user
-   * @return the HIA letter
-   * @throws EbicsException
-   * @throws IOException
-   * @throws GeneralSecurityException
-   */
-  public InitLetter createE002Letter(EbicsUser user)
-    throws GeneralSecurityException, IOException, EbicsException;
+    /**
+     * Creates the initialization letter for the HIA request.
+     * This letter contains information about the encryption
+     * certificates of the given user.
+     *
+     * @param user the ebics user
+     * @return the HIA letter
+     * @throws EbicsException
+     * @throws IOException
+     * @throws GeneralSecurityException
+     */
+    public InitLetter createE002Letter(EbicsUser user)
+            throws GeneralSecurityException, IOException, EbicsException;
 
-  /**
-   * Creates the initialization letter for the HIA request.
-   * This letter contains information about the authentication
-   * certificates of the given user.
-   * @param user the ebics user
-   * @return the HIA letter
-   * @throws EbicsException
-   * @throws IOException
-   * @throws GeneralSecurityException
-   */
-  public InitLetter createX002Letter(EbicsUser user)
-    throws GeneralSecurityException, IOException, EbicsException;
+    /**
+     * Creates the initialization letter for the HIA request.
+     * This letter contains information about the authentication
+     * certificates of the given user.
+     *
+     * @param user the ebics user
+     * @return the HIA letter
+     * @throws EbicsException
+     * @throws IOException
+     * @throws GeneralSecurityException
+     */
+    public InitLetter createX002Letter(EbicsUser user)
+            throws GeneralSecurityException, IOException, EbicsException;
 }

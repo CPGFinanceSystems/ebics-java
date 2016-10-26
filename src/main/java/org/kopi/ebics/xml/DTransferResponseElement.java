@@ -28,42 +28,42 @@ import org.kopi.ebics.session.OrderType;
  * for all ebics downloads transfers.
  *
  * @author Hachani
- *
  */
 public class DTransferResponseElement extends TransferResponseElement {
 
-  /**
-   * Constructs a new <code>DTransferResponseElement</code> object.
-   * @param factory the content factory
-   * @param orderType the order type
-   * @param name the element name.
-   */
-  public DTransferResponseElement(ContentFactory factory,
-                                  OrderType orderType,
-                                  String name)
-  {
-    super(factory, name);
-  }
+    /**
+     * Constructs a new <code>DTransferResponseElement</code> object.
+     *
+     * @param factory   the content factory
+     * @param orderType the order type
+     * @param name      the element name.
+     */
+    public DTransferResponseElement(ContentFactory factory,
+                                    OrderType orderType,
+                                    String name) {
+        super(factory, name);
+    }
 
-  @Override
-  public void build() throws EbicsException {
-    super.build();
+    @Override
+    public void build() throws EbicsException {
+        super.build();
 
-    orderData = response.getBody().getDataTransfer().getOrderData().getByteArrayValue();
-  }
+        orderData = response.getBody().getDataTransfer().getOrderData().getByteArrayValue();
+    }
 
-  /**
-   * Returns the order data.
-   * @return the order data.
-   */
-  public byte[] getOrderData() {
-    return orderData;
-  }
+    /**
+     * Returns the order data.
+     *
+     * @return the order data.
+     */
+    public byte[] getOrderData() {
+        return orderData;
+    }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    // --------------------------------------------------------------------
+    // DATA MEMBERS
+    // --------------------------------------------------------------------
 
-  private byte[]			orderData;
-  private static final long 		serialVersionUID = -3317833033395561745L;
+    private byte[] orderData;
+    private static final long serialVersionUID = -3317833033395561745L;
 }

@@ -20,15 +20,15 @@
 package org.kopi.ebics.xml;
 
 import org.kopi.ebics.exception.EbicsException;
+import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest;
+import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body;
+import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body.DataTransfer;
+import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body.DataTransfer.OrderData;
+import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Header;
 import org.kopi.ebics.schema.h004.EmptyMutableHeaderType;
 import org.kopi.ebics.schema.h004.OrderDetailsType;
 import org.kopi.ebics.schema.h004.ProductElementType;
 import org.kopi.ebics.schema.h004.UnsecuredRequestStaticHeaderType;
-import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest;
-import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body;
-import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Header;
-import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body.DataTransfer;
-import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body.DataTransfer.OrderData;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
 
@@ -37,74 +37,73 @@ import org.kopi.ebics.session.OrderType;
  * used for key management requests.
  *
  * @author hachani
- *
  */
 public class UnsecuredRequestElement extends DefaultEbicsRootElement {
 
-  /**
-   * Constructs a Unsecured Request Element.
-   * @param session the ebics session.
-   * @param orderType the order type (INI | HIA).
-   */
-  public UnsecuredRequestElement(EbicsSession session,
-                                 OrderType orderType,
-                                 byte[] orderData)
-  {
-    super(session);
-    this.orderType = orderType;
-    this.orderData = orderData;
-  }
+    /**
+     * Constructs a Unsecured Request Element.
+     *
+     * @param session   the ebics session.
+     * @param orderType the order type (INI | HIA).
+     */
+    public UnsecuredRequestElement(EbicsSession session,
+                                   OrderType orderType,
+                                   byte[] orderData) {
+        super(session);
+        this.orderType = orderType;
+        this.orderData = orderData;
+    }
 
-  @Override
-  public void build() throws EbicsException {
-    Header 					header;
-    Body 					body;
-    EmptyMutableHeaderType 			mutable;
-    UnsecuredRequestStaticHeaderType 		xstatic;
-    ProductElementType 				productType;
-    OrderDetailsType 				orderDetails;
-    DataTransfer 				dataTransfer;
-    OrderData 					orderData;
-    EbicsUnsecuredRequest			request;
+    @Override
+    public void build() throws EbicsException {
+        Header header;
+        Body body;
+        EmptyMutableHeaderType mutable;
+        UnsecuredRequestStaticHeaderType xstatic;
+        ProductElementType productType;
+        OrderDetailsType orderDetails;
+        DataTransfer dataTransfer;
+        OrderData orderData;
+        EbicsUnsecuredRequest request;
 
-    orderDetails = EbicsXmlFactory.createOrderDetailsType("DZNNN", orderType.getOrderType());
+        orderDetails = EbicsXmlFactory.createOrderDetailsType("DZNNN", orderType.getOrderType());
 
-    productType = EbicsXmlFactory.creatProductElementType(session.getProduct().getLanguage(),
-	                                                  session.getProduct().getName());
+        productType = EbicsXmlFactory.creatProductElementType(session.getProduct().getLanguage(),
+                session.getProduct().getName());
 
-    xstatic = EbicsXmlFactory.createUnsecuredRequestStaticHeaderType(session.getBankID(),
-								     session.getUser().getPartner().getPartnerId(),
-								     session.getUser().getUserId(),
-	                                                             productType,
-	                                                             orderDetails,
-	                                                             session.getUser().getSecurityMedium());
-    mutable = EbicsXmlFactory.createEmptyMutableHeaderType();
+        xstatic = EbicsXmlFactory.createUnsecuredRequestStaticHeaderType(session.getBankID(),
+                session.getUser().getPartner().getPartnerId(),
+                session.getUser().getUserId(),
+                productType,
+                orderDetails,
+                session.getUser().getSecurityMedium());
+        mutable = EbicsXmlFactory.createEmptyMutableHeaderType();
 
-    header = EbicsXmlFactory.createHeader(true,
-	                                  mutable,
-	                                  xstatic);
+        header = EbicsXmlFactory.createHeader(true,
+                mutable,
+                xstatic);
 
-    orderData = EbicsXmlFactory.createOrderData(this.orderData);
-    dataTransfer = EbicsXmlFactory.createDataTransfer(orderData);
-    body = EbicsXmlFactory.createBody(dataTransfer);
-    request = EbicsXmlFactory.createEbicsUnsecuredRequest(header,
-	                                                  body,
-	                                                  session.getConfiguration().getRevision(),
-	                                                  session.getConfiguration().getVersion());
+        orderData = EbicsXmlFactory.createOrderData(this.orderData);
+        dataTransfer = EbicsXmlFactory.createDataTransfer(orderData);
+        body = EbicsXmlFactory.createBody(dataTransfer);
+        request = EbicsXmlFactory.createEbicsUnsecuredRequest(header,
+                body,
+                session.getConfiguration().getRevision(),
+                session.getConfiguration().getVersion());
 
-    document = EbicsXmlFactory.createEbicsUnsecuredRequestDocument(request);
-  }
+        document = EbicsXmlFactory.createEbicsUnsecuredRequestDocument(request);
+    }
 
-  @Override
-  public String getName() {
-    return "UnsecuredRequest.xml";
-  }
+    @Override
+    public String getName() {
+        return "UnsecuredRequest.xml";
+    }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    // --------------------------------------------------------------------
+    // DATA MEMBERS
+    // --------------------------------------------------------------------
 
-  private OrderType			orderType;
-  private byte[]			orderData;
-  private static final long 		serialVersionUID = -3548730114599886711L;
+    private OrderType orderType;
+    private byte[] orderData;
+    private static final long serialVersionUID = -3548730114599886711L;
 }

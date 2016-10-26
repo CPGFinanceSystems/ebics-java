@@ -23,29 +23,28 @@ package org.kopi.ebics.certificate;
  * X509 certificate constants
  *
  * @author hachani
- *
  */
 public interface X509Constants {
 
-  /**
-   * Certificates key usage
-   */
-  int			SIGNATURE_KEY_USAGE			= 1;
-  int			AUTHENTICATION_KEY_USAGE		= 2;
-  int			ENCRYPTION_KEY_USAGE			= 3;
+    /**
+     * Certificates key usage
+     */
+    int SIGNATURE_KEY_USAGE = 1;
+    int AUTHENTICATION_KEY_USAGE = 2;
+    int ENCRYPTION_KEY_USAGE = 3;
 
-  /**
-   * Certificate signature algorithm
-   */
-  String		SIGNATURE_ALGORITHM			= "SHA256WithRSAEncryption";
+    /**
+     * Certificate signature algorithm
+     */
+    String SIGNATURE_ALGORITHM = "SHA256WithRSAEncryption";
 
-  /**
-   * Default days validity of a certificate
-   */
-  int			DEFAULT_DURATION			= 365;
+    /**
+     * Default days validity of a certificate
+     */
+    int DEFAULT_DURATION = 365;
 
-  /**
-   * EBICS key size
-   */
-  int			EBICS_KEY_SIZE				= 2048;
+    /**
+     * EBICS key size
+     */
+    int EBICS_KEY_SIZE = 2048;
 }

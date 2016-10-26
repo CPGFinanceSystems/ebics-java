@@ -19,14 +19,14 @@
 
 package org.kopi.ebics.client;
 
+import org.kopi.ebics.interfaces.EbicsBank;
+import org.kopi.ebics.interfaces.Savable;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
-
-import org.kopi.ebics.interfaces.EbicsBank;
-import org.kopi.ebics.interfaces.Savable;
 
 
 /**
@@ -35,164 +35,172 @@ import org.kopi.ebics.interfaces.Savable;
  * Save the the object whenever it needs to be saved.
  *
  * @author Hachani
- *
  */
 public class Bank implements EbicsBank, Savable {
 
-  /**
-   * Constructs a new EBICS bank with the data you should have obtained from the bank.
-   * @param url the bank URL
-   * @param name the bank name
-   * @param hostId the bank host ID
-   */
-  public Bank(URL url, String name, String hostId) {
-    this.url = url;
-    this.name = name;
-    this.hostId = hostId;
-    needSave = true;
-  }
+    /**
+     * Constructs a new EBICS bank with the data you should have obtained from the bank.
+     *
+     * @param url    the bank URL
+     * @param name   the bank name
+     * @param hostId the bank host ID
+     */
+    public Bank(URL url, String name, String hostId) {
+        this.url = url;
+        this.name = name;
+        this.hostId = hostId;
+        needSave = true;
+    }
 
-  @Override
-  public void save(ObjectOutputStream oos) throws IOException {
-    oos.writeObject(this);
-    oos.flush();
-    oos.close();
-    needSave = false;
-  }
+    @Override
+    public void save(ObjectOutputStream oos) throws IOException {
+        oos.writeObject(this);
+        oos.flush();
+        oos.close();
+        needSave = false;
+    }
 
-  /**
-   * Did any persistable attribute change since last load/save operation.
-   * @return True if the object needs to be saved.
-   */
-  public boolean needsSave() {
-    return needSave;
-  }
+    /**
+     * Did any persistable attribute change since last load/save operation.
+     *
+     * @return True if the object needs to be saved.
+     */
+    public boolean needsSave() {
+        return needSave;
+    }
 
-  /**
-   * readObject is called to restore the state of the URL from the
-   * stream.
-   * @param ois the object input stream
-   * @throws IOException
-   * @throws ClassNotFoundException
-   */
-  private void readObject(ObjectInputStream ois)
-    throws IOException, ClassNotFoundException
-  {
-    ois.defaultReadObject();  // read the fields
-  }
+    /**
+     * readObject is called to restore the state of the URL from the
+     * stream.
+     *
+     * @param ois the object input stream
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    private void readObject(ObjectInputStream ois)
+            throws IOException, ClassNotFoundException {
+        ois.defaultReadObject();  // read the fields
+    }
 
-  /**
-   * WriteObject is called to save the state of the EbicsBank to an
-   * ObjectOutputStream.
-   *
-   * @serialData the default write object.
-   * throw an IOException if it does not.
-   */
-  private void writeObject(ObjectOutputStream oos) throws IOException {
-    oos.defaultWriteObject(); // write the fields
-  }
+    /**
+     * WriteObject is called to save the state of the EbicsBank to an
+     * ObjectOutputStream.
+     *
+     * @serialData the default write object.
+     * throw an IOException if it does not.
+     */
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        oos.defaultWriteObject(); // write the fields
+    }
 
-  @Override
-  public URL getURL() {
-    return url;
-  }
+    @Override
+    public URL getURL() {
+        return url;
+    }
 
-  @Override
-  public byte[] getE002Digest() {
-    return e002Digest;
-  }
+    @Override
+    public byte[] getE002Digest() {
+        return e002Digest;
+    }
 
-  @Override
-  public byte[] getX002Digest() {
-    return x002Digest;
-  }
+    @Override
+    public byte[] getX002Digest() {
+        return x002Digest;
+    }
 
-  @Override
-  public RSAPublicKey getE002Key() {
-    return e002Key;
-  }
+    @Override
+    public RSAPublicKey getE002Key() {
+        return e002Key;
+    }
 
-  @Override
-  public RSAPublicKey getX002Key() {
-    return x002Key;
-  }
+    @Override
+    public RSAPublicKey getX002Key() {
+        return x002Key;
+    }
 
-  @Override
-  public String getHostId() {
-    return hostId;
-  }
+    @Override
+    public String getHostId() {
+        return hostId;
+    }
 
-  @Override
-  public String getName() {
-    return name;
-  }
+    @Override
+    public String getName() {
+        return name;
+    }
 
-  @Override
-  public void setBankKeys(RSAPublicKey e002Key, RSAPublicKey x002Key) {
-    this.e002Key = e002Key;
-    this.x002Key = x002Key;
-    needSave = true;
-  }
+    @Override
+    public void setBankKeys(RSAPublicKey e002Key, RSAPublicKey x002Key) {
+        this.e002Key = e002Key;
+        this.x002Key = x002Key;
+        needSave = true;
+    }
 
-  @Override
-  public void setDigests(byte[] e002Digest, byte[] x002Digest) {
-    this.e002Digest = e002Digest;
-    this.x002Digest = x002Digest;
-    needSave = true;
-  }
+    @Override
+    public void setDigests(byte[] e002Digest, byte[] x002Digest) {
+        this.e002Digest = e002Digest;
+        this.x002Digest = x002Digest;
+        needSave = true;
+    }
 
-  @Override
-  public String getSaveName() {
-    return hostId + ".cer";
-  }
+    @Override
+    public String getSaveName() {
+        return hostId + ".cer";
+    }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    // --------------------------------------------------------------------
+    // DATA MEMBERS
+    // --------------------------------------------------------------------
 
-  /**
-   * The bank URL
-   * @serial
-   */
-  private URL			url;
+    /**
+     * The bank URL
+     *
+     * @serial
+     */
+    private URL url;
 
-  /**
-   * The bank host id
-   * @serial
-   */
-  private String		hostId;
+    /**
+     * The bank host id
+     *
+     * @serial
+     */
+    private String hostId;
 
-  /**
-   * The bank name
-   * @serial
-   */
-  private String		name;
+    /**
+     * The bank name
+     *
+     * @serial
+     */
+    private String name;
 
-  /**
-   * The bank encryption digest
-   * @serial
-   */
-  private byte[]		e002Digest;
+    /**
+     * The bank encryption digest
+     *
+     * @serial
+     */
+    private byte[] e002Digest;
 
-  /**
-   * The bank authentication digest
-   * @serial
-   */
-  private byte[]		x002Digest;
+    /**
+     * The bank authentication digest
+     *
+     * @serial
+     */
+    private byte[] x002Digest;
 
-  /**
-   * The ban encryption key
-   * @serial
-   */
-  private RSAPublicKey		e002Key;
+    /**
+     * The ban encryption key
+     *
+     * @serial
+     */
+    private RSAPublicKey e002Key;
 
-  /**
-   * The ban encryption key
-   * @serial
-   */
-  private RSAPublicKey		x002Key;
+    /**
+     * The ban encryption key
+     *
+     * @serial
+     */
+    private RSAPublicKey x002Key;
 
-  private transient boolean	needSave;
+    private transient boolean needSave;
 
-  private static final long 	serialVersionUID = 2123071449956793284L;
+    private static final long serialVersionUID = 2123071449956793284L;
 }

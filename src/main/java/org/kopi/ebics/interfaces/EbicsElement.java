@@ -19,31 +19,34 @@
 
 package org.kopi.ebics.interfaces;
 
+import org.kopi.ebics.exception.EbicsException;
+
 import java.io.PrintStream;
 import java.io.Serializable;
-
-import org.kopi.ebics.exception.EbicsException;
 
 
 public interface EbicsElement extends Serializable {
 
-  /**
-   * Returns the name of this <code>EbicsElement</code>
-   * @return the name of the element
-   */
-  public String getName();
+    /**
+     * Returns the name of this <code>EbicsElement</code>
+     *
+     * @return the name of the element
+     */
+    public String getName();
 
-  /**
-   * Builds the <code>EbicsElement</code> XML fragment
-   * @throws EbicsException
-   */
-  public void build() throws EbicsException;
+    /**
+     * Builds the <code>EbicsElement</code> XML fragment
+     *
+     * @throws EbicsException
+     */
+    public void build() throws EbicsException;
 
-  /**
-   * Prints the <code>EbicsElement</code> into
-   * the given stream.
-   * @param stream the print stream
-   */
-  public void print(PrintStream stream);
+    /**
+     * Prints the <code>EbicsElement</code> into
+     * the given stream.
+     *
+     * @param stream the print stream
+     */
+    public void print(PrintStream stream);
 
 }

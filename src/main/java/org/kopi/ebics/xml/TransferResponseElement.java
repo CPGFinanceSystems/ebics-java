@@ -30,37 +30,37 @@ import org.kopi.ebics.schema.h004.EbicsResponseDocument.EbicsResponse;
  * response for all ebics transfers.
  *
  * @author Hachani
- *
  */
 public class TransferResponseElement extends DefaultResponseElement {
 
-  /**
-   * Constructs a new <code>TransferResponseElement</code> element.
-   * @param factory the content factory
-   * @param orderType the order type
-   * @param name the element name;
-   */
-  public TransferResponseElement(ContentFactory factory, String name) {
-    super(factory, name);
-  }
+    /**
+     * Constructs a new <code>TransferResponseElement</code> element.
+     *
+     * @param factory   the content factory
+     * @param orderType the order type
+     * @param name      the element name;
+     */
+    public TransferResponseElement(ContentFactory factory, String name) {
+        super(factory, name);
+    }
 
-  @Override
-  public void build() throws EbicsException {
-    String			code;
-    String			text;
+    @Override
+    public void build() throws EbicsException {
+        String code;
+        String text;
 
-    parse(factory);
-    response = ((EbicsResponseDocument)document).getEbicsResponse();
-    code = response.getHeader().getMutable().getReturnCode();
-    text = response.getHeader().getMutable().getReportText();
-    returnCode = ReturnCode.toReturnCode(code, text);
-    report();
-  }
+        parse(factory);
+        response = ((EbicsResponseDocument) document).getEbicsResponse();
+        code = response.getHeader().getMutable().getReturnCode();
+        text = response.getHeader().getMutable().getReportText();
+        returnCode = ReturnCode.toReturnCode(code, text);
+        report();
+    }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    // --------------------------------------------------------------------
+    // DATA MEMBERS
+    // --------------------------------------------------------------------
 
-  protected EbicsResponse		response;
-  private static final long 		serialVersionUID = 7454118286687793155L;
+    protected EbicsResponse response;
+    private static final long serialVersionUID = 7454118286687793155L;
 }

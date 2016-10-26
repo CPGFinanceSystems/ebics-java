@@ -23,25 +23,27 @@ package org.kopi.ebics.interfaces;
  * Information about an EBICS customer.
  *
  * @author Hachani
- *
  */
 public interface EbicsPartner {
 
-  /**
-   * Returns the bank we are customer of.
-   * @return the bank we are customer of
-   */
-  public EbicsBank getBank();
+    /**
+     * Returns the bank we are customer of.
+     *
+     * @return the bank we are customer of
+     */
+    public EbicsBank getBank();
 
-  /**
-   * Returns the customers id at the bank.
-   * @return the customers id at the bank.
-   */
-  public String getPartnerId();
+    /**
+     * Returns the customers id at the bank.
+     *
+     * @return the customers id at the bank.
+     */
+    public String getPartnerId();
 
-  /**
-   * Creates the next order number.
-   * @return the next order number.
-   */
-  public String nextOrderId();
+    /**
+     * Creates the next order number.
+     *
+     * @return the next order number.
+     */
+    public String nextOrderId();
 }

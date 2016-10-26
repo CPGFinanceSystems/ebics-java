@@ -27,51 +27,51 @@ import org.kopi.ebics.session.EbicsSession;
  * a HPB request is needed to retrieve the bank public keys
  *
  * @author hachani
- *
  */
 public class HPBRequestElement extends DefaultEbicsRootElement {
 
-  /**
-   * Constructs a new HPB Request element.
-   * @param session the current ebics session.
-   */
-  public HPBRequestElement(EbicsSession session) {
-    super(session);
-  }
+    /**
+     * Constructs a new HPB Request element.
+     *
+     * @param session the current ebics session.
+     */
+    public HPBRequestElement(EbicsSession session) {
+        super(session);
+    }
 
-  @Override
-  public String getName() {
-    return "HPBRequest.xml";
-  }
+    @Override
+    public String getName() {
+        return "HPBRequest.xml";
+    }
 
-  @Override
-  public void build() throws EbicsException {
-    SignedInfo			signedInfo;
-    byte[]			signature;
+    @Override
+    public void build() throws EbicsException {
+        SignedInfo signedInfo;
+        byte[] signature;
 
-    noPubKeyDigestsRequest = new NoPubKeyDigestsRequestElement(session);
-    noPubKeyDigestsRequest.build();
-    signedInfo = new SignedInfo(session.getUser(), noPubKeyDigestsRequest.getDigest());
-    signedInfo.build();
-    noPubKeyDigestsRequest.setAuthSignature(signedInfo.getSignatureType());
-    signature = signedInfo.sign(noPubKeyDigestsRequest.toByteArray());
-    noPubKeyDigestsRequest.setSignatureValue(signature);
-  }
+        noPubKeyDigestsRequest = new NoPubKeyDigestsRequestElement(session);
+        noPubKeyDigestsRequest.build();
+        signedInfo = new SignedInfo(session.getUser(), noPubKeyDigestsRequest.getDigest());
+        signedInfo.build();
+        noPubKeyDigestsRequest.setAuthSignature(signedInfo.getSignatureType());
+        signature = signedInfo.sign(noPubKeyDigestsRequest.toByteArray());
+        noPubKeyDigestsRequest.setSignatureValue(signature);
+    }
 
-  @Override
-  public byte[] toByteArray() {
-    return noPubKeyDigestsRequest.toByteArray();
-  }
+    @Override
+    public byte[] toByteArray() {
+        return noPubKeyDigestsRequest.toByteArray();
+    }
 
-  @Override
-  public void validate() throws EbicsException {
-    noPubKeyDigestsRequest.validate();
-  }
+    @Override
+    public void validate() throws EbicsException {
+        noPubKeyDigestsRequest.validate();
+    }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    // --------------------------------------------------------------------
+    // DATA MEMBERS
+    // --------------------------------------------------------------------
 
-  private NoPubKeyDigestsRequestElement		noPubKeyDigestsRequest;
-  private static final long 			serialVersionUID = -5565390370996751973L;
+    private NoPubKeyDigestsRequestElement noPubKeyDigestsRequest;
+    private static final long serialVersionUID = -5565390370996751973L;
 }

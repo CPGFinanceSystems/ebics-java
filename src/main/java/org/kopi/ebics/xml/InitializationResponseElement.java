@@ -31,60 +31,61 @@ import org.kopi.ebics.session.OrderType;
  * element for transfer initialization responses.
  *
  * @author Hachani
- *
  */
 public class InitializationResponseElement extends DefaultResponseElement {
 
-  /**
-   * Constructs a new <code>InitializationResponseElement</code> element.
-   * @param factory the content factory
-   * @param orderType the order type
-   * @param name the element name
-   */
-  public InitializationResponseElement(ContentFactory factory,
-                                       OrderType orderType,
-                                       String name)
-  {
-    super(factory, name);
-    this.orderType = orderType;
-  }
+    /**
+     * Constructs a new <code>InitializationResponseElement</code> element.
+     *
+     * @param factory   the content factory
+     * @param orderType the order type
+     * @param name      the element name
+     */
+    public InitializationResponseElement(ContentFactory factory,
+                                         OrderType orderType,
+                                         String name) {
+        super(factory, name);
+        this.orderType = orderType;
+    }
 
-  @Override
-  public void build() throws EbicsException {
-    String			code;
-    String			text;
+    @Override
+    public void build() throws EbicsException {
+        String code;
+        String text;
 
-    parse(factory);
-    response = ((EbicsResponseDocument)document).getEbicsResponse();
-    code = response.getHeader().getMutable().getReturnCode();
-    text = response.getHeader().getMutable().getReportText();
-    returnCode = ReturnCode.toReturnCode(code, text);
-    report();
-    transactionId = response.getHeader().getStatic().getTransactionID();
-  }
+        parse(factory);
+        response = ((EbicsResponseDocument) document).getEbicsResponse();
+        code = response.getHeader().getMutable().getReturnCode();
+        text = response.getHeader().getMutable().getReportText();
+        returnCode = ReturnCode.toReturnCode(code, text);
+        report();
+        transactionId = response.getHeader().getStatic().getTransactionID();
+    }
 
-  /**
-   * Returns the transaction ID.
-   * @return the transaction ID.
-   */
-  public byte[] getTransactionId() {
-    return transactionId;
-  }
+    /**
+     * Returns the transaction ID.
+     *
+     * @return the transaction ID.
+     */
+    public byte[] getTransactionId() {
+        return transactionId;
+    }
 
-  /**
-   * Returns the order type.
-   * @return the order type.
-   */
-  public String getOrderType() {
-    return orderType.getOrderType();
-  }
+    /**
+     * Returns the order type.
+     *
+     * @return the order type.
+     */
+    public String getOrderType() {
+        return orderType.getOrderType();
+    }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    // --------------------------------------------------------------------
+    // DATA MEMBERS
+    // --------------------------------------------------------------------
 
-  protected EbicsResponse			response;
-  private OrderType				orderType;
-  private byte[]				transactionId;
-  private static final long 			serialVersionUID = 7684048385353175772L;
+    protected EbicsResponse response;
+    private OrderType orderType;
+    private byte[] transactionId;
+    private static final long serialVersionUID = 7684048385353175772L;
 }

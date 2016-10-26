@@ -19,12 +19,12 @@
 
 package org.kopi.ebics.io;
 
+import org.kopi.ebics.interfaces.ContentFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
-import org.kopi.ebics.interfaces.ContentFactory;
 
 
 /**
@@ -33,28 +33,28 @@ import org.kopi.ebics.interfaces.ContentFactory;
  * serializable in a way to recover interrupted file transfers.
  *
  * @author hachani
- *
  */
 public class FileContentFactory implements ContentFactory {
 
-  /**
-   * Constructs a new <code>FileContentFactory</code> with
-   * a given input file
-   * @param input the input file
-   */
-  public FileContentFactory(File input) {
-    this.input = input;
-  }
+    /**
+     * Constructs a new <code>FileContentFactory</code> with
+     * a given input file
+     *
+     * @param input the input file
+     */
+    public FileContentFactory(File input) {
+        this.input = input;
+    }
 
-  @Override
-  public InputStream getContent() throws IOException {
-    return new FileInputStream(input);
-  }
+    @Override
+    public InputStream getContent() throws IOException {
+        return new FileInputStream(input);
+    }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    // --------------------------------------------------------------------
+    // DATA MEMBERS
+    // --------------------------------------------------------------------
 
-  private File			input;
-  private static final long 	serialVersionUID = -7041705645994170039L;
+    private File input;
+    private static final long serialVersionUID = -7041705645994170039L;
 }

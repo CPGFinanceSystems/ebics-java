@@ -19,9 +19,9 @@
 
 package org.kopi.ebics.interfaces;
 
-import java.io.ObjectInputStream;
-
 import org.kopi.ebics.exception.EbicsException;
+
+import java.io.ObjectInputStream;
 
 
 /**
@@ -30,28 +30,30 @@ import org.kopi.ebics.exception.EbicsException;
  * operations
  *
  * @author hachani
- *
  */
 public interface SerializationManager {
 
-  /**
-   * Serializes a <code>Savable</code> object
-   * @param object the <code>Savable</code> object$
-   * @throws EbicsException serialization fails
-   */
-  public void serialize(Savable object) throws EbicsException;
+    /**
+     * Serializes a <code>Savable</code> object
+     *
+     * @param object the <code>Savable</code> object$
+     * @throws EbicsException serialization fails
+     */
+    public void serialize(Savable object) throws EbicsException;
 
-  /**
-   * Deserializes the given object input stream.
-   * @param name the name of the serialized object
-   * @return the corresponding object input stream
-   * @throws EbicsException deserialization fails
-   */
-  public ObjectInputStream deserialize(String name) throws EbicsException;
+    /**
+     * Deserializes the given object input stream.
+     *
+     * @param name the name of the serialized object
+     * @return the corresponding object input stream
+     * @throws EbicsException deserialization fails
+     */
+    public ObjectInputStream deserialize(String name) throws EbicsException;
 
-  /**
-   * Sets the serialization directory
-   * @param serializationDir the serialization directory
-   */
-  public void setSerializationDirectory(String serializationDir);
+    /**
+     * Sets the serialization directory
+     *
+     * @param serializationDir the serialization directory
+     */
+    public void setSerializationDirectory(String serializationDir);
 }

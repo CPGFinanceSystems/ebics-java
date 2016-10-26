@@ -19,11 +19,11 @@
 
 package org.kopi.ebics.io;
 
+import org.kopi.ebics.interfaces.ContentFactory;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
-import org.kopi.ebics.interfaces.ContentFactory;
 
 
 /**
@@ -32,28 +32,28 @@ import org.kopi.ebics.interfaces.ContentFactory;
  * serializable in a way to recover interrupted file transfers.
  *
  * @author hachani
- *
  */
 public class ByteArrayContentFactory implements ContentFactory {
 
-  /**
-   * Constructs a new <code>ByteArrayContentFactory</code> with
-   * a given byte array content.
-   * @param content the byte array content
-   */
-  public ByteArrayContentFactory(byte[] content) {
-    this.content = content;
-  }
+    /**
+     * Constructs a new <code>ByteArrayContentFactory</code> with
+     * a given byte array content.
+     *
+     * @param content the byte array content
+     */
+    public ByteArrayContentFactory(byte[] content) {
+        this.content = content;
+    }
 
-  @Override
-  public InputStream getContent() throws IOException {
-    return new ByteArrayInputStream(content);
-  }
+    @Override
+    public InputStream getContent() throws IOException {
+        return new ByteArrayInputStream(content);
+    }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    // --------------------------------------------------------------------
+    // DATA MEMBERS
+    // --------------------------------------------------------------------
 
-  private byte[]		content;
-  private static final long 	serialVersionUID = 4708928447888655116L;
+    private byte[] content;
+    private static final long serialVersionUID = 4708928447888655116L;
 }

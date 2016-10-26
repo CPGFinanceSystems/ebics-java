@@ -23,14 +23,14 @@ package org.kopi.ebics.interfaces;
  * A way to obtain a password.
  *
  * @author Hachani
- *
  */
 public interface PasswordCallback {
 
-  /**
-   * Returns the password.
-   * This may be done via user interaction or by passing a stored password.
-   * @return the password
-   */
-  public char[] getPassword();
+    /**
+     * Returns the password.
+     * This may be done via user interaction or by passing a stored password.
+     *
+     * @return the password
+     */
+    public char[] getPassword();
 }

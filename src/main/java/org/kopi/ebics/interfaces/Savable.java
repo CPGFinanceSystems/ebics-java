@@ -28,20 +28,21 @@ import java.io.ObjectOutputStream;
  * {@linkplain Savable#save(ObjectOutputStream)}
  *
  * @author hachani
- *
  */
 public interface Savable {
 
-  /**
-   * Writes all persistable attributes to the given stream.
-   * @param oos the given stream.
-   * @throws IOException save process failed
-   */
-  public void save(ObjectOutputStream oos) throws IOException;
+    /**
+     * Writes all persistable attributes to the given stream.
+     *
+     * @param oos the given stream.
+     * @throws IOException save process failed
+     */
+    public void save(ObjectOutputStream oos) throws IOException;
 
-  /**
-   * Returns the save name of this savable object.
-   * @return the save name
-   */
-  public String getSaveName();
+    /**
+     * Returns the save name of this savable object.
+     *
+     * @return the save name
+     */
+    public String getSaveName();
 }

@@ -27,74 +27,77 @@ import java.util.Map;
  * A simple mean to cache created files.
  *
  * @author hachani
- *
  */
 public class FileCache {
 
-  /**
-   * Constructs a new <code>FileCache</code> object
-   * @param isTraceEnabled is trace enabled?
-   */
-  public FileCache(boolean isTraceEnabled) {
-    this.isTraceEnabled = isTraceEnabled;
-    cache = new Hashtable<String, File>();
-  }
-
-  /**
-   * Cache a new <code>java.io.File</code> in the cache buffer
-   * @param file the file to cache
-   * @return True if the file is cached
-   */
-  public boolean add(File file) {
-    if (cache.containsKey(file.getName())) {
-      return false;
+    /**
+     * Constructs a new <code>FileCache</code> object
+     *
+     * @param isTraceEnabled is trace enabled?
+     */
+    public FileCache(boolean isTraceEnabled) {
+        this.isTraceEnabled = isTraceEnabled;
+        cache = new Hashtable<String, File>();
     }
 
-    cache.put(file.getName(), file);
+    /**
+     * Cache a new <code>java.io.File</code> in the cache buffer
+     *
+     * @param file the file to cache
+     * @return True if the file is cached
+     */
+    public boolean add(File file) {
+        if (cache.containsKey(file.getName())) {
+            return false;
+        }
 
-    return true;
-  }
+        cache.put(file.getName(), file);
 
-  /**
-   * Removes the given <code>java.io.file</code> from the cache.
-   * @param filename the file to remove
-   * @return True if the file is removed
-   */
-  public boolean remove(String filename) {
-    if (!cache.containsKey(filename)) {
-      return false;
+        return true;
     }
 
-    cache.remove(filename);
+    /**
+     * Removes the given <code>java.io.file</code> from the cache.
+     *
+     * @param filename the file to remove
+     * @return True if the file is removed
+     */
+    public boolean remove(String filename) {
+        if (!cache.containsKey(filename)) {
+            return false;
+        }
 
-    return true;
-  }
+        cache.remove(filename);
 
-  /**
-   * Clears the cache buffer
-   */
-  public void clear() {
-    if (isTraceEnabled) {
-      for (File file : cache.values()) {
-	file.delete();
-      }
+        return true;
     }
 
-    cache.clear();
-  }
+    /**
+     * Clears the cache buffer
+     */
+    public void clear() {
+        if (isTraceEnabled) {
+            for (File file : cache.values()) {
+                file.delete();
+            }
+        }
 
-  /**
-   * Sets the trace ability.
-   * @param enabled is trace enabled?
-   */
-  public void setTraceEnabled(boolean enabled) {
-    this.isTraceEnabled = enabled;
-  }
+        cache.clear();
+    }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    /**
+     * Sets the trace ability.
+     *
+     * @param enabled is trace enabled?
+     */
+    public void setTraceEnabled(boolean enabled) {
+        this.isTraceEnabled = enabled;
+    }
 
-  private Map<String, File>			cache;
-  private boolean 				isTraceEnabled;
+    // --------------------------------------------------------------------
+    // DATA MEMBERS
+    // --------------------------------------------------------------------
+
+    private Map<String, File> cache;
+    private boolean isTraceEnabled;
 }

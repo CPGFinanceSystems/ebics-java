@@ -19,9 +19,6 @@
 
 package org.kopi.ebics.client;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
@@ -33,6 +30,9 @@ import org.kopi.ebics.interfaces.ContentFactory;
 import org.kopi.ebics.io.InputStreamContentFactory;
 import org.kopi.ebics.session.EbicsSession;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 
 /**
  * A simple HTTP request sender and receiver.
@@ -40,86 +40,87 @@ import org.kopi.ebics.session.EbicsSession;
  * before proceeding ebics request response parse.
  *
  * @author hachani
- *
  */
 public class HttpRequestSender {
 
-  /**
-   * Constructs a new <code>HttpRequestSender</code> with a
-   * given ebics session.
-   * @param session the ebics session
-   */
-  public HttpRequestSender(EbicsSession session) {
-    this.session = session;
-  }
-
-  /**
-   * Sends the request contained in the <code>ContentFactory</code>.
-   * The <code>ContentFactory</code> will deliver the request as
-   * an <code>InputStream</code>.
-   *
-   * @param request the ebics request
-   * @return the HTTP return code
-   */
-  public final int send(ContentFactory request) throws IOException {
-    HttpClient			httpClient;
-    String                      proxyConfiguration;
-    PostMethod			method;
-    RequestEntity		requestEntity;
-    InputStream			input;
-    int				retCode;
-
-    httpClient = new HttpClient();
-    proxyConfiguration = session.getConfiguration().getProperty("http.proxy.host");
-
-    if (proxyConfiguration != null && !proxyConfiguration.equals("")) {
-      HostConfiguration		hostConfig;
-      String			proxyHost;
-      int			proxyPort;
-
-      hostConfig = httpClient.getHostConfiguration();
-      proxyHost = session.getConfiguration().getProperty("http.proxy.host").trim();
-      proxyPort = Integer.parseInt(session.getConfiguration().getProperty("http.proxy.port").trim());
-      hostConfig.setProxy(proxyHost, proxyPort);
-      if (!session.getConfiguration().getProperty("http.proxy.user").equals("")) {
-	String				user;
-	String				pwd;
-	UsernamePasswordCredentials	credentials;
-	AuthScope			authscope;
-
-	user = session.getConfiguration().getProperty("http.proxy.user").trim();
-	pwd = session.getConfiguration().getProperty("http.proxy.password").trim();
-	credentials = new UsernamePasswordCredentials(user, pwd);
-	authscope = new AuthScope(proxyHost, proxyPort);
-	httpClient.getState().setProxyCredentials(authscope, credentials);
-      }
+    /**
+     * Constructs a new <code>HttpRequestSender</code> with a
+     * given ebics session.
+     *
+     * @param session the ebics session
+     */
+    public HttpRequestSender(EbicsSession session) {
+        this.session = session;
     }
 
-    input = request.getContent();
-    method = new PostMethod(session.getUser().getPartner().getBank().getURL().toString());
-    method.getParams().setSoTimeout(30000);
-    requestEntity = new InputStreamRequestEntity(input);
-    method.setRequestEntity(requestEntity);
-    method.setRequestHeader("Content-type", "text/xml; charset=ISO-8859-1");
-    retCode = -1;
-    retCode = httpClient.executeMethod(method);
-    response = new InputStreamContentFactory(method.getResponseBodyAsStream());
+    /**
+     * Sends the request contained in the <code>ContentFactory</code>.
+     * The <code>ContentFactory</code> will deliver the request as
+     * an <code>InputStream</code>.
+     *
+     * @param request the ebics request
+     * @return the HTTP return code
+     */
+    public final int send(ContentFactory request) throws IOException {
+        HttpClient httpClient;
+        String proxyConfiguration;
+        PostMethod method;
+        RequestEntity requestEntity;
+        InputStream input;
+        int retCode;
 
-    return retCode;
-  }
+        httpClient = new HttpClient();
+        proxyConfiguration = session.getConfiguration().getProperty("http.proxy.host");
 
-  /**
-   * Returns the content factory of the response body
-   * @return the content factory of the response.
-   */
-  public ContentFactory getResponseBody() {
-    return response;
-  }
+        if (proxyConfiguration != null && !proxyConfiguration.equals("")) {
+            HostConfiguration hostConfig;
+            String proxyHost;
+            int proxyPort;
 
-  //////////////////////////////////////////////////////////////////
-  // DATA MEMBERS
-  //////////////////////////////////////////////////////////////////
+            hostConfig = httpClient.getHostConfiguration();
+            proxyHost = session.getConfiguration().getProperty("http.proxy.host").trim();
+            proxyPort = Integer.parseInt(session.getConfiguration().getProperty("http.proxy.port").trim());
+            hostConfig.setProxy(proxyHost, proxyPort);
+            if (!session.getConfiguration().getProperty("http.proxy.user").equals("")) {
+                String user;
+                String pwd;
+                UsernamePasswordCredentials credentials;
+                AuthScope authscope;
 
-  private EbicsSession				session;
-  private ContentFactory			response;
+                user = session.getConfiguration().getProperty("http.proxy.user").trim();
+                pwd = session.getConfiguration().getProperty("http.proxy.password").trim();
+                credentials = new UsernamePasswordCredentials(user, pwd);
+                authscope = new AuthScope(proxyHost, proxyPort);
+                httpClient.getState().setProxyCredentials(authscope, credentials);
+            }
+        }
+
+        input = request.getContent();
+        method = new PostMethod(session.getUser().getPartner().getBank().getURL().toString());
+        method.getParams().setSoTimeout(30000);
+        requestEntity = new InputStreamRequestEntity(input);
+        method.setRequestEntity(requestEntity);
+        method.setRequestHeader("Content-type", "text/xml; charset=ISO-8859-1");
+        retCode = -1;
+        retCode = httpClient.executeMethod(method);
+        response = new InputStreamContentFactory(method.getResponseBodyAsStream());
+
+        return retCode;
+    }
+
+    /**
+     * Returns the content factory of the response body
+     *
+     * @return the content factory of the response.
+     */
+    public ContentFactory getResponseBody() {
+        return response;
+    }
+
+    //////////////////////////////////////////////////////////////////
+    // DATA MEMBERS
+    //////////////////////////////////////////////////////////////////
+
+    private EbicsSession session;
+    private ContentFactory response;
 }

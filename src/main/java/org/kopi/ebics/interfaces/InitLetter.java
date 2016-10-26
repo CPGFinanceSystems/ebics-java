@@ -19,11 +19,11 @@
 
 package org.kopi.ebics.interfaces;
 
+import org.kopi.ebics.exception.EbicsException;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
-
-import org.kopi.ebics.exception.EbicsException;
 
 
 /**
@@ -32,36 +32,39 @@ import org.kopi.ebics.exception.EbicsException;
  * of the <code>InitLetter</code>
  *
  * @author Hachani
- *
  */
 public interface InitLetter {
 
-  /**
-   * Creates an <code>InitLetter</code> for a given <code>EbicsUser</code>
-   * @param user the ebics user.
-   * @throws EbicsException
-   * @throws IOException
-   * @throws GeneralSecurityException
-   */
-  public void create(EbicsUser user)
-    throws GeneralSecurityException, IOException, EbicsException;
+    /**
+     * Creates an <code>InitLetter</code> for a given <code>EbicsUser</code>
+     *
+     * @param user the ebics user.
+     * @throws EbicsException
+     * @throws IOException
+     * @throws GeneralSecurityException
+     */
+    public void create(EbicsUser user)
+            throws GeneralSecurityException, IOException, EbicsException;
 
-  /**
-   * Saves the <code>InitLetter</code> to the given output stream.
-   * @param output the output stream.
-   * @throws IOException Save error.
-   */
-  public void save(OutputStream output) throws IOException;
+    /**
+     * Saves the <code>InitLetter</code> to the given output stream.
+     *
+     * @param output the output stream.
+     * @throws IOException Save error.
+     */
+    public void save(OutputStream output) throws IOException;
 
-  /**
-   * Returns the initialization letter title.
-   * @return the letter title.
-   */
-  public String getTitle();
+    /**
+     * Returns the initialization letter title.
+     *
+     * @return the letter title.
+     */
+    public String getTitle();
 
-  /**
-   * Returns the letter name.
-   * @return the letter name.
-   */
-  public String getName();
+    /**
+     * Returns the letter name.
+     *
+     * @return the letter name.
+     */
+    public String getName();
 }

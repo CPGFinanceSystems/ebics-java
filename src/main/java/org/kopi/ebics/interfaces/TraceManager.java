@@ -27,43 +27,43 @@ import org.kopi.ebics.exception.EbicsException;
  * This can be done using the <code>trace(EbicsRootElement)</code>
  *
  * @author hachani
- *
  */
 public interface TraceManager {
 
-  /**
-   * Saves the <code>EbicsRootElement</code> in the traces
-   * directory. This directory may be specified by the
-   * <code>EbicsConfiguration</code> client configuration.
-   *
-   * @param element the element to trace
-   * @throws EbicsException cannot trace the ebics element
-   *
-   * @see org.kopi.ebics.interfaces.Configuration#isTraceEnabled() isTraceEnabled()
-   */
-  public void trace(EbicsRootElement element) throws EbicsException;
+    /**
+     * Saves the <code>EbicsRootElement</code> in the traces
+     * directory. This directory may be specified by the
+     * <code>EbicsConfiguration</code> client configuration.
+     *
+     * @param element the element to trace
+     * @throws EbicsException cannot trace the ebics element
+     * @see org.kopi.ebics.interfaces.Configuration#isTraceEnabled() isTraceEnabled()
+     */
+    public void trace(EbicsRootElement element) throws EbicsException;
 
-  /**
-   * Removes an <code>EbicsRootElement</code> from trace
-   * directory.
-   * @param element the element to ve removed.
-   */
-  public void remove(EbicsRootElement element);
+    /**
+     * Removes an <code>EbicsRootElement</code> from trace
+     * directory.
+     *
+     * @param element the element to ve removed.
+     */
+    public void remove(EbicsRootElement element);
 
-  /**
-   * Clears the traces created for a given ebics session
-   */
-  public void clear();
+    /**
+     * Clears the traces created for a given ebics session
+     */
+    public void clear();
 
-  /**
-   * Sets the trace directory
-   */
-  public void setTraceDirectory(String traceDir);
+    /**
+     * Sets the trace directory
+     */
+    public void setTraceDirectory(String traceDir);
 
-  /**
-   * Enables or disables the trace feature
-   * @param enabled is trace enabled?
-   */
-  public void setTraceEnabled(boolean enabled);
+    /**
+     * Enables or disables the trace feature
+     *
+     * @param enabled is trace enabled?
+     */
+    public void setTraceEnabled(boolean enabled);
 
 }

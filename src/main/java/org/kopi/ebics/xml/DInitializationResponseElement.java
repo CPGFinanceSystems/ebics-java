@@ -30,88 +30,92 @@ import org.kopi.ebics.session.OrderType;
  * for ebics downloads initializations.
  *
  * @author Hachani
- *
  */
 public class DInitializationResponseElement extends InitializationResponseElement {
 
-  /**
-   * Constructs a new <code>DInitializationResponseElement</code> object
-   * @param factory the content factory
-   * @param orderType the order type
-   * @param name the element name
-   */
-  public DInitializationResponseElement(ContentFactory factory,
-                                        OrderType orderType,
-                                        String name)
-  {
-    super(factory, orderType, name);
-  }
-
-  @Override
-  public void build() throws EbicsException {
-    String			bodyRetCode;
-
-    super.build();
-    bodyRetCode = response.getBody().getReturnCode().getStringValue();
-    returnCode = ReturnCode.toReturnCode(bodyRetCode, "");
-    if (returnCode.equals(ReturnCode.EBICS_NO_DOWNLOAD_DATA_AVAILABLE)) {
-      throw new NoDownloadDataAvailableException();
+    /**
+     * Constructs a new <code>DInitializationResponseElement</code> object
+     *
+     * @param factory   the content factory
+     * @param orderType the order type
+     * @param name      the element name
+     */
+    public DInitializationResponseElement(ContentFactory factory,
+                                          OrderType orderType,
+                                          String name) {
+        super(factory, orderType, name);
     }
-    numSegments = (int)response.getHeader().getStatic().getNumSegments();
-    segmentNumber = (int)response.getHeader().getMutable().getSegmentNumber().getLongValue();
-    lastSegment = response.getHeader().getMutable().getSegmentNumber().getLastSegment();
-    transactionKey = response.getBody().getDataTransfer().getDataEncryptionInfo().getTransactionKey();
-    orderData = response.getBody().getDataTransfer().getOrderData().getByteArrayValue();
-  }
 
-  /**
-   * Returns the total segments number.
-   * @return the total segments number.
-   */
-  public int getSegmentsNumber() {
-    return numSegments;
-  }
+    @Override
+    public void build() throws EbicsException {
+        String bodyRetCode;
 
-  /**
-   * Returns The current segment number.
-   * @return the segment number.
-   */
-  public int getSegmentNumber() {
-    return segmentNumber;
-  }
+        super.build();
+        bodyRetCode = response.getBody().getReturnCode().getStringValue();
+        returnCode = ReturnCode.toReturnCode(bodyRetCode, "");
+        if (returnCode.equals(ReturnCode.EBICS_NO_DOWNLOAD_DATA_AVAILABLE)) {
+            throw new NoDownloadDataAvailableException();
+        }
+        numSegments = (int) response.getHeader().getStatic().getNumSegments();
+        segmentNumber = (int) response.getHeader().getMutable().getSegmentNumber().getLongValue();
+        lastSegment = response.getHeader().getMutable().getSegmentNumber().getLastSegment();
+        transactionKey = response.getBody().getDataTransfer().getDataEncryptionInfo().getTransactionKey();
+        orderData = response.getBody().getDataTransfer().getOrderData().getByteArrayValue();
+    }
 
-  /**
-   * Checks if it is the last segment.
-   * @return True is it is the last segment.
-   */
-  public boolean isLastSegment() {
-    return lastSegment;
-  }
+    /**
+     * Returns the total segments number.
+     *
+     * @return the total segments number.
+     */
+    public int getSegmentsNumber() {
+        return numSegments;
+    }
 
-  /**
-   * Returns the transaction key.
-   * @return the transaction key.
-   */
-  public byte[] getTransactionKey() {
-    return transactionKey;
-  }
+    /**
+     * Returns The current segment number.
+     *
+     * @return the segment number.
+     */
+    public int getSegmentNumber() {
+        return segmentNumber;
+    }
 
-  /**
-   * Returns the order data.
-   * @return the order data.
-   */
-  public byte[] getOrderData() {
-    return orderData;
-  }
+    /**
+     * Checks if it is the last segment.
+     *
+     * @return True is it is the last segment.
+     */
+    public boolean isLastSegment() {
+        return lastSegment;
+    }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    /**
+     * Returns the transaction key.
+     *
+     * @return the transaction key.
+     */
+    public byte[] getTransactionKey() {
+        return transactionKey;
+    }
 
-  private int				numSegments;
-  private int				segmentNumber;
-  private boolean			lastSegment;
-  private byte[]			transactionKey;
-  private byte[]			orderData;
-  private static final long 		serialVersionUID = -6013011772863903840L;
+    /**
+     * Returns the order data.
+     *
+     * @return the order data.
+     */
+    public byte[] getOrderData() {
+        return orderData;
+    }
+
+    // --------------------------------------------------------------------
+    // DATA MEMBERS
+    // --------------------------------------------------------------------
+
+    private int numSegments;
+    private int segmentNumber;
+    private boolean lastSegment;
+    private byte[] transactionKey;
+    private byte[] orderData;
+    private static final long serialVersionUID = -6013011772863903840L;
 }

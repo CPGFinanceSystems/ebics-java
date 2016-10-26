@@ -28,85 +28,87 @@ import java.io.Serializable;
  * in this or a future session.
  *
  * @author Hachani
- *
  */
 public class TransferState implements Serializable {
 
-  public TransferState(int numSegments, byte[] transactionId) {
-    this.numSegments = numSegments;
-    this.transactionId = transactionId;
-  }
-
-  /**
-   * Returns the next segment number to be transferred.
-   * @return the next segment number to be transferred.
-   */
-  public int next() {
-    segmentNumber ++;
-
-    if (segmentNumber == numSegments) {
-      lastSegment = true;
+    public TransferState(int numSegments, byte[] transactionId) {
+        this.numSegments = numSegments;
+        this.transactionId = transactionId;
     }
 
-    return segmentNumber;
-  }
+    /**
+     * Returns the next segment number to be transferred.
+     *
+     * @return the next segment number to be transferred.
+     */
+    public int next() {
+        segmentNumber++;
 
-  public boolean hasNext() {
-    return segmentNumber < numSegments;
-  }
+        if (segmentNumber == numSegments) {
+            lastSegment = true;
+        }
 
-  /**
-   * Sets the segment number
-   * @param segmentNumber the segment number
-   */
-  public void setSegmentNumber(int segmentNumber) {
-    this.segmentNumber = segmentNumber;
-  }
+        return segmentNumber;
+    }
 
-  /**
-   * Is the current segment is the last one?
-   * @return True if it is the last segment
-   */
-  public boolean isLastSegment() {
-    return lastSegment;
-  }
+    public boolean hasNext() {
+        return segmentNumber < numSegments;
+    }
 
-  /**
-   * @return the transactionID
-   */
-  public byte[] getTransactionId() {
-    return transactionId;
-  }
+    /**
+     * Sets the segment number
+     *
+     * @param segmentNumber the segment number
+     */
+    public void setSegmentNumber(int segmentNumber) {
+        this.segmentNumber = segmentNumber;
+    }
 
-  /**
-   * @param transactionID the transactionID to set
-   */
-  public void setTransactionId(byte[] transactionId) {
-    this.transactionId = transactionId;
-  }
+    /**
+     * Is the current segment is the last one?
+     *
+     * @return True if it is the last segment
+     */
+    public boolean isLastSegment() {
+        return lastSegment;
+    }
 
-  /**
-   * @return the numSegments
-   */
-  public int getNumSegments() {
-    return numSegments;
-  }
+    /**
+     * @return the transactionID
+     */
+    public byte[] getTransactionId() {
+        return transactionId;
+    }
 
-  /**
-   * @param numSegments the numSegments to set
-   */
-  public void setNumSegments(int numSegments) {
-    this.numSegments = numSegments;
-  }
+    /**
+     * @param transactionID the transactionID to set
+     */
+    public void setTransactionId(byte[] transactionId) {
+        this.transactionId = transactionId;
+    }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    /**
+     * @return the numSegments
+     */
+    public int getNumSegments() {
+        return numSegments;
+    }
 
-  private byte[]			transactionId;
-  private int 				segmentNumber;
-  private int				numSegments;
-  private transient boolean		lastSegment;
+    /**
+     * @param numSegments the numSegments to set
+     */
+    public void setNumSegments(int numSegments) {
+        this.numSegments = numSegments;
+    }
 
-  private static final long 		serialVersionUID = -3189235892639115408L;
+    // --------------------------------------------------------------------
+    // DATA MEMBERS
+    // --------------------------------------------------------------------
+
+    private byte[] transactionId;
+    private int segmentNumber;
+    private int numSegments;
+    private transient boolean lastSegment;
+
+    private static final long serialVersionUID = -3189235892639115408L;
 }
