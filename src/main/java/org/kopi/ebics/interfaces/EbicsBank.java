@@ -35,7 +35,7 @@ public interface EbicsBank extends Serializable {
      *
      * @return the URL needed for communication to the bank.
      */
-    public URL getURL();
+    URL getURL();
 
     /**
      * Returns the encryption key digest you have obtained from the bank.
@@ -43,7 +43,7 @@ public interface EbicsBank extends Serializable {
      *
      * @return the encryption key digest you have obtained from the bank.
      */
-    public byte[] getE002Digest();
+    byte[] getE002Digest();
 
     /**
      * Returns the authentication key digest you have obtained from the bank.
@@ -51,35 +51,35 @@ public interface EbicsBank extends Serializable {
      *
      * @return the authentication key digest you have obtained from the bank.
      */
-    public byte[] getX002Digest();
+    byte[] getX002Digest();
 
     /**
      * Returns the banks encryption key.
      *
      * @return the banks encryption key.
      */
-    public RSAPublicKey getE002Key();
+    RSAPublicKey getE002Key();
 
     /**
      * Returns the banks authentication key.
      *
      * @return the banks authentication key.
      */
-    public RSAPublicKey getX002Key();
+    RSAPublicKey getX002Key();
 
     /**
      * Returns the bank's id.
      *
      * @return the bank's id.
      */
-    public String getHostId();
+    String getHostId();
 
     /**
      * Returns the bank's name.
      *
      * @return the bank's name.
      */
-    public String getName();
+    String getName();
 
     /**
      * Keys have been fetched from the bank.
@@ -89,7 +89,7 @@ public interface EbicsBank extends Serializable {
      * @param e002Key the banks encryption key.
      * @param x002Key the banks authentication key.
      */
-    public void setBankKeys(RSAPublicKey e002Key, RSAPublicKey x002Key);
+    void setBankKeys(RSAPublicKey e002Key, RSAPublicKey x002Key);
 
     /**
      * Sets the bank digests.
@@ -97,5 +97,5 @@ public interface EbicsBank extends Serializable {
      * @param e002Digest encryption digest
      * @param x002Digest authentication digest
      */
-    public void setDigests(byte[] e002Digest, byte[] x002Digest);
+    void setDigests(byte[] e002Digest, byte[] x002Digest);
 }

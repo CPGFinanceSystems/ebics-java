@@ -156,7 +156,7 @@ public class EbicsSocketFactory extends SSLSocketFactory {
     }
 
     @Override
-    public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
+    public Socket createSocket(String host, int port) throws IOException {
         return context.getSocketFactory().createSocket(host, port);
     }
 
@@ -167,7 +167,7 @@ public class EbicsSocketFactory extends SSLSocketFactory {
 
     @Override
     public Socket createSocket(String host, int port, InetAddress localHost, int localPort)
-            throws IOException, UnknownHostException {
+            throws IOException {
         return context.getSocketFactory().createSocket(host, port, localHost, localPort);
     }
 
@@ -177,5 +177,5 @@ public class EbicsSocketFactory extends SSLSocketFactory {
         return context.getSocketFactory().createSocket(address, port, localAddress, localPort);
     }
 
-    private SSLContext context;
+    private final SSLContext context;
 }

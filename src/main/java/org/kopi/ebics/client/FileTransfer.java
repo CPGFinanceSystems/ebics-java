@@ -285,5 +285,5 @@ public class FileTransfer {
     // DATA MEMBERS
     // --------------------------------------------------------------------
 
-    private EbicsSession session;
+    private final EbicsSession session;
 }

@@ -591,13 +591,13 @@ public class User implements EbicsUser, Savable {
     // DATA MEMBERS
     // --------------------------------------------------------------------
 
-    private EbicsPartner partner;
-    private String userId;
-    private String name;
-    private String dn;
+    private final EbicsPartner partner;
+    private final String userId;
+    private final String name;
+    private final String dn;
     private boolean isInitializedHIA;
     private boolean isInitialized;
-    private PasswordCallback passwordCallback;
+    private final PasswordCallback passwordCallback;
     private transient boolean needSave;
     private CertificateManager manager;
 

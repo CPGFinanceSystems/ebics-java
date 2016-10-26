@@ -224,8 +224,8 @@ public class CertificateManager {
     // DATA MEMBERS
     // --------------------------------------------------------------------
 
-    private X509Generator generator;
-    private EbicsUser user;
+    private final X509Generator generator;
+    private final EbicsUser user;
 
     private X509Certificate a005Certificate;
     private X509Certificate e002Certificate;

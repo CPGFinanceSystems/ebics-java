@@ -83,6 +83,6 @@ public class Joiner {
     // DATA MEMBERS
     // --------------------------------------------------------------------
 
-    private EbicsUser user;
-    private ByteArrayOutputStream buffer;
+    private final EbicsUser user;
+    private final ByteArrayOutputStream buffer;
 }

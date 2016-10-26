@@ -103,7 +103,7 @@ public class UnsecuredRequestElement extends DefaultEbicsRootElement {
     // DATA MEMBERS
     // --------------------------------------------------------------------
 
-    private OrderType orderType;
-    private byte[] orderData;
+    private final OrderType orderType;
+    private final byte[] orderData;
     private static final long serialVersionUID = -3548730114599886711L;
 }

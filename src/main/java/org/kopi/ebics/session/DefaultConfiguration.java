@@ -263,11 +263,11 @@ public class DefaultConfiguration implements Configuration {
     // --------------------------------------------------------------------
 
     private final String rootDir;
-    private ResourceBundle bundle;
-    private Properties properties;
-    private EbicsLogger logger;
-    private SerializationManager serializationManager;
-    private TraceManager traceManager;
+    private final ResourceBundle bundle;
+    private final Properties properties;
+    private final EbicsLogger logger;
+    private final SerializationManager serializationManager;
+    private final TraceManager traceManager;
     private LetterManager letterManager;
     private boolean isConfigFileLoad;
 

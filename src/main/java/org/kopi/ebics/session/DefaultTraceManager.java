@@ -110,5 +110,5 @@ public class DefaultTraceManager implements TraceManager {
     // --------------------------------------------------------------------
 
     private File traceDir;
-    private FileCache cache;
+    private final FileCache cache;
 }

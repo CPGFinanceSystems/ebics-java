@@ -40,14 +40,14 @@ public interface EbicsLogger {
      *
      * @param message the message to be informed.
      */
-    public void info(String message);
+    void info(String message);
 
     /**
      * Warns a given message to the client application user.
      *
      * @param message the given message.
      */
-    public void warn(String message);
+    void warn(String message);
 
     /**
      * Warns a given message and its causes to the client application user.
@@ -55,14 +55,14 @@ public interface EbicsLogger {
      * @param message   the given message.
      * @param throwable message causes.
      */
-    public void warn(String message, Throwable throwable);
+    void warn(String message, Throwable throwable);
 
     /**
      * Reports an error to the client application user.
      *
      * @param message the error message
      */
-    public void error(String message);
+    void error(String message);
 
     /**
      * Reports an error and its causes to the client application user.
@@ -70,19 +70,19 @@ public interface EbicsLogger {
      * @param message   the error message.
      * @param throwable the error causes.
      */
-    public void error(String message, Throwable throwable);
+    void error(String message, Throwable throwable);
 
     /**
      * Reports an ebics return code to the client application user.
      *
      * @param returnCode the return code to report.
      */
-    public void report(ReturnCode returnCode);
+    void report(ReturnCode returnCode);
 
     /**
      * Sets the logger log file
      *
      * @param logFile the log file
      */
-    public void setLogFile(String logFile);
+    void setLogFile(String logFile);
 }

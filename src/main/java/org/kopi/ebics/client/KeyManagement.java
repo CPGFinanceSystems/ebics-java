@@ -188,5 +188,5 @@ public class KeyManagement {
     // DATA MEMBERS
     // --------------------------------------------------------------------
 
-    private EbicsSession session;
+    private final EbicsSession session;
 }

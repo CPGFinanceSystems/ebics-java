@@ -121,6 +121,6 @@ public class HttpRequestSender {
     // DATA MEMBERS
     //////////////////////////////////////////////////////////////////
 
-    private EbicsSession session;
+    private final EbicsSession session;
     private ContentFactory response;
 }

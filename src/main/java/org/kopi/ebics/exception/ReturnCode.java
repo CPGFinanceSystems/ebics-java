@@ -171,9 +171,9 @@ public class ReturnCode implements Serializable {
     // DATA MEMBERS
     // --------------------------------------------------------------------
 
-    private String code;
-    private String symbolicName;
-    private String text;
+    private final String code;
+    private final String symbolicName;
+    private final String text;
     public static final ReturnCode EBICS_OK;
     public static final ReturnCode EBICS_DOWNLOAD_POSTPROCESS_DONE;
     public static final ReturnCode EBICS_DOWNLOAD_POSTPROCESS_SKIPPED;

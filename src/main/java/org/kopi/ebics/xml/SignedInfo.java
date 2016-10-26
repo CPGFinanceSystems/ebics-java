@@ -161,7 +161,7 @@ public class SignedInfo extends DefaultEbicsRootElement {
     // DATA MEMBERS
     // --------------------------------------------------------------------
 
-    private byte[] digest;
-    private EbicsUser user;
+    private final byte[] digest;
+    private final EbicsUser user;
     private static final long serialVersionUID = 4194924578678778580L;
 }

@@ -31,19 +31,19 @@ public interface EbicsPartner {
      *
      * @return the bank we are customer of
      */
-    public EbicsBank getBank();
+    EbicsBank getBank();
 
     /**
      * Returns the customers id at the bank.
      *
      * @return the customers id at the bank.
      */
-    public String getPartnerId();
+    String getPartnerId();
 
     /**
      * Creates the next order number.
      *
      * @return the next order number.
      */
-    public String nextOrderId();
+    String nextOrderId();
 }

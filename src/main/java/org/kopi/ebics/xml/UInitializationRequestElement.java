@@ -207,9 +207,9 @@ public class UInitializationRequestElement extends InitializationRequestElement 
     // DATA MEMBERS
     // --------------------------------------------------------------------
 
-    private byte[] userData;
+    private final byte[] userData;
     private UserSignature userSignature;
-    private SecretKeySpec keySpec;
-    private Splitter splitter;
+    private final SecretKeySpec keySpec;
+    private final Splitter splitter;
     private static final long serialVersionUID = -8083183483311283608L;
 }

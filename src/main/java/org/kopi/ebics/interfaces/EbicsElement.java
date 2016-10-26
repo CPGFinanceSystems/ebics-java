@@ -32,14 +32,14 @@ public interface EbicsElement extends Serializable {
      *
      * @return the name of the element
      */
-    public String getName();
+    String getName();
 
     /**
      * Builds the <code>EbicsElement</code> XML fragment
      *
      * @throws EbicsException
      */
-    public void build() throws EbicsException;
+    void build() throws EbicsException;
 
     /**
      * Prints the <code>EbicsElement</code> into
@@ -47,6 +47,6 @@ public interface EbicsElement extends Serializable {
      *
      * @param stream the print stream
      */
-    public void print(PrintStream stream);
+    void print(PrintStream stream);
 
 }

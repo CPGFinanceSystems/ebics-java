@@ -144,8 +144,8 @@ public class EbicsSession {
     // DATA MEMBERS
     // --------------------------------------------------------------------
 
-    private EbicsUser user;
-    private Configuration configuration;
+    private final EbicsUser user;
+    private final Configuration configuration;
     private Product product;
-    private Map<String, String> parameters;
+    private final Map<String, String> parameters;
 }

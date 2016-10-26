@@ -156,21 +156,21 @@ public class Bank implements EbicsBank, Savable {
      *
      * @serial
      */
-    private URL url;
+    private final URL url;
 
     /**
      * The bank host id
      *
      * @serial
      */
-    private String hostId;
+    private final String hostId;
 
     /**
      * The bank name
      *
      * @serial
      */
-    private String name;
+    private final String name;
 
     /**
      * The bank encryption digest

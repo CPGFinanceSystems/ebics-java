@@ -195,9 +195,9 @@ public class DefaultEbicsLogger implements EbicsLogger {
     // DATA MEMBERS
     // --------------------------------------------------------------------
 
-    private Logger logger;
-    private ConsoleAppender consoleAppender;
-    private RollingFileAppender fileAppender;
+    private final Logger logger;
+    private final ConsoleAppender consoleAppender;
+    private final RollingFileAppender fileAppender;
     private File logFile;
 
     public static final int ALL_LEVEL = Level.ALL_INT;

@@ -39,7 +39,7 @@ public interface TraceManager {
      * @throws EbicsException cannot trace the ebics element
      * @see org.kopi.ebics.interfaces.Configuration#isTraceEnabled() isTraceEnabled()
      */
-    public void trace(EbicsRootElement element) throws EbicsException;
+    void trace(EbicsRootElement element) throws EbicsException;
 
     /**
      * Removes an <code>EbicsRootElement</code> from trace
@@ -47,23 +47,23 @@ public interface TraceManager {
      *
      * @param element the element to ve removed.
      */
-    public void remove(EbicsRootElement element);
+    void remove(EbicsRootElement element);
 
     /**
      * Clears the traces created for a given ebics session
      */
-    public void clear();
+    void clear();
 
     /**
      * Sets the trace directory
      */
-    public void setTraceDirectory(String traceDir);
+    void setTraceDirectory(String traceDir);
 
     /**
      * Enables or disables the trace feature
      *
      * @param enabled is trace enabled?
      */
-    public void setTraceEnabled(boolean enabled);
+    void setTraceEnabled(boolean enabled);
 
 }

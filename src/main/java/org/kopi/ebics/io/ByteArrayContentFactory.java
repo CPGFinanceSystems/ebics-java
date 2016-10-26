@@ -54,6 +54,6 @@ public class ByteArrayContentFactory implements ContentFactory {
     // DATA MEMBERS
     // --------------------------------------------------------------------
 
-    private byte[] content;
+    private final byte[] content;
     private static final long serialVersionUID = 4708928447888655116L;
 }
