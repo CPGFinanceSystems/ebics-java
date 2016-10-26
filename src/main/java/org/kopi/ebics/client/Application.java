@@ -143,7 +143,7 @@ public class Application {
      * @param passwordCallback a callback-handler that supplies us with the password.
      *                         This parameter can be null, in this case no password is used.
      */
-    public void createUser(URL url,
+    public User createUser(URL url,
                            String bankName,
                            String hostId,
                            String partnerId,
@@ -153,7 +153,7 @@ public class Application {
                            String country,
                            String organization,
                            boolean saveCertificates,
-                           PasswordCallback passwordCallback) {
+                           PasswordCallback passwordCallback) throws EbicsException {
         Bank bank;
         Partner partner;
         User user;
@@ -183,18 +183,12 @@ public class Application {
             users.put(userId, user);
             partners.put(partner.getPartnerId(), partner);
             banks.put(bank.getHostId(), bank);
-        } catch (GeneralSecurityException e) {
-            configuration.getLogger().error(Messages.getString("user.create.error", Constants.APPLICATION_BUNDLE_NAME), e);
-            return;
-        } catch (IOException e) {
-            configuration.getLogger().error(Messages.getString("user.create.error", Constants.APPLICATION_BUNDLE_NAME), e);
-            return;
-        } catch (EbicsException e) {
-            configuration.getLogger().error(Messages.getString("user.create.error", Constants.APPLICATION_BUNDLE_NAME), e);
-            return;
-        }
 
-        configuration.getLogger().info(Messages.getString("user.create.success", Constants.APPLICATION_BUNDLE_NAME, userId));
+            configuration.getLogger().info(Messages.getString("user.create.success", Constants.APPLICATION_BUNDLE_NAME, userId));
+            return user;
+        } catch (GeneralSecurityException | IOException e) {
+            throw new EbicsException(Messages.getString("user.create.error", Constants.APPLICATION_BUNDLE_NAME), e);
+        }
     }
 
     /**
