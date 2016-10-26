@@ -106,8 +106,8 @@
                             src/main/xsd/config.xsdconfig
                         </xmlConfig>
                     </xmlConfigs>
-                    <memoryInitialSize>32m</memoryInitialSize>
-                    <memoryMaximumSize>64m</memoryMaximumSize>
+                    <memoryInitialSize>64m</memoryInitialSize>
+                    <memoryMaximumSize>128m</memoryMaximumSize>
                     <schemaDirectory>src/main/xsd</schemaDirectory>
                     <verbose>true</verbose>
                 </configuration>
