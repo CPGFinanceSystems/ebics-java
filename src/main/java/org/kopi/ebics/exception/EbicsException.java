@@ -41,6 +41,10 @@ public class EbicsException extends Exception {
         super(message);
     }
 
+    public EbicsException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
+
     /**
      * A means to construct a server error with no additional message.
      *

@@ -138,11 +138,10 @@ public class Application {
      * @param name             the user name,
      * @param email            the user email
      * @param country          the user country
-     * @param organisation     the user organization or company
-     * @param saveCetificates  save generated certificates?
+     * @param organization     the user organization or company
+     * @param saveCertificates save generated certificates?
      * @param passwordCallback a callback-handler that supplies us with the password.
      *                         This parameter can be null, in this case no password is used.
-     * @param saveCertificates
      */
     public void createUser(URL url,
                            String bankName,
@@ -153,7 +152,7 @@ public class Application {
                            String email,
                            String country,
                            String organization,
-                           boolean saveCetificates,
+                           boolean saveCertificates,
                            PasswordCallback passwordCallback) {
         Bank bank;
         Partner partner;
@@ -169,7 +168,7 @@ public class Application {
         try {
             user = new User(partner, userId, name, email, country, organization, passwordCallback);
             createUserDirectories(user);
-            if (saveCetificates) {
+            if (saveCertificates) {
                 user.saveUserCertificates(configuration.getKeystoreDirectory(user));
             }
             configuration.getSerializationManager().serialize(bank);
@@ -205,10 +204,10 @@ public class Application {
      * @param partnerId the partner ID
      * @param userId    the user ID
      */
-    public void loadUser(String hostId,
+    public User loadUser(String hostId,
                          String partnerId,
                          String userId,
-                         PasswordCallback passwordCallback) {
+                         PasswordCallback passwordCallback) throws EbicsException {
         configuration.getLogger().info(Messages.getString("user.load.info", Constants.APPLICATION_BUNDLE_NAME, userId));
 
         try {
@@ -226,21 +225,12 @@ public class Application {
             users.put(userId, user);
             partners.put(partner.getPartnerId(), partner);
             banks.put(bank.getHostId(), bank);
-        } catch (EbicsException e) {
-            configuration.getLogger().error(Messages.getString("user.load.error", Constants.APPLICATION_BUNDLE_NAME), e);
-            return;
-        } catch (IOException e) {
-            configuration.getLogger().error(Messages.getString("user.load.error", Constants.APPLICATION_BUNDLE_NAME), e);
-            return;
-        } catch (ClassNotFoundException e) {
-            configuration.getLogger().error(Messages.getString("user.load.error", Constants.APPLICATION_BUNDLE_NAME), e);
-            return;
-        } catch (GeneralSecurityException e) {
-            configuration.getLogger().error(Messages.getString("user.load.error", Constants.APPLICATION_BUNDLE_NAME), e);
-            return;
-        }
 
-        configuration.getLogger().info(Messages.getString("user.load.success", Constants.APPLICATION_BUNDLE_NAME, userId));
+            configuration.getLogger().info(Messages.getString("user.load.success", Constants.APPLICATION_BUNDLE_NAME, userId));
+            return user;
+        } catch (GeneralSecurityException | IOException | ClassNotFoundException e) {
+            throw new EbicsException(Messages.getString("user.load.error", Constants.APPLICATION_BUNDLE_NAME), e);
+        }
     }
 
     /**
