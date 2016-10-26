@@ -78,11 +78,4 @@ public interface EbicsLogger {
      * @param returnCode the return code to report.
      */
     void report(ReturnCode returnCode);
-
-    /**
-     * Sets the logger log file
-     *
-     * @param logFile the log file
-     */
-    void setLogFile(String logFile);
 }
