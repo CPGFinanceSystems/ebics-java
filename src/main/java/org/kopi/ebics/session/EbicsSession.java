@@ -20,7 +20,7 @@
 package org.kopi.ebics.session;
 
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.interfaces.Configuration;
+import org.kopi.ebics.interfaces.EbicsConfiguration;
 import org.kopi.ebics.interfaces.EbicsUser;
 
 import java.io.IOException;
@@ -42,7 +42,7 @@ public class EbicsSession {
      * @param user the ebics user
      * @param the  ebics client configuration
      */
-    public EbicsSession(final EbicsUser user, final Configuration configuration) {
+    public EbicsSession(final EbicsUser user, final EbicsConfiguration configuration) {
         this.user = user;
         this.configuration = configuration;
         parameters = new HashMap<String, String>();
@@ -96,7 +96,7 @@ public class EbicsSession {
      *
      * @return the client application configuration.
      */
-    public Configuration getConfiguration() {
+    public EbicsConfiguration getConfiguration() {
         return configuration;
     }
 
@@ -145,7 +145,7 @@ public class EbicsSession {
     // --------------------------------------------------------------------
 
     private final EbicsUser user;
-    private final Configuration configuration;
+    private final EbicsConfiguration configuration;
     private Product product;
     private final Map<String, String> parameters;
 }

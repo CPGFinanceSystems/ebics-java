@@ -37,7 +37,7 @@ public interface TraceManager {
      *
      * @param element the element to trace
      * @throws EbicsException cannot trace the ebics element
-     * @see org.kopi.ebics.interfaces.Configuration#isTraceEnabled() isTraceEnabled()
+     * @see EbicsConfiguration#isTraceEnabled() isTraceEnabled()
      */
     void trace(EbicsRootElement element) throws EbicsException;
 

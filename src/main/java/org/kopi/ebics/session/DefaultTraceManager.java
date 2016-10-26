@@ -20,7 +20,7 @@
 package org.kopi.ebics.session;
 
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.interfaces.Configuration;
+import org.kopi.ebics.interfaces.EbicsConfiguration;
 import org.kopi.ebics.interfaces.EbicsRootElement;
 import org.kopi.ebics.interfaces.TraceManager;
 import org.kopi.ebics.io.FileCache;
@@ -37,7 +37,7 @@ import java.io.IOException;
  * then saved to a trace directory.
  * The manager can delete all traces file if the configuration does
  * not offer tracing support.
- * see {@link Configuration#isTraceEnabled() isTraceEnabled()}
+ * see {@link EbicsConfiguration#isTraceEnabled() isTraceEnabled()}
  *
  * @author hachani
  */

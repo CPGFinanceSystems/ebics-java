@@ -25,7 +25,7 @@ import org.kopi.ebics.interfaces.*;
 import org.kopi.ebics.io.IOUtils;
 import org.kopi.ebics.messages.Messages;
 import org.kopi.ebics.security.UserPasswordHandler;
-import org.kopi.ebics.session.DefaultConfiguration;
+import org.kopi.ebics.session.DefaultEbicsConfiguration;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
 import org.kopi.ebics.session.Product;
@@ -50,14 +50,14 @@ import java.util.Map;
  *
  * @author hachani
  */
-public class Application {
+public class EbicsClient {
 
     /**
      * Constructs a new ebics client application
      *
      * @param configuration the application configuration
      */
-    public Application(final Configuration configuration) {
+    public EbicsClient(final EbicsConfiguration configuration) {
         this.configuration = configuration;
         users = new Hashtable<String, User>();
         partners = new Hashtable<String, Partner>();
@@ -68,7 +68,7 @@ public class Application {
     /**
      * Constructs a new ebics client application.
      */
-    public Application() {
+    public EbicsClient() {
     }
 
     /**
@@ -421,7 +421,7 @@ public class Application {
      *
      * @param configuration the configuration
      */
-    public void setConfiguration(final Configuration configuration) {
+    public void setConfiguration(final EbicsConfiguration configuration) {
         this.configuration = configuration;
     }
 
@@ -468,15 +468,15 @@ public class Application {
      * @param args program arguments
      */
     public static void main(final String[] args) throws Exception {
-        final DefaultConfiguration configuration;
+        final DefaultEbicsConfiguration configuration;
         final PasswordCallback pwdHandler;
-        final Application appli;
+        final EbicsClient appli;
         final String userId;
 
         userId = "HEDI";
-        configuration = new DefaultConfiguration();
+        configuration = new DefaultEbicsConfiguration();
         pwdHandler = new UserPasswordHandler(userId, "2012");
-        appli = new Application(configuration);
+        appli = new EbicsClient(configuration);
         appli.init();
 
 //    appli.createUser(new URL("https://server-ebics.webank.fr:28103/WbkPortalFileTransfert/EbicsProtocol"),
@@ -513,7 +513,7 @@ public class Application {
     // DATA MEMBERS
     // --------------------------------------------------------------------
 
-    private Configuration configuration;
+    private EbicsConfiguration configuration;
     private Map<String, User> users;
     private Map<String, Partner> partners;
     private Map<String, Bank> banks;

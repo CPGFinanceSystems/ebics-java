@@ -38,14 +38,14 @@ import java.util.ResourceBundle;
  *
  * @author hachani
  */
-public class DefaultConfiguration implements Configuration {
+public class DefaultEbicsConfiguration implements EbicsConfiguration {
 
     /**
      * Creates a new application configuration.
      *
      * @param rootDir the root directory
      */
-    public DefaultConfiguration(final String rootDir) {
+    public DefaultEbicsConfiguration(final String rootDir) {
         this.rootDir = rootDir;
         bundle = ResourceBundle.getBundle(RESOURCE_DIR);
         properties = new Properties();
@@ -58,7 +58,7 @@ public class DefaultConfiguration implements Configuration {
      * Creates a new application configuration.
      * The root directory will be user.home/ebics/client
      */
-    public DefaultConfiguration() {
+    public DefaultEbicsConfiguration() {
         this(System.getProperty("user.home") + File.separator + "ebics" + File.separator + "client");
     }
 

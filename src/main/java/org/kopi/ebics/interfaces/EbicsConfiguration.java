@@ -27,7 +27,7 @@ import java.util.Locale;
  *
  * @author hachani
  */
-public interface Configuration {
+public interface EbicsConfiguration {
 
     /**
      * Returns the root directory of the client application.
