@@ -146,12 +146,20 @@ public class KeyManagement {
         keystoreManager = new KeyStoreManager();
         path = session.getConfiguration().getKeystoreDirectory(session.getUser());
         keystoreManager.load("", session.getUser().getPasswordCallback().getPassword());
-        e002PubKey = keystoreManager.getPublicKey(new ByteArrayInputStream(orderData.getBankE002Certificate()));
-        x002PubKey = keystoreManager.getPublicKey(new ByteArrayInputStream(orderData.getBankX002Certificate()));
+        e002PubKey = orderData.getBankE002Certificate().map(ByteArrayInputStream::new).map(keystoreManager::getPublicKey)
+                .orElse(orderData.getBankE002PublicKeyData()
+                        .map(publicKeyData -> keystoreManager.getPublicKey(publicKeyData.getModulus(), publicKeyData.getExponent()))
+                        .orElseThrow(() -> new EbicsException("Neither X.509 certificate data nor public key data supplied in HBP response for E002 key")));
+        x002PubKey = orderData.getBankX002Certificate().map(ByteArrayInputStream::new).map(keystoreManager::getPublicKey)
+                .orElse(orderData.getBankE002PublicKeyData()
+                        .map(publicKeyData -> keystoreManager.getPublicKey(publicKeyData.getModulus(), publicKeyData.getExponent()))
+                        .orElseThrow(() -> new EbicsException("Neither X.509 certificate data nor public key data supplied in HBP response for X002 key")));
         session.getUser().getPartner().getBank().setBankKeys(e002PubKey, x002PubKey);
         session.getUser().getPartner().getBank().setDigests(KeyUtil.getKeyDigest(e002PubKey), KeyUtil.getKeyDigest(x002PubKey));
-        keystoreManager.setCertificateEntry(session.getBankID() + "-E002", new ByteArrayInputStream(orderData.getBankE002Certificate()));
-        keystoreManager.setCertificateEntry(session.getBankID() + "-X002", new ByteArrayInputStream(orderData.getBankX002Certificate()));
+        /* FIXME: Not possible to store public key entries in key stores - only private keys and trusted certificates are allowed
+        keystoreManager.setPublicKeyEntry(session.getBankID() + "-E002", e002PubKey);
+        keystoreManager.setPublicKeyEntry(session.getBankID() + "-X002", x002PubKey);
+         */
         keystoreManager.save(new FileOutputStream(path + File.separator + session.getBankID() + ".p12"));
     }
 

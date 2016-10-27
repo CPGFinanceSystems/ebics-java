@@ -19,10 +19,15 @@
 
 package org.kopi.ebics.xml;
 
+import lombok.Value;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
 import org.kopi.ebics.schema.h004.HPBResponseOrderDataDocument;
 import org.kopi.ebics.schema.h004.HPBResponseOrderDataType;
+import org.kopi.ebics.schema.h004.PubKeyValueType;
+
+import java.io.Serializable;
+import java.util.Optional;
 
 /**
  * The <code>HPBResponseOrderDataElement</code> contains the public bank
@@ -32,6 +37,14 @@ import org.kopi.ebics.schema.h004.HPBResponseOrderDataType;
  * @author hachani
  */
 public class HPBResponseOrderDataElement extends DefaultResponseElement {
+
+    @Value
+    public static class PublicKeyData implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        private final byte[] modulus;
+        private final byte[] exponent;
+    }
 
     /**
      * Creates a new <code>HPBResponseOrderDataElement</code> from a given
@@ -48,8 +61,15 @@ public class HPBResponseOrderDataElement extends DefaultResponseElement {
      *
      * @return the authentication bank certificate.
      */
-    public byte[] getBankX002Certificate() {
-        return response.getAuthenticationPubKeyInfo().getX509Data().getX509CertificateArray(0);
+    public Optional<byte[]> getBankX002Certificate() {
+        return Optional.ofNullable(response.getAuthenticationPubKeyInfo().getX509Data())
+                .map(data -> data.getX509CertificateArray(0));
+    }
+
+    public Optional<PublicKeyData> getBankX002PublicKeyData() {
+        return Optional.ofNullable(response.getAuthenticationPubKeyInfo().getPubKeyValue())
+                .map(PubKeyValueType::getRSAKeyValue)
+                .map(keyValue -> new PublicKeyData(keyValue.getModulus(), keyValue.getExponent()));
     }
 
     /**
@@ -57,8 +77,15 @@ public class HPBResponseOrderDataElement extends DefaultResponseElement {
      *
      * @return the encryption bank certificate.
      */
-    public byte[] getBankE002Certificate() {
-        return response.getEncryptionPubKeyInfo().getX509Data().getX509CertificateArray(0);
+    public Optional<byte[]> getBankE002Certificate() {
+        return Optional.ofNullable(response.getEncryptionPubKeyInfo().getX509Data())
+                .map(data -> data.getX509CertificateArray(0));
+    }
+
+    public Optional<PublicKeyData> getBankE002PublicKeyData() {
+        return Optional.ofNullable(response.getEncryptionPubKeyInfo().getPubKeyValue())
+                .map(PubKeyValueType::getRSAKeyValue)
+                .map(keyValue -> new PublicKeyData(keyValue.getModulus(), keyValue.getExponent()));
     }
 
     @Override

@@ -19,10 +19,8 @@
 
 package org.kopi.ebics.certificate;
 
-import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Sequence;
-import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.jce.X509Principal;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
@@ -140,7 +138,6 @@ public class X509Generator {
         final X509V3CertificateGenerator generator;
         final BigInteger serial;
         final X509Certificate certificate;
-        final ASN1EncodableVector vector;
 
         serial = BigInteger.valueOf(generateSerial());
         generator = new X509V3CertificateGenerator();
@@ -163,10 +160,8 @@ public class X509Generator {
                                 getPublic(),
                         issuer,
                         serial));
-        vector = new ASN1EncodableVector();
-        vector.add(KeyPurposeId.id_kp_emailProtection);
 
-        generator.addExtension(X509Extensions.ExtendedKeyUsage, false, new ExtendedKeyUsage(new DERSequence(vector)));
+        generator.addExtension(X509Extensions.ExtendedKeyUsage, false, new ExtendedKeyUsage(KeyPurposeId.id_kp_emailProtection));
 
         switch (keyusage) {
             case X509Constants.SIGNATURE_KEY_USAGE:
@@ -206,14 +201,11 @@ public class X509Generator {
             throws IOException {
         final InputStream input;
         final SubjectPublicKeyInfo keyInfo;
-        final ASN1EncodableVector vector;
 
         input = new ByteArrayInputStream(publicKey.getEncoded());
         keyInfo = new SubjectPublicKeyInfo((ASN1Sequence) new ASN1InputStream(input).readObject());
-        vector = new ASN1EncodableVector();
-        vector.add(new GeneralName(new X509Name(issuer)));
 
-        return new AuthorityKeyIdentifier(keyInfo, new GeneralNames(new DERSequence(vector)), serial);
+        return new AuthorityKeyIdentifier(keyInfo, new GeneralNames(new GeneralName(new X509Name(issuer))), serial);
     }
 
     /**
@@ -227,12 +219,10 @@ public class X509Generator {
     private SubjectKeyIdentifier getSubjectKeyIdentifier(final PublicKey publicKey)
             throws IOException {
         final InputStream input;
-        final SubjectPublicKeyInfo keyInfo;
 
         input = new ByteArrayInputStream(publicKey.getEncoded());
-        keyInfo = new SubjectPublicKeyInfo((ASN1Sequence) new ASN1InputStream(input).readObject());
 
-        return new SubjectKeyIdentifier(keyInfo);
+        return new SubjectKeyIdentifier(new ASN1InputStream(input).readObject().getEncoded());
     }
 
     /**

@@ -19,14 +19,17 @@
 
 package org.kopi.ebics.certificate;
 
-import org.bouncycastle.openssl.PEMReader;
+import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.openssl.PEMParser;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.security.*;
-import java.security.cert.CertificateException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.RSAPublicKeySpec;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +42,7 @@ import java.util.Map;
  *
  * @author hachani
  */
+@Slf4j
 public class KeyStoreManager {
 
     /**
@@ -88,7 +92,7 @@ public class KeyStoreManager {
      */
     public void load(final String path, final char[] password)
             throws GeneralSecurityException, IOException {
-        keyStore = KeyStore.getInstance("PKCS12", "BC");
+        keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         this.password = password;
         load(path);
     }
@@ -97,8 +101,6 @@ public class KeyStoreManager {
      * Loads a key store and cache the loaded one
      *
      * @param path the key store path.
-     * @throws GeneralSecurityException
-     * @throws IOException
      */
     private void load(final String path) throws GeneralSecurityException, IOException {
         if (path.equals("")) {
@@ -112,20 +114,21 @@ public class KeyStoreManager {
     /**
      * Reads a certificate from an input stream for a given provider
      *
-     * @param input    the input stream
-     * @param provider the certificate provider
+     * @param x509CertificateData the input stream
+     * @param provider            the certificate provider
      * @return the certificate
-     * @throws CertificateException
-     * @throws IOException
      */
-    public X509Certificate read(final InputStream input, final Provider provider)
-            throws CertificateException, IOException {
+    public X509Certificate read(final InputStream x509CertificateData, final Provider provider) {
         X509Certificate certificate;
 
-        certificate = (X509Certificate) CertificateFactory.getInstance("X.509", provider).generateCertificate(input);
+        try {
+            certificate = (X509Certificate) CertificateFactory.getInstance("X.509", provider).generateCertificate(x509CertificateData);
 
-        if (certificate == null) {
-            certificate = (X509Certificate) (new PEMReader(new InputStreamReader(input))).readObject();
+            if (certificate == null) {
+                certificate = (X509Certificate) (new PEMParser(new InputStreamReader(x509CertificateData))).readObject();
+            }
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
         }
 
         return certificate;
@@ -134,30 +137,38 @@ public class KeyStoreManager {
     /**
      * Returns the public key of a given certificate.
      *
-     * @param input the given certificate
+     * @param x509CertificateData the given certificate
      * @return The RSA public key of the given certificate
-     * @throws GeneralSecurityException
-     * @throws IOException
      */
-    public RSAPublicKey getPublicKey(final InputStream input)
-            throws GeneralSecurityException, IOException {
+    public RSAPublicKey getPublicKey(final InputStream x509CertificateData) {
         final X509Certificate cert;
 
-        cert = read(input, keyStore.getProvider());
+        cert = read(x509CertificateData, keyStore.getProvider());
         return (RSAPublicKey) cert.getPublicKey();
+    }
+
+    public RSAPublicKey getPublicKey(final byte[] modulus, final byte[] exponent) {
+        final RSAPublicKeySpec spec = new RSAPublicKeySpec(new BigInteger(modulus), new BigInteger(exponent));
+        try {
+            final KeyFactory factory = KeyFactory.getInstance("RSA");
+            return (RSAPublicKey) factory.generatePublic(spec);
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
      * Writes the given certificate into the key store.
      *
      * @param alias the certificate alias
-     * @param input the given certificate.
-     * @throws GeneralSecurityException
-     * @throws IOException
      */
-    public void setCertificateEntry(final String alias, final InputStream input)
-            throws GeneralSecurityException, IOException {
-        keyStore.setCertificateEntry(alias, read(input, keyStore.getProvider()));
+    public void setPublicKeyEntry(final String alias, final RSAPublicKey publicKey) {
+        try {
+            log.debug("Store RSA public key {} with password {}", alias, password);
+            keyStore.setKeyEntry(alias, publicKey, password, new Certificate[0]);
+        } catch (final KeyStoreException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
