@@ -195,4 +195,8 @@ public interface EbicsUser {
      */
     byte[] decrypt(byte[] encryptedKey, byte[] transactionKey)
             throws GeneralSecurityException, IOException, EbicsException;
+
+    boolean isInitializedINI();
+
+    boolean isInitializedHIA();
 }

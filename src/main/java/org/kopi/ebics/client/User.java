@@ -104,7 +104,7 @@ public class User implements EbicsUser, Savable {
         this.userId = ois.readUTF();
         this.name = ois.readUTF();
         this.dn = ois.readUTF();
-        this.isInitialized = ois.readBoolean();
+        this.isInitializedINI = ois.readBoolean();
         this.isInitializedHIA = ois.readBoolean();
         this.a005Certificate = (X509Certificate) ois.readObject();
         this.e002Certificate = (X509Certificate) ois.readObject();
@@ -185,7 +185,7 @@ public class User implements EbicsUser, Savable {
         oos.writeUTF(userId);
         oos.writeUTF(name);
         oos.writeUTF(dn);
-        oos.writeBoolean(isInitialized);
+        oos.writeBoolean(isInitializedINI);
         oos.writeBoolean(isInitializedHIA);
         oos.writeObject(a005Certificate);
         oos.writeObject(e002Certificate);
@@ -203,17 +203,17 @@ public class User implements EbicsUser, Savable {
      *
      * @return True if the users signature key been sent to the bank
      */
-    public boolean isInitialized() {
-        return isInitialized;
+    public boolean isInitializedINI() {
+        return isInitializedINI;
     }
 
     /**
      * The users signature key has been sent to the bank.
      *
-     * @param isInitialized transfer successful?
+     * @param initializedINI transfer successful?
      */
-    public void setInitialized(final boolean isInitialized) {
-        this.isInitialized = isInitialized;
+    public void setInitializedINI(final boolean initializedINI) {
+        this.isInitializedINI = initializedINI;
         needSave = true;
     }
 
@@ -594,7 +594,7 @@ public class User implements EbicsUser, Savable {
     private final String name;
     private final String dn;
     private boolean isInitializedHIA;
-    private boolean isInitialized;
+    private boolean isInitializedINI;
     private final PasswordCallback passwordCallback;
     private transient boolean needSave;
     private CertificateManager manager;

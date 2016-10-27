@@ -233,7 +233,7 @@ public class EbicsClient {
      * @param userId  the user ID
      * @param product the application product
      */
-    public User sendINIRequest(final String userId, final Product product) throws EbicsException {
+    public EbicsUser sendINIRequest(final String userId, final Product product) throws EbicsException {
         final User user;
         final EbicsSession session;
         final KeyManagement keyManager;
@@ -241,9 +241,9 @@ public class EbicsClient {
         configuration.getLogger().info(Messages.getString("ini.request.send", Constants.APPLICATION_BUNDLE_NAME, userId));
 
         user = users.get(userId);
-        user.setInitialized(false);
+        user.setInitializedINI(false);
 
-        if (user.isInitialized()) {
+        if (user.isInitializedINI()) {
             configuration.getLogger().info(Messages.getString("user.already.initialized", Constants.APPLICATION_BUNDLE_NAME, userId));
             return user;
         }
@@ -259,7 +259,7 @@ public class EbicsClient {
             throw new EbicsException(Messages.getString("ini.send.error", Constants.APPLICATION_BUNDLE_NAME, userId), e);
         }
 
-        user.setInitialized(true);
+        user.setInitializedINI(true);
         configuration.getLogger().info(Messages.getString("ini.send.success", Constants.APPLICATION_BUNDLE_NAME, userId));
         return user;
     }
@@ -270,7 +270,7 @@ public class EbicsClient {
      * @param userId  the user ID.
      * @param product the application product.
      */
-    public User sendHIARequest(final String userId, final Product product) throws EbicsException {
+    public EbicsUser sendHIARequest(final String userId, final Product product) throws EbicsException {
         final User user;
         final EbicsSession session;
         final KeyManagement keyManager;
@@ -304,7 +304,7 @@ public class EbicsClient {
      * @param userId  the user ID.
      * @param product the application product.
      */
-    public void sendHPBRequest(final String userId, final Product product) {
+    public EbicsUser sendHPBRequest(final String userId, final Product product) throws EbicsException {
         final User user;
         final EbicsSession session;
         final KeyManagement keyManager;
@@ -319,13 +319,11 @@ public class EbicsClient {
         configuration.getTraceManager().setTraceDirectory(configuration.getTransferTraceDirectory(user));
 
         try {
-            keyManager.sendHPB();
+            configuration.getLogger().info(Messages.getString("hpb.send.success", Constants.APPLICATION_BUNDLE_NAME, userId));
+            return keyManager.sendHPB();
         } catch (final Exception e) {
-            configuration.getLogger().error(Messages.getString("hpb.send.error", Constants.APPLICATION_BUNDLE_NAME, userId), e);
-            return;
+            throw new EbicsException(Messages.getString("hpb.send.error", Constants.APPLICATION_BUNDLE_NAME, userId), e);
         }
-
-        configuration.getLogger().info(Messages.getString("hpb.send.success", Constants.APPLICATION_BUNDLE_NAME, userId));
     }
 
     /**

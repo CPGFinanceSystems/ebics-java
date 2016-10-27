@@ -19,7 +19,6 @@
 
 package org.kopi.ebics.certificate;
 
-import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.openssl.PEMParser;
 
 import java.io.*;
@@ -42,7 +41,6 @@ import java.util.Map;
  *
  * @author hachani
  */
-@Slf4j
 public class KeyStoreManager {
 
     /**
@@ -164,7 +162,6 @@ public class KeyStoreManager {
      */
     public void setPublicKeyEntry(final String alias, final RSAPublicKey publicKey) {
         try {
-            log.debug("Store RSA public key {} with password {}", alias, password);
             keyStore.setKeyEntry(alias, publicKey, password, new Certificate[0]);
         } catch (final KeyStoreException e) {
             throw new RuntimeException(e);

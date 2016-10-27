@@ -86,28 +86,15 @@ public class KeyUtil {
      * @throws EbicsException
      */
     public static byte[] getKeyDigest(final RSAPublicKey publicKey) throws EbicsException {
-        final String modulus;
-        final String exponent;
-        String hash;
-        final byte[] digest;
-
-        exponent = Hex.encodeHexString(publicKey.getPublicExponent().toByteArray());
-        modulus = Hex.encodeHexString(removeFirstByte(publicKey.getModulus().toByteArray()));
-        hash = exponent + " " + modulus;
-
-        if (hash.charAt(0) == '0') {
-            hash = hash.substring(1);
-        }
+        final String exponent = Hex.encodeHexString(publicKey.getPublicExponent().toByteArray()).replaceFirst("^0+", "");
+        final String modulus = Hex.encodeHexString(publicKey.getModulus().toByteArray()).replaceFirst("^0+", "");
+        final String hash = exponent.concat(" ").concat(modulus).toLowerCase();
 
         try {
-            digest = MessageDigest.getInstance("SHA-256", "BC").digest(hash.getBytes("US-ASCII"));
-        } catch (final GeneralSecurityException e) {
-            throw new EbicsException(e.getMessage());
-        } catch (final UnsupportedEncodingException e) {
-            throw new EbicsException(e.getMessage());
+            return MessageDigest.getInstance("SHA-256").digest(hash.getBytes("US-ASCII"));
+        } catch (final GeneralSecurityException | UnsupportedEncodingException e) {
+            throw new EbicsException(e.getMessage(), e);
         }
-
-        return new String(Hex.encodeHex(digest, false)).getBytes();
     }
 
     /**

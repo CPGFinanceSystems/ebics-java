@@ -23,6 +23,7 @@ import org.kopi.ebics.certificate.KeyStoreManager;
 import org.kopi.ebics.certificate.KeyUtil;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
+import org.kopi.ebics.interfaces.EbicsUser;
 import org.kopi.ebics.io.ByteArrayContentFactory;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.utils.Utils;
@@ -116,7 +117,7 @@ public class KeyManagement {
      * @throws GeneralSecurityException data decryption error
      * @throws EbicsException           server generated error message
      */
-    public void sendHPB() throws IOException, GeneralSecurityException, EbicsException {
+    public EbicsUser sendHPB() throws IOException, GeneralSecurityException, EbicsException {
         final HPBRequestElement request;
         final KeyManagementResponseElement response;
         final HttpRequestSender sender;
@@ -151,7 +152,7 @@ public class KeyManagement {
                         .map(publicKeyData -> keystoreManager.getPublicKey(publicKeyData.getModulus(), publicKeyData.getExponent()))
                         .orElseThrow(() -> new EbicsException("Neither X.509 certificate data nor public key data supplied in HBP response for E002 key")));
         x002PubKey = orderData.getBankX002Certificate().map(ByteArrayInputStream::new).map(keystoreManager::getPublicKey)
-                .orElse(orderData.getBankE002PublicKeyData()
+                .orElse(orderData.getBankX002PublicKeyData()
                         .map(publicKeyData -> keystoreManager.getPublicKey(publicKeyData.getModulus(), publicKeyData.getExponent()))
                         .orElseThrow(() -> new EbicsException("Neither X.509 certificate data nor public key data supplied in HBP response for X002 key")));
         session.getUser().getPartner().getBank().setBankKeys(e002PubKey, x002PubKey);
@@ -161,6 +162,7 @@ public class KeyManagement {
         keystoreManager.setPublicKeyEntry(session.getBankID() + "-X002", x002PubKey);
          */
         keystoreManager.save(new FileOutputStream(path + File.separator + session.getBankID() + ".p12"));
+        return session.getUser();
     }
 
     /**
