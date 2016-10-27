@@ -20,6 +20,7 @@
 package org.kopi.ebics.letter;
 
 import org.apache.commons.codec.binary.Base64;
+import org.kopi.ebics.certificate.KeyUtil;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.EbicsUser;
 

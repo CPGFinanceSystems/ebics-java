@@ -88,8 +88,8 @@ public abstract class AbstractInitLetter implements InitLetter {
     /**
      * Returns the value of the property key.
      *
-     * @param key        the property key
-     * @param locale     the bundle locale
+     * @param key    the property key
+     * @param locale the bundle locale
      * @return the property value
      */
     protected String getString(final String key, final Locale locale) {
@@ -103,11 +103,8 @@ public abstract class AbstractInitLetter implements InitLetter {
      * @return the certificate hash
      * @throws GeneralSecurityException
      */
-    protected byte[] getHash(final byte[] certificate) throws GeneralSecurityException {
-        final String hash256;
-
-        hash256 = new String(Hex.encodeHex(MessageDigest.getInstance("SHA-256").digest(certificate), false));
-        return format(hash256).getBytes();
+    byte[] getHash(final byte[] certificate) throws GeneralSecurityException {
+        return MessageDigest.getInstance("SHA-256").digest(certificate);
     }
 
     /**
@@ -280,7 +277,7 @@ public abstract class AbstractInitLetter implements InitLetter {
             emit(title);
             emit(LINE_SEPARATOR);
             emit(LINE_SEPARATOR);
-            emit(new String(hash));
+            emit(Hex.encodeHexString(hash).toUpperCase());
             emit(LINE_SEPARATOR);
             emit(LINE_SEPARATOR);
             emit(LINE_SEPARATOR);
