@@ -20,7 +20,6 @@
 package org.kopi.ebics.client;
 
 import org.kopi.ebics.interfaces.EbicsBank;
-import org.kopi.ebics.interfaces.Savable;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -36,7 +35,7 @@ import java.security.interfaces.RSAPublicKey;
  *
  * @author Hachani
  */
-public class Bank implements EbicsBank, Savable {
+class Bank implements EbicsBank {
 
     /**
      * Constructs a new EBICS bank with the data you should have obtained from the bank.

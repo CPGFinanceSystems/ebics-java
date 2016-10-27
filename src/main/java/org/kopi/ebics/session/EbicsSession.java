@@ -45,7 +45,7 @@ public class EbicsSession {
     public EbicsSession(final EbicsUser user, final EbicsConfiguration configuration) {
         this.user = user;
         this.configuration = configuration;
-        parameters = new HashMap<String, String>();
+        parameters = new HashMap<>();
     }
 
     /**

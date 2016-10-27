@@ -21,6 +21,7 @@ package org.kopi.ebics.interfaces;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 /**
  * The <code>Savable</code> is an element that can be stored in a disk support,
@@ -29,7 +30,7 @@ import java.io.ObjectOutputStream;
  *
  * @author hachani
  */
-public interface Savable {
+public interface Savable extends Serializable {
 
     /**
      * Writes all persistable attributes to the given stream.
@@ -45,4 +46,6 @@ public interface Savable {
      * @return the save name
      */
     String getSaveName();
+
+    boolean needsSave();
 }

@@ -19,7 +19,6 @@
 
 package org.kopi.ebics.interfaces;
 
-import java.io.Serializable;
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
 
@@ -28,7 +27,7 @@ import java.security.interfaces.RSAPublicKey;
  *
  * @author Hachani
  */
-public interface EbicsBank extends Serializable {
+public interface EbicsBank extends Savable {
 
     /**
      * Returns the URL needed for communication to the bank.

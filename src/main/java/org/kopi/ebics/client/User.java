@@ -50,7 +50,9 @@ import java.security.interfaces.RSAPublicKey;
  *
  * @author Hachani
  */
-public class User implements EbicsUser, Savable {
+class User implements EbicsUser {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * First time constructor. Use this constructor,

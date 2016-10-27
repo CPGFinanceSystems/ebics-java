@@ -22,6 +22,7 @@ package org.kopi.ebics.interfaces;
 import org.kopi.ebics.exception.EbicsException;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
@@ -33,7 +34,7 @@ import java.security.interfaces.RSAPublicKey;
  *
  * @author Hachani
  */
-public interface EbicsUser {
+public interface EbicsUser extends Savable {
 
     /**
      * Returns the public part of the signature key.
@@ -90,14 +91,14 @@ public interface EbicsUser {
     /**
      * Sets the authentication certificate.
      *
-     * @param a005certificate the authentication certificate.
+     * @param x002certificate the authentication certificate.
      */
     void setX002Certificate(X509Certificate x002certificate);
 
     /**
      * Sets the encryption certificate.
      *
-     * @param a005certificate the encryption certificate.
+     * @param e002certificate the encryption certificate.
      */
     void setE002Certificate(X509Certificate e002certificate);
 
@@ -111,14 +112,14 @@ public interface EbicsUser {
     /**
      * Sets the authentication private key
      *
-     * @param a005Key the authentication private key
+     * @param x002Key the authentication private key
      */
     void setX002PrivateKey(PrivateKey x002Key);
 
     /**
      * Sets the encryption private key
      *
-     * @param a005Key the encryption private key
+     * @param e002Key the encryption private key
      */
     void setE002PrivateKey(PrivateKey e002Key);
 
@@ -198,5 +199,9 @@ public interface EbicsUser {
 
     boolean isInitializedINI();
 
+    void setInitializedINI(boolean value);
+
     boolean isInitializedHIA();
+
+    void setInitializedHIA(boolean value);
 }

@@ -21,7 +21,6 @@ package org.kopi.ebics.client;
 
 import org.kopi.ebics.interfaces.EbicsBank;
 import org.kopi.ebics.interfaces.EbicsPartner;
-import org.kopi.ebics.interfaces.Savable;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -35,7 +34,7 @@ import java.io.ObjectOutputStream;
  *
  * @author Hachani
  */
-public class Partner implements EbicsPartner, Savable {
+class Partner implements EbicsPartner {
 
     /**
      * Reconstructs a persisted EBICS customer.

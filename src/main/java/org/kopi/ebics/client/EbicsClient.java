@@ -24,8 +24,6 @@ import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.*;
 import org.kopi.ebics.io.IOUtils;
 import org.kopi.ebics.messages.Messages;
-import org.kopi.ebics.security.UserPasswordHandler;
-import org.kopi.ebics.session.DefaultEbicsConfiguration;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
 import org.kopi.ebics.session.Product;
@@ -39,7 +37,6 @@ import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.Hashtable;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -59,9 +56,9 @@ public class EbicsClient {
      */
     public EbicsClient(final EbicsConfiguration configuration) {
         this.configuration = configuration;
-        users = new Hashtable<String, User>();
-        partners = new Hashtable<String, Partner>();
-        banks = new Hashtable<String, Bank>();
+        users = new Hashtable<>();
+        partners = new Hashtable<>();
+        banks = new Hashtable<>();
         Messages.setLocale(configuration.getLocale());
     }
 
@@ -85,7 +82,7 @@ public class EbicsClient {
      *
      * @param user the concerned user
      */
-    public void createUserDirectories(final EbicsUser user) {
+    private void createUserDirectories(final EbicsUser user) {
         configuration.getLogger().info(Messages.getString("user.create.directories", Constants.APPLICATION_BUNDLE_NAME, user.getUserId()));
         //Create the user directory
         IOUtils.createDirectories(configuration.getUserDirectory(user));
@@ -105,7 +102,7 @@ public class EbicsClient {
      * @param hostId the bank host ID
      * @return the created ebics bank
      */
-    public Bank createBank(final URL url, final String name, final String hostId) {
+    public EbicsBank createBank(final URL url, final String name, final String hostId) {
         final Bank bank;
 
         bank = new Bank(url, name, hostId);
@@ -119,7 +116,7 @@ public class EbicsClient {
      * @param bank      the bank
      * @param partnerId the partner ID
      */
-    public Partner createPartner(final EbicsBank bank, final String partnerId) {
+    public EbicsPartner createPartner(final EbicsBank bank, final String partnerId) {
         final Partner partner;
 
         partner = new Partner(bank, partnerId);
@@ -143,30 +140,27 @@ public class EbicsClient {
      * @param passwordCallback a callback-handler that supplies us with the password.
      *                         This parameter can be null, in this case no password is used.
      */
-    public User createUser(final URL url,
-                           final String bankName,
-                           final String hostId,
-                           final String partnerId,
-                           final String userId,
-                           final String name,
-                           final String email,
-                           final String country,
-                           final String organization,
-                           final boolean saveCertificates,
-                           final PasswordCallback passwordCallback) throws EbicsException {
-        final Bank bank;
-        final Partner partner;
-        final User user;
+    public EbicsUser createUser(final URL url,
+                                final String bankName,
+                                final String hostId,
+                                final String partnerId,
+                                final String userId,
+                                final String name,
+                                final String email,
+                                final String country,
+                                final String organization,
+                                final boolean saveCertificates,
+                                final PasswordCallback passwordCallback) throws EbicsException {
         final InitLetter a005Letter;
         final InitLetter x002Letter;
         final InitLetter e002Letter;
 
         configuration.getLogger().info(Messages.getString("user.create.info", Constants.APPLICATION_BUNDLE_NAME, userId));
 
-        bank = createBank(url, bankName, hostId);
-        partner = createPartner(bank, partnerId);
+        final EbicsBank bank = createBank(url, bankName, hostId);
+        final EbicsPartner partner = createPartner(bank, partnerId);
         try {
-            user = new User(partner, userId, name, email, country, organization, passwordCallback);
+            final User user = new User(partner, userId, name, email, country, organization, passwordCallback);
             createUserDirectories(user);
             if (saveCertificates) {
                 user.saveUserCertificates(configuration.getKeystoreDirectory(user));
@@ -198,10 +192,10 @@ public class EbicsClient {
      * @param partnerId the partner ID
      * @param userId    the user ID
      */
-    public User loadUser(final String hostId,
-                         final String partnerId,
-                         final String userId,
-                         final PasswordCallback passwordCallback) throws EbicsException {
+    public EbicsUser loadUser(final String hostId,
+                              final String partnerId,
+                              final String userId,
+                              final PasswordCallback passwordCallback) throws EbicsException {
         configuration.getLogger().info(Messages.getString("user.load.info", Constants.APPLICATION_BUNDLE_NAME, userId));
 
         try {
@@ -234,14 +228,13 @@ public class EbicsClient {
      * @param product the application product
      */
     public EbicsUser sendINIRequest(final String userId, final Product product) throws EbicsException {
-        final User user;
+        final EbicsUser user;
         final EbicsSession session;
         final KeyManagement keyManager;
 
         configuration.getLogger().info(Messages.getString("ini.request.send", Constants.APPLICATION_BUNDLE_NAME, userId));
 
         user = users.get(userId);
-        user.setInitializedINI(false);
 
         if (user.isInitializedINI()) {
             configuration.getLogger().info(Messages.getString("user.already.initialized", Constants.APPLICATION_BUNDLE_NAME, userId));
@@ -254,14 +247,11 @@ public class EbicsClient {
         configuration.getTraceManager().setTraceDirectory(configuration.getTransferTraceDirectory(user));
 
         try {
-            keyManager.sendINI();
+            configuration.getLogger().info(Messages.getString("ini.send.success", Constants.APPLICATION_BUNDLE_NAME, userId));
+            return keyManager.sendINI();
         } catch (final IOException e) {
             throw new EbicsException(Messages.getString("ini.send.error", Constants.APPLICATION_BUNDLE_NAME, userId), e);
         }
-
-        user.setInitializedINI(true);
-        configuration.getLogger().info(Messages.getString("ini.send.success", Constants.APPLICATION_BUNDLE_NAME, userId));
-        return user;
     }
 
     /**
@@ -271,13 +261,12 @@ public class EbicsClient {
      * @param product the application product.
      */
     public EbicsUser sendHIARequest(final String userId, final Product product) throws EbicsException {
-        final User user;
+        final EbicsUser user;
         final EbicsSession session;
         final KeyManagement keyManager;
 
         configuration.getLogger().info(Messages.getString("hia.request.send", Constants.APPLICATION_BUNDLE_NAME, userId));
         user = users.get(userId);
-        user.setInitializedHIA(false);
         if (user.isInitializedHIA()) {
             configuration.getLogger().info(Messages.getString("user.already.hia.initialized", Constants.APPLICATION_BUNDLE_NAME, userId));
             return user;
@@ -288,14 +277,11 @@ public class EbicsClient {
         configuration.getTraceManager().setTraceDirectory(configuration.getTransferTraceDirectory(user));
 
         try {
-            keyManager.sendHIA();
+            configuration.getLogger().info(Messages.getString("hia.send.success", Constants.APPLICATION_BUNDLE_NAME, userId));
+            return keyManager.sendHIA();
         } catch (final IOException e) {
             throw new EbicsException(Messages.getString("hia.send.error", Constants.APPLICATION_BUNDLE_NAME, userId), e);
         }
-
-        user.setInitializedHIA(true);
-        configuration.getLogger().info(Messages.getString("hia.send.success", Constants.APPLICATION_BUNDLE_NAME, userId));
-        return user;
     }
 
     /**
@@ -305,7 +291,7 @@ public class EbicsClient {
      * @param product the application product.
      */
     public EbicsUser sendHPBRequest(final String userId, final Product product) throws EbicsException {
-        final User user;
+        final EbicsUser user;
         final EbicsSession session;
         final KeyManagement keyManager;
 
@@ -333,7 +319,7 @@ public class EbicsClient {
      * @param product the session product
      */
     public void revokeSubscriber(final String userId, final Product product) {
-        final User user;
+        final EbicsUser user;
         final EbicsSession session;
         final KeyManagement keyManager;
 
@@ -378,9 +364,7 @@ public class EbicsClient {
 
         try {
             transferManager.sendFile(IOUtils.getFileContent(path), OrderType.FUL);
-        } catch (final IOException e) {
-            configuration.getLogger().error(Messages.getString("upload.file.error", Constants.APPLICATION_BUNDLE_NAME, path), e);
-        } catch (final EbicsException e) {
+        } catch (final IOException | EbicsException e) {
             configuration.getLogger().error(Messages.getString("upload.file.error", Constants.APPLICATION_BUNDLE_NAME, path), e);
         }
     }
@@ -407,9 +391,7 @@ public class EbicsClient {
 
         try {
             transferManager.fetchFile(orderType, start, end, new FileOutputStream(path));
-        } catch (final IOException e) {
-            configuration.getLogger().error(Messages.getString("download.file.error", Constants.APPLICATION_BUNDLE_NAME), e);
-        } catch (final EbicsException e) {
+        } catch (final IOException | EbicsException e) {
             configuration.getLogger().error(Messages.getString("download.file.error", Constants.APPLICATION_BUNDLE_NAME), e);
         }
     }
@@ -428,21 +410,21 @@ public class EbicsClient {
      */
     public void quit() {
         try {
-            for (final User user : users.values()) {
+            for (final EbicsUser user : users.values()) {
                 if (user.needsSave()) {
                     configuration.getLogger().info(Messages.getString("app.quit.users", Constants.APPLICATION_BUNDLE_NAME, user.getUserId()));
                     configuration.getSerializationManager().serialize(user);
                 }
             }
 
-            for (final Partner partner : partners.values()) {
+            for (final EbicsPartner partner : partners.values()) {
                 if (partner.needsSave()) {
                     configuration.getLogger().info(Messages.getString("app.quit.partners", Constants.APPLICATION_BUNDLE_NAME, partner.getPartnerId()));
                     configuration.getSerializationManager().serialize(partner);
                 }
             }
 
-            for (final Bank bank : banks.values()) {
+            for (final EbicsBank bank : banks.values()) {
                 if (bank.needsSave()) {
                     configuration.getLogger().info(Messages.getString("app.quit.banks", Constants.APPLICATION_BUNDLE_NAME, bank.getHostId()));
                     configuration.getSerializationManager().serialize(bank);
@@ -454,64 +436,13 @@ public class EbicsClient {
     }
 
     // --------------------------------------------------------------------
-    // JVM ENTRY POINT
-    // --------------------------------------------------------------------
-
-    /**
-     * JVM program entry point
-     *
-     * @param args program arguments
-     */
-    public static void main(final String[] args) throws Exception {
-        final DefaultEbicsConfiguration configuration;
-        final PasswordCallback pwdHandler;
-        final EbicsClient appli;
-        final String userId;
-
-        userId = "HEDI";
-        configuration = new DefaultEbicsConfiguration();
-        pwdHandler = new UserPasswordHandler(userId, "2012");
-        appli = new EbicsClient(configuration);
-        appli.init();
-
-//    appli.createUser(new URL("https://server-ebics.webank.fr:28103/WbkPortalFileTransfert/EbicsProtocol"),
-//                     "VALERIAN",
-//	             "EBIXQUAL",
-//	             "EBICS",
-//	             userId,
-//	             "pebics",
-//	             "pebics@domaine.fr",
-//	             "org",
-//	             "Euro-Information",
-//	             true,
-//	             pwdHandler);
-        final Product product = new Product("kopiLeft Dev 1.0", Locale.FRANCE, null);
-        appli.loadUser("EBIXQUAL", "EBIX", userId, pwdHandler);
-//    appli.sendINIRequest(userId, product);
-//    appli.sendHIARequest(userId, product);
-//    appli.sendHPBRequest(userId, product);
-        appli.sendFile(System.getProperty("user.home") + File.separator + "test.txt", userId, product);
-        //for (int i = 0; i < 10000; i++) {
-//    appli.fetchFile(System.getProperty("user.home") + File.separator + "download.txt",
-//	            userId,
-//	            product,
-//	            OrderType.FDL,
-//	            true,
-//	            null,
-//	            null);
-//    appli.revokeSubscriber(userId, product);
-        appli.quit();
-        //}
-    }
-
-    // --------------------------------------------------------------------
     // DATA MEMBERS
     // --------------------------------------------------------------------
 
     private EbicsConfiguration configuration;
-    private Map<String, User> users;
-    private Map<String, Partner> partners;
-    private Map<String, Bank> banks;
+    private Map<String, EbicsUser> users;
+    private Map<String, EbicsPartner> partners;
+    private Map<String, EbicsBank> banks;
 
     static {
         org.apache.xml.security.Init.init();

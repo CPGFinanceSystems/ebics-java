@@ -45,7 +45,7 @@ import java.security.interfaces.RSAPublicKey;
  *
  * @author Hachani
  */
-public class KeyManagement {
+class KeyManagement {
 
     /**
      * Constructs a new <code>KeyManagement</code> instance
@@ -64,7 +64,7 @@ public class KeyManagement {
      * @throws EbicsException server generated error message
      * @throws IOException    communication error
      */
-    public void sendINI() throws EbicsException, IOException {
+    public EbicsUser sendINI() throws EbicsException, IOException {
         final INIRequestElement request;
         final KeyManagementResponseElement response;
         final HttpRequestSender sender;
@@ -81,6 +81,9 @@ public class KeyManagement {
         response.build();
         session.getConfiguration().getTraceManager().trace(response);
         response.report();
+
+        session.getUser().setInitializedINI(true);
+        return session.getUser();
     }
 
     /**
@@ -89,7 +92,7 @@ public class KeyManagement {
      * @throws IOException    communication error
      * @throws EbicsException server generated error message
      */
-    public void sendHIA() throws IOException, EbicsException {
+    public EbicsUser sendHIA() throws IOException, EbicsException {
         final HIARequestElement request;
         final KeyManagementResponseElement response;
         final HttpRequestSender sender;
@@ -106,6 +109,9 @@ public class KeyManagement {
         response.build();
         session.getConfiguration().getTraceManager().trace(response);
         response.report();
+
+        session.getUser().setInitializedHIA(true);
+        return session.getUser();
     }
 
     /**

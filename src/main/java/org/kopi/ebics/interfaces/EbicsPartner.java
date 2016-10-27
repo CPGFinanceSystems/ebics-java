@@ -19,12 +19,14 @@
 
 package org.kopi.ebics.interfaces;
 
+import java.io.Serializable;
+
 /**
  * Information about an EBICS customer.
  *
  * @author Hachani
  */
-public interface EbicsPartner {
+public interface EbicsPartner extends Savable {
 
     /**
      * Returns the bank we are customer of.

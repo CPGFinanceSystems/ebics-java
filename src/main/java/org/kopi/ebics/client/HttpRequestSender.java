@@ -41,7 +41,7 @@ import java.io.InputStream;
  *
  * @author hachani
  */
-public class HttpRequestSender {
+class HttpRequestSender {
 
     /**
      * Constructs a new <code>HttpRequestSender</code> with a

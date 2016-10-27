@@ -29,7 +29,7 @@ import java.io.Serializable;
  *
  * @author Hachani
  */
-public class TransferState implements Serializable {
+class TransferState implements Serializable {
 
     public TransferState(final int numSegments, final byte[] transactionId) {
         this.numSegments = numSegments;
