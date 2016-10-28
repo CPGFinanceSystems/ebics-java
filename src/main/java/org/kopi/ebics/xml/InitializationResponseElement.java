@@ -77,7 +77,7 @@ public class InitializationResponseElement extends DefaultResponseElement {
      * @return the order type.
      */
     public String getOrderType() {
-        return orderType.getOrderType();
+        return orderType.name();
     }
 
     // --------------------------------------------------------------------

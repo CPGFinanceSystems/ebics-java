@@ -26,6 +26,7 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
+import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
 import org.kopi.ebics.io.InputStreamContentFactory;
 import org.kopi.ebics.session.EbicsSession;
@@ -61,7 +62,7 @@ class HttpRequestSender {
      * @param request the ebics request
      * @return the HTTP return code
      */
-    public final int send(final ContentFactory request) throws IOException {
+    public final int send(final ContentFactory request) throws EbicsException {
         final HttpClient httpClient;
         final String proxyConfiguration;
         final PostMethod method;
@@ -95,15 +96,18 @@ class HttpRequestSender {
             }
         }
 
-        input = request.getContent();
-        method = new PostMethod(session.getUser().getPartner().getBank().getURL().toString());
-        method.getParams().setSoTimeout(30000);
-        requestEntity = new InputStreamRequestEntity(input);
-        method.setRequestEntity(requestEntity);
-        method.setRequestHeader("Content-type", "text/xml; charset=ISO-8859-1");
-        retCode = -1;
-        retCode = httpClient.executeMethod(method);
-        response = new InputStreamContentFactory(method.getResponseBodyAsStream());
+        try {
+            input = request.getContent();
+            method = new PostMethod(session.getUser().getPartner().getBank().getURL().toString());
+            method.getParams().setSoTimeout(30000);
+            requestEntity = new InputStreamRequestEntity(input);
+            method.setRequestEntity(requestEntity);
+            method.setRequestHeader("Content-type", "text/xml; charset=ISO-8859-1");
+            retCode = httpClient.executeMethod(method);
+            response = new InputStreamContentFactory(method.getResponseBodyAsStream());
+        } catch (final IOException e) {
+            throw new EbicsException(e.getMessage(), e);
+        }
 
         return retCode;
     }

@@ -64,14 +64,14 @@ import java.util.Date;
  *
  * @author Hachani
  */
-public class FileTransfer {
+class FileTransfer {
 
     /**
      * Constructs a new FileTransfer session
      *
      * @param session the user session
      */
-    public FileTransfer(final EbicsSession session) {
+    FileTransfer(final EbicsSession session) {
         this.session = session;
     }
 
@@ -83,8 +83,7 @@ public class FileTransfer {
      * @throws IOException
      * @throws EbicsException
      */
-    public void sendFile(final byte[] content, final OrderType orderType)
-            throws IOException, EbicsException {
+    void sendFile(final byte[] content, final OrderType orderType) throws EbicsException {
         final HttpRequestSender sender;
         final UInitializationRequestElement initializer;
         final InitializationResponseElement response;
@@ -132,12 +131,11 @@ public class FileTransfer {
      * @throws IOException
      * @throws EbicsException
      */
-    public void sendFile(final ContentFactory factory,
-                         final int segmentNumber,
-                         final boolean lastSegment,
-                         final byte[] transactionId,
-                         final OrderType orderType)
-            throws IOException, EbicsException {
+    private void sendFile(final ContentFactory factory,
+                          final int segmentNumber,
+                          final boolean lastSegment,
+                          final byte[] transactionId,
+                          final OrderType orderType) throws EbicsException {
         final UTransferRequestElement uploader;
         final HttpRequestSender sender;
         final TransferResponseElement response;
@@ -178,10 +176,10 @@ public class FileTransfer {
      * @throws IOException    communication error
      * @throws EbicsException server generated error
      */
-    public void fetchFile(final OrderType orderType,
-                          final Date start,
-                          final Date end,
-                          final OutputStream dest)
+    void fetchFile(final OrderType orderType,
+                   final Date start,
+                   final Date end,
+                   final OutputStream dest)
             throws IOException, EbicsException {
         final HttpRequestSender sender;
         final DInitializationRequestElement initializer;
@@ -250,11 +248,11 @@ public class FileTransfer {
      * @throws IOException    communication error
      * @throws EbicsException server generated error
      */
-    public void fetchFile(final OrderType orderType,
-                          final int segmentNumber,
-                          final boolean lastSegment,
-                          final byte[] transactionId,
-                          final Joiner joiner)
+    private void fetchFile(final OrderType orderType,
+                           final int segmentNumber,
+                           final boolean lastSegment,
+                           final byte[] transactionId,
+                           final Joiner joiner)
             throws IOException, EbicsException {
         final DTransferRequestElement downloader;
         final HttpRequestSender sender;

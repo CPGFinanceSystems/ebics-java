@@ -346,27 +346,20 @@ public class EbicsClient {
      * Sends a file to the ebics bank sever
      *
      * @param path    the file path to send
-     * @param userId  the user ID that sends the file.
+     * @param user    the user that sends the file.
      * @param product the application product.
      */
-    public void sendFile(final String path, final String userId, final Product product) {
-        final FileTransfer transferManager;
-        final EbicsSession session;
-
-        session = new EbicsSession(users.get(userId), configuration);
+    public void uploadSepaDirectDebit(final String path, final EbicsUser user, final Product product) throws EbicsException {
+        final EbicsSession session = new EbicsSession(user, configuration);
         session.addSessionParam("FORMAT", "pain.xxx.cfonb160.dct");
         session.addSessionParam("TEST", "true");
         session.addSessionParam("EBCDIC", "false");
         session.setProduct(product);
-        transferManager = new FileTransfer(session);
+        final FileTransfer transferManager = new FileTransfer(session);
 
-        configuration.getTraceManager().setTraceDirectory(configuration.getTransferTraceDirectory(users.get(userId)));
+        configuration.getTraceManager().setTraceDirectory(configuration.getTransferTraceDirectory(user));
 
-        try {
-            transferManager.sendFile(IOUtils.getFileContent(path), OrderType.FUL);
-        } catch (final IOException | EbicsException e) {
-            configuration.getLogger().error(Messages.getString("upload.file.error", Constants.APPLICATION_BUNDLE_NAME, path), e);
-        }
+        transferManager.sendFile(IOUtils.getFileContent(path), OrderType.FUL);
     }
 
     public void fetchFile(final String path,

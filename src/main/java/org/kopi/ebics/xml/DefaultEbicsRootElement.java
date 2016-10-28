@@ -72,7 +72,6 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
     /**
      * Prints a pretty XML document using jdom framework.
      *
-     * @param input the XML input
      * @return the pretty XML document.
      * @throws EbicsException pretty print fails
      */
@@ -129,13 +128,13 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
      * @return the generated file name.
      */
     public static String generateName(final OrderType type) {
-        return type.getOrderType() + new BigInteger(130, new SecureRandom()).toString(32);
+        return generateName(type.name());
     }
 
     /**
      * Generates a random file name with a prefix.
      *
-     * @param type the prefix to use.
+     * @param prefix the prefix to use.
      * @return the generated file name.
      */
     public static String generateName(final String prefix) {

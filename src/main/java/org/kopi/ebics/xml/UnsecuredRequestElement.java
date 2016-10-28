@@ -66,7 +66,7 @@ public class UnsecuredRequestElement extends DefaultEbicsRootElement {
         final OrderData orderData;
         final EbicsUnsecuredRequest request;
 
-        orderDetails = EbicsXmlFactory.createOrderDetailsType("DZNNN", orderType.getOrderType());
+        orderDetails = EbicsXmlFactory.createOrderDetailsType("DZNNN", orderType.name());
 
         productType = EbicsXmlFactory.creatProductElementType(session.getProduct().getLanguage(),
                 session.getProduct().getName());
