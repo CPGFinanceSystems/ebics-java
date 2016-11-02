@@ -19,19 +19,53 @@
 
 package org.kopi.ebics.session;
 
+import lombok.Getter;
+
 /**
  * A BCS order type.
  *
  * @author Hachani
  */
 public enum OrderType {
-    HIA, // Send the users protocol keys
-    HPB, // Fetch the banks protocol keys
-    HPD, // Return bank parameters
-    HTD, // Fetch user information
-    INI, // Send the first signature key
-    FUL, // File upload
-    FDL, // File download
-    SPR, // Lock the channel
-    CDD  // Upload SEPA Direct Debit (CORE)
+    INI(Transmission.UPLOAD, "Send password initialisation", Presence.MANDATORY),
+    HIA(Transmission.UPLOAD, "Transmission of the subscriber key for identification and authentication and encryption within the framework of subscriber initialisation", Presence.MANDATORY),
+    HPB(Transmission.DOWNLOAD, "Transfer the public bank key", Presence.MANDATORY),
+    // HPD, // Return bank parameters
+    // HTD, // Fetch user information
+    FUL(Transmission.UPLOAD, "Upload file with any format"),
+    FDL(Transmission.DOWNLOAD, "Download file with any format"),
+    SPR(Transmission.UPLOAD, "Suspension of access authorisation", Presence.MANDATORY),
+
+    CDD(Transmission.UPLOAD, "Upload direct debit initiation (SEPA core direct debit)");
+
+    OrderType(final Transmission transmission, final String description, final Presence presence) {
+        this.transmission = transmission;
+        this.description = description;
+        this.presence = presence;
+    }
+
+    OrderType(final Transmission transmission, final String description) {
+        this(transmission, description, Presence.OPTIONAL);
+    }
+
+    public enum Transmission {
+        DOWNLOAD,
+        UPLOAD
+    }
+
+    public boolean isMandatory(final boolean germanBank) {
+        return Presence.MANDATORY.equals(presence) || (Presence.CONDITIONAL.equals(presence) && germanBank);
+    }
+
+    @Getter
+    private final Transmission transmission;
+    @Getter
+    private final String description;
+    private final Presence presence;
+
+    private enum Presence {
+        MANDATORY,
+        OPTIONAL,
+        CONDITIONAL
+    }
 }
