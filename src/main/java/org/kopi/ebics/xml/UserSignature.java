@@ -63,10 +63,8 @@ public class UserSignature extends DefaultEbicsRootElement {
 
         try {
             signature = user.sign(toSign);
-        } catch (final IOException e) {
-            throw new EbicsException(e.getMessage());
-        } catch (final GeneralSecurityException e) {
-            throw new EbicsException(e.getMessage());
+        } catch (final IOException | GeneralSecurityException e) {
+            throw new EbicsException(e.getMessage(), e);
         }
 
         orderSignatureData = EbicsXmlFactory.createOrderSignatureDataType(signatureVersion,

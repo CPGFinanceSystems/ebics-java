@@ -402,7 +402,7 @@ class User implements EbicsUser {
 
     @Override
     public String getSecurityMedium() {
-        return "0000";
+        return "0100";
     }
 
     @Override

@@ -50,19 +50,15 @@ public class SignaturePubKeyOrderDataElement extends DefaultEbicsRootElement {
     @Override
     public void build() throws EbicsException {
         final SignaturePubKeyInfoType signaturePubKeyInfo;
-        final X509DataType x509Data;
         final RSAKeyValueType rsaKeyValue;
         final PubKeyValueType pubKeyValue;
         final SignaturePubKeyOrderDataType signaturePubKeyOrderData;
 
-        x509Data = EbicsXmlFactory.createX509DataType(session.getUser().getDN(),
-                session.getUser().getA005Certificate());
         rsaKeyValue = EbicsXmlFactory.createRSAKeyValueType(session.getUser().getA005PublicKey().getPublicExponent().toByteArray(),
                 session.getUser().getA005PublicKey().getModulus().toByteArray());
         pubKeyValue = EbicsXmlFactory.createPubKeyValueType(rsaKeyValue, Calendar.getInstance());
-        signaturePubKeyInfo = EbicsXmlFactory.createSignaturePubKeyInfoType(x509Data,
-                pubKeyValue,
-                session.getConfiguration().getSignatureVersion());
+        signaturePubKeyInfo = EbicsXmlFactory.createSignaturePubKeyInfoType(
+                pubKeyValue, session.getConfiguration().getSignatureVersion());
         signaturePubKeyOrderData = EbicsXmlFactory.createSignaturePubKeyOrderData(signaturePubKeyInfo,
                 session.getUser().getPartner().getPartnerId(),
                 session.getUser().getUserId());

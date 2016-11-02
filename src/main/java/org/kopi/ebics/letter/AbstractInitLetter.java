@@ -96,38 +96,6 @@ public abstract class AbstractInitLetter implements InitLetter {
         return Messages.getString(key, AbstractInitLetter.BUNDLE_NAME, locale);
     }
 
-    /**
-     * Returns the certificate hash
-     *
-     * @param certificate the certificate
-     * @return the certificate hash
-     * @throws GeneralSecurityException
-     */
-    byte[] getHash(final byte[] certificate) throws GeneralSecurityException {
-        return MessageDigest.getInstance("SHA-256").digest(certificate);
-    }
-
-    /**
-     * Formats a hash 256 input.
-     *
-     * @param hash256 the hash input
-     * @return the formatted hash
-     */
-    private String format(final String hash256) {
-        final StringBuffer buffer;
-        final String formatted;
-
-        buffer = new StringBuffer();
-        for (int i = 0; i < hash256.length(); i += 2) {
-            buffer.append(hash256.charAt(i));
-            buffer.append(hash256.charAt(i + 1));
-            buffer.append(' ');
-        }
-
-        formatted = buffer.substring(0, 48) + LINE_SEPARATOR + buffer.substring(48) + LINE_SEPARATOR;
-        return formatted;
-    }
-
     // --------------------------------------------------------------------
     // INNER CLASS
     // --------------------------------------------------------------------

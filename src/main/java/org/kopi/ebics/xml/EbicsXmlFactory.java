@@ -296,35 +296,17 @@ public class EbicsXmlFactory {
     /**
      * Creates a new <code>SignaturePubKeyInfoType</code> XML object
      *
-     * @param x509Data         the <code>X509DataType</code> element
      * @param pubKeyValue      <code>PubKeyValueType</code> element
      * @param signatureVersion the signature version
      * @return the <code>SignaturePubKeyInfoType</code> XML object
      */
-    public static SignaturePubKeyInfoType createSignaturePubKeyInfoType(final X509DataType x509Data,
-                                                                        final PubKeyValueType pubKeyValue,
+    public static SignaturePubKeyInfoType createSignaturePubKeyInfoType(final PubKeyValueType pubKeyValue,
                                                                         final String signatureVersion) {
         final SignaturePubKeyInfoType newSignaturePubKeyInfoType = SignaturePubKeyInfoType.Factory.newInstance();
-        newSignaturePubKeyInfoType.setX509Data(x509Data);
         newSignaturePubKeyInfoType.setPubKeyValue(pubKeyValue);
         newSignaturePubKeyInfoType.setSignatureVersion(signatureVersion);
 
         return newSignaturePubKeyInfoType;
-    }
-
-    /**
-     * Creates a new <code>X509DataType</code> XML object
-     *
-     * @param x509SubjectName the subject name
-     * @param x509Certificate the certificate
-     * @return the <code>X509DataType</code> XML object
-     */
-    public static X509DataType createX509DataType(final String x509SubjectName, final byte[] x509Certificate) {
-        final X509DataType newX509DataType = X509DataType.Factory.newInstance();
-        newX509DataType.setX509SubjectNameArray(new String[]{x509SubjectName});
-        newX509DataType.setX509CertificateArray(new byte[][]{x509Certificate});
-
-        return newX509DataType;
     }
 
     /**
@@ -563,16 +545,13 @@ public class EbicsXmlFactory {
      *
      * @param authenticationVersion the authentication version
      * @param pubKeyValue           the <code>org.kopi.ebics.schema.h004.PubKeyValueType</code> element
-     * @param x509Data              the <code>X509DataType</code> element
      * @return the <code>AuthenticationPubKeyInfoType</code> XML object
      */
     public static AuthenticationPubKeyInfoType createAuthenticationPubKeyInfoType(final String authenticationVersion,
-                                                                                  final org.kopi.ebics.schema.h004.PubKeyValueType pubKeyValue,
-                                                                                  final X509DataType x509Data) {
+                                                                                  final org.kopi.ebics.schema.h004.PubKeyValueType pubKeyValue) {
         final AuthenticationPubKeyInfoType newAuthenticationPubKeyInfoType = AuthenticationPubKeyInfoType.Factory.newInstance();
         newAuthenticationPubKeyInfoType.setAuthenticationVersion(authenticationVersion);
         newAuthenticationPubKeyInfoType.setPubKeyValue(pubKeyValue);
-        newAuthenticationPubKeyInfoType.setX509Data(x509Data);
 
         return newAuthenticationPubKeyInfoType;
     }
@@ -582,16 +561,13 @@ public class EbicsXmlFactory {
      *
      * @param encryptionVersion the encryption version
      * @param pubKeyValue       the <code>org.kopi.ebics.schema.h004.PubKeyValueType</code> element
-     * @param x509Data          the <code>X509DataType</code> element
      * @return the <code>EncryptionPubKeyInfoType</code> XML object
      */
     public static EncryptionPubKeyInfoType createEncryptionPubKeyInfoType(final String encryptionVersion,
-                                                                          final org.kopi.ebics.schema.h004.PubKeyValueType pubKeyValue,
-                                                                          final X509DataType x509Data) {
+                                                                          final org.kopi.ebics.schema.h004.PubKeyValueType pubKeyValue) {
         final EncryptionPubKeyInfoType newEncryptionPubKeyInfoType = EncryptionPubKeyInfoType.Factory.newInstance();
         newEncryptionPubKeyInfoType.setEncryptionVersion(encryptionVersion);
         newEncryptionPubKeyInfoType.setPubKeyValue(pubKeyValue);
-        newEncryptionPubKeyInfoType.setX509Data(x509Data);
 
         return newEncryptionPubKeyInfoType;
     }
@@ -844,7 +820,6 @@ public class EbicsXmlFactory {
      *
      * @param hostId            the host ID
      * @param nonce             the random nonce
-     * @param numSegments       the segments number
      * @param partnerId         the partner ID
      * @param product           the <code>Product</code> element
      * @param securityMedium    the security medium
@@ -1003,7 +978,6 @@ public class EbicsXmlFactory {
     /**
      * Creates a new <code>StandardOrderParamsType</code> XML object
      *
-     * @param fileFormat the <code>FileFormatType</code> element
      * @return the <code>StandardOrderParamsType</code> XML object
      */
     public static StandardOrderParamsType createStandardOrderParamsType() {

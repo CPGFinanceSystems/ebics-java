@@ -57,7 +57,7 @@ public class A005Letter extends AbstractInitLetter {
                 getString("INILetter.certificate", locale),
                 Base64.encodeBase64(user.getA005Certificate(), true),
                 getString("INILetter.digest", locale),
-                getHash(user.getA005Certificate()));
+                KeyUtil.getKeyDigest(user.getA005PublicKey()));
     }
 
     @Override
