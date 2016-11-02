@@ -65,19 +65,6 @@ import java.util.Date;
 public class EbicsXmlFactory {
 
     /**
-     * Creates a new <code>SignedInfoDocument</code> XML object
-     *
-     * @param signedInfo the <code>SignedInfoType</code> element
-     * @return the <code>SignedInfoDocument</code> XML object
-     */
-    public static SignedInfoDocument createSignedInfoDocument(final SignedInfoType signedInfo) {
-        final SignedInfoDocument newSignedInfoDocument = SignedInfoDocument.Factory.newInstance();
-        newSignedInfoDocument.setSignedInfo(signedInfo);
-
-        return newSignedInfoDocument;
-    }
-
-    /**
      * Creates a new <code>SignatureType</code> XML object
      *
      * @param signedInfo the <code>SignedInfoType</code> element

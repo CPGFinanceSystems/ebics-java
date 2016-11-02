@@ -19,7 +19,6 @@
 
 package org.kopi.ebics.xml;
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.schema.h004.EbicsRequestDocument;
 import org.kopi.ebics.session.EbicsSession;
