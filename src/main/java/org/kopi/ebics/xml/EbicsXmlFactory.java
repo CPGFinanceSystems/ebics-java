@@ -943,13 +943,31 @@ public class EbicsXmlFactory {
                                                                                   final OrderType orderType,
                                                                                   final StandardOrderParamsType orderParams) {
         final StaticHeaderOrderDetailsType newStaticHeaderOrderDetailsType = StaticHeaderOrderDetailsType.Factory.newInstance();
-        newStaticHeaderOrderDetailsType.setOrderID(orderId);
+        if (null != orderId) {
+            newStaticHeaderOrderDetailsType.setOrderID(orderId);
+        }
         newStaticHeaderOrderDetailsType.setOrderAttribute(org.kopi.ebics.schema.h004.OrderAttributeType.Enum.forString(orderAttribute));
         newStaticHeaderOrderDetailsType.setOrderType(orderType);
         newStaticHeaderOrderDetailsType.setOrderParams(orderParams);
         qualifySubstitutionGroup(newStaticHeaderOrderDetailsType.getOrderParams(), StandardOrderParamsDocument.type.getDocumentElementName(), null);
 
         return newStaticHeaderOrderDetailsType;
+    }
+
+    static StaticHeaderOrderDetailsType createStaticHeaderOrderDetailsType(final String orderId,
+                                                                           final String orderAttribute,
+                                                                           final OrderType orderType,
+                                                                           final GenericOrderParamsType orderParams) {
+        final StaticHeaderOrderDetailsType staticHeaderOrderDetailsType = StaticHeaderOrderDetailsType.Factory.newInstance();
+        if (null != orderId) {
+            staticHeaderOrderDetailsType.setOrderID(orderId);
+        }
+        staticHeaderOrderDetailsType.setOrderAttribute(org.kopi.ebics.schema.h004.OrderAttributeType.Enum.forString(orderAttribute));
+        staticHeaderOrderDetailsType.setOrderType(orderType);
+        staticHeaderOrderDetailsType.setOrderParams(orderParams);
+        qualifySubstitutionGroup(staticHeaderOrderDetailsType.getOrderParams(), GenericOrderParamsDocument.type.getDocumentElementName(), null);
+
+        return staticHeaderOrderDetailsType;
     }
 
     /**
@@ -963,6 +981,10 @@ public class EbicsXmlFactory {
         newFULOrderParamsType.setFileFormat(fileFormat);
 
         return newFULOrderParamsType;
+    }
+
+    static GenericOrderParamsType createGenericOrderParamsType() {
+        return GenericOrderParamsType.Factory.newInstance();
     }
 
     /**

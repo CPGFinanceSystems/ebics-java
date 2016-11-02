@@ -32,5 +32,6 @@ public enum OrderType {
     INI, // Send the first signature key
     FUL, // File upload
     FDL, // File download
-    SPR  // Lock the channel
+    SPR, // Lock the channel
+    CDD  // Upload SEPA Direct Debit (CORE)
 }

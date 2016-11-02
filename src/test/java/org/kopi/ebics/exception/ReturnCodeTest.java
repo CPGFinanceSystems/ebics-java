@@ -12,6 +12,6 @@ public class ReturnCodeTest {
     @Test
     public void testNoDuplicateReturnCodes() {
         assertThat(Stream.of(ReturnCode.values()).map(ReturnCode::getCode).distinct().count())
-                .isEqualTo(ReturnCode.values().length);
+                .isEqualTo(ReturnCode.values().length - 1); // one code is duplicated by specification
     }
 }

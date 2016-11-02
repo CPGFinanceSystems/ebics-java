@@ -27,7 +27,6 @@ import org.kopi.ebics.utils.Utils;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 
 
 /**
@@ -46,7 +45,7 @@ public abstract class TransferRequestElement extends DefaultEbicsRootElement {
      * @param type          the order type
      * @param segmentNumber the segment number to be sent
      * @param lastSegment   is it the last segment?
-     * @param transactionID the transaction ID
+     * @param transactionId the transaction ID
      */
     public TransferRequestElement(final EbicsSession session,
                                   final String name,
@@ -88,11 +87,9 @@ public abstract class TransferRequestElement extends DefaultEbicsRootElement {
         addNamespaceDecl("ds", "http://www.w3.org/2000/09/xmldsig#");
 
         try {
-            return MessageDigest.getInstance("SHA-256", "BC").digest(Utils.canonize(toByteArray()));
+            return MessageDigest.getInstance("SHA-256").digest(Utils.canonize(toByteArray()));
         } catch (final NoSuchAlgorithmException e) {
-            throw new EbicsException(e.getMessage());
-        } catch (final NoSuchProviderException e) {
-            throw new EbicsException(e.getMessage());
+            throw new EbicsException(e.getMessage(), e);
         }
     }
 

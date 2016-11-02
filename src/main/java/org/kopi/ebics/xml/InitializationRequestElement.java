@@ -19,8 +19,6 @@
 
 package org.kopi.ebics.xml;
 
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.schema.h004.EbicsRequestDocument;
@@ -122,12 +120,7 @@ public abstract class InitializationRequestElement extends DefaultEbicsRootEleme
         if (hex == null) {
             throw new EbicsException("Bank digest is empty, HPB request must be performed before");
         }
-
-        try {
-            return Hex.decodeHex((new String(hex)).toCharArray());
-        } catch (final DecoderException e) {
-            throw new EbicsException(e.getMessage());
-        }
+        return hex;
     }
 
     /**

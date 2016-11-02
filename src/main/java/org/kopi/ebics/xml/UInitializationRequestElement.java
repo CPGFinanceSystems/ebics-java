@@ -86,10 +86,7 @@ public class UInitializationRequestElement extends InitializationRequestElement 
         final DataEncryptionInfo dataEncryptionInfo;
         final SignatureData signatureData;
         final EncryptionPubKeyDigest encryptionPubKeyDigest;
-        final StaticHeaderOrderDetailsType orderDetails;
-        final FULOrderParamsType fULOrderParams;
         final OrderType orderType;
-        final FileFormatType fileFormat;
         final List<Parameter> parameters;
 
         userSignature = new UserSignature(session.getUser(),
@@ -111,36 +108,41 @@ public class UInitializationRequestElement extends InitializationRequestElement 
                 decodeHex(session.getUser().getPartner().getBank().getE002Digest()));
         bankPubKeyDigests = EbicsXmlFactory.createBankPubKeyDigests(authentication, encryption);
         orderType = EbicsXmlFactory.createOrderType(type.name());
-        fileFormat = EbicsXmlFactory.createFileFormatType(session.getConfiguration().getLocale().getCountry().toUpperCase(),
-                session.getSessionParam("FORMAT"));
-        fULOrderParams = EbicsXmlFactory.createFULOrderParamsType(fileFormat);
         parameters = new ArrayList<Parameter>();
-        if (Boolean.valueOf(session.getSessionParam("TEST")).booleanValue()) {
-            final Parameter parameter;
-            final Value value;
-
-            value = EbicsXmlFactory.createValue("String", "TRUE");
-            parameter = EbicsXmlFactory.createParameter("TEST", value);
+        if (Boolean.valueOf(session.getSessionParam("TEST"))) {
+            final Value value = EbicsXmlFactory.createValue("String", "TRUE");
+            final Parameter parameter = EbicsXmlFactory.createParameter("TEST", value);
+            parameters.add(parameter);
+        }
+        if (Boolean.valueOf(session.getSessionParam("EBCDIC"))) {
+            final Value value = EbicsXmlFactory.createValue("String", "TRUE");
+            final Parameter parameter = EbicsXmlFactory.createParameter("EBCDIC", value);
             parameters.add(parameter);
         }
 
-        if (Boolean.valueOf(session.getSessionParam("EBCDIC")).booleanValue()) {
-            final Parameter parameter;
-            final Value value;
-
-            value = EbicsXmlFactory.createValue("String", "TRUE");
-            parameter = EbicsXmlFactory.createParameter("EBCDIC", value);
+        final StaticHeaderOrderDetailsType orderDetails;
+        if (type.equals(org.kopi.ebics.session.OrderType.FUL)) {
+            final FileFormatType fileFormat = EbicsXmlFactory.createFileFormatType(session.getConfiguration().getLocale().getCountry().toUpperCase(),
+                    session.getSessionParam("FORMAT"));
+            final FULOrderParamsType fULOrderParams = EbicsXmlFactory.createFULOrderParamsType(fileFormat);
+            if (parameters.size() > 0) {
+                fULOrderParams.setParameterArray(parameters.toArray(new Parameter[parameters.size()]));
+            }
+            orderDetails = EbicsXmlFactory.createStaticHeaderOrderDetailsType(session.getUser().getPartner().nextOrderId(),
+                    "DZHNN", orderType, fULOrderParams);
+        } else {
+            /*
+            final Value value = EbicsXmlFactory.createValue("String", session.getSessionParam("FORMAT"));
+            final Parameter parameter = EbicsXmlFactory.createParameter("FORMAT", value);
             parameters.add(parameter);
+            */
+            final GenericOrderParamsType genericOrderParams = EbicsXmlFactory.createGenericOrderParamsType();
+            if (parameters.size() > 0) {
+                genericOrderParams.setParameterArray(parameters.toArray(new Parameter[parameters.size()]));
+            }
+            orderDetails = EbicsXmlFactory.createStaticHeaderOrderDetailsType(null, "OZHNN", orderType, EbicsXmlFactory.createStandardOrderParamsType());
         }
 
-        if (parameters.size() > 0) {
-            fULOrderParams.setParameterArray(parameters.toArray(new Parameter[parameters.size()]));
-        }
-
-        orderDetails = EbicsXmlFactory.createStaticHeaderOrderDetailsType(session.getUser().getPartner().nextOrderId(),
-                "DZHNN",
-                orderType,
-                fULOrderParams);
         xstatic = EbicsXmlFactory.createStaticHeaderType(session.getBankID(),
                 nonce,
                 splitter.getSegmentNumber(),

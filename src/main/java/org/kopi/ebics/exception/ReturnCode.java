@@ -19,6 +19,7 @@
 
 package org.kopi.ebics.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kopi.ebics.messages.Messages;
 
 import java.text.MessageFormat;
@@ -33,6 +34,7 @@ import java.util.stream.Stream;
  *
  * @author hachani
  */
+@Slf4j
 public enum ReturnCode {
 
     // technical return codes
@@ -45,7 +47,7 @@ public enum ReturnCode {
     EBICS_INVALID_REQUEST("061002"),
     EBICS_INTERNAL_ERROR("061099"),
     EBICS_TX_RECOVERY_SYNC("061101"),
-    EBICS_INVALID_USER_OR_USER_STATE("091002"), // duplicate to EBICS_DOWNLOAD_UNSIGNED_ONLY?
+    EBICS_INVALID_USER_OR_USER_STATE("091002"),
     EBICS_USER_UNKNOWN("091003"),
     EBICS_INVALID_USER_STATE("091004"),
     EBICS_INVALID_ORDER_TYPE("091005"),
@@ -70,7 +72,7 @@ public enum ReturnCode {
     // processing return codes
     EBICS_NO_ONLINE_CHECKS("011301"),
     EBICS_DOWNLOAD_SIGNED_ONLY("091001"),
-    //EBICS_DOWNLOAD_UNSIGNED_ONLY("091002"), // duplicate to EBICS_INVALID_USER_OR_USER_STATE?
+    EBICS_DOWNLOAD_UNSIGNED_ONLY("091002"),
     EBICS_AUTHORISATION_ORDER_TYPE_FAILED("090003"),
     EBICS_INVALID_ORDER_DATA_FORMAT("090004"),
     EBICS_NO_DOWNLOAD_DATA_AVAILABLE("090005"),
@@ -176,11 +178,13 @@ public enum ReturnCode {
      * @return the equivalent <code>ReturnCode</code>
      */
     public static ReturnCode toReturnCode(final String code, final String text) {
-        return Stream.of(values()).filter(v -> v.getCode().equals(code)).findFirst()
-                .orElseGet(() -> {
-                    final ReturnCode other = EBICS_INVALID_REQUEST_CONTENT;
-                    other.text = text;
-                    return other;
-                });
+        final ReturnCode returnCode = Stream.of(values()).filter(v -> v.getCode().equals(code)).findFirst()
+                .orElseGet(() -> EBICS_INVALID_REQUEST_CONTENT);
+
+        returnCode.text = text;
+        if (!EBICS_OK.equals(returnCode)) {
+            log.warn("Got return code {} with text '{}'", returnCode, text);
+        }
+        return returnCode;
     }
 }

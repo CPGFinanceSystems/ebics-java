@@ -351,15 +351,15 @@ public class EbicsClient {
      */
     public void uploadSepaDirectDebit(final String path, final EbicsUser user, final Product product) throws EbicsException {
         final EbicsSession session = new EbicsSession(user, configuration);
-        session.addSessionParam("FORMAT", "pain.xxx.cfonb160.dct");
-        session.addSessionParam("TEST", "true");
-        session.addSessionParam("EBCDIC", "false");
+        session.addSessionParam("FORMAT", "pain.008.001.02");
+        //session.addSessionParam("TEST", "true");
+        //session.addSessionParam("EBCDIC", "false");
         session.setProduct(product);
         final FileTransfer transferManager = new FileTransfer(session);
 
         configuration.getTraceManager().setTraceDirectory(configuration.getTransferTraceDirectory(user));
 
-        transferManager.sendFile(IOUtils.getFileContent(path), OrderType.FUL);
+        transferManager.sendFile(IOUtils.getFileContent(path), OrderType.CDD);
     }
 
     public void fetchFile(final String path,
