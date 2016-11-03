@@ -19,6 +19,7 @@
 
 package org.kopi.ebics.client;
 
+import org.ebics.h004.EbicsUnsecuredRequest;
 import org.kopi.ebics.certificate.KeyStoreManager;
 import org.kopi.ebics.certificate.KeyUtil;
 import org.kopi.ebics.exception.EbicsException;
@@ -72,10 +73,11 @@ class KeyManagement {
 
         sender = new HttpRequestSender(session);
         request = new INIRequestElement(session);
-        request.build();
-        request.validate();
-        session.getConfiguration().getTraceManager().trace(request);
-        httpCode = sender.send(new ByteArrayContentFactory(request.prettyPrint()));
+        final EbicsUnsecuredRequest unsecuredRequest = request.build();
+        final byte[] xml = XmlUtils.prettyPrint(EbicsUnsecuredRequest.class, unsecuredRequest);
+        session.getConfiguration().getTraceManager().trace(xml, request.getName());
+        XmlUtils.validate(xml);
+        httpCode = sender.send(new ByteArrayContentFactory(xml));
         Utils.checkHttpCode(httpCode);
         response = new KeyManagementResponseElement(sender.getResponseBody(), "INIResponse");
         response.build();
@@ -100,10 +102,11 @@ class KeyManagement {
 
         sender = new HttpRequestSender(session);
         request = new HIARequestElement(session);
-        request.build();
-        request.validate();
-        session.getConfiguration().getTraceManager().trace(request);
-        httpCode = sender.send(new ByteArrayContentFactory(request.prettyPrint()));
+        final EbicsUnsecuredRequest unsecuredRequest = request.build();
+        final byte[] xml = XmlUtils.prettyPrint(EbicsUnsecuredRequest.class, unsecuredRequest);
+        session.getConfiguration().getTraceManager().trace(xml, request.getName());
+        XmlUtils.validate(xml);
+        httpCode = sender.send(new ByteArrayContentFactory(xml));
         Utils.checkHttpCode(httpCode);
         response = new KeyManagementResponseElement(sender.getResponseBody(), "HIAResponse");
         response.build();

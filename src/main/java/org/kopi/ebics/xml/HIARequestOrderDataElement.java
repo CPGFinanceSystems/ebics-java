@@ -18,15 +18,15 @@
 
 package org.kopi.ebics.xml;
 
+import org.ebics.h004.AuthenticationPubKeyInfoType;
+import org.ebics.h004.EncryptionPubKeyInfoType;
+import org.ebics.h004.HIARequestOrderDataType;
+import org.ebics.h004.ObjectFactory;
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.schema.h004.AuthenticationPubKeyInfoType;
-import org.kopi.ebics.schema.h004.EncryptionPubKeyInfoType;
-import org.kopi.ebics.schema.h004.HIARequestOrderDataType;
-import org.kopi.ebics.schema.h004.PubKeyValueType;
-import org.kopi.ebics.schema.xmldsig.RSAKeyValueType;
 import org.kopi.ebics.session.EbicsSession;
+import org.w3.xmldsig.RSAKeyValue;
 
-import java.util.Calendar;
+import java.time.LocalDateTime;
 
 
 /**
@@ -36,7 +36,12 @@ import java.util.Calendar;
  *
  * @author hachani
  */
-public class HIARequestOrderDataElement extends DefaultEbicsRootElement {
+public class HIARequestOrderDataElement {
+
+    private final EbicsSession session;
+
+    private static final org.w3.xmldsig.ObjectFactory W3C_OBJECT_FACTORY = new org.w3.xmldsig.ObjectFactory();
+    private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
 
     /**
      * Constructs a new HIA Request Order Data element
@@ -44,52 +49,53 @@ public class HIARequestOrderDataElement extends DefaultEbicsRootElement {
      * @param session the current ebics session
      */
     public HIARequestOrderDataElement(final EbicsSession session) {
-        super(session);
+        this.session = session;
     }
 
-    @Override
-    public void build() throws EbicsException {
-        final HIARequestOrderDataType request;
-        final AuthenticationPubKeyInfoType authenticationPubKeyInfo;
-        final EncryptionPubKeyInfoType encryptionPubKeyInfo;
-        final PubKeyValueType encryptionPubKeyValue;
-        final RSAKeyValueType encryptionRsaKeyValue;
-        final PubKeyValueType authPubKeyValue;
-        final RSAKeyValueType AuthRsaKeyValue;
+    public HIARequestOrderDataType build() throws EbicsException {
+        final RSAKeyValue encryptionRsaKeyValue = W3C_OBJECT_FACTORY.createRSAKeyValue();
+        encryptionRsaKeyValue.setExponent(session.getUser().getE002PublicKey().getPublicExponent().toByteArray());
+        encryptionRsaKeyValue.setModulus(session.getUser().getE002PublicKey().getModulus().toByteArray());
 
-        encryptionRsaKeyValue = EbicsXmlFactory.createRSAKeyValueType(session.getUser().getE002PublicKey().getPublicExponent().toByteArray(),
-                session.getUser().getE002PublicKey().getModulus().toByteArray());
-        encryptionPubKeyValue = EbicsXmlFactory.createH004PubKeyValueType(encryptionRsaKeyValue, Calendar.getInstance());
-        encryptionPubKeyInfo = EbicsXmlFactory.createEncryptionPubKeyInfoType(session.getConfiguration().getEncryptionVersion(),
-                encryptionPubKeyValue);
-        AuthRsaKeyValue = EbicsXmlFactory.createRSAKeyValueType(session.getUser().getX002PublicKey().getPublicExponent().toByteArray(),
-                session.getUser().getX002PublicKey().getModulus().toByteArray());
-        authPubKeyValue = EbicsXmlFactory.createH004PubKeyValueType(AuthRsaKeyValue, Calendar.getInstance());
-        authenticationPubKeyInfo = EbicsXmlFactory.createAuthenticationPubKeyInfoType(session.getConfiguration().getAuthenticationVersion(),
-                authPubKeyValue);
-        request = EbicsXmlFactory.createHIARequestOrderDataType(authenticationPubKeyInfo,
-                encryptionPubKeyInfo,
-                session.getUser().getPartner().getPartnerId(),
-                session.getUser().getUserId());
-        document = EbicsXmlFactory.createHIARequestOrderDataDocument(request);
+        final org.ebics.h004.PubKeyValueType encryptionPubKeyValue = OBJECT_FACTORY.createPubKeyValueType();
+        encryptionPubKeyValue.setRSAKeyValue(encryptionRsaKeyValue);
+        encryptionPubKeyValue.setTimeStamp(LocalDateTime.now()); //TODO: date time of key creation
+
+        final EncryptionPubKeyInfoType encryptionPubKeyInfo = OBJECT_FACTORY.createEncryptionPubKeyInfoType();
+        encryptionPubKeyInfo.setEncryptionVersion(session.getConfiguration().getEncryptionVersion());
+        encryptionPubKeyInfo.setPubKeyValue(encryptionPubKeyValue);
+
+        final RSAKeyValue authRsaKeyValue = W3C_OBJECT_FACTORY.createRSAKeyValue();
+        authRsaKeyValue.setExponent(session.getUser().getX002PublicKey().getPublicExponent().toByteArray());
+        authRsaKeyValue.setModulus(session.getUser().getX002PublicKey().getModulus().toByteArray());
+
+        final org.ebics.h004.PubKeyValueType authPubKeyValue = OBJECT_FACTORY.createPubKeyValueType();
+        authPubKeyValue.setRSAKeyValue(authRsaKeyValue);
+        authPubKeyValue.setTimeStamp(LocalDateTime.now()); //TODO: date time of key creation
+
+        final AuthenticationPubKeyInfoType authenticationPubKeyInfo = OBJECT_FACTORY.createAuthenticationPubKeyInfoType();
+        authenticationPubKeyInfo.setAuthenticationVersion(session.getConfiguration().getAuthenticationVersion());
+        authenticationPubKeyInfo.setPubKeyValue(authPubKeyValue);
+
+        final HIARequestOrderDataType request = OBJECT_FACTORY.createHIARequestOrderDataType();
+        request.setAuthenticationPubKeyInfo(authenticationPubKeyInfo);
+        request.setEncryptionPubKeyInfo(encryptionPubKeyInfo);
+        request.setPartnerID(session.getUser().getPartner().getPartnerId());
+        request.setUserID(session.getUser().getUserId());
+
+        return request;
     }
 
-    @Override
     public String getName() {
         return "HIARequestOrderData.xml";
     }
 
-    @Override
+    /*
     public byte[] toByteArray() {
         addNamespaceDecl("ds", "http://www.w3.org/2000/09/xmldsig#");
         setSaveSuggestedPrefixes("http://www.ebics.org/S001", "");
 
         return super.toByteArray();
     }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private static final long serialVersionUID = -7333250823464659004L;
+    */
 }

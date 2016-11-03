@@ -19,6 +19,8 @@
 
 package org.kopi.ebics.xml;
 
+import org.ebics.h004.EbicsUnsecuredRequest;
+import org.ebics.s001.SignaturePubKeyOrderData;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
@@ -30,7 +32,9 @@ import org.kopi.ebics.utils.Utils;
  *
  * @author hachani
  */
-public class INIRequestElement extends DefaultEbicsRootElement {
+public class INIRequestElement {
+
+    private final EbicsSession session;
 
     /**
      * Constructs a new INI request element.
@@ -38,42 +42,31 @@ public class INIRequestElement extends DefaultEbicsRootElement {
      * @param session the ebics session.
      */
     public INIRequestElement(final EbicsSession session) {
-        super(session);
+        this.session = session;
     }
 
-    @Override
     public String getName() {
         return "INIRequest.xml";
     }
 
-    @Override
-    public void build() throws EbicsException {
-        final SignaturePubKeyOrderDataElement signaturePubKey;
-
-        signaturePubKey = new SignaturePubKeyOrderDataElement(session);
-        signaturePubKey.build();
-        unsecuredRequest = new UnsecuredRequestElement(session,
+    public EbicsUnsecuredRequest build() throws EbicsException {
+        final SignaturePubKeyOrderDataElement signaturePubKey = new SignaturePubKeyOrderDataElement(session);
+        final SignaturePubKeyOrderData signaturePubKeyOrderData = signaturePubKey.build();
+        final UnsecuredRequestElement unsecuredRequest = new UnsecuredRequestElement(session,
                 OrderType.INI,
-                Utils.zip(signaturePubKey.prettyPrint()));
-        unsecuredRequest.build();
+                Utils.zip(XmlUtils.prettyPrint(SignaturePubKeyOrderData.class, signaturePubKeyOrderData)));
+        return unsecuredRequest.build();
     }
 
-    @Override
+    /*
     public byte[] toByteArray() {
         setSaveSuggestedPrefixes("urn:org:ebics:H004", "");
 
         return unsecuredRequest.toByteArray();
     }
 
-    @Override
     public void validate() throws EbicsException {
         unsecuredRequest.validate();
     }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private UnsecuredRequestElement unsecuredRequest;
-    private static final long serialVersionUID = -1966559247739923555L;
+    */
 }

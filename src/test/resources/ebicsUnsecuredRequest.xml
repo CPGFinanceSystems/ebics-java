@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ebicsUnsecuredRequest xmlns="urn:org:ebics:H004" xmlns:ns2="http://www.w3.org/2000/09/xmldsig#" xmlns:ns3="http://www.ebics.org/S001" Version="H004" Revision="1">
+    <header authenticate="true">
+        <static>
+            <HostID>HOSTID</HostID>
+            <PartnerID>PARTNERID</PartnerID>
+            <UserID>USERID</UserID>
+            <Product Language="us">EBICS JAVA</Product>
+            <OrderDetails xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="UnsecuredReqOrderDetailsType">
+                <OrderType>INI</OrderType>
+                <OrderAttribute>DZNNN</OrderAttribute>
+            </OrderDetails>
+            <SecurityMedium>0100</SecurityMedium>
+        </static>
+        <mutable/>
+    </header>
+    <body>
+        <DataTransfer>
+            <OrderData>eNp1k9tyokAQhu99Cou9tOIM4GqwlBSIIIgYlYPkjsNISGAYTio+/Vqa1bKSzN3090/3VPffo5djmrT3qCjjDI8pugupNsJBFsY4GlOWKT89U+2y8nDoJRlGY6pBJfXCt0a4ZIabOMJeVRfotfbnqFkWISokr/La55y4HFPvVUWGABwOh+6B7WZFBBgIIYAcOAvCMo7+UFfp8JztQY78OCgvLzYQ0hTfap/PTzVVvMuu9Ka4AttLanQnF7reCD+TC11kYZ3UJS8sYjeSFd1/zvcbA+ULcZ1zHbu0t7K4gqJRAcRlrAq3DtgmS9e1Nlvnnc1JuXRr18+hc3SFHTlspv4RCAsiBwVN68Eghgqu1CDFUqiLH2SifmazfEr8gyLJPdE1dZIe/aUob5EjpvV6EAaSoRpk54riqm9NEHyzFanTFNpAzPZwUtPB3FfIUak1ZEYfnxVO8qaSPFcBrmS/R5DJ6iUop/K+jjlJOlVb/dhZObIVpCxjzCLx1GhWx89mZoZyNaArrj8YBAazNjSn8TKSrkqt2aG5ZOYmThwLLzmsaARInN5nvZqRcvhGxzma2z3NFZ4Nf91f6Axx1vXOIRMgawa9M/u7WXNKwtouTtPxCPzv8PfeT4/k7C5c8cJKEEfgdn2cH/h1gJfBm3GKNpWXEp6BdP+Jpp8ga9JwyDJDyHX7vd4IPMruvgG/GufRdPZ1UXgBwr/XR99Q657wV69efeoVFUaFKvHzyasi6PrXL27hu9QqLwFzoU5mwvRL+BVs/Vjrtot86x8FfjS5</OrderData>
+        </DataTransfer>
+    </body>
+</ebicsUnsecuredRequest>

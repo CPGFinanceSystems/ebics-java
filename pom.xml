@@ -74,6 +74,11 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.21</version>
         </dependency>
+        <dependency>
+            <groupId>com.migesok</groupId>
+            <artifactId>jaxb-java-time-adapters</artifactId>
+            <version>1.1.3</version>
+        </dependency>
 
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -110,7 +115,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <schemaDirectory>src/main/xsd</schemaDirectory>
+                    <schemaDirectory>src/main/resources/xsd</schemaDirectory>
                 </configuration>
             </plugin>
             <plugin>
@@ -130,12 +135,12 @@
                 <configuration>
                     <xmlConfigs>
                         <xmlConfig implementation="java.io.File">
-                            src/main/xsd/config.xsdconfig
+                            src/main/resources/xsd/config.xsdconfig
                         </xmlConfig>
                     </xmlConfigs>
                     <memoryInitialSize>64m</memoryInitialSize>
                     <memoryMaximumSize>128m</memoryMaximumSize>
-                    <schemaDirectory>src/main/xsd</schemaDirectory>
+                    <schemaDirectory>src/main/resources/xsd</schemaDirectory>
                     <verbose>true</verbose>
                 </configuration>
             </plugin>

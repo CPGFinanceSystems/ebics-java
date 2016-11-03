@@ -47,7 +47,7 @@ public class DefaultTraceManager implements TraceManager {
 
     @Override
     public void trace(final EbicsRootElement element) throws EbicsException {
-        log.trace(element.toString());
+        log.trace("\n{}", element.toString());
         if (null != traceDir) {
             try {
                 final FileOutputStream out;
@@ -58,6 +58,23 @@ public class DefaultTraceManager implements TraceManager {
                 element.save(out);
             } catch (final IOException e) {
                 throw new EbicsException(e.getMessage(), e);
+            }
+        }
+    }
+
+    @Override
+    public void trace(final byte[] xml, final String elementName) {
+        log.trace("\n{}", new String(xml));
+        if (null != traceDir) {
+            try {
+                final FileOutputStream out;
+                final File file;
+
+                file = IOUtils.createFile(traceDir, MessageFormat.format("{0}_{1}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), elementName));
+                out = new FileOutputStream(file);
+                out.write(xml);
+            } catch (final IOException e) {
+                throw new RuntimeException(e);
             }
         }
     }

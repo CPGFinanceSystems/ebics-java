@@ -19,14 +19,15 @@
 
 package org.kopi.ebics.xml;
 
+import org.ebics.s001.ObjectFactory;
+import org.ebics.s001.PubKeyValueType;
+import org.ebics.s001.SignaturePubKeyInfo;
+import org.ebics.s001.SignaturePubKeyOrderData;
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.schema.s001.PubKeyValueType;
-import org.kopi.ebics.schema.s001.SignaturePubKeyInfoType;
-import org.kopi.ebics.schema.s001.SignaturePubKeyOrderDataType;
-import org.kopi.ebics.schema.xmldsig.RSAKeyValueType;
 import org.kopi.ebics.session.EbicsSession;
+import org.w3.xmldsig.RSAKeyValue;
 
-import java.util.Calendar;
+import java.time.LocalDateTime;
 
 
 /**
@@ -35,7 +36,11 @@ import java.util.Calendar;
  *
  * @author hachani
  */
-public class SignaturePubKeyOrderDataElement extends DefaultEbicsRootElement {
+public class SignaturePubKeyOrderDataElement {
+
+    private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
+
+    private final EbicsSession session;
 
     /**
      * Creates a new Signature Public Key Order Data element.
@@ -43,43 +48,40 @@ public class SignaturePubKeyOrderDataElement extends DefaultEbicsRootElement {
      * @param session the current ebics session
      */
     public SignaturePubKeyOrderDataElement(final EbicsSession session) {
-        super(session);
+        this.session = session;
     }
 
-    @Override
-    public void build() throws EbicsException {
-        final SignaturePubKeyInfoType signaturePubKeyInfo;
-        final RSAKeyValueType rsaKeyValue;
-        final PubKeyValueType pubKeyValue;
-        final SignaturePubKeyOrderDataType signaturePubKeyOrderData;
+    public SignaturePubKeyOrderData build() throws EbicsException {
+        final RSAKeyValue rsaKeyValue = new org.w3.xmldsig.ObjectFactory().createRSAKeyValue();
+        rsaKeyValue.setExponent(session.getUser().getA005PublicKey().getPublicExponent().toByteArray());
+        rsaKeyValue.setModulus(session.getUser().getA005PublicKey().getModulus().toByteArray());
 
-        rsaKeyValue = EbicsXmlFactory.createRSAKeyValueType(session.getUser().getA005PublicKey().getPublicExponent().toByteArray(),
-                session.getUser().getA005PublicKey().getModulus().toByteArray());
-        pubKeyValue = EbicsXmlFactory.createPubKeyValueType(rsaKeyValue, Calendar.getInstance());
-        signaturePubKeyInfo = EbicsXmlFactory.createSignaturePubKeyInfoType(
-                pubKeyValue, session.getConfiguration().getSignatureVersion());
-        signaturePubKeyOrderData = EbicsXmlFactory.createSignaturePubKeyOrderData(signaturePubKeyInfo,
-                session.getUser().getPartner().getPartnerId(),
-                session.getUser().getUserId());
-        document = EbicsXmlFactory.createSignaturePubKeyOrderDataDocument(signaturePubKeyOrderData);
+        final PubKeyValueType pubKeyValue = OBJECT_FACTORY.createPubKeyValueType();
+        pubKeyValue.setRSAKeyValue(rsaKeyValue);
+        pubKeyValue.setTimeStamp(LocalDateTime.now()); //TODO: Should contain date time from key creation
+
+        final SignaturePubKeyInfo signaturePubKeyInfo = OBJECT_FACTORY.createSignaturePubKeyInfo();
+        signaturePubKeyInfo.setPubKeyValue(pubKeyValue);
+        signaturePubKeyInfo.setSignatureVersion(session.getConfiguration().getSignatureVersion());
+
+        final SignaturePubKeyOrderData signaturePubKeyOrderData = OBJECT_FACTORY.createSignaturePubKeyOrderData();
+        signaturePubKeyOrderData.setSignaturePubKeyInfo(signaturePubKeyInfo);
+        signaturePubKeyOrderData.setPartnerID(session.getUser().getPartner().getPartnerId());
+        signaturePubKeyOrderData.setUserID(session.getUser().getUserId());
+
+        return signaturePubKeyOrderData;
     }
 
-    @Override
     public String getName() {
         return "SignaturePubKeyOrderData.xml";
     }
 
-    @Override
+    /*
     public byte[] toByteArray() {
         addNamespaceDecl("ds", "http://www.w3.org/2000/09/xmldsig#");
         setSaveSuggestedPrefixes("http://www.ebics.org/S001", "");
 
         return super.toByteArray();
     }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private static final long serialVersionUID = -5523105558015982970L;
+    */
 }

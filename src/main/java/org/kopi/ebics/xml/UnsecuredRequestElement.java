@@ -19,18 +19,12 @@
 
 package org.kopi.ebics.xml;
 
+import org.ebics.h004.*;
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest;
-import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body;
-import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body.DataTransfer;
-import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body.DataTransfer.OrderData;
-import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Header;
-import org.kopi.ebics.schema.h004.EmptyMutableHeaderType;
-import org.kopi.ebics.schema.h004.OrderDetailsType;
-import org.kopi.ebics.schema.h004.ProductElementType;
-import org.kopi.ebics.schema.h004.UnsecuredRequestStaticHeaderType;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
+
+import java.io.Serializable;
 
 /**
  * The <code>UnsecuredRequestElement</code> is the common element
@@ -38,7 +32,14 @@ import org.kopi.ebics.session.OrderType;
  *
  * @author hachani
  */
-public class UnsecuredRequestElement extends DefaultEbicsRootElement {
+public class UnsecuredRequestElement implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+    private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
+
+    private final EbicsSession session;
+    private final OrderType orderType;
+    private final byte[] orderData;
 
     /**
      * Constructs a Unsecured Request Element.
@@ -49,61 +50,55 @@ public class UnsecuredRequestElement extends DefaultEbicsRootElement {
     public UnsecuredRequestElement(final EbicsSession session,
                                    final OrderType orderType,
                                    final byte[] orderData) {
-        super(session);
+        this.session = session;
         this.orderType = orderType;
         this.orderData = orderData;
     }
 
-    @Override
-    public void build() throws EbicsException {
-        final Header header;
-        final Body body;
-        final EmptyMutableHeaderType mutable;
-        final UnsecuredRequestStaticHeaderType xstatic;
-        final ProductElementType productType;
-        final OrderDetailsType orderDetails;
-        final DataTransfer dataTransfer;
-        final OrderData orderData;
-        final EbicsUnsecuredRequest request;
+    public EbicsUnsecuredRequest build() throws EbicsException {
 
-        orderDetails = EbicsXmlFactory.createOrderDetailsType("DZNNN", orderType.name());
+        final UnsecuredReqOrderDetailsType orderDetails = OBJECT_FACTORY.createUnsecuredReqOrderDetailsType();
+        orderDetails.setOrderAttribute("DZNNN");
+        orderDetails.setOrderType(orderType.name());
 
-        productType = EbicsXmlFactory.creatProductElementType(session.getProduct().getLanguage(),
-                session.getProduct().getName());
+        final ProductElementType productType = OBJECT_FACTORY.createProductElementType();
+        productType.setLanguage(session.getProduct().getLanguage());
+        productType.setValue(session.getProduct().getName());
 
-        xstatic = EbicsXmlFactory.createUnsecuredRequestStaticHeaderType(session.getBankID(),
-                session.getUser().getPartner().getPartnerId(),
-                session.getUser().getUserId(),
-                productType,
-                orderDetails,
-                session.getUser().getSecurityMedium());
-        mutable = EbicsXmlFactory.createEmptyMutableHeaderType();
+        final UnsecuredRequestStaticHeaderType xstatic = OBJECT_FACTORY.createUnsecuredRequestStaticHeaderType();
+        xstatic.setHostID(session.getBankID());
+        xstatic.setUserID(session.getUser().getUserId());
+        xstatic.setPartnerID(session.getUser().getPartner().getPartnerId());
+        xstatic.setProduct(OBJECT_FACTORY.createStaticHeaderBaseTypeProduct(productType));
+        xstatic.setOrderDetails(orderDetails);
+        xstatic.setSecurityMedium(session.getUser().getSecurityMedium());
 
-        header = EbicsXmlFactory.createHeader(true,
-                mutable,
-                xstatic);
+        final EmptyMutableHeaderType mutable = OBJECT_FACTORY.createEmptyMutableHeaderType();
 
-        orderData = EbicsXmlFactory.createOrderData(this.orderData);
-        dataTransfer = EbicsXmlFactory.createDataTransfer(orderData);
-        body = EbicsXmlFactory.createBody(dataTransfer);
-        request = EbicsXmlFactory.createEbicsUnsecuredRequest(header,
-                body,
-                session.getConfiguration().getRevision(),
-                session.getConfiguration().getVersion());
+        final EbicsUnsecuredRequest.Header header = OBJECT_FACTORY.createEbicsUnsecuredRequestHeader();
+        header.setAuthenticate(true);
+        header.setMutable(mutable);
+        header.setStatic(xstatic);
 
-        document = EbicsXmlFactory.createEbicsUnsecuredRequestDocument(request);
+        final EbicsUnsecuredRequest.Body.DataTransfer.OrderData orderData = OBJECT_FACTORY.createEbicsUnsecuredRequestBodyDataTransferOrderData();
+        orderData.setValue(this.orderData);
+
+        final EbicsUnsecuredRequest.Body.DataTransfer dataTransfer = OBJECT_FACTORY.createEbicsUnsecuredRequestBodyDataTransfer();
+        dataTransfer.setOrderData(orderData);
+
+        final EbicsUnsecuredRequest.Body body = OBJECT_FACTORY.createEbicsUnsecuredRequestBody();
+        body.setDataTransfer(dataTransfer);
+
+        final EbicsUnsecuredRequest unsecuredRequest = OBJECT_FACTORY.createEbicsUnsecuredRequest();
+        unsecuredRequest.setHeader(header);
+        unsecuredRequest.setBody(body);
+        unsecuredRequest.setRevision(session.getConfiguration().getRevision());
+        unsecuredRequest.setVersion(session.getConfiguration().getVersion());
+
+        return unsecuredRequest;
     }
 
-    @Override
     public String getName() {
         return "UnsecuredRequest.xml";
     }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private final OrderType orderType;
-    private final byte[] orderData;
-    private static final long serialVersionUID = -3548730114599886711L;
 }

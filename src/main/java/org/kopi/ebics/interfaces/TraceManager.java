@@ -40,6 +40,8 @@ public interface TraceManager {
      */
     void trace(EbicsRootElement element) throws EbicsException;
 
+    void trace(final byte[] xml, final String elementName);
+
     /**
      * Sets the trace directory
      */
