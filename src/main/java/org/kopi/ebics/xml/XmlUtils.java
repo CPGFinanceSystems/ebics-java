@@ -1,6 +1,7 @@
 package org.kopi.ebics.xml;
 
 import lombok.extern.slf4j.Slf4j;
+import org.ebics.h004.HIARequestOrderDataType;
 import org.kopi.ebics.exception.EbicsException;
 import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;
@@ -21,6 +22,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.*;
+import java.util.Optional;
 
 @Slf4j
 public class XmlUtils {
@@ -60,7 +62,7 @@ public class XmlUtils {
     public static <T> byte[] prettyPrint(final Class<T> clazz, final T object) {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        prettyPrint(clazz, object, elementNameFromXmlRootAnnotation(clazz), outputStream);
+        prettyPrint(clazz, object, elementNameFrom(clazz), outputStream);
         return outputStream.toByteArray();
     }
 
@@ -82,8 +84,18 @@ public class XmlUtils {
         return clazz.getPackage().getAnnotation(XmlSchema.class).namespace();
     }
 
-    private static <T> String elementNameFromXmlRootAnnotation(final Class<T> clazz) {
-        return clazz.getAnnotation(XmlRootElement.class).name();
+    private static <T> String elementNameFrom(final Class<T> clazz) {
+        return Optional.ofNullable(clazz.getAnnotation(XmlRootElement.class))
+                .map(XmlRootElement::name)
+                .orElseGet(() -> elementNameFrom(clazz.getSimpleName()));
+    }
+
+    private static String elementNameFrom(final String clazzName) {
+        if (HIARequestOrderDataType.class.getSimpleName().equals(clazzName)) {
+            return "HIARequestOrderData";
+        } else {
+            return clazzName;
+        }
     }
 
     private static class LoggingErrorHandler implements ErrorHandler {

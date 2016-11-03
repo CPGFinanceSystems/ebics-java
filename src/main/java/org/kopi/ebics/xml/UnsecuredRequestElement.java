@@ -71,7 +71,7 @@ public class UnsecuredRequestElement implements Serializable {
         xstatic.setPartnerID(session.getUser().getPartner().getPartnerId());
         xstatic.setProduct(OBJECT_FACTORY.createStaticHeaderBaseTypeProduct(productType));
         xstatic.setOrderDetails(orderDetails);
-        xstatic.setSecurityMedium(session.getUser().getSecurityMedium());
+        xstatic.setSecurityMedium(OrderType.HIA.equals(orderType) ? "0000" : session.getUser().getSecurityMedium());
 
         final EmptyMutableHeaderType mutable = OBJECT_FACTORY.createEmptyMutableHeaderType();
 
