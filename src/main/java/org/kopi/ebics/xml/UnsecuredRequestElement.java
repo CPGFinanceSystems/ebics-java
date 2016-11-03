@@ -24,17 +24,14 @@ import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
 
-import java.io.Serializable;
-
 /**
  * The <code>UnsecuredRequestElement</code> is the common element
  * used for key management requests.
  *
  * @author hachani
  */
-public class UnsecuredRequestElement implements Serializable {
+public class UnsecuredRequestElement {
 
-    private static final long serialVersionUID = 1L;
     private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
 
     private final EbicsSession session;

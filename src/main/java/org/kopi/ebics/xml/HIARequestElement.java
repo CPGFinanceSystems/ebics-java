@@ -58,21 +58,4 @@ public class HIARequestElement {
                 Utils.zip(XmlUtils.prettyPrint(HIARequestOrderDataType.class, orderDataType)));
         return unsecuredRequest.build();
     }
-
-    /*
-    public byte[] toByteArray() {
-        setSaveSuggestedPrefixes("urn:org:ebics:H004", "");
-
-        return unsecuredRequest.toByteArray();
-    }
-
-    public void validate() throws EbicsException {
-        unsecuredRequest.validate();
-    }
-    */
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
 }

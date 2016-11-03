@@ -22,18 +22,15 @@ package org.kopi.ebics.xml;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.kopi.ebics.schema.h004.*;
 import org.kopi.ebics.schema.h004.DataEncryptionInfoType.EncryptionPubKeyDigest;
+import org.kopi.ebics.schema.h004.*;
 import org.kopi.ebics.schema.h004.DataTransferRequestType.DataEncryptionInfo;
 import org.kopi.ebics.schema.h004.DataTransferRequestType.SignatureData;
 import org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest;
 import org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest;
 import org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body.TransferReceipt;
-import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest;
 import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body;
 import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body.DataTransfer;
-import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body.DataTransfer.OrderData;
-import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Header;
 import org.kopi.ebics.schema.h004.FDLOrderParamsType.DateRange;
 import org.kopi.ebics.schema.h004.MutableHeaderType.SegmentNumber;
 import org.kopi.ebics.schema.h004.ParameterDocument.Parameter;
@@ -44,8 +41,9 @@ import org.kopi.ebics.schema.h004.StaticHeaderType.BankPubKeyDigests.Authenticat
 import org.kopi.ebics.schema.h004.StaticHeaderType.BankPubKeyDigests.Encryption;
 import org.kopi.ebics.schema.h004.StaticHeaderType.Product;
 import org.kopi.ebics.schema.h004.TransactionPhaseType.Enum;
-import org.kopi.ebics.schema.s001.*;
-import org.kopi.ebics.schema.s001.PubKeyValueType;
+import org.kopi.ebics.schema.s001.OrderSignatureDataType;
+import org.kopi.ebics.schema.s001.UserSignatureDataDocument;
+import org.kopi.ebics.schema.s001.UserSignatureDataSigBookType;
 import org.kopi.ebics.schema.xmldsig.*;
 import org.kopi.ebics.schema.xmldsig.SignatureType;
 
@@ -248,139 +246,7 @@ public class EbicsXmlFactory {
 
     //-----------------------------------------------------------------------------------------------------------------------------------------------
 
-    /**
-     * Creates a new <code>SignaturePubKeyOrderDataDocument</code> XML object
-     *
-     * @param signaturePubKeyOrderData the <code>SignaturePubKeyOrderDataType</code> element
-     * @return
-     */
-    public static SignaturePubKeyOrderDataDocument createSignaturePubKeyOrderDataDocument(final SignaturePubKeyOrderDataType signaturePubKeyOrderData) {
-        final SignaturePubKeyOrderDataDocument newSignaturePubKeyOrderDataDocument = SignaturePubKeyOrderDataDocument.Factory.newInstance();
-        newSignaturePubKeyOrderDataDocument.setSignaturePubKeyOrderData(signaturePubKeyOrderData);
-
-        return newSignaturePubKeyOrderDataDocument;
-    }
-
-    /**
-     * Creates a new <code>SignaturePubKeyOrderDataType</code> XML object
-     *
-     * @param signaturePubKeyInfo the <code>SignaturePubKeyInfoType</code> element
-     * @param partnerId           the partner ID
-     * @param userId              the user ID
-     * @return the <code>SignaturePubKeyOrderDataType</code> XML object
-     */
-    public static SignaturePubKeyOrderDataType createSignaturePubKeyOrderData(final SignaturePubKeyInfoType signaturePubKeyInfo,
-                                                                              final String partnerId,
-                                                                              final String userId) {
-        final SignaturePubKeyOrderDataType newSignaturePubKeyOrderDataType = SignaturePubKeyOrderDataType.Factory.newInstance();
-        newSignaturePubKeyOrderDataType.setSignaturePubKeyInfo(signaturePubKeyInfo);
-        newSignaturePubKeyOrderDataType.setPartnerID(partnerId);
-        newSignaturePubKeyOrderDataType.setUserID(userId);
-
-        return newSignaturePubKeyOrderDataType;
-    }
-
-    /**
-     * Creates a new <code>SignaturePubKeyInfoType</code> XML object
-     *
-     * @param pubKeyValue      <code>PubKeyValueType</code> element
-     * @param signatureVersion the signature version
-     * @return the <code>SignaturePubKeyInfoType</code> XML object
-     */
-    public static SignaturePubKeyInfoType createSignaturePubKeyInfoType(final PubKeyValueType pubKeyValue,
-                                                                        final String signatureVersion) {
-        final SignaturePubKeyInfoType newSignaturePubKeyInfoType = SignaturePubKeyInfoType.Factory.newInstance();
-        newSignaturePubKeyInfoType.setPubKeyValue(pubKeyValue);
-        newSignaturePubKeyInfoType.setSignatureVersion(signatureVersion);
-
-        return newSignaturePubKeyInfoType;
-    }
-
-    /**
-     * Creates a new <code>PubKeyValueType</code> XML object
-     *
-     * @param rsaKeyValue the <code>rsaKeyValue</code> element
-     * @param timeStamp   the current time stamp
-     * @return the <code>PubKeyValueType</code> XML object
-     */
-    public static PubKeyValueType createPubKeyValueType(final RSAKeyValueType rsaKeyValue, final Calendar timeStamp) {
-        final PubKeyValueType newPubKeyValueType = PubKeyValueType.Factory.newInstance();
-        newPubKeyValueType.setRSAKeyValue(rsaKeyValue);
-        newPubKeyValueType.setTimeStamp(timeStamp);
-
-        return newPubKeyValueType;
-    }
-
-    /**
-     * Creates a new <code>RSAKeyValueType</code> XML object
-     *
-     * @param exponent the public exponent of the public key
-     * @param modulus  the modulus of the public key
-     * @return the <code>RSAKeyValueType</code> XML object
-     */
-    public static RSAKeyValueType createRSAKeyValueType(final byte[] exponent, final byte[] modulus) {
-        final RSAKeyValueType newRSAKeyValueType = RSAKeyValueType.Factory.newInstance();
-        newRSAKeyValueType.setExponent(exponent);
-        newRSAKeyValueType.setModulus(modulus);
-
-        return newRSAKeyValueType;
-    }
-
     //-----------------------------------------------------------------------------------------------------------------------------------------------
-
-    /**
-     * Creates a new <code>EbicsUnsecuredRequestDocument</code> XML object
-     *
-     * @param ebicsUnsecuredRequest the <code>EbicsUnsecuredRequest</code> element
-     * @return the <code>EbicsUnsecuredRequestDocument</code> XML object
-     */
-    public static EbicsUnsecuredRequestDocument createEbicsUnsecuredRequestDocument(final EbicsUnsecuredRequest ebicsUnsecuredRequest) {
-        final EbicsUnsecuredRequestDocument newEbicsUnsecuredRequestDocument = EbicsUnsecuredRequestDocument.Factory.newInstance();
-        newEbicsUnsecuredRequestDocument.setEbicsUnsecuredRequest(ebicsUnsecuredRequest);
-
-        return newEbicsUnsecuredRequestDocument;
-    }
-
-    /**
-     * Creates a new <code>EbicsUnsecuredRequest</code> XML object
-     *
-     * @param header   the <code>Header</code> element
-     * @param body     the <code>Body</code> element
-     * @param revision the current revision
-     * @param version  the current version
-     * @return the <code>EbicsUnsecuredRequest</code> XML object
-     */
-    public static EbicsUnsecuredRequest createEbicsUnsecuredRequest(final Header header,
-                                                                    final Body body,
-                                                                    final int revision,
-                                                                    final String version) {
-        final EbicsUnsecuredRequest newEbicsUnsecuredRequest = EbicsUnsecuredRequest.Factory.newInstance();
-        newEbicsUnsecuredRequest.setHeader(header);
-        newEbicsUnsecuredRequest.setBody(body);
-        newEbicsUnsecuredRequest.setRevision(revision);
-        newEbicsUnsecuredRequest.setVersion(version);
-
-        return newEbicsUnsecuredRequest;
-    }
-
-    /**
-     * Creates a new <code>Header</code> XML object
-     *
-     * @param authenticate should authenticate?
-     * @param mutable      the <code>EmptyMutableHeaderType</code> element
-     * @param xstatic      the <code>UnsecuredRequestStaticHeaderType</code> element
-     * @return the <code>Header</code> XML object
-     */
-    public static Header createHeader(final boolean authenticate,
-                                      final EmptyMutableHeaderType mutable,
-                                      final UnsecuredRequestStaticHeaderType xstatic) {
-        final Header newHeader = Header.Factory.newInstance();
-        newHeader.setAuthenticate(authenticate);
-        newHeader.setMutable(mutable);
-        newHeader.setStatic(xstatic);
-
-        return newHeader;
-    }
 
     /**
      * Creates a new <code>EmptyMutableHeaderType</code> XML object
@@ -390,34 +256,6 @@ public class EbicsXmlFactory {
     public static EmptyMutableHeaderType createEmptyMutableHeaderType() {
 
         return EmptyMutableHeaderType.Factory.newInstance();
-    }
-
-    /**
-     * Creates a new <code>EmptyMutableHeaderType</code> XML object
-     *
-     * @param hostId         the host ID
-     * @param partnerId      the partner ID
-     * @param userId         the user ID
-     * @param product        the <code>ProductElementType</code> element
-     * @param orderDetails   the <code>OrderDetailsType</code> element
-     * @param securityMedium the security medium
-     * @return the <code>EmptyMutableHeaderType</code> XML object
-     */
-    public static UnsecuredRequestStaticHeaderType createUnsecuredRequestStaticHeaderType(final String hostId,
-                                                                                          final String partnerId,
-                                                                                          final String userId,
-                                                                                          final ProductElementType product,
-                                                                                          final OrderDetailsType orderDetails,
-                                                                                          final String securityMedium) {
-        final UnsecuredRequestStaticHeaderType newUnsecuredRequestStaticHeaderType = UnsecuredRequestStaticHeaderType.Factory.newInstance();
-        newUnsecuredRequestStaticHeaderType.setHostID(hostId);
-        newUnsecuredRequestStaticHeaderType.setPartnerID(partnerId);
-        newUnsecuredRequestStaticHeaderType.setUserID(userId);
-        newUnsecuredRequestStaticHeaderType.setProduct(product);
-        newUnsecuredRequestStaticHeaderType.setOrderDetails(orderDetails);
-        newUnsecuredRequestStaticHeaderType.setSecurityMedium(securityMedium);
-
-        return newUnsecuredRequestStaticHeaderType;
     }
 
     /**
@@ -464,115 +302,7 @@ public class EbicsXmlFactory {
         return newBody;
     }
 
-    /**
-     * Creates a new <code>DataTransfer</code> XML object
-     *
-     * @param orderData the <code>OrderData</code> element
-     * @return the <code>DataTransfer</code> XML object
-     */
-    public static DataTransfer createDataTransfer(final OrderData orderData) {
-        final DataTransfer newDataTransfer = DataTransfer.Factory.newInstance();
-        newDataTransfer.setOrderData(orderData);
-
-        return newDataTransfer;
-    }
-
-    /**
-     * Creates a new <code>OrderData</code> XML object
-     *
-     * @param orderData the order data as byte array
-     * @return the <code>OrderData</code> XML object
-     */
-    public static OrderData createOrderData(final byte[] orderData) {
-        final OrderData newOrderData = OrderData.Factory.newInstance();
-        newOrderData.setByteArrayValue(orderData);
-
-        return newOrderData;
-    }
-
     //-----------------------------------------------------------------------------------------------------------------------------------------------
-
-    /**
-     * Creates a new <code>HIARequestOrderDataDocument</code> XML object
-     *
-     * @param hiaRequestOrderData the <code>HIARequestOrderDataType</code> element
-     * @return the <code>HIARequestOrderDataDocument</code> XML object
-     */
-    public static HIARequestOrderDataDocument createHIARequestOrderDataDocument(final HIARequestOrderDataType hiaRequestOrderData) {
-        final HIARequestOrderDataDocument newHIARequestOrderDataDocument = HIARequestOrderDataDocument.Factory.newInstance();
-        newHIARequestOrderDataDocument.setHIARequestOrderData(hiaRequestOrderData);
-
-        return newHIARequestOrderDataDocument;
-    }
-
-    /**
-     * Creates a new <code>HIARequestOrderDataType</code> XML object
-     *
-     * @param authenticationPubKeyInfo the <code>AuthenticationPubKeyInfoType</code> element
-     * @param encryptionPubKeyInfo     the <code>EncryptionPubKeyInfoType</code> element
-     * @param partnerId                the partner ID
-     * @param userId                   the user ID
-     * @return the <code>HIARequestOrderDataType</code> XML object
-     */
-    public static HIARequestOrderDataType createHIARequestOrderDataType(final AuthenticationPubKeyInfoType authenticationPubKeyInfo,
-                                                                        final EncryptionPubKeyInfoType encryptionPubKeyInfo,
-                                                                        final String partnerId,
-                                                                        final String userId) {
-        final HIARequestOrderDataType newHIARequestOrderDataType = HIARequestOrderDataType.Factory.newInstance();
-        newHIARequestOrderDataType.setAuthenticationPubKeyInfo(authenticationPubKeyInfo);
-        newHIARequestOrderDataType.setEncryptionPubKeyInfo(encryptionPubKeyInfo);
-        newHIARequestOrderDataType.setPartnerID(partnerId);
-        newHIARequestOrderDataType.setUserID(userId);
-
-        return newHIARequestOrderDataType;
-    }
-
-    /**
-     * Creates a new <code>AuthenticationPubKeyInfoType</code> XML object
-     *
-     * @param authenticationVersion the authentication version
-     * @param pubKeyValue           the <code>org.kopi.ebics.schema.h004.PubKeyValueType</code> element
-     * @return the <code>AuthenticationPubKeyInfoType</code> XML object
-     */
-    public static AuthenticationPubKeyInfoType createAuthenticationPubKeyInfoType(final String authenticationVersion,
-                                                                                  final org.kopi.ebics.schema.h004.PubKeyValueType pubKeyValue) {
-        final AuthenticationPubKeyInfoType newAuthenticationPubKeyInfoType = AuthenticationPubKeyInfoType.Factory.newInstance();
-        newAuthenticationPubKeyInfoType.setAuthenticationVersion(authenticationVersion);
-        newAuthenticationPubKeyInfoType.setPubKeyValue(pubKeyValue);
-
-        return newAuthenticationPubKeyInfoType;
-    }
-
-    /**
-     * Creates a new <code>EncryptionPubKeyInfoType</code> XML object
-     *
-     * @param encryptionVersion the encryption version
-     * @param pubKeyValue       the <code>org.kopi.ebics.schema.h004.PubKeyValueType</code> element
-     * @return the <code>EncryptionPubKeyInfoType</code> XML object
-     */
-    public static EncryptionPubKeyInfoType createEncryptionPubKeyInfoType(final String encryptionVersion,
-                                                                          final org.kopi.ebics.schema.h004.PubKeyValueType pubKeyValue) {
-        final EncryptionPubKeyInfoType newEncryptionPubKeyInfoType = EncryptionPubKeyInfoType.Factory.newInstance();
-        newEncryptionPubKeyInfoType.setEncryptionVersion(encryptionVersion);
-        newEncryptionPubKeyInfoType.setPubKeyValue(pubKeyValue);
-
-        return newEncryptionPubKeyInfoType;
-    }
-
-    /**
-     * Creates a new <code>org.kopi.ebics.schema.h004.PubKeyValueType</code> XML object
-     *
-     * @param rsaKeyValue the <code>RSAKeyValueType</code> element
-     * @param timeStamp   the current time stamp
-     * @return the <code>org.kopi.ebics.schema.h004.PubKeyValueType</code> XML object
-     */
-    public static org.kopi.ebics.schema.h004.PubKeyValueType createH004PubKeyValueType(final RSAKeyValueType rsaKeyValue, final Calendar timeStamp) {
-        final org.kopi.ebics.schema.h004.PubKeyValueType newPubKeyValueType = org.kopi.ebics.schema.h004.PubKeyValueType.Factory.newInstance();
-        newPubKeyValueType.setRSAKeyValue(rsaKeyValue);
-        newPubKeyValueType.setTimeStamp(timeStamp);
-
-        return newPubKeyValueType;
-    }
 
     //-----------------------------------------------------------------------------------------------------------------------------------------------
 
