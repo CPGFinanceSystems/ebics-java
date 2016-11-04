@@ -52,6 +52,8 @@ public class XmlUtils {
     public static String XPATH_SELECTOR = "//*[@authenticate='true']";
 
     static {
+        DOCUMENT_BUILDER_FACTORY.setNamespaceAware(true);
+
         final SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         try {
             factory.setErrorHandler(LoggingErrorHandler.INSTANCE);
