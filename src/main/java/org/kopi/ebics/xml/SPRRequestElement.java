@@ -19,24 +19,14 @@
 
 package org.kopi.ebics.xml;
 
+import org.ebics.h004.*;
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.schema.h004.DataEncryptionInfoType.EncryptionPubKeyDigest;
-import org.kopi.ebics.schema.h004.*;
-import org.kopi.ebics.schema.h004.DataTransferRequestType.DataEncryptionInfo;
-import org.kopi.ebics.schema.h004.DataTransferRequestType.SignatureData;
-import org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest;
-import org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body;
-import org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Header;
-import org.kopi.ebics.schema.h004.StaticHeaderOrderDetailsType.OrderType;
-import org.kopi.ebics.schema.h004.StaticHeaderType.BankPubKeyDigests;
-import org.kopi.ebics.schema.h004.StaticHeaderType.BankPubKeyDigests.Authentication;
-import org.kopi.ebics.schema.h004.StaticHeaderType.BankPubKeyDigests.Encryption;
-import org.kopi.ebics.schema.h004.StaticHeaderType.Product;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.utils.Utils;
 
 import javax.crypto.spec.SecretKeySpec;
-import java.util.Calendar;
+import java.math.BigInteger;
+import java.time.LocalDateTime;
 
 
 /**
@@ -47,89 +37,103 @@ import java.util.Calendar;
  */
 public class SPRRequestElement extends InitializationRequestElement {
 
+    private final SecretKeySpec keySpec;
+
     /**
      * Constructs a new SPR request element.
      *
      * @param session the current ebic session.
      */
     public SPRRequestElement(final EbicsSession session) throws EbicsException {
-        super(session, org.kopi.ebics.session.OrderType.SPR, "SPRRequest.xml");
-        keySpec = new SecretKeySpec(nonce, "EAS");
+        super(session, org.kopi.ebics.session.OrderType.SPR);
+        this.keySpec = new SecretKeySpec(nonce, "EAS");
     }
 
     @Override
-    public void buildInitialization() throws EbicsException {
-        final EbicsRequest request;
-        final Header header;
-        final Body body;
-        final MutableHeaderType mutable;
-        final StaticHeaderType xstatic;
-        final Product product;
-        final BankPubKeyDigests bankPubKeyDigests;
-        final Authentication authentication;
-        final Encryption encryption;
-        final DataTransferRequestType dataTransfer;
-        final DataEncryptionInfo dataEncryptionInfo;
-        final SignatureData signatureData;
-        final EncryptionPubKeyDigest encryptionPubKeyDigest;
-        final StaticHeaderOrderDetailsType orderDetails;
-        final OrderType orderType;
-        final StandardOrderParamsType standardOrderParamsType;
-        final UserSignature userSignature;
-
-        userSignature = new UserSignature(session.getUser(),
-                generateName("SIG"),
+    public EbicsRequest buildInitialization() throws EbicsException {
+        final UserSignature userSignature = new UserSignature(session.getUser(),
+                DefaultEbicsRootElement.generateName("SIG"),
                 session.getConfiguration().getSignatureVersion(),
                 " ".getBytes());
         userSignature.build();
         userSignature.validate();
 
-        mutable = EbicsXmlFactory.createMutableHeaderType("Initialisation", null);
-        product = EbicsXmlFactory.createProduct(session.getProduct().getLanguage(), session.getProduct().getName());
-        authentication = EbicsXmlFactory.createAuthentication(session.getConfiguration().getAuthenticationVersion(),
-                "http://www.w3.org/2001/04/xmlenc#sha256",
-                decodeHex(session.getUser().getPartner().getBank().getX002Digest()));
-        encryption = EbicsXmlFactory.createEncryption(session.getConfiguration().getEncryptionVersion(),
-                "http://www.w3.org/2001/04/xmlenc#sha256",
-                decodeHex(session.getUser().getPartner().getBank().getE002Digest()));
-        bankPubKeyDigests = EbicsXmlFactory.createBankPubKeyDigests(authentication, encryption);
-        orderType = EbicsXmlFactory.createOrderType(type.name());
-        standardOrderParamsType = EbicsXmlFactory.createStandardOrderParamsType();
-        orderDetails = EbicsXmlFactory.createStaticHeaderOrderDetailsType(session.getUser().getPartner().nextOrderId(),
-                "UZHNN",
-                orderType,
-                standardOrderParamsType);
-        xstatic = EbicsXmlFactory.createStaticHeaderType(session.getBankID(),
-                nonce,
-                0,
-                session.getUser().getPartner().getPartnerId(),
-                product,
-                session.getUser().getSecurityMedium(),
-                session.getUser().getUserId(),
-                Calendar.getInstance(),
-                orderDetails,
-                bankPubKeyDigests);
-        header = EbicsXmlFactory.createEbicsRequestHeader(true, mutable, xstatic);
-        encryptionPubKeyDigest = EbicsXmlFactory.createEncryptionPubKeyDigest(session.getConfiguration().getEncryptionVersion(),
-                "http://www.w3.org/2001/04/xmlenc#sha256",
-                decodeHex(session.getUser().getPartner().getBank().getE002Digest()));
-        signatureData = EbicsXmlFactory.createSignatureData(true, Utils.encrypt(Utils.zip(userSignature.prettyPrint()), keySpec));
-        dataEncryptionInfo = EbicsXmlFactory.createDataEncryptionInfo(true,
-                encryptionPubKeyDigest,
-                generateTransactionKey());
-        dataTransfer = EbicsXmlFactory.createDataTransferRequestType(dataEncryptionInfo, signatureData);
-        body = EbicsXmlFactory.createEbicsRequestBody(dataTransfer);
-        request = EbicsXmlFactory.createEbicsRequest(session.getConfiguration().getRevision(),
-                session.getConfiguration().getVersion(),
-                header,
-                body);
-        document = EbicsXmlFactory.createEbicsRequestDocument(request);
+        final MutableHeaderType mutable = OBJECT_FACTORY.createMutableHeaderType();
+        mutable.setTransactionPhase(TransactionPhaseType.INITIALISATION);
+
+        final StaticHeaderType.Product product = OBJECT_FACTORY.createStaticHeaderTypeProduct();
+        product.setLanguage(session.getProduct().getLanguage());
+        product.setValue(session.getProduct().getName());
+
+        final StaticHeaderType.BankPubKeyDigests.Authentication authentication = OBJECT_FACTORY.createStaticHeaderTypeBankPubKeyDigestsAuthentication();
+        authentication.setVersion(session.getConfiguration().getAuthenticationVersion());
+        authentication.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
+        authentication.setValue(session.getUser().getPartner().getBank().getX002Digest());
+
+        final StaticHeaderType.BankPubKeyDigests.Encryption encryption = OBJECT_FACTORY.createStaticHeaderTypeBankPubKeyDigestsEncryption();
+        encryption.setVersion(session.getConfiguration().getEncryptionVersion());
+        encryption.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
+        encryption.setValue(session.getUser().getPartner().getBank().getE002Digest());
+
+        final StaticHeaderType.BankPubKeyDigests bankPubKeyDigests = OBJECT_FACTORY.createStaticHeaderTypeBankPubKeyDigests();
+        bankPubKeyDigests.setAuthentication(authentication);
+        bankPubKeyDigests.setEncryption(encryption);
+
+        final StaticHeaderOrderDetailsType.OrderType orderType = OBJECT_FACTORY.createStaticHeaderOrderDetailsTypeOrderType();
+        orderType.setValue(type.name());
+
+        final StandardOrderParamsType standardOrderParamsType = OBJECT_FACTORY.createStandardOrderParamsType();
+
+        final StaticHeaderOrderDetailsType orderDetails = OBJECT_FACTORY.createStaticHeaderOrderDetailsType();
+        orderDetails.setOrderID(session.getUser().getPartner().nextOrderId());
+        orderDetails.setOrderAttribute(OrderAttributeType.UZHNN);
+        orderDetails.setOrderType(orderType);
+        orderDetails.setOrderParams(OBJECT_FACTORY.createStandardOrderParams(standardOrderParamsType));
+
+        final StaticHeaderType xstatic = OBJECT_FACTORY.createStaticHeaderType();
+        xstatic.setHostID(session.getBankID());
+        xstatic.setNonce(nonce);
+        xstatic.setNumSegments(BigInteger.ZERO);
+        xstatic.setPartnerID(session.getUser().getPartner().getPartnerId());
+        xstatic.setProduct(OBJECT_FACTORY.createStaticHeaderTypeProduct(product));
+        xstatic.setSecurityMedium(session.getUser().getSecurityMedium());
+        xstatic.setUserID(session.getUser().getUserId());
+        xstatic.setTimestamp(LocalDateTime.now());
+        xstatic.setOrderDetails(orderDetails);
+        xstatic.setBankPubKeyDigests(bankPubKeyDigests);
+
+        final EbicsRequest.Header header = OBJECT_FACTORY.createEbicsRequestHeader();
+        header.setAuthenticate(true);
+        header.setMutable(mutable);
+        header.setStatic(xstatic);
+
+        final DataEncryptionInfoType.EncryptionPubKeyDigest encryptionPubKeyDigest = OBJECT_FACTORY.createDataEncryptionInfoTypeEncryptionPubKeyDigest();
+        encryptionPubKeyDigest.setVersion(session.getConfiguration().getEncryptionVersion());
+        encryptionPubKeyDigest.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
+        encryptionPubKeyDigest.setValue(session.getUser().getPartner().getBank().getE002Digest());
+
+        final DataTransferRequestType.SignatureData signatureData = OBJECT_FACTORY.createDataTransferRequestTypeSignatureData();
+        signatureData.setAuthenticate(true);
+        signatureData.setValue(Utils.encrypt(Utils.zip(userSignature.prettyPrint()), keySpec));
+
+        final DataTransferRequestType.DataEncryptionInfo dataEncryptionInfo = OBJECT_FACTORY.createDataTransferRequestTypeDataEncryptionInfo();
+        dataEncryptionInfo.setAuthenticate(true);
+        dataEncryptionInfo.setEncryptionPubKeyDigest(encryptionPubKeyDigest);
+        dataEncryptionInfo.setTransactionKey(generateTransactionKey());
+
+        final DataTransferRequestType dataTransfer = OBJECT_FACTORY.createDataTransferRequestType();
+        dataTransfer.setDataEncryptionInfo(dataEncryptionInfo);
+        dataTransfer.setSignatureData(signatureData);
+
+        final EbicsRequest.Body body = OBJECT_FACTORY.createEbicsRequestBody();
+        body.setDataTransfer(dataTransfer);
+
+        final EbicsRequest request = OBJECT_FACTORY.createEbicsRequest();
+        request.setRevision(session.getConfiguration().getRevision());
+        request.setVersion(session.getConfiguration().getVersion());
+        request.setHeader(header);
+        request.setBody(body);
+
+        return request;
     }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private final SecretKeySpec keySpec;
-    private static final long serialVersionUID = -6742241777786111337L;
 }

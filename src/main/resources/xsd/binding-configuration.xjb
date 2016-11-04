@@ -3,6 +3,7 @@
         version="2.1"
         xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
         xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+        xmlns:namespace="http://jaxb2-commons.dev.java.net/namespace-prefix"
         xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <jaxb:globalBindings>
@@ -17,5 +18,8 @@
         <jaxb:schemaBindings>
             <jaxb:package name="org.w3.xmldsig"/>
         </jaxb:schemaBindings>
+        <jaxb:bindings>
+            <namespace:prefix name="ds" />
+        </jaxb:bindings>
     </jaxb:bindings>
 </jaxb:bindings>

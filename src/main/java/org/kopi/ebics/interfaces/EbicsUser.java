@@ -22,6 +22,7 @@ package org.kopi.ebics.interfaces;
 import org.kopi.ebics.exception.EbicsException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
@@ -190,12 +191,8 @@ public interface EbicsUser extends Savable {
      * @param encryptedKey   the given secret key
      * @param transactionKey a given transaction key
      * @return the decrypted key;
-     * @throws GeneralSecurityException
-     * @throws IOException
-     * @throws EbicsException
      */
-    byte[] decrypt(byte[] encryptedKey, byte[] transactionKey)
-            throws GeneralSecurityException, IOException, EbicsException;
+    byte[] decrypt(byte[] encryptedKey, byte[] transactionKey);
 
     boolean isInitializedINI();
 

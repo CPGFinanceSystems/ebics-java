@@ -1104,7 +1104,7 @@
 		<attribute name="completeOrderData" type="boolean" use="required">
 			<annotation>
 				<documentation xml:lang="de">Sollen die Transaktionsdetails als Einzelauftragsinfos (completeOrderData=false) oder als komplette Originaldaten (completeOrderData=true) übertragen werden? (Vorschlag für Default=false)</documentation>
-				<documentation xml:lang="en">Are the transaction details so be transmitted as particular order content information requested for display matters or in complete order data file form? (Proposal for Default=false)</documentation>
+				<documentation xml:lang="en">Are the transaction details so be transmitted as particular order contentFactory information requested for display matters or in complete order data file form? (Proposal for Default=false)</documentation>
 			</annotation>
 		</attribute>
 		<attribute name="fetchLimit" use="required">

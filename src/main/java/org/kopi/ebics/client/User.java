@@ -25,7 +25,6 @@ import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.EbicsPartner;
 import org.kopi.ebics.interfaces.EbicsUser;
 import org.kopi.ebics.interfaces.PasswordCallback;
-import org.kopi.ebics.interfaces.Savable;
 import org.kopi.ebics.utils.Utils;
 import org.kopi.ebics.xml.UserSignature;
 
@@ -469,9 +468,7 @@ class User implements EbicsUser {
      */
     @Override
     public byte[] authenticate(final byte[] digest) throws GeneralSecurityException {
-        final Signature signature;
-
-        signature = Signature.getInstance("SHA256WithRSA", BouncyCastleProvider.PROVIDER_NAME);
+        final Signature signature = Signature.getInstance("SHA256WithRSA");
         signature.initSign(x002PrivateKey);
         signature.update(digest);
         return signature.sign();
@@ -544,21 +541,21 @@ class User implements EbicsUser {
      * keys DEK<SUB>left</SUB> and DEK<SUB>right</SUB>.
      */
     @Override
-    public byte[] decrypt(final byte[] encryptedData, final byte[] transactionKey)
-            throws EbicsException, GeneralSecurityException, IOException {
-        final Cipher cipher;
-        final int blockSize;
-        final ByteArrayOutputStream outputStream;
+    public byte[] decrypt(final byte[] encryptedData, final byte[] transactionKey) {
 
-        cipher = Cipher.getInstance("RSA/NONE/PKCS1Padding", BouncyCastleProvider.PROVIDER_NAME);
-        cipher.init(Cipher.DECRYPT_MODE, e002PrivateKey);
-        blockSize = cipher.getBlockSize();
-        outputStream = new ByteArrayOutputStream();
-        for (int j = 0; j * blockSize < transactionKey.length; j++) {
-            outputStream.write(cipher.doFinal(transactionKey, j * blockSize, blockSize));
+        try {
+            final Cipher cipher = Cipher.getInstance("RSA/NONE/PKCS1Padding");
+            cipher.init(Cipher.DECRYPT_MODE, e002PrivateKey);
+            final int blockSize = cipher.getBlockSize();
+            final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            for (int j = 0; j * blockSize < transactionKey.length; j++) {
+                outputStream.write(cipher.doFinal(transactionKey, j * blockSize, blockSize));
+            }
+
+            return decryptData(encryptedData, outputStream.toByteArray());
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
         }
-
-        return decryptData(encryptedData, outputStream.toByteArray());
     }
 
     /**

@@ -35,7 +35,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.URL;
 import java.security.GeneralSecurityException;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -367,8 +367,8 @@ public class EbicsClient {
                           final Product product,
                           final OrderType orderType,
                           final boolean isTest,
-                          final Date start,
-                          final Date end) {
+                          final LocalDate start,
+                          final LocalDate end) {
         final FileTransfer transferManager;
         final EbicsSession session;
 

@@ -19,23 +19,12 @@
 
 package org.kopi.ebics.xml;
 
+import org.ebics.h004.*;
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest;
-import org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body;
-import org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Header;
-import org.kopi.ebics.schema.h004.*;
-import org.kopi.ebics.schema.h004.FDLOrderParamsType.DateRange;
-import org.kopi.ebics.schema.h004.ParameterDocument.Parameter;
-import org.kopi.ebics.schema.h004.ParameterDocument.Parameter.Value;
-import org.kopi.ebics.schema.h004.StaticHeaderOrderDetailsType.OrderType;
-import org.kopi.ebics.schema.h004.StaticHeaderType.BankPubKeyDigests;
-import org.kopi.ebics.schema.h004.StaticHeaderType.BankPubKeyDigests.Authentication;
-import org.kopi.ebics.schema.h004.StaticHeaderType.BankPubKeyDigests.Encryption;
-import org.kopi.ebics.schema.h004.StaticHeaderType.Product;
 import org.kopi.ebics.session.EbicsSession;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 /**
@@ -46,6 +35,9 @@ import java.util.Date;
  */
 public class DInitializationRequestElement extends InitializationRequestElement {
 
+    private final LocalDate startRange;
+    private final LocalDate endRange;
+
     /**
      * Constructs a new <code>DInitializationRequestElement</code> for downloads initializations.
      *
@@ -53,102 +45,105 @@ public class DInitializationRequestElement extends InitializationRequestElement 
      * @param type       the download order type (FDL, HTD, HPD)
      * @param startRange the start range download
      * @param endRange   the end range download
-     * @throws EbicsException
      */
     public DInitializationRequestElement(final EbicsSession session,
                                          final org.kopi.ebics.session.OrderType type,
-                                         final Date startRange,
-                                         final Date endRange)
-            throws EbicsException {
-        super(session, type, generateName(type));
+                                         final LocalDate startRange,
+                                         final LocalDate endRange) {
+        super(session, type);
         this.startRange = startRange;
         this.endRange = endRange;
     }
 
     @Override
-    public void buildInitialization() throws EbicsException {
-        final EbicsRequest request;
-        final Header header;
-        final Body body;
-        final MutableHeaderType mutable;
-        final StaticHeaderType xstatic;
-        final Product product;
-        final BankPubKeyDigests bankPubKeyDigests;
-        final Authentication authentication;
-        final Encryption encryption;
-        final OrderType orderType;
-        final StaticHeaderOrderDetailsType orderDetails;
+    public EbicsRequest buildInitialization() throws EbicsException {
+        final MutableHeaderType mutable = OBJECT_FACTORY.createMutableHeaderType();
+        mutable.setTransactionPhase(TransactionPhaseType.INITIALISATION);
 
-        mutable = EbicsXmlFactory.createMutableHeaderType("Initialisation", null);
-        product = EbicsXmlFactory.createProduct(session.getProduct().getLanguage(), session.getProduct().getName());
-        authentication = EbicsXmlFactory.createAuthentication(session.getConfiguration().getAuthenticationVersion(),
-                "http://www.w3.org/2001/04/xmlenc#sha256",
-                decodeHex(session.getUser().getPartner().getBank().getX002Digest()));
-        encryption = EbicsXmlFactory.createEncryption(session.getConfiguration().getEncryptionVersion(),
-                "http://www.w3.org/2001/04/xmlenc#sha256",
-                decodeHex(session.getUser().getPartner().getBank().getE002Digest()));
-        bankPubKeyDigests = EbicsXmlFactory.createBankPubKeyDigests(authentication, encryption);
-        orderType = EbicsXmlFactory.createOrderType(type.name());
+        final StaticHeaderType.Product product = OBJECT_FACTORY.createStaticHeaderTypeProduct();
+        product.setLanguage(session.getProduct().getLanguage());
+        product.setValue(session.getProduct().getName());
+
+        final StaticHeaderType.BankPubKeyDigests.Authentication authentication = OBJECT_FACTORY.createStaticHeaderTypeBankPubKeyDigestsAuthentication();
+        authentication.setVersion(session.getConfiguration().getAuthenticationVersion());
+        authentication.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
+        authentication.setValue(session.getUser().getPartner().getBank().getX002Digest());
+
+        final StaticHeaderType.BankPubKeyDigests.Encryption encryption = OBJECT_FACTORY.createStaticHeaderTypeBankPubKeyDigestsEncryption();
+        encryption.setVersion(session.getConfiguration().getEncryptionVersion());
+        encryption.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
+        encryption.setValue(session.getUser().getPartner().getBank().getE002Digest());
+
+        final StaticHeaderType.BankPubKeyDigests bankPubKeyDigests = OBJECT_FACTORY.createStaticHeaderTypeBankPubKeyDigests();
+        bankPubKeyDigests.setAuthentication(authentication);
+        bankPubKeyDigests.setEncryption(encryption);
+
+        final StaticHeaderOrderDetailsType.OrderType orderType = OBJECT_FACTORY.createStaticHeaderOrderDetailsTypeOrderType();
+        orderType.setValue(type.name());
+
+        final StaticHeaderOrderDetailsType orderDetails = OBJECT_FACTORY.createStaticHeaderOrderDetailsType();
+        orderDetails.setOrderAttribute(OrderAttributeType.DZHNN);
+        orderDetails.setOrderType(orderType);
         if (type.equals(org.kopi.ebics.session.OrderType.FDL)) {
-            final FDLOrderParamsType fDLOrderParamsType;
-            final FileFormatType fileFormat;
+            final FileFormatType fileFormat = OBJECT_FACTORY.createFileFormatType();
+            fileFormat.setCountryCode(session.getConfiguration().getLocale().getCountry().toUpperCase());
+            fileFormat.setValue(session.getSessionParam("FORMAT"));
 
-            fileFormat = EbicsXmlFactory.createFileFormatType(session.getConfiguration().getLocale().getCountry().toUpperCase(),
-                    session.getSessionParam("FORMAT"));
-            fDLOrderParamsType = EbicsXmlFactory.createFDLOrderParamsType(fileFormat);
+            final FDLOrderParamsType fDLOrderParamsType = OBJECT_FACTORY.createFDLOrderParamsType();
+            fDLOrderParamsType.setFileFormat(fileFormat);
 
             if (startRange != null && endRange != null) {
-                final DateRange range;
+                final FDLOrderParamsType.DateRange range = OBJECT_FACTORY.createFDLOrderParamsTypeDateRange();
+                range.setStart(startRange);
+                range.setEnd(endRange);
 
-                range = EbicsXmlFactory.createDateRange(startRange, endRange);
                 fDLOrderParamsType.setDateRange(range);
             }
 
             if (Boolean.getBoolean(session.getSessionParam("TEST"))) {
-                final Parameter parameter;
-                final Value value;
+                final Parameter.Value value = OBJECT_FACTORY.createParameterValue();
+                value.setType("String");
+                value.setValue("TRUE");
 
-                value = EbicsXmlFactory.createValue("String", "TRUE");
-                parameter = EbicsXmlFactory.createParameter("TEST", value);
-                fDLOrderParamsType.setParameterArray(new Parameter[]{parameter});
+                final Parameter parameter = OBJECT_FACTORY.createParameter();
+                parameter.setName("TEST");
+                parameter.setValue(value);
+
+                fDLOrderParamsType.getParameters().add(parameter);
             }
-            orderDetails = EbicsXmlFactory.createStaticHeaderOrderDetailsType(session.getUser().getPartner().nextOrderId(),
-                    "DZHNN",
-                    orderType,
-                    fDLOrderParamsType);
+
+            orderDetails.setOrderID(session.getUser().getPartner().nextOrderId());
+            orderDetails.setOrderParams(OBJECT_FACTORY.createFDLOrderParams(fDLOrderParamsType));
         } else {
-            final StandardOrderParamsType standardOrderParamsType;
+            final StandardOrderParamsType standardOrderParamsType = OBJECT_FACTORY.createStandardOrderParamsType();
 
-            standardOrderParamsType = EbicsXmlFactory.createStandardOrderParamsType();
             //FIXME Some banks cannot handle OrderID element in download process. Add parameter in configuration!!!
-            orderDetails = EbicsXmlFactory.createStaticHeaderOrderDetailsType(null,//session.getUser().getPartner().nextOrderId(),
-                    "DZHNN",
-                    orderType,
-                    standardOrderParamsType);
+            orderDetails.setOrderID(null);
+            orderDetails.setOrderParams(OBJECT_FACTORY.createStandardOrderParams(standardOrderParamsType));
         }
-        xstatic = EbicsXmlFactory.createStaticHeaderType(session.getBankID(),
-                nonce,
-                session.getUser().getPartner().getPartnerId(),
-                product,
-                session.getUser().getSecurityMedium(),
-                session.getUser().getUserId(),
-                Calendar.getInstance(),
-                orderDetails,
-                bankPubKeyDigests);
-        header = EbicsXmlFactory.createEbicsRequestHeader(true, mutable, xstatic);
-        body = EbicsXmlFactory.createEbicsRequestBody();
-        request = EbicsXmlFactory.createEbicsRequest(session.getConfiguration().getRevision(),
-                session.getConfiguration().getVersion(),
-                header,
-                body);
-        document = EbicsXmlFactory.createEbicsRequestDocument(request);
+
+        final StaticHeaderType xstatic = OBJECT_FACTORY.createStaticHeaderType();
+        xstatic.setHostID(session.getBankID());
+        xstatic.setNonce(nonce);
+        xstatic.setPartnerID(session.getUser().getPartner().getPartnerId());
+        xstatic.setProduct(OBJECT_FACTORY.createStaticHeaderTypeProduct(product));
+        xstatic.setSecurityMedium(session.getUser().getSecurityMedium());
+        xstatic.setUserID(session.getUser().getUserId());
+        xstatic.setTimestamp(LocalDateTime.now());
+        xstatic.setOrderDetails(orderDetails);
+        xstatic.setBankPubKeyDigests(bankPubKeyDigests);
+
+        final EbicsRequest.Header header = OBJECT_FACTORY.createEbicsRequestHeader();
+        header.setAuthenticate(true);
+        header.setMutable(mutable);
+        header.setStatic(xstatic);
+
+        final EbicsRequest request = OBJECT_FACTORY.createEbicsRequest();
+        request.setRevision(session.getConfiguration().getRevision());
+        request.setVersion(session.getConfiguration().getVersion());
+        request.setHeader(header);
+        request.setBody(OBJECT_FACTORY.createEbicsRequestBody());
+
+        return request;
     }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private final Date startRange;
-    private final Date endRange;
-    private static final long serialVersionUID = 3776072549761880272L;
 }

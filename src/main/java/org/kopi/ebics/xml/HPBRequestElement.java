@@ -19,8 +19,10 @@
 
 package org.kopi.ebics.xml;
 
+import org.ebics.h004.EbicsNoPubKeyDigestsRequest;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.session.EbicsSession;
+import org.w3.xmldsig.SignatureType;
 
 /**
  * The <code>HPBRequestElement</code> is the element to be sent when
@@ -28,7 +30,9 @@ import org.kopi.ebics.session.EbicsSession;
  *
  * @author hachani
  */
-public class HPBRequestElement extends DefaultEbicsRootElement {
+public class HPBRequestElement {
+
+    private final EbicsSession session;
 
     /**
      * Constructs a new HPB Request element.
@@ -36,42 +40,26 @@ public class HPBRequestElement extends DefaultEbicsRootElement {
      * @param session the current ebics session.
      */
     public HPBRequestElement(final EbicsSession session) {
-        super(session);
+        this.session = session;
     }
 
-    @Override
     public String getName() {
         return "HPBRequest.xml";
     }
 
-    @Override
-    public void build() throws EbicsException {
-        final SignedInfo signedInfo;
-        final byte[] signature;
+    public EbicsNoPubKeyDigestsRequest build() throws EbicsException {
+        final NoPubKeyDigestsRequestElement noPubKeyDigestsRequest = new NoPubKeyDigestsRequestElement(session);
+        final EbicsNoPubKeyDigestsRequest request = noPubKeyDigestsRequest.build();
 
-        noPubKeyDigestsRequest = new NoPubKeyDigestsRequestElement(session);
-        noPubKeyDigestsRequest.build();
-        signedInfo = new SignedInfo(session.getUser(), noPubKeyDigestsRequest.getDigest());
-        signedInfo.build();
-        noPubKeyDigestsRequest.setAuthSignature(signedInfo.getSignatureType());
-        signature = signedInfo.sign(noPubKeyDigestsRequest.toByteArray());
-        noPubKeyDigestsRequest.setSignatureValue(signature);
+        final SignedInfoElement signedInfo = new SignedInfoElement(
+                session.getUser(),
+                XmlUtils.digest(EbicsNoPubKeyDigestsRequest.class, request));
+        final SignatureType signatureType = signedInfo.build();
+        request.setAuthSignature(signatureType);
+
+        final byte[] signature = XmlUtils.sign(EbicsNoPubKeyDigestsRequest.class, request, session.getUser());
+        request.getAuthSignature().getSignatureValue().setValue(signature);
+
+        return request;
     }
-
-    @Override
-    public byte[] toByteArray() {
-        return noPubKeyDigestsRequest.toByteArray();
-    }
-
-    @Override
-    public void validate() throws EbicsException {
-        noPubKeyDigestsRequest.validate();
-    }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private NoPubKeyDigestsRequestElement noPubKeyDigestsRequest;
-    private static final long serialVersionUID = -5565390370996751973L;
 }

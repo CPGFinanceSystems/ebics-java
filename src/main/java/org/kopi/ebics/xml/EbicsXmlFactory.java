@@ -26,11 +26,8 @@ import org.kopi.ebics.schema.h004.DataEncryptionInfoType.EncryptionPubKeyDigest;
 import org.kopi.ebics.schema.h004.*;
 import org.kopi.ebics.schema.h004.DataTransferRequestType.DataEncryptionInfo;
 import org.kopi.ebics.schema.h004.DataTransferRequestType.SignatureData;
-import org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest;
 import org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest;
 import org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body.TransferReceipt;
-import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body;
-import org.kopi.ebics.schema.h004.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body.DataTransfer;
 import org.kopi.ebics.schema.h004.FDLOrderParamsType.DateRange;
 import org.kopi.ebics.schema.h004.MutableHeaderType.SegmentNumber;
 import org.kopi.ebics.schema.h004.ParameterDocument.Parameter;
@@ -44,8 +41,7 @@ import org.kopi.ebics.schema.h004.TransactionPhaseType.Enum;
 import org.kopi.ebics.schema.s001.OrderSignatureDataType;
 import org.kopi.ebics.schema.s001.UserSignatureDataDocument;
 import org.kopi.ebics.schema.s001.UserSignatureDataSigBookType;
-import org.kopi.ebics.schema.xmldsig.*;
-import org.kopi.ebics.schema.xmldsig.SignatureType;
+import org.kopi.ebics.schema.xmldsig.SignatureValueType;
 
 import javax.xml.namespace.QName;
 import java.util.Calendar;
@@ -63,38 +59,6 @@ import java.util.Date;
 public class EbicsXmlFactory {
 
     /**
-     * Creates a new <code>SignatureType</code> XML object
-     *
-     * @param signedInfo the <code>SignedInfoType</code> element
-     * @return the <code>SignatureType</code> XML object
-     */
-    public static SignatureType createSignatureType(final SignedInfoType signedInfo) {
-        final SignatureType newSignatureType = SignatureType.Factory.newInstance();
-        newSignatureType.setSignedInfo(signedInfo);
-
-        return newSignatureType;
-    }
-
-    /**
-     * Creates a new <code>SignedInfoType</code> XML object
-     *
-     * @param canonicalizationMethod the <code>CanonicalizationMethod</code> element
-     * @param signatureMethod        the <code>SignatureMethod</code> element
-     * @param referenceArray         the <code>ReferenceType</code> array element
-     * @return the <code>SignedInfoType</code> XML object
-     */
-    public static SignedInfoType createSignedInfoType(final CanonicalizationMethodType canonicalizationMethod,
-                                                      final SignatureMethodType signatureMethod,
-                                                      final ReferenceType[] referenceArray) {
-        final SignedInfoType newSignedInfoType = SignedInfoType.Factory.newInstance();
-        newSignedInfoType.setSignatureMethod(signatureMethod);
-        newSignedInfoType.setCanonicalizationMethod(canonicalizationMethod);
-        newSignedInfoType.setReferenceArray(referenceArray);
-
-        return newSignedInfoType;
-    }
-
-    /**
      * Creates a new <code>SignatureValueType</code> XML object
      *
      * @param signatureValue the <code>SignatureMethod</code> element
@@ -106,95 +70,6 @@ public class EbicsXmlFactory {
 
         return newSignatureValueType;
     }
-
-    /**
-     * Creates a new <code>SignatureValueType</code> XML object
-     *
-     * @param algorithm the signature algorithm
-     * @return the <code>SignatureValueType</code> XML object
-     */
-    public static SignatureMethodType createSignatureMethodType(final String algorithm) {
-        final SignatureMethodType newSignatureMethodType = SignatureMethodType.Factory.newInstance();
-        newSignatureMethodType.setAlgorithm(algorithm);
-
-        return newSignatureMethodType;
-    }
-
-    /**
-     * Creates a new <code>CanonicalizationMethodType</code> XML object
-     *
-     * @param algorithm the canonicalization algorithm
-     * @return the <code>CanonicalizationMethodType</code> XML object
-     */
-    public static CanonicalizationMethodType createCanonicalizationMethodType(final String algorithm) {
-        final CanonicalizationMethodType newCanonicalizationMethodType = CanonicalizationMethodType.Factory.newInstance();
-        newCanonicalizationMethodType.setAlgorithm(algorithm);
-
-        return newCanonicalizationMethodType;
-    }
-
-    /**
-     * Creates a new <code>ReferenceType</code> XML object
-     *
-     * @param uri          the reference uri
-     * @param transforms   the <code>TransformsType</code> element
-     * @param digestMethod the <code>DigestMethodType</code> element
-     * @param digestValue  the digest value
-     * @return the <code>ReferenceType</code> XML object
-     */
-    public static ReferenceType createReferenceType(final String uri,
-                                                    final TransformsType transforms,
-                                                    final DigestMethodType digestMethod,
-                                                    final byte[] digestValue) {
-        final ReferenceType newReferenceType = ReferenceType.Factory.newInstance();
-        newReferenceType.setURI(uri);
-        newReferenceType.setTransforms(transforms);
-        newReferenceType.setDigestMethod(digestMethod);
-        newReferenceType.setDigestValue(digestValue);
-
-        return newReferenceType;
-    }
-
-    /**
-     * Creates a new <code>TransformsType</code> XML object
-     *
-     * @param transformArray the <code>TransformsType</code> array element
-     * @return the <code>TransformsType</code> XML object
-     */
-    public static TransformsType createTransformsType(final TransformType[] transformArray) {
-        final TransformsType newTransformsType = TransformsType.Factory.newInstance();
-        newTransformsType.setTransformArray(transformArray);
-
-        return newTransformsType;
-    }
-
-    /**
-     * Creates a new <code>TransformType</code> XML object
-     *
-     * @param algorithm the transformation algorithm
-     * @return the <code>TransformType</code> XML object
-     */
-    public static TransformType createTransformType(final String algorithm) {
-        final TransformType newTransformType = TransformType.Factory.newInstance();
-        newTransformType.setAlgorithm(algorithm);
-
-        return newTransformType;
-    }
-
-    /**
-     * Creates a new <code>DigestMethodType</code> XML object
-     *
-     * @param algorithm the digest method algorithm
-     * @return the <code>DigestMethodType</code> XML object
-     */
-    public static DigestMethodType createDigestMethodType(final String algorithm) {
-        final DigestMethodType newDigestMethodType = DigestMethodType.Factory.newInstance();
-        newDigestMethodType.setAlgorithm(algorithm);
-
-        return newDigestMethodType;
-    }
-
-    //-----------------------------------------------------------------------------------------------------------------------------------------------
 
     /**
      * Creates a new <code>UserSignatureDataDocument</code> XML object
@@ -243,168 +118,6 @@ public class EbicsXmlFactory {
 
         return newOrderSignatureDataType;
     }
-
-    //-----------------------------------------------------------------------------------------------------------------------------------------------
-
-    //-----------------------------------------------------------------------------------------------------------------------------------------------
-
-    /**
-     * Creates a new <code>EmptyMutableHeaderType</code> XML object
-     *
-     * @return the <code>EmptyMutableHeaderType</code> XML object
-     */
-    public static EmptyMutableHeaderType createEmptyMutableHeaderType() {
-
-        return EmptyMutableHeaderType.Factory.newInstance();
-    }
-
-    /**
-     * Creates a new <code>ProductElementType</code> XML object
-     *
-     * @param language the language
-     * @param product  the product name
-     * @return the <code>ProductElementType</code> XML object
-     */
-    public static ProductElementType creatProductElementType(final String language, final String product) {
-        final ProductElementType newProductElementType = ProductElementType.Factory.newInstance();
-        newProductElementType.setLanguage(language);
-        newProductElementType.setStringValue(product);
-
-        return newProductElementType;
-    }
-
-    /**
-     * Creates a new <code>OrderDetailsType</code> XML object
-     *
-     * @param orderAttribute the order attribute
-     * @param orderType      the order type
-     * @return the <code>OrderDetailsType</code> XML object
-     */
-    @SuppressWarnings("deprecation")
-    public static OrderDetailsType createOrderDetailsType(final String orderAttribute, final String orderType) {
-        final OrderDetailsType newOrderDetailsType = OrderDetailsType.Factory.newInstance();
-        newOrderDetailsType.setOrderAttribute(orderAttribute);
-        newOrderDetailsType.setOrderType(orderType);
-
-        return newOrderDetailsType;
-    }
-
-    /**
-     * Creates a new <code>Body</code> XML object
-     *
-     * @param dataTransfer the <code>DataTransfer</code> element
-     * @return the <code>Body</code> XML object
-     */
-    public static Body createBody(final DataTransfer dataTransfer) {
-        final Body newBody = Body.Factory.newInstance();
-        newBody.setDataTransfer(dataTransfer);
-
-        return newBody;
-    }
-
-    //-----------------------------------------------------------------------------------------------------------------------------------------------
-
-    //-----------------------------------------------------------------------------------------------------------------------------------------------
-
-    /**
-     * Creates a new <code>EbicsNoPubKeyDigestsRequest</code> XML object
-     *
-     * @param revision the default revision
-     * @param version  the default version
-     * @param header   the <code>org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header</code> element
-     * @param body     the <code>org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body</code> element
-     * @return the <code>EbicsNoPubKeyDigestsRequest</code> XML object
-     */
-    public static EbicsNoPubKeyDigestsRequest createEbicsNoPubKeyDigestsRequest(final int revision,
-                                                                                final String version,
-                                                                                final org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header header,
-                                                                                final org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body body) {
-        final EbicsNoPubKeyDigestsRequest newEbicsNoPubKeyDigestsRequest = EbicsNoPubKeyDigestsRequest.Factory.newInstance();
-        newEbicsNoPubKeyDigestsRequest.setRevision(revision);
-        newEbicsNoPubKeyDigestsRequest.setVersion(version);
-        newEbicsNoPubKeyDigestsRequest.setHeader(header);
-        newEbicsNoPubKeyDigestsRequest.setBody(body);
-
-        return newEbicsNoPubKeyDigestsRequest;
-    }
-
-    /**
-     * Creates a new <code>org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header</code> XML object
-     *
-     * @param authenticate should authenticate?
-     * @param mutable      the <code>EmptyMutableHeaderType</code> element
-     * @param xstatic      the <code>NoPubKeyDigestsRequestStaticHeaderType</code> element
-     * @return the <code>org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header</code> XML object
-     */
-    public static org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header createDigestsRequestHeader(final boolean authenticate,
-                                                                                                                                               final EmptyMutableHeaderType mutable,
-                                                                                                                                               final NoPubKeyDigestsRequestStaticHeaderType xstatic) {
-        final org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header newHeader = org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header.Factory.newInstance();
-        newHeader.setAuthenticate(authenticate);
-        newHeader.setMutable(mutable);
-        newHeader.setStatic(xstatic);
-
-        return newHeader;
-    }
-
-    /**
-     * Creates a new <code>NoPubKeyDigestsRequestStaticHeaderType</code> XML object
-     *
-     * @param hostId         the host ID
-     * @param nonce          a random nonce
-     * @param timestamp      the current time stamp
-     * @param partnerId      the partner ID
-     * @param userId         the user ID
-     * @param product        the <code>ProductElementType</code> element
-     * @param orderDetails   the <code>OrderDetailsType</code> element
-     * @param securityMedium the user security medium
-     * @return
-     */
-    public static NoPubKeyDigestsRequestStaticHeaderType createNoPubKeyDigestsRequestStaticHeaderType(final String hostId,
-                                                                                                      final byte[] nonce,
-                                                                                                      final Calendar timestamp,
-                                                                                                      final String partnerId,
-                                                                                                      final String userId,
-                                                                                                      final ProductElementType product,
-                                                                                                      final OrderDetailsType orderDetails,
-                                                                                                      final String securityMedium) {
-        final NoPubKeyDigestsRequestStaticHeaderType newNoPubKeyDigestsRequestStaticHeaderType = NoPubKeyDigestsRequestStaticHeaderType.Factory.newInstance();
-        newNoPubKeyDigestsRequestStaticHeaderType.setHostID(hostId);
-        newNoPubKeyDigestsRequestStaticHeaderType.setNonce(nonce);
-        newNoPubKeyDigestsRequestStaticHeaderType.setTimestamp(timestamp);
-        newNoPubKeyDigestsRequestStaticHeaderType.setPartnerID(partnerId);
-        newNoPubKeyDigestsRequestStaticHeaderType.setUserID(userId);
-        newNoPubKeyDigestsRequestStaticHeaderType.setProduct(product);
-        newNoPubKeyDigestsRequestStaticHeaderType.setOrderDetails(orderDetails);
-        newNoPubKeyDigestsRequestStaticHeaderType.setSecurityMedium(securityMedium);
-
-        return newNoPubKeyDigestsRequestStaticHeaderType;
-    }
-
-    /**
-     * Creates a new <code>org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body</code> XML object
-     *
-     * @return the <code>org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body</code> XML object
-     */
-    public static org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body createDigestsRequestBody() {
-
-        return EbicsNoPubKeyDigestsRequest.Body.Factory.newInstance();
-    }
-
-    /**
-     * Creates a new <code>EbicsNoPubKeyDigestsRequestDocument</code> XML object
-     *
-     * @param ebicsNoPubKeyDigestsRequest the <code>EbicsNoPubKeyDigestsRequest</code> element
-     * @return the <code>EbicsNoPubKeyDigestsRequestDocument</code> XML object
-     */
-    public static EbicsNoPubKeyDigestsRequestDocument createEbicsNoPubKeyDigestsRequestDocument(final EbicsNoPubKeyDigestsRequest ebicsNoPubKeyDigestsRequest) {
-        final EbicsNoPubKeyDigestsRequestDocument newEbicsNoPubKeyDigestsRequestDocument = EbicsNoPubKeyDigestsRequestDocument.Factory.newInstance();
-        newEbicsNoPubKeyDigestsRequestDocument.setEbicsNoPubKeyDigestsRequest(ebicsNoPubKeyDigestsRequest);
-
-        return newEbicsNoPubKeyDigestsRequestDocument;
-    }
-
-    //-----------------------------------------------------------------------------------------------------------------------------------------------
 
     /**
      * Creates a new <code>EbicsRequestDocument</code> XML object
@@ -644,22 +357,6 @@ public class EbicsXmlFactory {
         qualifySubstitutionGroup(newStaticHeaderOrderDetailsType.getOrderParams(), StandardOrderParamsDocument.type.getDocumentElementName(), null);
 
         return newStaticHeaderOrderDetailsType;
-    }
-
-    static StaticHeaderOrderDetailsType createStaticHeaderOrderDetailsType(final String orderId,
-                                                                           final String orderAttribute,
-                                                                           final OrderType orderType,
-                                                                           final GenericOrderParamsType orderParams) {
-        final StaticHeaderOrderDetailsType staticHeaderOrderDetailsType = StaticHeaderOrderDetailsType.Factory.newInstance();
-        if (null != orderId) {
-            staticHeaderOrderDetailsType.setOrderID(orderId);
-        }
-        staticHeaderOrderDetailsType.setOrderAttribute(org.kopi.ebics.schema.h004.OrderAttributeType.Enum.forString(orderAttribute));
-        staticHeaderOrderDetailsType.setOrderType(orderType);
-        staticHeaderOrderDetailsType.setOrderParams(orderParams);
-        qualifySubstitutionGroup(staticHeaderOrderDetailsType.getOrderParams(), GenericOrderParamsDocument.type.getDocumentElementName(), null);
-
-        return staticHeaderOrderDetailsType;
     }
 
     /**
@@ -923,19 +620,6 @@ public class EbicsXmlFactory {
         newDataTransferRequestType.setOrderData(orderData);
 
         return newDataTransferRequestType;
-    }
-
-    /**
-     * Create the <code>org.kopi.ebics.schema.h004.DataTransferRequestType.OrderData</code> XML object
-     *
-     * @param orderDataValue the order data value
-     * @return the <code>org.kopi.ebics.schema.h004.DataTransferRequestType.OrderData</code> XML object
-     */
-    public static org.kopi.ebics.schema.h004.DataTransferRequestType.OrderData createTransferRequestTypeOrderData(final byte[] orderDataValue) {
-        final org.kopi.ebics.schema.h004.DataTransferRequestType.OrderData newOrderData = org.kopi.ebics.schema.h004.DataTransferRequestType.OrderData.Factory.newInstance();
-        newOrderData.setByteArrayValue(orderDataValue);
-
-        return newOrderData;
     }
 
     /**

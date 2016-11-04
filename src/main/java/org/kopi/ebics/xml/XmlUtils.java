@@ -1,8 +1,15 @@
 package org.kopi.ebics.xml;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.xml.security.c14n.CanonicalizationException;
+import org.apache.xml.security.c14n.Canonicalizer;
+import org.apache.xml.security.c14n.InvalidCanonicalizerException;
 import org.ebics.h004.HIARequestOrderDataType;
 import org.kopi.ebics.exception.EbicsException;
+import org.kopi.ebics.interfaces.EbicsUser;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;
 import org.xml.sax.ErrorHandler;
@@ -13,18 +20,36 @@ import javax.xml.XMLConstants;
 import javax.xml.bind.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchema;
+import javax.xml.crypto.dsig.CanonicalizationMethod;
+import javax.xml.crypto.dsig.DigestMethod;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 import java.io.*;
+import java.security.MessageDigest;
+import java.text.MessageFormat;
 import java.util.Optional;
 
 @Slf4j
 public class XmlUtils {
 
     private static final Schema XML_SCHEMAS;
+    private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
+    private static final XPathFactory X_PATH_FACTORY = XPathFactory.newInstance();
+    private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
+
+    public static String CANONICALIZAION_METHOD = CanonicalizationMethod.INCLUSIVE;
+    public static String DIGEST_METHOD = DigestMethod.SHA256;
+    public static String SIGNATURE_METHOD = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
+    public static String XPATH_SELECTOR = "//*[@authenticate='true']";
 
     static {
         final SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -65,11 +90,55 @@ public class XmlUtils {
     }
 
     public static <T> T parse(final Class<T> clazz, final InputStream inputStream) {
+        if (null == clazz.getAnnotation(XmlRootElement.class)) {
+            throw new IllegalArgumentException(MessageFormat.format(
+                    "{0} annotation is required for deserialization of objects with type {1}",
+                    XmlRootElement.class.getSimpleName(),
+                    clazz.getName()));
+        }
         try {
             final JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
             final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             return (T) jaxbUnmarshaller.unmarshal(inputStream);
         } catch (final JAXBException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static <T> byte[] sign(final Class<T> clazz, final T object, final EbicsUser user) {
+        try {
+            final DocumentBuilder builder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
+            final Document document = builder.parse(new ByteArrayInputStream(prettyPrint(clazz, object)));
+
+            final XPath xPath = X_PATH_FACTORY.newXPath();
+            final Node node = (Node) xPath.evaluate("//*[local-name()='SignedInfo']", document.getDocumentElement(), XPathConstants.NODE);
+
+            final byte[] canonized = canonize(node);
+            log.info("Canonized for sign: '{}'", new String(canonized));
+
+            return user.authenticate(canonized);
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static <T> byte[] digest(final Class<T> clazz, final T object) {
+        try {
+            final DocumentBuilder builder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
+            final Document document = builder.parse(new ByteArrayInputStream(prettyPrint(clazz, object)));
+
+            final XPath xPath = X_PATH_FACTORY.newXPath();
+            final NodeList nodes = (NodeList) xPath.evaluate(XPATH_SELECTOR, document.getDocumentElement(), XPathConstants.NODESET);
+
+            final MessageDigest digester = MessageDigest.getInstance("SHA-256");
+            for (int i = 0; i < nodes.getLength(); ++i) {
+                final Node node = nodes.item(i);
+                final byte[] canonized = canonize(node);
+                log.info("Canonized for digest: '{}'", new String(canonized));
+                digester.update(canonized);
+            }
+            return digester.digest();
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -83,6 +152,15 @@ public class XmlUtils {
                     new JAXBElement<>(new QName(namespaceFromPackageAnnotation(clazz), elementName), clazz, object),
                     outputStream);
         } catch (final JAXBException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static byte[] canonize(final Node node) {
+        try {
+            final Canonicalizer canonicalizer = Canonicalizer.getInstance(CANONICALIZAION_METHOD);
+            return canonicalizer.canonicalizeSubtree(node);
+        } catch (InvalidCanonicalizerException | CanonicalizationException e) {
             throw new RuntimeException(e);
         }
     }
