@@ -25,7 +25,6 @@ import javax.xml.crypto.dsig.DigestMethod;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -42,9 +41,8 @@ import java.util.Optional;
 public class XmlUtils {
 
     private static final Schema XML_SCHEMAS;
-    private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
+    private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY;
     private static final XPathFactory X_PATH_FACTORY = XPathFactory.newInstance();
-    private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
 
     public static String CANONICALIZAION_METHOD = CanonicalizationMethod.INCLUSIVE;
     public static String DIGEST_METHOD = DigestMethod.SHA256;
@@ -52,6 +50,7 @@ public class XmlUtils {
     public static String XPATH_SELECTOR = "//*[@authenticate='true']";
 
     static {
+        DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
         DOCUMENT_BUILDER_FACTORY.setNamespaceAware(true);
 
         final SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
