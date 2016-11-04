@@ -10,10 +10,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
+import javax.xml.bind.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchema;
 import javax.xml.namespace.QName;
@@ -46,19 +43,6 @@ public class XmlUtils {
         }
     }
 
-    public static <T> void prettyPrint(final Class<T> clazz, final T object, final String elementName, final OutputStream outputStream) {
-        try {
-            final JAXBContext ctx = JAXBContext.newInstance(clazz);
-            final Marshaller marshaller = ctx.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(
-                    new JAXBElement<>(new QName(namespaceFromPackageAnnotation(clazz), elementName), clazz, object),
-                    outputStream);
-        } catch (final JAXBException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static <T> byte[] prettyPrint(final Class<T> clazz, final T object) {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
@@ -77,6 +61,29 @@ public class XmlUtils {
             validator.validate(new StreamSource(inputStream));
         } catch (IOException | SAXException e) {
             throw new EbicsException(e.getMessage(), e);
+        }
+    }
+
+    public static <T> T parse(final Class<T> clazz, final InputStream inputStream) {
+        try {
+            final JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
+            final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            return (T) jaxbUnmarshaller.unmarshal(inputStream);
+        } catch (final JAXBException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static <T> void prettyPrint(final Class<T> clazz, final T object, final String elementName, final OutputStream outputStream) {
+        try {
+            final JAXBContext ctx = JAXBContext.newInstance(clazz);
+            final Marshaller marshaller = ctx.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(
+                    new JAXBElement<>(new QName(namespaceFromPackageAnnotation(clazz), elementName), clazz, object),
+                    outputStream);
+        } catch (final JAXBException e) {
+            throw new RuntimeException(e);
         }
     }
 

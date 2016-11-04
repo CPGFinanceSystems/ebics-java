@@ -36,9 +36,8 @@ public class TransferResponseElement extends DefaultResponseElement {
     /**
      * Constructs a new <code>TransferResponseElement</code> element.
      *
-     * @param factory   the content factory
-     * @param orderType the order type
-     * @param name      the element name;
+     * @param factory the content factory
+     * @param name    the element name;
      */
     public TransferResponseElement(final ContentFactory factory, final String name) {
         super(factory, name);

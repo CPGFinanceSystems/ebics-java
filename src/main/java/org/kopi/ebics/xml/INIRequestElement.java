@@ -57,16 +57,4 @@ public class INIRequestElement {
                 Utils.zip(XmlUtils.prettyPrint(SignaturePubKeyOrderData.class, signaturePubKeyOrderData)));
         return unsecuredRequest.build();
     }
-
-    /*
-    public byte[] toByteArray() {
-        setSaveSuggestedPrefixes("urn:org:ebics:H004", "");
-
-        return unsecuredRequest.toByteArray();
-    }
-
-    public void validate() throws EbicsException {
-        unsecuredRequest.validate();
-    }
-    */
 }

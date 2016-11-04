@@ -19,7 +19,6 @@
 
 package org.kopi.ebics.interfaces;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 
@@ -32,7 +31,6 @@ public interface ContentFactory extends Serializable {
      * Nevertheless how often the method will be called.
      *
      * @return a new data source of the data to be sent.
-     * @throws IOException
      */
-    InputStream getContent() throws IOException;
+    InputStream getContent();
 }

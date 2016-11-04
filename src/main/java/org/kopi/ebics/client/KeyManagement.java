@@ -19,6 +19,7 @@
 
 package org.kopi.ebics.client;
 
+import org.ebics.h004.EbicsKeyManagementResponse;
 import org.ebics.h004.EbicsUnsecuredRequest;
 import org.kopi.ebics.certificate.KeyStoreManager;
 import org.kopi.ebics.certificate.KeyUtil;
@@ -66,23 +67,18 @@ class KeyManagement {
      * @throws IOException    communication error
      */
     public EbicsUser sendINI() throws EbicsException, IOException {
-        final INIRequestElement request;
-        final KeyManagementResponseElement response;
-        final HttpRequestSender sender;
-        final int httpCode;
 
-        sender = new HttpRequestSender(session);
-        request = new INIRequestElement(session);
+        final HttpRequestSender sender = new HttpRequestSender(session);
+        final INIRequestElement request = new INIRequestElement(session);
         final EbicsUnsecuredRequest unsecuredRequest = request.build();
         final byte[] xml = XmlUtils.prettyPrint(EbicsUnsecuredRequest.class, unsecuredRequest);
         session.getConfiguration().getTraceManager().trace(xml, request.getName());
         XmlUtils.validate(xml);
-        httpCode = sender.send(new ByteArrayContentFactory(xml));
+        final int httpCode = sender.send(new ByteArrayContentFactory(xml));
         Utils.checkHttpCode(httpCode);
-        response = new KeyManagementResponseElement(sender.getResponseBody(), "INIResponse");
-        response.build();
-        session.getConfiguration().getTraceManager().trace(response);
-        response.report();
+        final KeyManagementResponseElement response = new KeyManagementResponseElement(sender.getResponseBody());
+        final EbicsKeyManagementResponse keyManagementResponse = response.build();
+        session.getConfiguration().getTraceManager().trace(XmlUtils.prettyPrint(EbicsKeyManagementResponse.class, keyManagementResponse), "INIResponse");
 
         session.getUser().setInitializedINI(true);
         return session.getUser();
@@ -95,23 +91,17 @@ class KeyManagement {
      * @throws EbicsException server generated error message
      */
     public EbicsUser sendHIA() throws IOException, EbicsException {
-        final HIARequestElement request;
-        final KeyManagementResponseElement response;
-        final HttpRequestSender sender;
-        final int httpCode;
-
-        sender = new HttpRequestSender(session);
-        request = new HIARequestElement(session);
+        final HttpRequestSender sender = new HttpRequestSender(session);
+        final HIARequestElement request = new HIARequestElement(session);
         final EbicsUnsecuredRequest unsecuredRequest = request.build();
         final byte[] xml = XmlUtils.prettyPrint(EbicsUnsecuredRequest.class, unsecuredRequest);
         session.getConfiguration().getTraceManager().trace(xml, request.getName());
         XmlUtils.validate(xml);
-        httpCode = sender.send(new ByteArrayContentFactory(xml));
+        final int httpCode = sender.send(new ByteArrayContentFactory(xml));
         Utils.checkHttpCode(httpCode);
-        response = new KeyManagementResponseElement(sender.getResponseBody(), "HIAResponse");
-        response.build();
-        session.getConfiguration().getTraceManager().trace(response);
-        response.report();
+        final KeyManagementResponseElement response = new KeyManagementResponseElement(sender.getResponseBody());
+        final EbicsKeyManagementResponse keyManagementResponse = response.build();
+        session.getConfiguration().getTraceManager().trace(XmlUtils.prettyPrint(EbicsKeyManagementResponse.class, keyManagementResponse), "HIAResponse");
 
         session.getUser().setInitializedHIA(true);
         return session.getUser();
@@ -127,40 +117,30 @@ class KeyManagement {
      * @throws EbicsException           server generated error message
      */
     public EbicsUser sendHPB() throws IOException, GeneralSecurityException, EbicsException {
-        final HPBRequestElement request;
-        final KeyManagementResponseElement response;
-        final HttpRequestSender sender;
-        final HPBResponseOrderDataElement orderData;
-        final ContentFactory factory;
-        final KeyStoreManager keystoreManager;
-        final String path;
-        final RSAPublicKey e002PubKey;
-        final RSAPublicKey x002PubKey;
-        final int httpCode;
-
-        sender = new HttpRequestSender(session);
-        request = new HPBRequestElement(session);
+        final HttpRequestSender sender = new HttpRequestSender(session);
+        final HPBRequestElement request = new HPBRequestElement(session);
         request.build();
         request.validate();
         session.getConfiguration().getTraceManager().trace(request);
-        httpCode = sender.send(new ByteArrayContentFactory(request.prettyPrint()));
+        final int httpCode = sender.send(new ByteArrayContentFactory(request.prettyPrint()));
         Utils.checkHttpCode(httpCode);
-        response = new KeyManagementResponseElement(sender.getResponseBody(), "HBPResponse");
-        response.build();
-        session.getConfiguration().getTraceManager().trace(response);
-        response.report();
-        factory = new ByteArrayContentFactory(Utils.unzip(session.getUser().decrypt(response.getOrderData(), response.getTransactionKey())));
-        orderData = new HPBResponseOrderDataElement(factory);
+        final KeyManagementResponseElement response = new KeyManagementResponseElement(sender.getResponseBody());
+        final EbicsKeyManagementResponse keyManagementResponse = response.build();
+        session.getConfiguration().getTraceManager().trace(XmlUtils.prettyPrint(EbicsKeyManagementResponse.class, keyManagementResponse), "HBPResponse");
+        final ContentFactory factory = new ByteArrayContentFactory(Utils.unzip(session.getUser().decrypt(response.getOrderData(), response.getTransactionKey())));
+        final HPBResponseOrderDataElement orderData = new HPBResponseOrderDataElement(factory);
         orderData.build();
         session.getConfiguration().getTraceManager().trace(orderData);
-        keystoreManager = new KeyStoreManager();
-        path = session.getConfiguration().getKeystoreDirectory(session.getUser());
+        final KeyStoreManager keystoreManager = new KeyStoreManager();
+        final String path = session.getConfiguration().getKeystoreDirectory(session.getUser());
         keystoreManager.load("", session.getUser().getPasswordCallback().getPassword());
-        e002PubKey = orderData.getBankE002Certificate().map(ByteArrayInputStream::new).map(keystoreManager::getPublicKey)
+        final RSAPublicKey e002PubKey = orderData.getBankE002Certificate()
+                .map(ByteArrayInputStream::new).map(keystoreManager::getPublicKey)
                 .orElse(orderData.getBankE002PublicKeyData()
                         .map(publicKeyData -> keystoreManager.getPublicKey(publicKeyData.getModulus(), publicKeyData.getExponent()))
                         .orElseThrow(() -> new EbicsException("Neither X.509 certificate data nor public key data supplied in HBP response for E002 key")));
-        x002PubKey = orderData.getBankX002Certificate().map(ByteArrayInputStream::new).map(keystoreManager::getPublicKey)
+        final RSAPublicKey x002PubKey = orderData.getBankX002Certificate()
+                .map(ByteArrayInputStream::new).map(keystoreManager::getPublicKey)
                 .orElse(orderData.getBankX002PublicKeyData()
                         .map(publicKeyData -> keystoreManager.getPublicKey(publicKeyData.getModulus(), publicKeyData.getExponent()))
                         .orElseThrow(() -> new EbicsException("Neither X.509 certificate data nor public key data supplied in HBP response for X002 key")));
