@@ -544,7 +544,7 @@ class User implements EbicsUser {
     public byte[] decrypt(final byte[] encryptedData, final byte[] transactionKey) {
 
         try {
-            final Cipher cipher = Cipher.getInstance("RSA/NONE/PKCS1Padding");
+            final Cipher cipher = Cipher.getInstance("RSA/NONE/PKCS1Padding", BouncyCastleProvider.PROVIDER_NAME);
             cipher.init(Cipher.DECRYPT_MODE, e002PrivateKey);
             final int blockSize = cipher.getBlockSize();
             final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

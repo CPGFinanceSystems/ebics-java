@@ -20,6 +20,8 @@
 package org.kopi.ebics.xml;
 
 import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.ebics.h004.EbicsRequest;
 import org.ebics.h004.ObjectFactory;
 import org.kopi.ebics.exception.EbicsException;
@@ -38,6 +40,7 @@ import javax.crypto.Cipher;
  *
  * @author Hachani
  */
+@Slf4j
 public abstract class InitializationRequestElement {
 
     @Value
@@ -94,7 +97,7 @@ public abstract class InitializationRequestElement {
      */
     protected byte[] generateTransactionKey() throws EbicsException {
         try {
-            final Cipher cipher = Cipher.getInstance("RSA/NONE/PKCS1Padding");
+            final Cipher cipher = Cipher.getInstance("RSA/NONE/PKCS1Padding", BouncyCastleProvider.PROVIDER_NAME);
             cipher.init(Cipher.ENCRYPT_MODE, session.getBankE002Key());
             return cipher.doFinal(nonce);
         } catch (final Exception e) {

@@ -20,11 +20,13 @@
 package org.kopi.ebics.xml;
 
 import org.ebics.h004.*;
+import org.ebics.s001.UserSignatureDataSigBookType;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.utils.Utils;
 
 import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.JAXBElement;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 
@@ -51,13 +53,6 @@ public class SPRRequestElement extends InitializationRequestElement {
 
     @Override
     public EbicsRequest buildInitialization() throws EbicsException {
-        final UserSignature userSignature = new UserSignature(session.getUser(),
-                DefaultEbicsRootElement.generateName("SIG"),
-                session.getConfiguration().getSignatureVersion(),
-                " ".getBytes());
-        userSignature.build();
-        userSignature.validate();
-
         final MutableHeaderType mutable = OBJECT_FACTORY.createMutableHeaderType();
         mutable.setTransactionPhase(TransactionPhaseType.INITIALISATION);
 
@@ -112,9 +107,15 @@ public class SPRRequestElement extends InitializationRequestElement {
         encryptionPubKeyDigest.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
         encryptionPubKeyDigest.setValue(session.getUser().getPartner().getBank().getE002Digest());
 
+        final UserSignature userSignature = new UserSignature(session.getUser(),
+                DefaultEbicsRootElement.generateName("SIG"),
+                session.getConfiguration().getSignatureVersion(),
+                " ".getBytes());
+        final JAXBElement<UserSignatureDataSigBookType> userSignatureElement = userSignature.build();
+
         final DataTransferRequestType.SignatureData signatureData = OBJECT_FACTORY.createDataTransferRequestTypeSignatureData();
         signatureData.setAuthenticate(true);
-        signatureData.setValue(Utils.encrypt(Utils.zip(userSignature.prettyPrint()), keySpec));
+        signatureData.setValue(Utils.encrypt(Utils.zip(XmlUtils.prettyPrint(userSignatureElement)), keySpec));
 
         final DataTransferRequestType.DataEncryptionInfo dataEncryptionInfo = OBJECT_FACTORY.createDataTransferRequestTypeDataEncryptionInfo();
         dataEncryptionInfo.setAuthenticate(true);

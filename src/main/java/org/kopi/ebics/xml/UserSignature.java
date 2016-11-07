@@ -19,11 +19,13 @@
 
 package org.kopi.ebics.xml;
 
+import org.ebics.s001.ObjectFactory;
+import org.ebics.s001.OrderSignatureData;
+import org.ebics.s001.UserSignatureDataSigBookType;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.EbicsUser;
-import org.kopi.ebics.schema.s001.OrderSignatureDataType;
-import org.kopi.ebics.schema.s001.UserSignatureDataSigBookType;
 
+import javax.xml.bind.JAXBElement;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
@@ -35,7 +37,14 @@ import java.security.GeneralSecurityException;
  *
  * @author hachani
  */
-public class UserSignature extends DefaultEbicsRootElement {
+public class UserSignature {
+
+    private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
+
+    private final EbicsUser user;
+    private final String signatureVersion;
+    private final byte[] toSign;
+    private final String name;
 
     /**
      * Constructs a new <code>UserSignature</code> element for
@@ -55,10 +64,7 @@ public class UserSignature extends DefaultEbicsRootElement {
         this.signatureVersion = signatureVersion;
     }
 
-    @Override
-    public void build() throws EbicsException {
-        final UserSignatureDataSigBookType userSignatureData;
-        final OrderSignatureDataType orderSignatureData;
+    public JAXBElement<UserSignatureDataSigBookType> build() throws EbicsException {
         final byte[] signature;
 
         try {
@@ -67,33 +73,19 @@ public class UserSignature extends DefaultEbicsRootElement {
             throw new EbicsException(e.getMessage(), e);
         }
 
-        orderSignatureData = EbicsXmlFactory.createOrderSignatureDataType(signatureVersion,
-                user.getPartner().getPartnerId(),
-                user.getUserId(),
-                signature);
-        userSignatureData = EbicsXmlFactory.createUserSignatureDataSigBookType(new OrderSignatureDataType[]{orderSignatureData});
-        document = EbicsXmlFactory.createUserSignatureDataDocument(userSignatureData);
+        final OrderSignatureData orderSignatureData = OBJECT_FACTORY.createOrderSignatureData();
+        orderSignatureData.setSignatureVersion(signatureVersion);
+        orderSignatureData.setPartnerID(user.getPartner().getPartnerId());
+        orderSignatureData.setUserID(user.getUserId());
+        orderSignatureData.setSignatureValue(signature);
+
+        final UserSignatureDataSigBookType userSignatureData = OBJECT_FACTORY.createUserSignatureDataSigBookType();
+        userSignatureData.getOrderSignaturesAndOrderSignatureDatas().add(orderSignatureData);
+
+        return OBJECT_FACTORY.createUserSignatureData(userSignatureData);
     }
 
-    @Override
     public String getName() {
         return name + ".xml";
     }
-
-    @Override
-    public byte[] toByteArray() {
-        setSaveSuggestedPrefixes("http://www.ebics.org/S001", "");
-
-        return super.toByteArray();
-    }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private final EbicsUser user;
-    private final String signatureVersion;
-    private final byte[] toSign;
-    private final String name;
-    private static final long serialVersionUID = 2992372604876703738L;
 }

@@ -70,8 +70,13 @@ public class XmlUtils {
 
     public static <T> byte[] prettyPrint(final Class<T> clazz, final T object) {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
         prettyPrint(clazz, object, elementNameFrom(clazz), outputStream);
+        return outputStream.toByteArray();
+    }
+
+    public static <T> byte[] prettyPrint(final JAXBElement<T> element) {
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        prettyPrint(element, outputStream);
         return outputStream.toByteArray();
     }
 
@@ -143,17 +148,22 @@ public class XmlUtils {
         }
     }
 
-    private static <T> void prettyPrint(final Class<T> clazz, final T object, final String elementName, final OutputStream outputStream) {
+    private static <T> void prettyPrint(final JAXBElement<T> element, final OutputStream outputStream) {
         try {
-            final JAXBContext ctx = JAXBContext.newInstance(clazz);
+            final JAXBContext ctx = JAXBContext.newInstance(element.getDeclaredType());
             final Marshaller marshaller = ctx.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(
-                    new JAXBElement<>(new QName(namespaceFromPackageAnnotation(clazz), elementName), clazz, object),
-                    outputStream);
+            marshaller.marshal(element, outputStream);
         } catch (final JAXBException e) {
             throw new RuntimeException(e);
         }
+
+    }
+
+    private static <T> void prettyPrint(final Class<T> clazz, final T object, final String elementName, final OutputStream outputStream) {
+        prettyPrint(
+                new JAXBElement<>(new QName(namespaceFromPackageAnnotation(clazz), elementName), clazz, object),
+                outputStream);
     }
 
     public static byte[] canonize(final Node node) {

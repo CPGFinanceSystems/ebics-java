@@ -20,6 +20,7 @@
 package org.kopi.ebics.xml;
 
 import org.ebics.h004.*;
+import org.ebics.s001.UserSignatureDataSigBookType;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
 import org.kopi.ebics.io.Splitter;
@@ -27,6 +28,7 @@ import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.utils.Utils;
 
 import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.JAXBElement;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -42,7 +44,6 @@ import java.util.List;
 public class UInitializationRequestElement extends InitializationRequestElement {
 
     private final byte[] userData;
-    private UserSignature userSignature;
     private final SecretKeySpec keySpec;
     private final Splitter splitter;
 
@@ -64,13 +65,6 @@ public class UInitializationRequestElement extends InitializationRequestElement 
 
     @Override
     public EbicsRequest buildInitialization() throws EbicsException {
-        userSignature = new UserSignature(session.getUser(),
-                DefaultEbicsRootElement.generateName("UserSignature"),
-                session.getConfiguration().getSignatureVersion(),
-                userData);
-        userSignature.build();
-        userSignature.validate();
-
         splitter.readInput(session.getConfiguration().isCompressionEnabled(), keySpec);
 
         final MutableHeaderType mutable = OBJECT_FACTORY.createMutableHeaderType();
@@ -167,9 +161,15 @@ public class UInitializationRequestElement extends InitializationRequestElement 
         encryptionPubKeyDigest.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
         encryptionPubKeyDigest.setValue(session.getUser().getPartner().getBank().getE002Digest());
 
+        final UserSignature userSignature = new UserSignature(session.getUser(),
+                DefaultEbicsRootElement.generateName("UserSignature"),
+                session.getConfiguration().getSignatureVersion(),
+                userData);
+        final JAXBElement<UserSignatureDataSigBookType> userSignatureElement = userSignature.build();
+
         final DataTransferRequestType.SignatureData signatureData = OBJECT_FACTORY.createDataTransferRequestTypeSignatureData();
         signatureData.setAuthenticate(true);
-        signatureData.setValue(Utils.encrypt(Utils.zip(userSignature.prettyPrint()), keySpec));
+        signatureData.setValue(Utils.encrypt(Utils.zip(XmlUtils.prettyPrint(userSignatureElement)), keySpec));
 
         final DataTransferRequestType.DataEncryptionInfo dataEncryptionInfo = OBJECT_FACTORY.createDataTransferRequestTypeDataEncryptionInfo();
         dataEncryptionInfo.setAuthenticate(true);
@@ -190,15 +190,6 @@ public class UInitializationRequestElement extends InitializationRequestElement 
         request.setBody(body);
 
         return request;
-    }
-
-    /**
-     * Returns the user signature data.
-     *
-     * @return the user signature data.
-     */
-    public UserSignature getUserSignature() {
-        return userSignature;
     }
 
     /**
