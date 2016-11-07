@@ -145,7 +145,7 @@ public class KeyStoreManager {
         return (RSAPublicKey) cert.getPublicKey();
     }
 
-    public RSAPublicKey getPublicKey(final byte[] modulus, final byte[] exponent) {
+    public static RSAPublicKey getPublicKey(final byte[] modulus, final byte[] exponent) {
         final RSAPublicKeySpec spec = new RSAPublicKeySpec(new BigInteger(modulus), new BigInteger(exponent));
         try {
             final KeyFactory factory = KeyFactory.getInstance("RSA");

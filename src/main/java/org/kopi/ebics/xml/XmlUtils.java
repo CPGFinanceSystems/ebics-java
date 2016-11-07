@@ -34,7 +34,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import java.io.*;
 import java.security.MessageDigest;
-import java.text.MessageFormat;
 import java.util.Optional;
 
 @Slf4j
@@ -91,16 +90,16 @@ public class XmlUtils {
     }
 
     public static <T> T parse(final Class<T> clazz, final InputStream inputStream) {
-        if (null == clazz.getAnnotation(XmlRootElement.class)) {
-            throw new IllegalArgumentException(MessageFormat.format(
-                    "{0} annotation is required for deserialization of objects with type {1}",
-                    XmlRootElement.class.getSimpleName(),
-                    clazz.getName()));
-        }
         try {
             final JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
             final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-            return (T) jaxbUnmarshaller.unmarshal(inputStream);
+            final Object deserialized = jaxbUnmarshaller.unmarshal(inputStream);
+            if (clazz.isAssignableFrom(deserialized.getClass())) {
+                return clazz.cast(deserialized);
+            } else {
+                final JAXBElement<T> jaxbElement = (JAXBElement<T>) deserialized;
+                return jaxbElement.getValue();
+            }
         } catch (final JAXBException e) {
             throw new RuntimeException(e);
         }
