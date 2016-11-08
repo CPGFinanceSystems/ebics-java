@@ -22,8 +22,6 @@ package org.kopi.ebics.xml;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.exception.ReturnCode;
 import org.kopi.ebics.interfaces.ContentFactory;
-import org.kopi.ebics.schema.h004.EbicsResponseDocument;
-import org.kopi.ebics.schema.h004.EbicsResponseDocument.EbicsResponse;
 
 /**
  * The <code>ReceiptResponseElement</code> is the response element
@@ -31,7 +29,7 @@ import org.kopi.ebics.schema.h004.EbicsResponseDocument.EbicsResponse;
  *
  * @author Hachani
  */
-public class ReceiptResponseElement extends DefaultResponseElement {
+public class ReceiptResponseElement extends EbicsResponseElement {
 
     /**
      * Constructs a new <code>ReceiptResponseElement</code> object
@@ -40,21 +38,7 @@ public class ReceiptResponseElement extends DefaultResponseElement {
      * @param name    the element name
      */
     public ReceiptResponseElement(final ContentFactory factory, final String name) {
-        super(factory, name);
-    }
-
-    @Override
-    public void build() throws EbicsException {
-        final String code;
-        final String text;
-        final EbicsResponse response;
-
-        parse(factory);
-        response = ((EbicsResponseDocument) document).getEbicsResponse();
-        code = response.getHeader().getMutable().getReturnCode();
-        text = response.getHeader().getMutable().getReportText();
-        returnCode = ReturnCode.toReturnCode(code, text);
-        report();
+        super(factory, null, name);
     }
 
     @Override
@@ -63,10 +47,4 @@ public class ReceiptResponseElement extends DefaultResponseElement {
             returnCode.throwException();
         }
     }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private static final long serialVersionUID = 2994403708414164919L;
 }

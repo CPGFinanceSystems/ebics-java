@@ -19,6 +19,8 @@
 
 package org.kopi.ebics.xml;
 
+import org.ebics.h004.EbicsUnsecuredRequest;
+import org.ebics.h004.HIARequestOrderDataType;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
@@ -31,7 +33,9 @@ import org.kopi.ebics.utils.Utils;
  *
  * @author hachani
  */
-public class HIARequestElement extends DefaultEbicsRootElement {
+public class HIARequestElement {
+
+    private final EbicsSession session;
 
     /**
      * Constructs a new HIA Request root element
@@ -39,42 +43,19 @@ public class HIARequestElement extends DefaultEbicsRootElement {
      * @param session the current ebics session
      */
     public HIARequestElement(final EbicsSession session) {
-        super(session);
+        this.session = session;
     }
 
-    @Override
     public String getName() {
         return "HIARequest.xml";
     }
 
-    @Override
-    public void build() throws EbicsException {
-        final HIARequestOrderDataElement requestOrderData;
-
-        requestOrderData = new HIARequestOrderDataElement(session);
-        requestOrderData.build();
-        unsecuredRequest = new UnsecuredRequestElement(session,
+    public EbicsUnsecuredRequest build() throws EbicsException {
+        final HIARequestOrderDataElement requestOrderData = new HIARequestOrderDataElement(session);
+        final HIARequestOrderDataType orderDataType = requestOrderData.build();
+        final UnsecuredRequestElement unsecuredRequest = new UnsecuredRequestElement(session,
                 OrderType.HIA,
-                Utils.zip(requestOrderData.prettyPrint()));
-        unsecuredRequest.build();
+                Utils.zip(XmlUtils.prettyPrint(HIARequestOrderDataType.class, orderDataType)));
+        return unsecuredRequest.build();
     }
-
-    @Override
-    public byte[] toByteArray() {
-        setSaveSuggestedPrefixes("urn:org:ebics:H004", "");
-
-        return unsecuredRequest.toByteArray();
-    }
-
-    @Override
-    public void validate() throws EbicsException {
-        unsecuredRequest.validate();
-    }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private UnsecuredRequestElement unsecuredRequest;
-    private static final long serialVersionUID = 1130436605993828777L;
 }

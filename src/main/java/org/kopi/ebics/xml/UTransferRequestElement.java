@@ -19,19 +19,16 @@
 
 package org.kopi.ebics.xml;
 
+import org.ebics.h004.*;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
 import org.kopi.ebics.io.IOUtils;
-import org.kopi.ebics.schema.h004.DataTransferRequestType;
-import org.kopi.ebics.schema.h004.DataTransferRequestType.OrderData;
-import org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest;
-import org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body;
-import org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Header;
-import org.kopi.ebics.schema.h004.MutableHeaderType;
-import org.kopi.ebics.schema.h004.MutableHeaderType.SegmentNumber;
-import org.kopi.ebics.schema.h004.StaticHeaderType;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
+
+import java.math.BigInteger;
+
+import static org.kopi.ebics.xml.DefaultEbicsRootElement.generateName;
 
 /**
  * The <code>UTransferRequestElement</code> is the root element
@@ -41,6 +38,8 @@ import org.kopi.ebics.session.OrderType;
  */
 public class UTransferRequestElement extends TransferRequestElement {
 
+    private final ContentFactory contentFactory;
+
     /**
      * Constructs a new <code>UTransferRequestElement</code> for ebics upload transfer.
      *
@@ -49,47 +48,52 @@ public class UTransferRequestElement extends TransferRequestElement {
      * @param segmentNumber the segment number
      * @param lastSegment   i it the last segment?
      * @param transactionId the transaction ID
-     * @param content       the content factory
+     * @param contentFactory       the contentFactory factory
      */
     public UTransferRequestElement(final EbicsSession session,
                                    final OrderType orderType,
                                    final int segmentNumber,
                                    final boolean lastSegment,
                                    final byte[] transactionId,
-                                   final ContentFactory content) {
+                                   final ContentFactory contentFactory) {
         super(session, generateName(orderType), orderType, segmentNumber, lastSegment, transactionId);
-        this.content = content;
+        this.contentFactory = contentFactory;
     }
 
     @Override
-    public void buildTransfer() throws EbicsException {
-        final EbicsRequest request;
-        final Header header;
-        final Body body;
-        final MutableHeaderType mutable;
-        final SegmentNumber segmentNumber;
-        final StaticHeaderType xstatic;
-        final OrderData orderData;
-        final DataTransferRequestType dataTransfer;
+    public EbicsRequest buildTransfer() throws EbicsException {
+        final MutableHeaderType.SegmentNumber segmentNumber = OBJECT_FACTORY.createMutableHeaderTypeSegmentNumber();
+        segmentNumber.setValue(BigInteger.valueOf(this.segmentNumber));
+        segmentNumber.setLastSegment(lastSegment);
 
-        segmentNumber = EbicsXmlFactory.createSegmentNumber(this.segmentNumber, lastSegment);
-        mutable = EbicsXmlFactory.createMutableHeaderType("Transfer", segmentNumber);
-        xstatic = EbicsXmlFactory.createStaticHeaderType(session.getBankID(), transactionId);
-        header = EbicsXmlFactory.createEbicsRequestHeader(true, mutable, xstatic);
-        orderData = EbicsXmlFactory.createEbicsRequestOrderData(IOUtils.getFactoryContent(content));
-        dataTransfer = EbicsXmlFactory.createDataTransferRequestType(orderData);
-        body = EbicsXmlFactory.createEbicsRequestBody(dataTransfer);
-        request = EbicsXmlFactory.createEbicsRequest(session.getConfiguration().getRevision(),
-                session.getConfiguration().getVersion(),
-                header,
-                body);
-        document = EbicsXmlFactory.createEbicsRequestDocument(request);
+        final MutableHeaderType mutable = OBJECT_FACTORY.createMutableHeaderType();
+        mutable.setTransactionPhase(TransactionPhaseType.TRANSFER);
+        mutable.setSegmentNumber(OBJECT_FACTORY.createMutableHeaderTypeSegmentNumber(segmentNumber));
+
+        final StaticHeaderType xstatic = OBJECT_FACTORY.createStaticHeaderType();
+        xstatic.setHostID(session.getBankID());
+        xstatic.setTransactionID(transactionId);
+
+        final EbicsRequest.Header header = OBJECT_FACTORY.createEbicsRequestHeader();
+        header.setAuthenticate(true);
+        header.setMutable(mutable);
+        header.setStatic(xstatic);
+
+        final DataTransferRequestType.OrderData orderData = OBJECT_FACTORY.createDataTransferRequestTypeOrderData();
+        orderData.setValue(IOUtils.read(contentFactory.getContent()));
+
+        final DataTransferRequestType dataTransfer = OBJECT_FACTORY.createDataTransferRequestType();
+        dataTransfer.setOrderData(orderData);
+
+        final EbicsRequest.Body body = OBJECT_FACTORY.createEbicsRequestBody();
+        body.setDataTransfer(dataTransfer);
+
+        final EbicsRequest request = OBJECT_FACTORY.createEbicsRequest();
+        request.setRevision(session.getConfiguration().getRevision());
+        request.setVersion(session.getConfiguration().getVersion());
+        request.setHeader(header);
+        request.setBody(body);
+
+        return request;
     }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private final ContentFactory content;
-    private static final long serialVersionUID = 8465397978597444978L;
 }

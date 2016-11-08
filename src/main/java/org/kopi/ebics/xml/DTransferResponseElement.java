@@ -19,6 +19,7 @@
 
 package org.kopi.ebics.xml;
 
+import org.ebics.h004.EbicsResponse;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
 import org.kopi.ebics.session.OrderType;
@@ -29,7 +30,9 @@ import org.kopi.ebics.session.OrderType;
  *
  * @author Hachani
  */
-public class DTransferResponseElement extends TransferResponseElement {
+public class DTransferResponseElement extends EbicsResponseElement {
+
+    private byte[] orderData;
 
     /**
      * Constructs a new <code>DTransferResponseElement</code> object.
@@ -41,14 +44,13 @@ public class DTransferResponseElement extends TransferResponseElement {
     public DTransferResponseElement(final ContentFactory factory,
                                     final OrderType orderType,
                                     final String name) {
-        super(factory, name);
+        super(factory, orderType, name);
     }
 
-    @Override
-    public void build() throws EbicsException {
-        super.build();
-
-        orderData = response.getBody().getDataTransfer().getOrderData().getByteArrayValue();
+    public EbicsResponse build() throws EbicsException {
+        final EbicsResponse ebicsResponse = super.build();
+        orderData = ebicsResponse.getBody().getDataTransfer().getOrderData().getValue();
+        return ebicsResponse;
     }
 
     /**
@@ -59,11 +61,4 @@ public class DTransferResponseElement extends TransferResponseElement {
     public byte[] getOrderData() {
         return orderData;
     }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private byte[] orderData;
-    private static final long serialVersionUID = -3317833033395561745L;
 }

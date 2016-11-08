@@ -19,14 +19,11 @@
 
 package org.kopi.ebics.xml;
 
+import org.ebics.h004.EbicsRequest;
+import org.ebics.h004.ObjectFactory;
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.schema.h004.EbicsRequestDocument;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
-import org.kopi.ebics.utils.Utils;
-
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 
 /**
@@ -35,7 +32,17 @@ import java.security.NoSuchAlgorithmException;
  *
  * @author Hachani
  */
-public abstract class TransferRequestElement extends DefaultEbicsRootElement {
+public abstract class TransferRequestElement {
+
+    protected static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
+
+    protected final EbicsSession session;
+    protected final int segmentNumber;
+    protected final boolean lastSegment;
+    protected final byte[] transactionId;
+
+    private final OrderType type;
+    private final String name;
 
     /**
      * Constructs a new <code>TransferRequestElement</code> element.
@@ -53,7 +60,7 @@ public abstract class TransferRequestElement extends DefaultEbicsRootElement {
                                   final int segmentNumber,
                                   final boolean lastSegment,
                                   final byte[] transactionId) {
-        super(session);
+        this.session = session;
         this.type = type;
         this.name = name;
         this.segmentNumber = segmentNumber;
@@ -61,36 +68,20 @@ public abstract class TransferRequestElement extends DefaultEbicsRootElement {
         this.transactionId = transactionId;
     }
 
-    @Override
-    public void build() throws EbicsException {
-        final SignedInfo signedInfo;
+    public EbicsRequest build() throws EbicsException {
+        final EbicsRequest request = buildTransfer();
 
-        buildTransfer();
-        signedInfo = new SignedInfo(session.getUser(), getDigest());
-        signedInfo.build();
-        ((EbicsRequestDocument) document).getEbicsRequest().setAuthSignature(signedInfo.getSignatureType());
-        ((EbicsRequestDocument) document).getEbicsRequest().getAuthSignature().setSignatureValue(EbicsXmlFactory.createSignatureValueType(signedInfo.sign(toByteArray())));
+        final SignedInfoElement signedInfo = new SignedInfoElement(session.getUser(), XmlUtils.digest(EbicsRequest.class, request));
+        request.setAuthSignature(signedInfo.build());
+
+        final byte[] signature = XmlUtils.sign(EbicsRequest.class, request, session.getUser());
+        request.getAuthSignature().getSignatureValue().setValue(signature);
+
+        return request;
     }
 
-    @Override
     public String getName() {
         return name + ".xml";
-    }
-
-    /**
-     * Returns the digest value of the authenticated XML portions.
-     *
-     * @return the digest value.
-     * @throws EbicsException Failed to retrieve the digest value.
-     */
-    public byte[] getDigest() throws EbicsException {
-        addNamespaceDecl("ds", "http://www.w3.org/2000/09/xmldsig#");
-
-        try {
-            return MessageDigest.getInstance("SHA-256").digest(Utils.canonize(toByteArray()));
-        } catch (final NoSuchAlgorithmException e) {
-            throw new EbicsException(e.getMessage(), e);
-        }
     }
 
     /**
@@ -102,28 +93,10 @@ public abstract class TransferRequestElement extends DefaultEbicsRootElement {
         return type.name();
     }
 
-    @Override
-    public byte[] toByteArray() {
-        setSaveSuggestedPrefixes("urn:org:ebics:H004", "");
-
-        return super.toByteArray();
-    }
-
     /**
      * Builds the transfer request.
      *
      * @throws EbicsException
      */
-    public abstract void buildTransfer() throws EbicsException;
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    protected int segmentNumber;
-    protected boolean lastSegment;
-    protected byte[] transactionId;
-    private final OrderType type;
-    private final String name;
-    private static final long serialVersionUID = -4212072825371398259L;
+    public abstract EbicsRequest buildTransfer() throws EbicsException;
 }

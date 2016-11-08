@@ -19,20 +19,13 @@
 
 package org.kopi.ebics.xml;
 
+import org.ebics.h004.*;
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.schema.h004.*;
-import org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest;
-import org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body;
-import org.kopi.ebics.schema.h004.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header;
-import org.kopi.ebics.schema.xmldsig.SignatureType;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
 import org.kopi.ebics.utils.Utils;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.util.Calendar;
+import java.time.LocalDateTime;
 
 /**
  * The <code>NoPubKeyDigestsRequestElement</code> is the root element
@@ -40,7 +33,11 @@ import java.util.Calendar;
  *
  * @author hachani
  */
-public class NoPubKeyDigestsRequestElement extends DefaultEbicsRootElement {
+public class NoPubKeyDigestsRequestElement {
+
+    private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
+
+    private final EbicsSession session;
 
     /**
      * Construct a new No Public Key Digests Request element.
@@ -48,91 +45,47 @@ public class NoPubKeyDigestsRequestElement extends DefaultEbicsRootElement {
      * @param session the current ebics session.
      */
     public NoPubKeyDigestsRequestElement(final EbicsSession session) {
-        super(session);
+        this.session = session;
     }
 
-    /**
-     * Returns the digest value of the authenticated XML portions.
-     *
-     * @return the digest value.
-     * @throws EbicsException Failed to retrieve the digest value.
-     */
-    public byte[] getDigest() throws EbicsException {
-        addNamespaceDecl("ds", "http://www.w3.org/2000/09/xmldsig#");
+    public EbicsNoPubKeyDigestsRequest build() throws EbicsException {
+        final ProductElementType product = OBJECT_FACTORY.createProductElementType();
+        product.setLanguage(session.getProduct().getLanguage());
+        product.setValue(session.getProduct().getName());
 
-        try {
-            return MessageDigest.getInstance("SHA-256", "BC").digest(Utils.canonize(toByteArray()));
-        } catch (final NoSuchAlgorithmException e) {
-            throw new EbicsException(e.getMessage());
-        } catch (final NoSuchProviderException e) {
-            throw new EbicsException(e.getMessage());
-        }
+        final OrderDetailsType orderDetails = OBJECT_FACTORY.createNoPubKeyDigestsReqOrderDetailsType();
+        orderDetails.setOrderAttribute(OrderAttributeType.DZHNN.name());
+        orderDetails.setOrderType(OrderType.HPB.name());
+
+        final NoPubKeyDigestsRequestStaticHeaderType xstatic = OBJECT_FACTORY.createNoPubKeyDigestsRequestStaticHeaderType();
+        xstatic.setHostID(session.getBankID());
+        xstatic.setNonce(Utils.generateNonce());
+        xstatic.setTimestamp(LocalDateTime.now());
+        xstatic.setPartnerID(session.getUser().getPartner().getPartnerId());
+        xstatic.setUserID(session.getUser().getUserId());
+        xstatic.setProduct(OBJECT_FACTORY.createStaticHeaderBaseTypeProduct(product));
+        xstatic.setOrderDetails(orderDetails);
+        xstatic.setSecurityMedium(session.getUser().getSecurityMedium());
+
+        final EmptyMutableHeaderType mutable = OBJECT_FACTORY.createEmptyMutableHeaderType();
+
+        final EbicsNoPubKeyDigestsRequest.Header header = OBJECT_FACTORY.createEbicsNoPubKeyDigestsRequestHeader();
+        header.setAuthenticate(true);
+        header.setMutable(mutable);
+        header.setStatic(xstatic);
+
+        final EbicsNoPubKeyDigestsRequest.Body body = OBJECT_FACTORY.createEbicsNoPubKeyDigestsRequestBody();
+
+        final EbicsNoPubKeyDigestsRequest request = OBJECT_FACTORY.createEbicsNoPubKeyDigestsRequest();
+        request.setRevision(session.getConfiguration().getRevision());
+        request.setVersion(session.getConfiguration().getVersion());
+        request.setHeader(header);
+        request.setBody(body);
+
+        return request;
     }
 
-    /**
-     * Sets the authentication signature of the <code>NoPubKeyDigestsRequestElement</code>
-     *
-     * @param authSignature the the authentication signature.
-     */
-    public void setAuthSignature(final SignatureType authSignature) {
-        ((EbicsNoPubKeyDigestsRequestDocument) document).getEbicsNoPubKeyDigestsRequest().setAuthSignature(authSignature);
-    }
-
-    /**
-     * Sets the signature value of the request.
-     *
-     * @param signature the signature value
-     */
-    public void setSignatureValue(final byte[] signature) {
-        ((EbicsNoPubKeyDigestsRequestDocument) document).getEbicsNoPubKeyDigestsRequest().getAuthSignature().setSignatureValue(EbicsXmlFactory.createSignatureValueType(signature));
-    }
-
-    @Override
-    public void build() throws EbicsException {
-        final EbicsNoPubKeyDigestsRequest request;
-        final Body body;
-        final Header header;
-        final EmptyMutableHeaderType mutable;
-        final NoPubKeyDigestsRequestStaticHeaderType xstatic;
-        final ProductElementType product;
-        final OrderDetailsType orderDetails;
-
-        product = EbicsXmlFactory.creatProductElementType(session.getProduct().getLanguage(), session.getProduct().getName());
-        orderDetails = EbicsXmlFactory.createOrderDetailsType("DZHNN", OrderType.HPB.name());
-        xstatic = EbicsXmlFactory.createNoPubKeyDigestsRequestStaticHeaderType(session.getBankID(),
-                Utils.generateNonce(),
-                Calendar.getInstance(),
-                session.getUser().getPartner().getPartnerId(),
-                session.getUser().getUserId(),
-                product,
-                orderDetails,
-                session.getUser().getSecurityMedium());
-        mutable = EbicsXmlFactory.createEmptyMutableHeaderType();
-        header = EbicsXmlFactory.createDigestsRequestHeader(true, mutable, xstatic);
-        body = EbicsXmlFactory.createDigestsRequestBody();
-        request = EbicsXmlFactory.createEbicsNoPubKeyDigestsRequest(session.getConfiguration().getRevision(),
-                session.getConfiguration().getVersion(),
-                header,
-                body);
-        document = EbicsXmlFactory.createEbicsNoPubKeyDigestsRequestDocument(request);
-    }
-
-    @Override
-    public byte[] toByteArray() {
-        setSaveSuggestedPrefixes("http://www.w3.org/2000/09/xmldsig#", "ds");
-        setSaveSuggestedPrefixes("urn:org:ebics:H004", "");
-
-        return super.toByteArray();
-    }
-
-    @Override
     public String getName() {
         return "NoPubKeyDigestsRequest.xml";
     }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private static final long serialVersionUID = 3177047145408329472L;
 }

@@ -19,7 +19,6 @@
 
 package org.kopi.ebics.letter;
 
-import org.apache.commons.codec.binary.Base64;
 import org.kopi.ebics.certificate.KeyUtil;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.EbicsUser;
@@ -55,7 +54,7 @@ public class A005Letter extends AbstractInitLetter {
                 user.getPartner().getPartnerId(),
                 getString("INILetter.version", locale),
                 getString("INILetter.certificate", locale),
-                Base64.encodeBase64(user.getA005Certificate(), true),
+                user.getA005PublicKey(),
                 getString("INILetter.digest", locale),
                 KeyUtil.getKeyDigest(user.getA005PublicKey()));
     }

@@ -19,13 +19,9 @@
 
 package org.kopi.ebics.interfaces;
 
-import org.kopi.ebics.exception.EbicsException;
-
 import java.io.IOException;
-import java.io.Serializable;
 import java.security.GeneralSecurityException;
-import java.security.PrivateKey;
-import java.security.cert.X509Certificate;
+import java.security.KeyPair;
 import java.security.interfaces.RSAPublicKey;
 
 
@@ -58,70 +54,19 @@ public interface EbicsUser extends Savable {
     RSAPublicKey getX002PublicKey();
 
     /**
-     * Returns the signature certificate.
-     *
-     * @return the encryption certificate.
-     * @throws EbicsException
+     * Sets the signature key pair.
      */
-    byte[] getA005Certificate() throws EbicsException;
+    void setA005KeyPair(KeyPair a005KeyPair);
 
     /**
-     * Returns the authentication certificate.
-     *
-     * @return the encryption certificate.
-     * @throws EbicsException
+     * Sets the authentication key pair.
      */
-    byte[] getX002Certificate() throws EbicsException;
+    void setX002KeyPair(KeyPair x002KeyPair);
 
     /**
-     * Returns the encryption certificate.
-     *
-     * @return the encryption certificate.
-     * @throws EbicsException
+     * Sets the encryption key pair.
      */
-    byte[] getE002Certificate() throws EbicsException;
-
-    /**
-     * Sets the signature certificate.
-     *
-     * @param a005certificate the signature certificate.
-     */
-    void setA005Certificate(X509Certificate a005certificate);
-
-    /**
-     * Sets the authentication certificate.
-     *
-     * @param x002certificate the authentication certificate.
-     */
-    void setX002Certificate(X509Certificate x002certificate);
-
-    /**
-     * Sets the encryption certificate.
-     *
-     * @param e002certificate the encryption certificate.
-     */
-    void setE002Certificate(X509Certificate e002certificate);
-
-    /**
-     * Sets the signature private key
-     *
-     * @param a005Key the signature private key
-     */
-    void setA005PrivateKey(PrivateKey a005Key);
-
-    /**
-     * Sets the authentication private key
-     *
-     * @param x002Key the authentication private key
-     */
-    void setX002PrivateKey(PrivateKey x002Key);
-
-    /**
-     * Sets the encryption private key
-     *
-     * @param e002Key the encryption private key
-     */
-    void setE002PrivateKey(PrivateKey e002Key);
+    void setE002KeyPair(KeyPair e002KeyPair);
 
     /**
      * Returns the type to security medium used to store the A005 key.
@@ -152,13 +97,6 @@ public interface EbicsUser extends Savable {
     String getName();
 
     /**
-     * Returns the distinguished name
-     *
-     * @return the distinguished name
-     */
-    String getDN();
-
-    /**
      * Returns the password callback handler for the current user.
      *
      * @return the password callback handler.
@@ -170,17 +108,13 @@ public interface EbicsUser extends Savable {
      *
      * @param digest the given digest
      * @return the signature.
-     * @throws GeneralSecurityException
      */
     byte[] authenticate(byte[] digest) throws GeneralSecurityException;
 
     /**
      * Signs the given digest with the private A005 key.
      *
-     * @param digest
      * @return the signature
-     * @throws IOException
-     * @throws GeneralSecurityException
      */
     byte[] sign(byte[] digest) throws IOException, GeneralSecurityException;
 
@@ -190,12 +124,8 @@ public interface EbicsUser extends Savable {
      * @param encryptedKey   the given secret key
      * @param transactionKey a given transaction key
      * @return the decrypted key;
-     * @throws GeneralSecurityException
-     * @throws IOException
-     * @throws EbicsException
      */
-    byte[] decrypt(byte[] encryptedKey, byte[] transactionKey)
-            throws GeneralSecurityException, IOException, EbicsException;
+    byte[] decrypt(byte[] encryptedKey, byte[] transactionKey);
 
     boolean isInitializedINI();
 

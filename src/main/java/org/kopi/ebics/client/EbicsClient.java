@@ -19,7 +19,6 @@
 
 package org.kopi.ebics.client;
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.*;
 import org.kopi.ebics.io.IOUtils;
@@ -35,7 +34,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.URL;
 import java.security.GeneralSecurityException;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -133,10 +132,6 @@ public class EbicsClient {
      * @param partnerId        the partner ID
      * @param userId           UserId as obtained from the bank.
      * @param name             the user name,
-     * @param email            the user email
-     * @param country          the user country
-     * @param organization     the user organization or company
-     * @param saveCertificates save generated certificates?
      * @param passwordCallback a callback-handler that supplies us with the password.
      *                         This parameter can be null, in this case no password is used.
      */
@@ -146,10 +141,6 @@ public class EbicsClient {
                                 final String partnerId,
                                 final String userId,
                                 final String name,
-                                final String email,
-                                final String country,
-                                final String organization,
-                                final boolean saveCertificates,
                                 final PasswordCallback passwordCallback) throws EbicsException {
         final InitLetter a005Letter;
         final InitLetter x002Letter;
@@ -160,11 +151,8 @@ public class EbicsClient {
         final EbicsBank bank = createBank(url, bankName, hostId);
         final EbicsPartner partner = createPartner(bank, partnerId);
         try {
-            final User user = new User(partner, userId, name, email, country, organization, passwordCallback);
+            final User user = new User(partner, userId, name, passwordCallback);
             createUserDirectories(user);
-            if (saveCertificates) {
-                user.saveUserCertificates(configuration.getKeystoreDirectory(user));
-            }
             configuration.getSerializationManager().serialize(bank);
             configuration.getSerializationManager().serialize(partner);
             configuration.getSerializationManager().serialize(user);
@@ -367,8 +355,8 @@ public class EbicsClient {
                           final Product product,
                           final OrderType orderType,
                           final boolean isTest,
-                          final Date start,
-                          final Date end) {
+                          final LocalDate start,
+                          final LocalDate end) {
         final FileTransfer transferManager;
         final EbicsSession session;
 
@@ -439,6 +427,5 @@ public class EbicsClient {
 
     static {
         org.apache.xml.security.Init.init();
-        java.security.Security.addProvider(new BouncyCastleProvider());
     }
 }

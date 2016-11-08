@@ -19,15 +19,13 @@
 
 package org.kopi.ebics.xml;
 
-import lombok.Value;
+import org.ebics.h004.HPBResponseOrderDataType;
+import org.kopi.ebics.certificate.KeyStoreManager;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
-import org.kopi.ebics.schema.h004.HPBResponseOrderDataDocument;
-import org.kopi.ebics.schema.h004.HPBResponseOrderDataType;
-import org.kopi.ebics.schema.h004.PubKeyValueType;
+import org.w3.xmldsig.RSAKeyValue;
 
-import java.io.Serializable;
-import java.util.Optional;
+import java.security.interfaces.RSAPublicKey;
 
 /**
  * The <code>HPBResponseOrderDataElement</code> contains the public bank
@@ -36,15 +34,11 @@ import java.util.Optional;
  *
  * @author hachani
  */
-public class HPBResponseOrderDataElement extends DefaultResponseElement {
+public class HPBResponseOrderDataElement {
 
-    @Value
-    public static class PublicKeyData implements Serializable {
-        private static final long serialVersionUID = 1L;
+    private final ContentFactory contentFactory;
 
-        private final byte[] modulus;
-        private final byte[] exponent;
-    }
+    private HPBResponseOrderDataType response;
 
     /**
      * Creates a new <code>HPBResponseOrderDataElement</code> from a given
@@ -53,56 +47,25 @@ public class HPBResponseOrderDataElement extends DefaultResponseElement {
      * @param factory the content factory.
      */
     public HPBResponseOrderDataElement(final ContentFactory factory) {
-        super(factory, "HPBData");
+        this.contentFactory = factory;
     }
 
-    /**
-     * Returns the authentication bank certificate.
-     *
-     * @return the authentication bank certificate.
-     */
-    public Optional<byte[]> getBankX002Certificate() {
-        return Optional.ofNullable(response.getAuthenticationPubKeyInfo().getX509Data())
-                .map(data -> data.getX509CertificateArray(0));
+    public RSAPublicKey getBankX002PublicKeyData() {
+        final RSAKeyValue rsaKey = response.getAuthenticationPubKeyInfo().getPubKeyValue().getRSAKeyValue();
+        return KeyStoreManager.getPublicKey(rsaKey.getModulus(), rsaKey.getExponent());
     }
 
-    public Optional<PublicKeyData> getBankX002PublicKeyData() {
-        return Optional.ofNullable(response.getAuthenticationPubKeyInfo().getPubKeyValue())
-                .map(PubKeyValueType::getRSAKeyValue)
-                .map(keyValue -> new PublicKeyData(keyValue.getModulus(), keyValue.getExponent()));
+    public RSAPublicKey getBankE002PublicKeyData() {
+        final RSAKeyValue rsaKey = response.getEncryptionPubKeyInfo().getPubKeyValue().getRSAKeyValue();
+        return KeyStoreManager.getPublicKey(rsaKey.getModulus(), rsaKey.getExponent());
     }
 
-    /**
-     * Returns the encryption bank certificate.
-     *
-     * @return the encryption bank certificate.
-     */
-    public Optional<byte[]> getBankE002Certificate() {
-        return Optional.ofNullable(response.getEncryptionPubKeyInfo().getX509Data())
-                .map(data -> data.getX509CertificateArray(0));
+    public HPBResponseOrderDataType build() throws EbicsException {
+        response = XmlUtils.parse(HPBResponseOrderDataType.class, contentFactory.getContent());
+        return response;
     }
 
-    public Optional<PublicKeyData> getBankE002PublicKeyData() {
-        return Optional.ofNullable(response.getEncryptionPubKeyInfo().getPubKeyValue())
-                .map(PubKeyValueType::getRSAKeyValue)
-                .map(keyValue -> new PublicKeyData(keyValue.getModulus(), keyValue.getExponent()));
-    }
-
-    @Override
-    public void build() throws EbicsException {
-        parse(factory);
-        response = ((HPBResponseOrderDataDocument) document).getHPBResponseOrderData();
-    }
-
-    @Override
     public String getName() {
         return "HPBData.xml";
     }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private HPBResponseOrderDataType response;
-    private static final long serialVersionUID = -1305363936881364049L;
 }

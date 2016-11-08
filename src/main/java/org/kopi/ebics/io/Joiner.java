@@ -61,10 +61,8 @@ public class Joiner {
      *
      * @param output         the output stream.
      * @param transactionKey the transaction key
-     * @throws EbicsException
      */
-    public void writeTo(final OutputStream output, final byte[] transactionKey)
-            throws EbicsException {
+    public void writeTo(final OutputStream output, final byte[] transactionKey) {
         try {
             final byte[] decrypted;
 
@@ -72,10 +70,8 @@ public class Joiner {
             decrypted = user.decrypt(buffer.toByteArray(), transactionKey);
             output.write(Utils.unzip(decrypted));
             output.close();
-        } catch (final GeneralSecurityException e) {
-            throw new EbicsException(e.getMessage());
         } catch (final IOException e) {
-            throw new EbicsException(e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 

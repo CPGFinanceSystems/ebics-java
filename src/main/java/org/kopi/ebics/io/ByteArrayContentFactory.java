@@ -22,7 +22,6 @@ package org.kopi.ebics.io;
 import org.kopi.ebics.interfaces.ContentFactory;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 
 
@@ -46,7 +45,7 @@ public class ByteArrayContentFactory implements ContentFactory {
     }
 
     @Override
-    public InputStream getContent() throws IOException {
+    public InputStream getContent() {
         return new ByteArrayInputStream(content);
     }
 

@@ -19,22 +19,12 @@
 
 package org.kopi.ebics.utils;
 
-import org.apache.xml.security.c14n.Canonicalizer;
-import org.apache.xml.security.utils.IgnoreAllErrorHandler;
-import org.apache.xpath.XPathAPI;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.messages.Messages;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.traversal.NodeIterator;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -110,16 +100,12 @@ public class Utils {
      * be at least 100 bits.
      *
      * @return a random nonce.
-     * @throws EbicsException nonce generation fails.
      */
-    public static byte[] generateNonce() throws EbicsException {
-        final SecureRandom secureRandom;
-
+    public static byte[] generateNonce() {
         try {
-            secureRandom = SecureRandom.getInstance("SHA1PRNG");
-            return secureRandom.generateSeed(16);
+            return SecureRandom.getInstance("SHA1PRNG").generateSeed(16);
         } catch (final NoSuchAlgorithmException e) {
-            throw new EbicsException(e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
@@ -133,84 +119,21 @@ public class Utils {
      * @param zip the zipped input.
      * @return the uncompressed data.
      */
-    public static byte[] unzip(final byte[] zip) throws EbicsException {
-        final Inflater decompressor;
-        final ByteArrayOutputStream output;
-        final byte[] buf;
+    public static byte[] unzip(final byte[] zip) {
+        try (final ByteArrayOutputStream output = new ByteArrayOutputStream(zip.length)) {
+            final Inflater decompressor = new Inflater();
+            decompressor.setInput(zip);
+            final byte[] buf = new byte[1024];
 
-        decompressor = new Inflater();
-        output = new ByteArrayOutputStream(zip.length);
-        decompressor.setInput(zip);
-        buf = new byte[1024];
-
-        while (!decompressor.finished()) {
-            final int count;
-
-            try {
-                count = decompressor.inflate(buf);
-            } catch (final DataFormatException e) {
-                throw new EbicsException(e.getMessage());
-            }
-            output.write(buf, 0, count);
-        }
-
-        try {
-            output.close();
-        } catch (final IOException e) {
-            throw new EbicsException(e.getMessage());
-        }
-
-        decompressor.end();
-
-        return output.toByteArray();
-    }
-
-    /**
-     * Canonizes an input with inclusive c14n without comments algorithm.
-     * <p>
-     * <p>EBICS Specification 2.4.2 - 5.5.1.1.1 EBICS messages in transaction initialization:
-     * <p>
-     * <p>The identification and authentication signature includes all XML elements of the
-     * EBICS request whose attribute value for @authenticate is equal to “true”. The
-     * definition of the XML schema “ebics_request.xsd“ guarantees that the value of the
-     * attribute @authenticate is equal to “true” for precisely those elements that also
-     * need to be signed.
-     * <p>
-     * <p>Thus, All the Elements with the attribute authenticate = true and their
-     * sub elements are considered for the canonization process. This is performed
-     * via the {@link XPathAPI#selectNodeIterator(Node, String) selectNodeIterator(Node, String)}.
-     *
-     * @param input the byte array XML input.
-     * @return the canonized form of the given XML
-     * @throws EbicsException
-     */
-    public static byte[] canonize(final byte[] input) throws EbicsException {
-        final DocumentBuilderFactory factory;
-        final DocumentBuilder builder;
-        final Document document;
-        final NodeIterator iter;
-        final ByteArrayOutputStream output;
-        Node node;
-
-        try {
-            factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            factory.setValidating(true);
-            builder = factory.newDocumentBuilder();
-            builder.setErrorHandler(new IgnoreAllErrorHandler());
-            document = builder.parse(new ByteArrayInputStream(input));
-            iter = XPathAPI.selectNodeIterator(document, "//*[@authenticate='true']");
-            output = new ByteArrayOutputStream();
-            while ((node = iter.nextNode()) != null) {
-                final Canonicalizer canonicalizer;
-
-                canonicalizer = Canonicalizer.getInstance(Canonicalizer.ALGO_ID_C14N_OMIT_COMMENTS);
-                output.write(canonicalizer.canonicalizeSubtree(node));
+            while (!decompressor.finished()) {
+                final int count = decompressor.inflate(buf);
+                output.write(buf, 0, count);
             }
 
+            decompressor.end(); //TODO: Check if AutoCloseable is available
             return output.toByteArray();
-        } catch (final Exception e) {
-            throw new EbicsException(e.getMessage());
+        } catch (IOException | DataFormatException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -268,20 +191,18 @@ public class Utils {
      * @param input   the input to encrypt or decrypt.
      * @param keySpec the key spec.
      * @return the encrypted or decrypted data.
-     * @throws GeneralSecurityException
      */
-    private static byte[] encryptOrDecrypt(final int mode, final byte[] input, final SecretKeySpec keySpec)
-            throws EbicsException {
+    private static byte[] encryptOrDecrypt(final int mode, final byte[] input, final SecretKeySpec keySpec) {
         final IvParameterSpec iv;
         final Cipher cipher;
 
         iv = new IvParameterSpec(new byte[16]);
         try {
-            cipher = Cipher.getInstance("AES/CBC/ISO10126Padding", BouncyCastleProvider.PROVIDER_NAME);
+            cipher = Cipher.getInstance("AES/CBC/ISO10126Padding");
             cipher.init(mode, keySpec, iv);
             return cipher.doFinal(input);
         } catch (final GeneralSecurityException e) {
-            throw new EbicsException(e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 

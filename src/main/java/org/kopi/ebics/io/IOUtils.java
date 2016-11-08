@@ -20,7 +20,6 @@
 package org.kopi.ebics.io;
 
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.interfaces.ContentFactory;
 
 import java.io.*;
 
@@ -164,31 +163,27 @@ public class IOUtils {
         }
     }
 
-    /**
-     * Returns the content of a <code>ContentFactory</code> as a byte array
-     *
-     * @param content
-     * @return
-     * @throws EbicsException
-     */
-    public static byte[] getFactoryContent(final ContentFactory content) throws EbicsException {
+    public static byte[] read(final InputStream is) {
         try {
-            final byte[] buffer;
-            final ByteArrayOutputStream out;
-            final InputStream in;
-            int len = -1;
-
-            out = new ByteArrayOutputStream();
-            in = content.getContent();
-            buffer = new byte[1024];
-            while ((len = in.read(buffer)) != -1) {
-                out.write(buffer, 0, len);
+            try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+                final byte[] b = new byte[4096];
+                int n;
+                while ((n = is.read(b)) != -1) {
+                    output.write(b, 0, n);
+                }
+                return output.toByteArray();
             }
-            in.close();
-            out.close();
-            return out.toByteArray();
         } catch (final IOException e) {
-            throw new EbicsException(e.getMessage());
+            throw new RuntimeException(e);
         }
+    }
+
+    public static byte[] join(final byte[] first, final byte[] second) {
+        final byte[] joined = new byte[first.length + second.length];
+
+        System.arraycopy(first, 0, joined, 0, first.length);
+        System.arraycopy(second, 0, joined, first.length, second.length);
+
+        return joined;
     }
 }

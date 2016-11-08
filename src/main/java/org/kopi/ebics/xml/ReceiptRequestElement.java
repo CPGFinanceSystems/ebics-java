@@ -19,20 +19,9 @@
 
 package org.kopi.ebics.xml;
 
+import org.ebics.h004.*;
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.schema.h004.EbicsRequestDocument;
-import org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest;
-import org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body;
-import org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Body.TransferReceipt;
-import org.kopi.ebics.schema.h004.EbicsRequestDocument.EbicsRequest.Header;
-import org.kopi.ebics.schema.h004.MutableHeaderType;
-import org.kopi.ebics.schema.h004.StaticHeaderType;
 import org.kopi.ebics.session.EbicsSession;
-import org.kopi.ebics.utils.Utils;
-
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 
 
 /**
@@ -41,7 +30,14 @@ import java.security.NoSuchProviderException;
  *
  * @author Hachani
  */
-public class ReceiptRequestElement extends DefaultEbicsRootElement {
+public class ReceiptRequestElement {
+
+    private final byte[] transactionId;
+    private final String name;
+
+    protected final static ObjectFactory OBJECT_FACTORY = new ObjectFactory();
+    protected final EbicsSession session;
+
 
     /**
      * Construct a new <code>ReceiptRequestElement</code> element.
@@ -52,72 +48,46 @@ public class ReceiptRequestElement extends DefaultEbicsRootElement {
     public ReceiptRequestElement(final EbicsSession session,
                                  final byte[] transactionId,
                                  final String name) {
-        super(session);
+        this.session = session;
         this.transactionId = transactionId;
         this.name = name;
     }
 
-    @Override
-    public void build() throws EbicsException {
-        final EbicsRequest request;
-        final Header header;
-        final Body body;
-        final MutableHeaderType mutable;
-        final StaticHeaderType xstatic;
-        final TransferReceipt transferReceipt;
-        final SignedInfo signedInfo;
+    public EbicsRequest build() throws EbicsException {
+        final SignedInfoElement signedInfo;
 
-        mutable = EbicsXmlFactory.createMutableHeaderType("Receipt", null);
-        xstatic = EbicsXmlFactory.createStaticHeaderType(session.getBankID(), transactionId);
-        header = EbicsXmlFactory.createEbicsRequestHeader(true, mutable, xstatic);
-        transferReceipt = EbicsXmlFactory.createTransferReceipt(true, 0);
-        body = EbicsXmlFactory.createEbicsRequestBody(transferReceipt);
-        request = EbicsXmlFactory.createEbicsRequest(session.getConfiguration().getRevision(),
-                session.getConfiguration().getVersion(),
-                header,
-                body);
-        document = EbicsXmlFactory.createEbicsRequestDocument(request);
-        signedInfo = new SignedInfo(session.getUser(), getDigest());
-        signedInfo.build();
-        ((EbicsRequestDocument) document).getEbicsRequest().setAuthSignature(signedInfo.getSignatureType());
-        ((EbicsRequestDocument) document).getEbicsRequest().getAuthSignature().setSignatureValue(EbicsXmlFactory.createSignatureValueType(signedInfo.sign(toByteArray())));
+        final MutableHeaderType mutable = OBJECT_FACTORY.createMutableHeaderType();
+        mutable.setTransactionPhase(TransactionPhaseType.RECEIPT);
+
+        final StaticHeaderType xstatic = OBJECT_FACTORY.createStaticHeaderType();
+        xstatic.setHostID(session.getBankID());
+        xstatic.setTransactionID(transactionId);
+
+        final EbicsRequest.Header header = OBJECT_FACTORY.createEbicsRequestHeader();
+        header.setAuthenticate(true);
+        header.setMutable(mutable);
+        header.setStatic(xstatic);
+
+        final EbicsRequest.Body.TransferReceipt transferReceipt = OBJECT_FACTORY.createEbicsRequestBodyTransferReceipt();
+        transferReceipt.setAuthenticate(true);
+        transferReceipt.setReceiptCode(0);
+
+        final EbicsRequest.Body body = OBJECT_FACTORY.createEbicsRequestBody();
+        body.setTransferReceipt(transferReceipt);
+
+        final EbicsRequest request = OBJECT_FACTORY.createEbicsRequest();
+        request.setRevision(session.getConfiguration().getRevision());
+        request.setVersion(session.getConfiguration().getVersion());
+        request.setHeader(header);
+        request.setBody(body);
+
+        signedInfo = new SignedInfoElement(session.getUser(), XmlUtils.digest(EbicsRequest.class, request));
+        request.setAuthSignature(signedInfo.build());
+
+        return request;
     }
 
-    @Override
-    public byte[] toByteArray() {
-        setSaveSuggestedPrefixes("urn:org:ebics:H004", "");
-
-        return super.toByteArray();
-    }
-
-    @Override
     public String getName() {
         return name + ".xml";
     }
-
-    /**
-     * Returns the digest value of the authenticated XML portions.
-     *
-     * @return the digest value.
-     * @throws EbicsException Failed to retrieve the digest value.
-     */
-    public byte[] getDigest() throws EbicsException {
-        addNamespaceDecl("ds", "http://www.w3.org/2000/09/xmldsig#");
-
-        try {
-            return MessageDigest.getInstance("SHA-256", "BC").digest(Utils.canonize(toByteArray()));
-        } catch (final NoSuchAlgorithmException e) {
-            throw new EbicsException(e.getMessage());
-        } catch (final NoSuchProviderException e) {
-            throw new EbicsException(e.getMessage());
-        }
-    }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private final byte[] transactionId;
-    private final String name;
-    private static final long serialVersionUID = -1969616441705744725L;
 }

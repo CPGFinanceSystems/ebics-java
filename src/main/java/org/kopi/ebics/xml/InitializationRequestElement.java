@@ -19,17 +19,16 @@
 
 package org.kopi.ebics.xml;
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import lombok.extern.slf4j.Slf4j;
+import org.ebics.h004.EbicsRequest;
+import org.ebics.h004.ObjectFactory;
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.schema.h004.EbicsRequestDocument;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
 import org.kopi.ebics.utils.Utils;
 
 import javax.crypto.Cipher;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
+import java.math.BigInteger;
 
 
 /**
@@ -39,65 +38,45 @@ import java.security.NoSuchProviderException;
  *
  * @author Hachani
  */
-public abstract class InitializationRequestElement extends DefaultEbicsRootElement {
+@Slf4j
+public abstract class InitializationRequestElement {
+
+    protected static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
+
+    protected final EbicsSession session;
+    protected final OrderType type;
+    protected final byte[] nonce;
+
+    private final String name;
 
     /**
      * Construct a new <code>InitializationRequestElement</code> root element.
      *
      * @param session the current ebics session.
      * @param type    the initialization type (UPLOAD, DOWNLOAD).
-     * @param name    the element name.
-     * @throws EbicsException
      */
     public InitializationRequestElement(final EbicsSession session,
-                                        final OrderType type,
-                                        final String name)
-            throws EbicsException {
-        super(session);
+                                        final OrderType type) {
+        this.session = session;
         this.type = type;
-        this.name = name;
-        nonce = Utils.generateNonce();
+        this.name = DefaultEbicsRootElement.generateName(type);
+        this.nonce = Utils.generateNonce();
     }
 
-    @Override
-    public void build() throws EbicsException {
-        final SignedInfo signedInfo;
+    public EbicsRequest build() throws EbicsException {
+        final EbicsRequest ebicsRequest = buildInitialization();
 
-        buildInitialization();
-        signedInfo = new SignedInfo(session.getUser(), getDigest());
-        signedInfo.build();
-        ((EbicsRequestDocument) document).getEbicsRequest().setAuthSignature(signedInfo.getSignatureType());
-        ((EbicsRequestDocument) document).getEbicsRequest().getAuthSignature().setSignatureValue(EbicsXmlFactory.createSignatureValueType(signedInfo.sign(toByteArray())));
+        final SignedInfoElement signedInfo = new SignedInfoElement(session.getUser(), XmlUtils.digest(EbicsRequest.class, ebicsRequest));
+        ebicsRequest.setAuthSignature(signedInfo.build());
+
+        final byte[] signature = XmlUtils.sign(EbicsRequest.class, ebicsRequest, session.getUser());
+        ebicsRequest.getAuthSignature().getSignatureValue().setValue(signature);
+
+        return ebicsRequest;
     }
 
-    @Override
     public String getName() {
         return name + ".xml";
-    }
-
-    @Override
-    public byte[] toByteArray() {
-        setSaveSuggestedPrefixes("urn:org:ebics:H004", "");
-
-        return super.toByteArray();
-    }
-
-    /**
-     * Returns the digest value of the authenticated XML portions.
-     *
-     * @return the digest value.
-     * @throws EbicsException Failed to retrieve the digest value.
-     */
-    public byte[] getDigest() throws EbicsException {
-        addNamespaceDecl("ds", "http://www.w3.org/2000/09/xmldsig#");
-
-        try {
-            return MessageDigest.getInstance("SHA-256", "BC").digest(Utils.canonize(toByteArray()));
-        } catch (final NoSuchAlgorithmException e) {
-            throw new EbicsException(e.getMessage());
-        } catch (final NoSuchProviderException e) {
-            throw new EbicsException(e.getMessage());
-        }
     }
 
     /**
@@ -110,34 +89,21 @@ public abstract class InitializationRequestElement extends DefaultEbicsRootEleme
     }
 
     /**
-     * Decodes an hexadecimal input.
-     *
-     * @param hex the hexadecimal input
-     * @return the decoded hexadecimal value
-     * @throws EbicsException
-     */
-    protected byte[] decodeHex(final byte[] hex) throws EbicsException {
-        if (hex == null) {
-            throw new EbicsException("Bank digest is empty, HPB request must be performed before");
-        }
-        return hex;
-    }
-
-    /**
      * Generates the upload transaction key
      *
      * @return the transaction key
      */
     protected byte[] generateTransactionKey() throws EbicsException {
         try {
-            final Cipher cipher;
-
-            cipher = Cipher.getInstance("RSA/NONE/PKCS1Padding");
+            final Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
             cipher.init(Cipher.ENCRYPT_MODE, session.getBankE002Key());
-
+            final BigInteger data = new BigInteger(nonce);
+            log.info("Data bits: {}", data.bitLength());
+            log.info("Modulus bits: {}", session.getBankE002Key().getModulus().bitLength());
+            log.info("Compare: {}", data.compareTo(session.getBankE002Key().getModulus()));
             return cipher.doFinal(nonce);
         } catch (final Exception e) {
-            throw new EbicsException(e.getMessage(), e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -147,14 +113,5 @@ public abstract class InitializationRequestElement extends DefaultEbicsRootEleme
      *
      * @throws EbicsException build fails
      */
-    public abstract void buildInitialization() throws EbicsException;
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private final String name;
-    protected OrderType type;
-    protected byte[] nonce;
-    private static final long serialVersionUID = 8983807819242699280L;
+    protected abstract EbicsRequest buildInitialization() throws EbicsException;
 }

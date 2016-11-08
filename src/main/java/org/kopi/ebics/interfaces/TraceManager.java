@@ -19,8 +19,6 @@
 
 package org.kopi.ebics.interfaces;
 
-import org.kopi.ebics.exception.EbicsException;
-
 /**
  * A mean to make EBICS transfer logged by saving
  * requests and responses from the EBICS bank server.
@@ -30,15 +28,9 @@ import org.kopi.ebics.exception.EbicsException;
  */
 public interface TraceManager {
 
-    /**
-     * Saves the <code>EbicsRootElement</code> in the traces
-     * directory. This directory may be specified by the
-     * <code>EbicsConfiguration</code> client configuration.
-     *
-     * @param element the element to trace
-     * @throws EbicsException cannot trace the ebics element
-     */
-    void trace(EbicsRootElement element) throws EbicsException;
+    void trace(byte[] xml, String elementName);
+
+    <T> void trace(Class<T> clazz, T object);
 
     /**
      * Sets the trace directory

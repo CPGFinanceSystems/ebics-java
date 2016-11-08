@@ -20,10 +20,9 @@
 package org.kopi.ebics.session;
 
 import lombok.extern.slf4j.Slf4j;
-import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.interfaces.EbicsRootElement;
 import org.kopi.ebics.interfaces.TraceManager;
 import org.kopi.ebics.io.IOUtils;
+import org.kopi.ebics.xml.XmlUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,20 +45,25 @@ import java.time.format.DateTimeFormatter;
 public class DefaultTraceManager implements TraceManager {
 
     @Override
-    public void trace(final EbicsRootElement element) throws EbicsException {
-        log.trace(element.toString());
+    public void trace(final byte[] xml, final String elementName) {
+        log.trace("\n{}", new String(xml));
         if (null != traceDir) {
             try {
                 final FileOutputStream out;
                 final File file;
 
-                file = IOUtils.createFile(traceDir, MessageFormat.format("{0}_{1}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), element.getName()));
+                file = IOUtils.createFile(traceDir, MessageFormat.format("{0}_{1}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), elementName));
                 out = new FileOutputStream(file);
-                element.save(out);
+                out.write(xml);
             } catch (final IOException e) {
-                throw new EbicsException(e.getMessage(), e);
+                throw new RuntimeException(e);
             }
         }
+    }
+
+    @Override
+    public <T> void trace(final Class<T> clazz, final T object) {
+        trace(XmlUtils.prettyPrint(clazz, object), XmlUtils.elementNameFrom(clazz));
     }
 
     @Override

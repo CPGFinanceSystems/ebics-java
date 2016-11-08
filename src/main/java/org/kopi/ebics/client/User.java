@@ -19,28 +19,23 @@
 
 package org.kopi.ebics.client;
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.kopi.ebics.certificate.CertificateManager;
+import org.kopi.ebics.certificate.UserKeyManager;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.EbicsPartner;
 import org.kopi.ebics.interfaces.EbicsUser;
 import org.kopi.ebics.interfaces.PasswordCallback;
-import org.kopi.ebics.interfaces.Savable;
 import org.kopi.ebics.utils.Utils;
 import org.kopi.ebics.xml.UserSignature;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-import javax.xml.crypto.dsig.SignedInfo;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.security.GeneralSecurityException;
-import java.security.PrivateKey;
+import java.security.KeyPair;
 import java.security.Signature;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
 
 /**
@@ -62,28 +57,19 @@ class User implements EbicsUser {
      * @param partner          customer in whose name we operate.
      * @param userId           UserId as obtained from the bank.
      * @param name             the user name,
-     * @param email            the user email
-     * @param country          the user country
-     * @param organization     the user organization or company
      * @param passwordCallback a callback-handler that supplies us with the password.
      *                         This parameter can be null, in this case no password is used.
-     * @throws IOException
-     * @throws GeneralSecurityException
      */
     public User(final EbicsPartner partner,
                 final String userId,
                 final String name,
-                final String email,
-                final String country,
-                final String organization,
                 final PasswordCallback passwordCallback)
             throws GeneralSecurityException, IOException {
         this.partner = partner;
         this.userId = userId;
         this.name = name;
-        this.dn = makeDN(name, email, country, organization);
         this.passwordCallback = passwordCallback;
-        createUserCertificates();
+        createUserKeyPairs();
         needSave = true;
     }
 
@@ -93,9 +79,7 @@ class User implements EbicsUser {
      * @param partner          the customer in whose name we operate.
      * @param ois              the object stream
      * @param passwordCallback a callback-handler that supplies us with the password.
-     * @throws IOException
      * @throws GeneralSecurityException if the supplies password is wrong.
-     * @throws ClassNotFoundException
      */
     public User(final EbicsPartner partner,
                 final ObjectInputStream ois,
@@ -105,96 +89,31 @@ class User implements EbicsUser {
         this.passwordCallback = passwordCallback;
         this.userId = ois.readUTF();
         this.name = ois.readUTF();
-        this.dn = ois.readUTF();
         this.isInitializedINI = ois.readBoolean();
         this.isInitializedHIA = ois.readBoolean();
-        this.a005Certificate = (X509Certificate) ois.readObject();
-        this.e002Certificate = (X509Certificate) ois.readObject();
-        this.x002Certificate = (X509Certificate) ois.readObject();
-        this.a005PrivateKey = (PrivateKey) ois.readObject();
-        this.e002PrivateKey = (PrivateKey) ois.readObject();
-        this.x002PrivateKey = (PrivateKey) ois.readObject();
+        this.a005KeyPair = (KeyPair) ois.readObject();
+        this.e002KeyPair = (KeyPair) ois.readObject();
+        this.x002KeyPair = (KeyPair) ois.readObject();
         ois.close();
     }
 
     /**
-     * Reconstructs a an EBICS user by loading its certificate
-     * from a given key store.
-     *
-     * @param partner          the customer in whose name we operate.
-     * @param userId           UserID as obtained from the bank.
-     * @param keystorePath     the key store path
-     * @param passwordCallback a callback-handler that supplies us with the password.
-     * @throws GeneralSecurityException
-     * @throws IOException
-     */
-    public User(final EbicsPartner partner,
-                final String userId,
-                final String name,
-                final String keystorePath,
-                final PasswordCallback passwordCallback)
-            throws GeneralSecurityException, IOException {
-        this.partner = partner;
-        this.userId = userId;
-        this.name = name;
-        this.passwordCallback = passwordCallback;
-        loadCertificates(keystorePath);
-        this.dn = a005Certificate.getSubjectDN().getName();
-        needSave = true;
-    }
-
-    /**
      * Creates new certificates for a user.
-     *
-     * @throws GeneralSecurityException
-     * @throws IOException
      */
-    private void createUserCertificates() throws GeneralSecurityException, IOException {
-        manager = new CertificateManager(this);
+    private void createUserKeyPairs() throws GeneralSecurityException, IOException {
+        final UserKeyManager manager = new UserKeyManager(this);
         manager.create();
-    }
-
-    /**
-     * Saves the user certificates in a given path
-     *
-     * @param path the certificates path
-     * @throws GeneralSecurityException
-     * @throws IOException
-     */
-    public void saveUserCertificates(final String path) throws GeneralSecurityException, IOException {
-        if (manager == null) {
-            throw new GeneralSecurityException("Cannot save user certificates");
-        }
-
-        manager.save(path, passwordCallback);
-    }
-
-    /**
-     * Loads the user certificates from a key store
-     *
-     * @param keyStorePath the key store path
-     * @throws GeneralSecurityException
-     * @throws IOException
-     */
-    private void loadCertificates(final String keyStorePath)
-            throws GeneralSecurityException, IOException {
-        manager = new CertificateManager(this);
-        manager.load(keyStorePath, passwordCallback);
     }
 
     @Override
     public void save(final ObjectOutputStream oos) throws IOException {
         oos.writeUTF(userId);
         oos.writeUTF(name);
-        oos.writeUTF(dn);
         oos.writeBoolean(isInitializedINI);
         oos.writeBoolean(isInitializedHIA);
-        oos.writeObject(a005Certificate);
-        oos.writeObject(e002Certificate);
-        oos.writeObject(x002Certificate);
-        oos.writeObject(a005PrivateKey);
-        oos.writeObject(e002PrivateKey);
-        oos.writeObject(x002PrivateKey);
+        oos.writeObject(a005KeyPair);
+        oos.writeObject(e002KeyPair);
+        oos.writeObject(x002KeyPair);
         oos.flush();
         oos.close();
         needSave = false;
@@ -239,19 +158,6 @@ class User implements EbicsUser {
     }
 
     /**
-     * Generates new keys for this user and sends them to the bank.
-     *
-     * @param keymgmt          the key management instance with the ebics session.
-     * @param passwordCallback the password-callback for the new keys.
-     * @throws EbicsException Exception during server request
-     * @throws IOException    Exception during server request
-     */
-    public void updateKeys(final KeyManagement keymgmt, final PasswordCallback passwordCallback)
-            throws EbicsException, IOException {
-        needSave = true;
-    }
-
-    /**
      * EBICS Specification 2.4.2 - 7.1 Process description:
      * <p>
      * <p>In particular, so-called “white-space characters” such as spaces, tabs, carriage
@@ -262,12 +168,12 @@ class User implements EbicsUser {
      * @param buf the given byte buffer
      * @return The byte buffer portion corresponding to the given length and offset
      */
-    public static byte[] removeOSSpecificChars(final byte[] buf) {
+    private static byte[] removeOSSpecificChars(final byte[] buf) {
         final ByteArrayOutputStream output;
 
         output = new ByteArrayOutputStream();
-        for (int i = 0; i < buf.length; i++) {
-            switch (buf[i]) {
+        for (final byte aBuf : buf) {
+            switch (aBuf) {
                 case '\r':
                 case '\n':
                 case 0x1A: // CTRL-Z / EOF
@@ -275,42 +181,11 @@ class User implements EbicsUser {
                     break;
 
                 default:
-                    output.write(buf[i]);
+                    output.write(aBuf);
             }
         }
 
         return output.toByteArray();
-    }
-
-    /**
-     * Makes the Distinguished Names for the user certificates.
-     *
-     * @param name         the user name
-     * @param email        the user email
-     * @param country      the user country
-     * @param organization the user organization
-     * @return
-     */
-    private String makeDN(final String name,
-                          final String email,
-                          final String country,
-                          final String organization) {
-        final StringBuffer buffer;
-
-        buffer = new StringBuffer();
-
-        buffer.append("CN=" + name);
-        if (country != null) {
-            buffer.append(", " + "C=" + country.toUpperCase());
-        }
-        if (organization != null) {
-            buffer.append(", " + "O=" + organization);
-        }
-        if (email != null) {
-            buffer.append(", " + "E=" + email);
-        }
-
-        return buffer.toString();
     }
 
     /**
@@ -323,81 +198,36 @@ class User implements EbicsUser {
     }
 
     @Override
-    public byte[] getA005Certificate() throws EbicsException {
-        try {
-            return a005Certificate.getEncoded();
-        } catch (final CertificateEncodingException e) {
-            throw new EbicsException(e.getMessage());
-        }
-    }
-
-    @Override
-    public byte[] getE002Certificate() throws EbicsException {
-        try {
-            return e002Certificate.getEncoded();
-        } catch (final CertificateEncodingException e) {
-            throw new EbicsException(e.getMessage());
-        }
-    }
-
-    @Override
-    public byte[] getX002Certificate() throws EbicsException {
-        try {
-            return x002Certificate.getEncoded();
-        } catch (final CertificateEncodingException e) {
-            throw new EbicsException(e.getMessage());
-        }
-    }
-
-    @Override
-    public void setA005Certificate(final X509Certificate a005Certificate) {
-        this.a005Certificate = a005Certificate;
+    public void setA005KeyPair(final KeyPair a005KeyPair) {
+        this.a005KeyPair = a005KeyPair;
         needSave = true;
     }
 
     @Override
-    public void setE002Certificate(final X509Certificate e002Certificate) {
-        this.e002Certificate = e002Certificate;
+    public void setE002KeyPair(final KeyPair e002KeyPair) {
+        this.e002KeyPair = e002KeyPair;
         needSave = true;
     }
 
     @Override
-    public void setX002Certificate(final X509Certificate x002Certificate) {
-        this.x002Certificate = x002Certificate;
+    public void setX002KeyPair(final KeyPair x002KeyPair) {
+        this.x002KeyPair = x002KeyPair;
         needSave = true;
     }
 
     @Override
     public RSAPublicKey getA005PublicKey() {
-        return (RSAPublicKey) a005Certificate.getPublicKey();
+        return (RSAPublicKey) a005KeyPair.getPublic();
     }
 
     @Override
     public RSAPublicKey getE002PublicKey() {
-        return (RSAPublicKey) e002Certificate.getPublicKey();
+        return (RSAPublicKey) e002KeyPair.getPublic();
     }
 
     @Override
     public RSAPublicKey getX002PublicKey() {
-        return (RSAPublicKey) x002Certificate.getPublicKey();
-    }
-
-    @Override
-    public void setA005PrivateKey(final PrivateKey a005PrivateKey) {
-        this.a005PrivateKey = a005PrivateKey;
-        needSave = true;
-    }
-
-    @Override
-    public void setX002PrivateKey(final PrivateKey x002PrivateKey) {
-        this.x002PrivateKey = x002PrivateKey;
-        needSave = true;
-    }
-
-    @Override
-    public void setE002PrivateKey(final PrivateKey e002PrivateKey) {
-        this.e002PrivateKey = e002PrivateKey;
-        needSave = true;
+        return (RSAPublicKey) x002KeyPair.getPublic();
     }
 
     @Override
@@ -418,11 +248,6 @@ class User implements EbicsUser {
     @Override
     public String getName() {
         return name;
-    }
-
-    @Override
-    public String getDN() {
-        return dn;
     }
 
     @Override
@@ -464,15 +289,13 @@ class User implements EbicsUser {
      * <ol>
      * <li> The key length is defined else where.
      * <li> The padding is performed by the {@link Signature} class.
-     * <li> The digest is already canonized in the {@link SignedInfo#sign(byte[]) sign(byte[])}
+     * <li> The digest must be already canonized
      * </ol>
      */
     @Override
     public byte[] authenticate(final byte[] digest) throws GeneralSecurityException {
-        final Signature signature;
-
-        signature = Signature.getInstance("SHA256WithRSA", BouncyCastleProvider.PROVIDER_NAME);
-        signature.initSign(x002PrivateKey);
+        final Signature signature = Signature.getInstance("SHA256WithRSA");
+        signature.initSign(x002KeyPair.getPrivate());
         signature.update(digest);
         return signature.sign();
     }
@@ -524,8 +347,8 @@ class User implements EbicsUser {
      */
     @Override
     public byte[] sign(final byte[] digest) throws IOException, GeneralSecurityException {
-        final Signature signature = Signature.getInstance("SHA256WithRSA", BouncyCastleProvider.PROVIDER_NAME);
-        signature.initSign(a005PrivateKey);
+        final Signature signature = Signature.getInstance("SHA256WithRSA");
+        signature.initSign(a005KeyPair.getPrivate());
         signature.update(removeOSSpecificChars(digest));
         return signature.sign();
     }
@@ -544,21 +367,15 @@ class User implements EbicsUser {
      * keys DEK<SUB>left</SUB> and DEK<SUB>right</SUB>.
      */
     @Override
-    public byte[] decrypt(final byte[] encryptedData, final byte[] transactionKey)
-            throws EbicsException, GeneralSecurityException, IOException {
-        final Cipher cipher;
-        final int blockSize;
-        final ByteArrayOutputStream outputStream;
+    public byte[] decrypt(final byte[] encryptedData, final byte[] transactionKey) {
 
-        cipher = Cipher.getInstance("RSA/NONE/PKCS1Padding", BouncyCastleProvider.PROVIDER_NAME);
-        cipher.init(Cipher.DECRYPT_MODE, e002PrivateKey);
-        blockSize = cipher.getBlockSize();
-        outputStream = new ByteArrayOutputStream();
-        for (int j = 0; j * blockSize < transactionKey.length; j++) {
-            outputStream.write(cipher.doFinal(transactionKey, j * blockSize, blockSize));
+        try {
+            final Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            cipher.init(Cipher.DECRYPT_MODE, e002KeyPair.getPrivate());
+            return decryptData(encryptedData, cipher.doFinal(transactionKey));
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
         }
-
-        return decryptData(encryptedData, outputStream.toByteArray());
     }
 
     /**
@@ -579,12 +396,10 @@ class User implements EbicsUser {
      * @param input The encrypted data
      * @param key   The secret key.
      * @return The decrypted data sent from the EBICS bank.
-     * @throws GeneralSecurityException
-     * @throws IOException
      */
     private byte[] decryptData(final byte[] input, final byte[] key)
             throws EbicsException {
-        return Utils.decrypt(input, new SecretKeySpec(key, "EAS"));
+        return Utils.decrypt(input, new SecretKeySpec(key, "AES"));
     }
 
     // --------------------------------------------------------------------
@@ -594,18 +409,12 @@ class User implements EbicsUser {
     private final EbicsPartner partner;
     private final String userId;
     private final String name;
-    private final String dn;
     private boolean isInitializedHIA;
     private boolean isInitializedINI;
     private final PasswordCallback passwordCallback;
     private transient boolean needSave;
-    private CertificateManager manager;
 
-    private PrivateKey a005PrivateKey;
-    private PrivateKey e002PrivateKey;
-    private PrivateKey x002PrivateKey;
-
-    private X509Certificate a005Certificate;
-    private X509Certificate e002Certificate;
-    private X509Certificate x002Certificate;
+    private KeyPair a005KeyPair;
+    private KeyPair e002KeyPair;
+    private KeyPair x002KeyPair;
 }

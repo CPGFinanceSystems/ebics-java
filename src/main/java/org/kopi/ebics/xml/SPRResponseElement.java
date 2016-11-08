@@ -19,11 +19,7 @@
 
 package org.kopi.ebics.xml;
 
-import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.exception.ReturnCode;
 import org.kopi.ebics.interfaces.ContentFactory;
-import org.kopi.ebics.schema.h004.EbicsResponseDocument;
-import org.kopi.ebics.schema.h004.EbicsResponseDocument.EbicsResponse;
 
 /**
  * The <code>SPRResponseElement</code> is the response element
@@ -31,7 +27,7 @@ import org.kopi.ebics.schema.h004.EbicsResponseDocument.EbicsResponse;
  *
  * @author Hachani
  */
-public class SPRResponseElement extends DefaultResponseElement {
+public class SPRResponseElement extends EbicsResponseElement {
 
     /**
      * Constructs a new SPR response element.
@@ -39,26 +35,6 @@ public class SPRResponseElement extends DefaultResponseElement {
      * @param factory the content factory
      */
     public SPRResponseElement(final ContentFactory factory) {
-        super(factory, "SPRResponse.xml");
+        super(factory, null, "SPRResponse.xml");
     }
-
-    @Override
-    public void build() throws EbicsException {
-        final String code;
-        final String text;
-
-        parse(factory);
-        response = ((EbicsResponseDocument) document).getEbicsResponse();
-        code = response.getHeader().getMutable().getReturnCode();
-        text = response.getHeader().getMutable().getReportText();
-        returnCode = ReturnCode.toReturnCode(code, text);
-        report();
-    }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private EbicsResponse response;
-    private static final long serialVersionUID = 8632578696636481642L;
 }

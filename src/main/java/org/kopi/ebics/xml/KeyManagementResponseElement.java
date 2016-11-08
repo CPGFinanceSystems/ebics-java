@@ -19,11 +19,10 @@
 
 package org.kopi.ebics.xml;
 
+import org.ebics.h004.EbicsKeyManagementResponse;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.exception.ReturnCode;
 import org.kopi.ebics.interfaces.ContentFactory;
-import org.kopi.ebics.schema.h004.EbicsKeyManagementResponseDocument;
-import org.kopi.ebics.schema.h004.EbicsKeyManagementResponseDocument.EbicsKeyManagementResponse;
 
 /**
  * The <code>KeyManagementResponseElement</code> is the common element
@@ -33,17 +32,20 @@ import org.kopi.ebics.schema.h004.EbicsKeyManagementResponseDocument.EbicsKeyMan
  *
  * @author hachani
  */
-public class KeyManagementResponseElement extends DefaultResponseElement {
+public class KeyManagementResponseElement {
+
+    private final ContentFactory contentFactory;
+
+    private EbicsKeyManagementResponse response;
 
     /**
      * Creates a new <code>KeyManagementResponseElement</code>
      * from a given <code>ContentFactory</code>
      *
      * @param factory the content factory enclosing the ebics response
-     * @param name    the element name
      */
-    public KeyManagementResponseElement(final ContentFactory factory, final String name) {
-        super(factory, name);
+    public KeyManagementResponseElement(final ContentFactory factory) {
+        this.contentFactory = factory;
     }
 
     /**
@@ -60,28 +62,23 @@ public class KeyManagementResponseElement extends DefaultResponseElement {
      *
      * @return the order data.
      */
-    @SuppressWarnings("deprecation")
     public byte[] getOrderData() {
-        return response.getBody().getDataTransfer().getOrderData().byteArrayValue();
+        return response.getBody().getDataTransfer().getOrderData().getValue();
     }
 
-    @Override
-    public void build() throws EbicsException {
+    public EbicsKeyManagementResponse build() throws EbicsException {
         final String code;
         final String text;
 
-        parse(factory);
-        response = ((EbicsKeyManagementResponseDocument) document).getEbicsKeyManagementResponse();
+        response = XmlUtils.parse(EbicsKeyManagementResponse.class, contentFactory.getContent());
+
         code = response.getHeader().getMutable().getReturnCode();
         text = response.getHeader().getMutable().getReportText();
-        returnCode = ReturnCode.toReturnCode(code, text);
-        report();
+        final ReturnCode returnCode = ReturnCode.toReturnCode(code, text);
+
+        if (!returnCode.isOk()) {
+            returnCode.throwException();
+        }
+        return response;
     }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private EbicsKeyManagementResponse response;
-    private static final long serialVersionUID = -3556995397305708927L;
 }

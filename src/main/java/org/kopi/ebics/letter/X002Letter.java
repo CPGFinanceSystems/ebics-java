@@ -55,7 +55,7 @@ public class X002Letter extends AbstractInitLetter {
                 user.getPartner().getPartnerId(),
                 getString("HIALetter.x002.version", locale),
                 getString("HIALetter.x002.certificate", locale),
-                Base64.encodeBase64(user.getX002Certificate(), true),
+                user.getX002PublicKey(),
                 getString("HIALetter.x002.digest", locale),
                 KeyUtil.getKeyDigest(user.getX002PublicKey()));
     }

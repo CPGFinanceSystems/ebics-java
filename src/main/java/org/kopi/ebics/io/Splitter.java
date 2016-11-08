@@ -136,7 +136,7 @@ public class Splitter {
      *
      * @return the total segment number.
      */
-    public int getSegmentNumber() {
+    public int getNumSegments() {
         return numSegments;
     }
 
