@@ -70,9 +70,13 @@ public abstract class TransferRequestElement {
 
     public EbicsRequest build() throws EbicsException {
         final EbicsRequest request = buildTransfer();
-        final SignedInfoElement signedInfo = new SignedInfoElement(session.getUser(), XmlUtils.digest(EbicsRequest.class, request));
 
+        final SignedInfoElement signedInfo = new SignedInfoElement(session.getUser(), XmlUtils.digest(EbicsRequest.class, request));
         request.setAuthSignature(signedInfo.build());
+
+        final byte[] signature = XmlUtils.sign(EbicsRequest.class, request, session.getUser());
+        request.getAuthSignature().getSignatureValue().setValue(signature);
+
         return request;
     }
 
