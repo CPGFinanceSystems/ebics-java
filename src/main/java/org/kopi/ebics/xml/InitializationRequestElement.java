@@ -19,7 +19,6 @@
 
 package org.kopi.ebics.xml;
 
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.ebics.h004.EbicsRequest;
 import org.ebics.h004.ObjectFactory;
@@ -27,7 +26,6 @@ import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
 import org.kopi.ebics.utils.Utils;
-import org.w3.xmldsig.SignatureType;
 
 import javax.crypto.Cipher;
 import java.math.BigInteger;
@@ -42,12 +40,6 @@ import java.math.BigInteger;
  */
 @Slf4j
 public abstract class InitializationRequestElement {
-
-    @Value
-    public static class EbicsRequestWithSignature {
-        private final EbicsRequest ebicsRequest;
-        private final SignatureType signature;
-    }
 
     protected static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
 
@@ -71,10 +63,16 @@ public abstract class InitializationRequestElement {
         this.nonce = Utils.generateNonce();
     }
 
-    public EbicsRequestWithSignature build() throws EbicsException {
+    public EbicsRequest build() throws EbicsException {
         final EbicsRequest ebicsRequest = buildInitialization();
+
         final SignedInfoElement signedInfo = new SignedInfoElement(session.getUser(), XmlUtils.digest(EbicsRequest.class, ebicsRequest));
-        return new EbicsRequestWithSignature(ebicsRequest, signedInfo.build());
+        ebicsRequest.setAuthSignature(signedInfo.build());
+
+        final byte[] signature = XmlUtils.sign(EbicsRequest.class, ebicsRequest, session.getUser());
+        ebicsRequest.getAuthSignature().getSignatureValue().setValue(signature);
+
+        return ebicsRequest;
     }
 
     public String getName() {

@@ -23,7 +23,6 @@ import org.ebics.h004.EbicsRequest;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
 import org.kopi.ebics.io.ByteArrayContentFactory;
-import org.kopi.ebics.io.IOUtils;
 import org.kopi.ebics.io.Joiner;
 import org.kopi.ebics.messages.Messages;
 import org.kopi.ebics.session.EbicsSession;
@@ -31,7 +30,6 @@ import org.kopi.ebics.session.OrderType;
 import org.kopi.ebics.utils.Constants;
 import org.kopi.ebics.utils.Utils;
 import org.kopi.ebics.xml.*;
-import org.w3.xmldsig.SignatureType;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -91,16 +89,10 @@ class FileTransfer {
     void sendFile(final byte[] content, final OrderType orderType) throws EbicsException {
         final HttpRequestSender sender = new HttpRequestSender(session);
         final UInitializationRequestElement initializer = new UInitializationRequestElement(session, orderType, content);
-        final InitializationRequestElement.EbicsRequestWithSignature requestWithSignature = initializer.build();
-        final byte[] signatureXml = XmlUtils.prettyPrint(SignatureType.class, requestWithSignature.getSignature());
-        final byte[] requestXml = XmlUtils.prettyPrint(EbicsRequest.class, requestWithSignature.getEbicsRequest());
-        session.getConfiguration().getTraceManager().trace(signatureXml, "Signature.xml");
-        session.getConfiguration().getTraceManager().trace(requestXml, initializer.getName());
-        XmlUtils.validate(signatureXml);
-        XmlUtils.validate(requestXml);
-        final byte[] xml = new byte[signatureXml.length + requestXml.length];
-        System.arraycopy(signatureXml, 0, xml, 0, signatureXml.length);
-        System.arraycopy(requestXml, 0, xml, signatureXml.length, requestXml.length);
+        final EbicsRequest request = initializer.build();
+        final byte[] xml = XmlUtils.prettyPrint(EbicsRequest.class, request);
+        session.getConfiguration().getTraceManager().trace(xml, initializer.getName());
+        XmlUtils.validate(xml);
         final int httpCode = sender.send(new ByteArrayContentFactory(xml));
         Utils.checkHttpCode(httpCode);
         final InitializationResponseElement response = new InitializationResponseElement(sender.getResponseBody(),
@@ -185,14 +177,10 @@ class FileTransfer {
                 orderType,
                 start,
                 end);
-        final InitializationRequestElement.EbicsRequestWithSignature requestWithSignature = initializer.build();
-        final byte[] signatureXml = XmlUtils.prettyPrint(SignatureType.class, requestWithSignature.getSignature());
-        final byte[] requestXml = XmlUtils.prettyPrint(EbicsRequest.class, requestWithSignature.getEbicsRequest());
-        session.getConfiguration().getTraceManager().trace(signatureXml, "Signature.xml");
-        session.getConfiguration().getTraceManager().trace(requestXml, initializer.getName());
-        XmlUtils.validate(signatureXml);
-        XmlUtils.validate(requestXml);
-        final byte[] xml = IOUtils.join(signatureXml, requestXml);
+        final EbicsRequest request = initializer.build();
+        final byte[] xml = XmlUtils.prettyPrint(EbicsRequest.class, request);
+        session.getConfiguration().getTraceManager().trace(xml, initializer.getName());
+        XmlUtils.validate(xml);
         int httpCode = sender.send(new ByteArrayContentFactory(xml));
         Utils.checkHttpCode(httpCode);
         final DInitializationResponseElement response = new DInitializationResponseElement(sender.getResponseBody(), orderType, generateName(orderType));

@@ -26,11 +26,9 @@ import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
 import org.kopi.ebics.interfaces.EbicsUser;
 import org.kopi.ebics.io.ByteArrayContentFactory;
-import org.kopi.ebics.io.IOUtils;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.utils.Utils;
 import org.kopi.ebics.xml.*;
-import org.w3.xmldsig.SignatureType;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -162,14 +160,11 @@ class KeyManagement {
 
         final HttpRequestSender sender = new HttpRequestSender(session);
         final SPRRequestElement request = new SPRRequestElement(session);
-        final InitializationRequestElement.EbicsRequestWithSignature requestWithSignature = request.build();
-        final byte[] signatureXml = XmlUtils.prettyPrint(SignatureType.class, requestWithSignature.getSignature());
-        final byte[] requestXml = XmlUtils.prettyPrint(EbicsRequest.class, requestWithSignature.getEbicsRequest());
-        session.getConfiguration().getTraceManager().trace(signatureXml, "Signature.xml");
+        final EbicsRequest ebicsRequest = request.build();
+        final byte[] requestXml = XmlUtils.prettyPrint(EbicsRequest.class, ebicsRequest);
         session.getConfiguration().getTraceManager().trace(requestXml, request.getName());
-        XmlUtils.validate(signatureXml);
         XmlUtils.validate(requestXml);
-        httpCode = sender.send(new ByteArrayContentFactory(IOUtils.join(signatureXml, requestXml)));
+        httpCode = sender.send(new ByteArrayContentFactory(requestXml));
         Utils.checkHttpCode(httpCode);
         response = new SPRResponseElement(sender.getResponseBody());
         response.build();
