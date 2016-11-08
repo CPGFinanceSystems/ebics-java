@@ -24,8 +24,7 @@ import org.kopi.ebics.interfaces.InitLetter;
 import org.kopi.ebics.messages.Messages;
 
 import java.io.*;
-import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
+import java.security.interfaces.RSAPublicKey;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -58,8 +57,8 @@ public abstract class AbstractInitLetter implements InitLetter {
      * @param username    the user name
      * @param partnerId   the partner ID
      * @param version     the signature version
-     * @param certTitle   the certificate title
-     * @param certificate the certificate content
+     * @param pubKeyTitle the public key title
+     * @param publicKey   the public key
      * @param hashTitle   the hash title
      * @param hash        the hash value
      * @throws IOException
@@ -70,8 +69,8 @@ public abstract class AbstractInitLetter implements InitLetter {
                          final String username,
                          final String partnerId,
                          final String version,
-                         final String certTitle,
-                         final byte[] certificate,
+                         final String pubKeyTitle,
+                         final RSAPublicKey publicKey,
                          final String hashTitle,
                          final byte[] hash)
             throws IOException {
@@ -82,7 +81,7 @@ public abstract class AbstractInitLetter implements InitLetter {
                 username,
                 partnerId,
                 version);
-        letter.build(certTitle, certificate, hashTitle, hash);
+        letter.build(pubKeyTitle, publicKey, hashTitle, hash);
     }
 
     /**
@@ -137,14 +136,14 @@ public abstract class AbstractInitLetter implements InitLetter {
         /**
          * Builds the letter content.
          *
-         * @param certTitle   the certificate title
-         * @param certificate the certificate content
+         * @param pubKeyTitle the public key title
+         * @param publicKey   the public key
          * @param hashTitle   the hash title
          * @param hash        the hash content
          * @throws IOException
          */
-        public void build(final String certTitle,
-                          final byte[] certificate,
+        public void build(final String pubKeyTitle,
+                          final RSAPublicKey publicKey,
                           final String hashTitle,
                           final byte[] hash)
                 throws IOException {
@@ -152,7 +151,7 @@ public abstract class AbstractInitLetter implements InitLetter {
             writer = new PrintWriter(out, true);
             buildTitle();
             buildHeader();
-            buildCertificate(certTitle, certificate);
+            buildPubKey(pubKeyTitle, publicKey);
             buildHash(hashTitle, hash);
             buildFooter();
             writer.close();
@@ -214,21 +213,16 @@ public abstract class AbstractInitLetter implements InitLetter {
             emit(LINE_SEPARATOR);
         }
 
-        /**
-         * Writes the certificate core.
-         *
-         * @param title the title
-         * @param cert  the certificate core
-         * @throws IOException
-         */
-        public void buildCertificate(final String title, final byte[] cert)
-                throws IOException {
+        public void buildPubKey(final String title, final RSAPublicKey publicKey) throws IOException {
             emit(title);
             emit(LINE_SEPARATOR);
             emit(LINE_SEPARATOR);
-            emit("-----BEGIN CERTIFICATE-----" + LINE_SEPARATOR);
-            emit(new String(cert));
-            emit("-----END CERTIFICATE-----" + LINE_SEPARATOR);
+            emit("Exponent" + LINE_SEPARATOR);
+            emit(Hex.encodeHexString(publicKey.getPublicExponent().toByteArray()).toUpperCase());
+            emit(LINE_SEPARATOR);
+            emit(LINE_SEPARATOR);
+            emit("Modulus" + LINE_SEPARATOR);
+            emit(Hex.encodeHexString(publicKey.getModulus().toByteArray()).toUpperCase());
             emit(LINE_SEPARATOR);
             emit(LINE_SEPARATOR);
         }

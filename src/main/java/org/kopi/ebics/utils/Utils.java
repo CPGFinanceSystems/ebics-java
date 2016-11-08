@@ -19,7 +19,6 @@
 
 package org.kopi.ebics.utils;
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.messages.Messages;
 
@@ -192,20 +191,18 @@ public class Utils {
      * @param input   the input to encrypt or decrypt.
      * @param keySpec the key spec.
      * @return the encrypted or decrypted data.
-     * @throws GeneralSecurityException
      */
-    private static byte[] encryptOrDecrypt(final int mode, final byte[] input, final SecretKeySpec keySpec)
-            throws EbicsException {
+    private static byte[] encryptOrDecrypt(final int mode, final byte[] input, final SecretKeySpec keySpec) {
         final IvParameterSpec iv;
         final Cipher cipher;
 
         iv = new IvParameterSpec(new byte[16]);
         try {
-            cipher = Cipher.getInstance("AES/CBC/ISO10126Padding", BouncyCastleProvider.PROVIDER_NAME);
+            cipher = Cipher.getInstance("AES/CBC/ISO10126Padding");
             cipher.init(mode, keySpec, iv);
             return cipher.doFinal(input);
         } catch (final GeneralSecurityException e) {
-            throw new EbicsException(e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 

@@ -55,7 +55,7 @@ public class UnsecuredRequestElement {
     public EbicsUnsecuredRequest build() throws EbicsException {
 
         final UnsecuredReqOrderDetailsType orderDetails = OBJECT_FACTORY.createUnsecuredReqOrderDetailsType();
-        orderDetails.setOrderAttribute(OrderAttributeType.DZHNN.name());
+        orderDetails.setOrderAttribute("DZNNN");
         orderDetails.setOrderType(orderType.name());
 
         final ProductElementType productType = OBJECT_FACTORY.createProductElementType();

@@ -19,13 +19,11 @@
 
 package org.kopi.ebics.certificate;
 
-import org.bouncycastle.openssl.PEMParser;
-
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.security.*;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.RSAPublicKeySpec;
@@ -109,61 +107,12 @@ public class KeyStoreManager {
         }
     }
 
-    /**
-     * Reads a certificate from an input stream for a given provider
-     *
-     * @param x509CertificateData the input stream
-     * @param provider            the certificate provider
-     * @return the certificate
-     */
-    public X509Certificate read(final InputStream x509CertificateData, final Provider provider) {
-        X509Certificate certificate;
-
-        try {
-            certificate = (X509Certificate) CertificateFactory.getInstance("X.509", provider).generateCertificate(x509CertificateData);
-
-            if (certificate == null) {
-                certificate = (X509Certificate) (new PEMParser(new InputStreamReader(x509CertificateData))).readObject();
-            }
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        return certificate;
-    }
-
-    /**
-     * Returns the public key of a given certificate.
-     *
-     * @param x509CertificateData the given certificate
-     * @return The RSA public key of the given certificate
-     */
-    public RSAPublicKey getPublicKey(final InputStream x509CertificateData) {
-        final X509Certificate cert;
-
-        cert = read(x509CertificateData, keyStore.getProvider());
-        return (RSAPublicKey) cert.getPublicKey();
-    }
-
     public static RSAPublicKey getPublicKey(final byte[] modulus, final byte[] exponent) {
         final RSAPublicKeySpec spec = new RSAPublicKeySpec(new BigInteger(modulus), new BigInteger(exponent));
         try {
             final KeyFactory factory = KeyFactory.getInstance("RSA");
             return (RSAPublicKey) factory.generatePublic(spec);
         } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Writes the given certificate into the key store.
-     *
-     * @param alias the certificate alias
-     */
-    public void setPublicKeyEntry(final String alias, final RSAPublicKey publicKey) {
-        try {
-            keyStore.setKeyEntry(alias, publicKey, password, new Certificate[0]);
-        } catch (final KeyStoreException e) {
             throw new RuntimeException(e);
         }
     }

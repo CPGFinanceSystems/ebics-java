@@ -21,7 +21,6 @@ package org.kopi.ebics.xml;
 
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.ebics.h004.EbicsRequest;
 import org.ebics.h004.ObjectFactory;
 import org.kopi.ebics.exception.EbicsException;
@@ -31,6 +30,7 @@ import org.kopi.ebics.utils.Utils;
 import org.w3.xmldsig.SignatureType;
 
 import javax.crypto.Cipher;
+import java.math.BigInteger;
 
 
 /**
@@ -97,8 +97,12 @@ public abstract class InitializationRequestElement {
      */
     protected byte[] generateTransactionKey() throws EbicsException {
         try {
-            final Cipher cipher = Cipher.getInstance("RSA/NONE/PKCS1Padding", BouncyCastleProvider.PROVIDER_NAME);
+            final Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
             cipher.init(Cipher.ENCRYPT_MODE, session.getBankE002Key());
+            final BigInteger data = new BigInteger(nonce);
+            log.info("Data bits: {}", data.bitLength());
+            log.info("Modulus bits: {}", session.getBankE002Key().getModulus().bitLength());
+            log.info("Compare: {}", data.compareTo(session.getBankE002Key().getModulus()));
             return cipher.doFinal(nonce);
         } catch (final Exception e) {
             throw new RuntimeException(e);

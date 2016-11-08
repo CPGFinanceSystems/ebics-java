@@ -48,7 +48,7 @@ public class SPRRequestElement extends InitializationRequestElement {
      */
     public SPRRequestElement(final EbicsSession session) throws EbicsException {
         super(session, org.kopi.ebics.session.OrderType.SPR);
-        this.keySpec = new SecretKeySpec(nonce, "EAS");
+        this.keySpec = new SecretKeySpec(nonce, "AES");
     }
 
     @Override

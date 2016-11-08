@@ -43,7 +43,6 @@ public class KeyManagementResponseElement {
      * from a given <code>ContentFactory</code>
      *
      * @param factory the content factory enclosing the ebics response
-     * @param name    the element name
      */
     public KeyManagementResponseElement(final ContentFactory factory) {
         this.contentFactory = factory;

@@ -59,7 +59,7 @@ public class UInitializationRequestElement extends InitializationRequestElement 
                                          final byte[] userData) {
         super(session, orderType);
         this.userData = userData;
-        keySpec = new SecretKeySpec(nonce, "EAS");
+        keySpec = new SecretKeySpec(nonce, "AES");
         splitter = new Splitter(userData);
     }
 
