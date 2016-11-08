@@ -49,11 +49,6 @@
             <version>2.7.1</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.xmlbeans</groupId>
-            <artifactId>xmlbeans</artifactId>
-            <version>2.5.0</version>
-        </dependency>
-        <dependency>
             <groupId>org.gnu</groupId>
             <artifactId>gnu-crypto</artifactId>
             <version>2.0.1</version>
@@ -117,32 +112,6 @@
                         <version>1.1</version>
                     </dependency>
                 </dependencies>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>xmlbeans-maven-plugin</artifactId>
-                <version>2.3.3</version>
-                <executions>
-                    <execution>
-                        <id>Build-XMLBeans</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>xmlbeans</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <inherited>true</inherited>
-                <configuration>
-                    <xmlConfigs>
-                        <xmlConfig implementation="java.io.File">
-                            src/main/resources/xsd/config.xsdconfig
-                        </xmlConfig>
-                    </xmlConfigs>
-                    <memoryInitialSize>64m</memoryInitialSize>
-                    <memoryMaximumSize>128m</memoryMaximumSize>
-                    <schemaDirectory>src/main/resources/xsd</schemaDirectory>
-                    <verbose>true</verbose>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>

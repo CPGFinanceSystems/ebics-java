@@ -20,8 +20,6 @@
 package org.kopi.ebics.session;
 
 import lombok.extern.slf4j.Slf4j;
-import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.interfaces.EbicsRootElement;
 import org.kopi.ebics.interfaces.TraceManager;
 import org.kopi.ebics.io.IOUtils;
 import org.kopi.ebics.xml.XmlUtils;
@@ -45,23 +43,6 @@ import java.time.format.DateTimeFormatter;
  */
 @Slf4j
 public class DefaultTraceManager implements TraceManager {
-
-    @Override
-    public void trace(final EbicsRootElement element) throws EbicsException {
-        log.trace("\n{}", element.toString());
-        if (null != traceDir) {
-            try {
-                final FileOutputStream out;
-                final File file;
-
-                file = IOUtils.createFile(traceDir, MessageFormat.format("{0}_{1}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), element.getName()));
-                out = new FileOutputStream(file);
-                element.save(out);
-            } catch (final IOException e) {
-                throw new EbicsException(e.getMessage(), e);
-            }
-        }
-    }
 
     @Override
     public void trace(final byte[] xml, final String elementName) {
