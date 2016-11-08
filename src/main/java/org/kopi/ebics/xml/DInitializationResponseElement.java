@@ -19,6 +19,7 @@
 
 package org.kopi.ebics.xml;
 
+import org.ebics.h004.EbicsResponse;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.exception.NoDownloadDataAvailableException;
 import org.kopi.ebics.exception.ReturnCode;
@@ -32,6 +33,12 @@ import org.kopi.ebics.session.OrderType;
  * @author Hachani
  */
 public class DInitializationResponseElement extends InitializationResponseElement {
+
+    private int numSegments;
+    private int segmentNumber;
+    private boolean lastSegment;
+    private byte[] transactionKey;
+    private byte[] orderData;
 
     /**
      * Constructs a new <code>DInitializationResponseElement</code> object
@@ -47,20 +54,22 @@ public class DInitializationResponseElement extends InitializationResponseElemen
     }
 
     @Override
-    public void build() throws EbicsException {
+    public EbicsResponse build() throws EbicsException {
         final String bodyRetCode;
 
-        super.build();
-        bodyRetCode = response.getBody().getReturnCode().getStringValue();
-        returnCode = ReturnCode.toReturnCode(bodyRetCode, "");
+        final EbicsResponse response = super.build();
+        bodyRetCode = response.getBody().getReturnCode().getValue();
+        final ReturnCode returnCode = ReturnCode.toReturnCode(bodyRetCode, "");
         if (returnCode.equals(ReturnCode.EBICS_NO_DOWNLOAD_DATA_AVAILABLE)) {
             throw new NoDownloadDataAvailableException();
         }
-        numSegments = (int) response.getHeader().getStatic().getNumSegments();
-        segmentNumber = (int) response.getHeader().getMutable().getSegmentNumber().getLongValue();
-        lastSegment = response.getHeader().getMutable().getSegmentNumber().getLastSegment();
+        numSegments = response.getHeader().getStatic().getNumSegments().intValue();
+        segmentNumber = response.getHeader().getMutable().getSegmentNumber().getValue().intValue();
+        lastSegment = response.getHeader().getMutable().getSegmentNumber().isLastSegment();
         transactionKey = response.getBody().getDataTransfer().getDataEncryptionInfo().getTransactionKey();
-        orderData = response.getBody().getDataTransfer().getOrderData().getByteArrayValue();
+        orderData = response.getBody().getDataTransfer().getOrderData().getValue();
+
+        return response;
     }
 
     /**
@@ -107,15 +116,4 @@ public class DInitializationResponseElement extends InitializationResponseElemen
     public byte[] getOrderData() {
         return orderData;
     }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private int numSegments;
-    private int segmentNumber;
-    private boolean lastSegment;
-    private byte[] transactionKey;
-    private byte[] orderData;
-    private static final long serialVersionUID = -6013011772863903840L;
 }

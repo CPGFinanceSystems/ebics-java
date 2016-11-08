@@ -19,11 +19,10 @@
 
 package org.kopi.ebics.xml;
 
+import org.ebics.h004.EbicsResponse;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.exception.ReturnCode;
 import org.kopi.ebics.interfaces.ContentFactory;
-import org.kopi.ebics.schema.h004.EbicsResponseDocument;
-import org.kopi.ebics.schema.h004.EbicsResponseDocument.EbicsResponse;
 import org.kopi.ebics.session.OrderType;
 
 /**
@@ -32,7 +31,13 @@ import org.kopi.ebics.session.OrderType;
  *
  * @author Hachani
  */
-public class InitializationResponseElement extends DefaultResponseElement {
+public class InitializationResponseElement {
+
+    private byte[] transactionId;
+    private ReturnCode returnCode;
+    private final OrderType orderType;
+    private final String name;
+    private final ContentFactory contentFactory;
 
     /**
      * Constructs a new <code>InitializationResponseElement</code> element.
@@ -44,22 +49,28 @@ public class InitializationResponseElement extends DefaultResponseElement {
     public InitializationResponseElement(final ContentFactory factory,
                                          final OrderType orderType,
                                          final String name) {
-        super(factory, name);
         this.orderType = orderType;
+        this.name = name;
+        this.contentFactory = factory;
     }
 
-    @Override
-    public void build() throws EbicsException {
+    public EbicsResponse build() throws EbicsException {
         final String code;
         final String text;
 
-        parse(factory);
-        response = ((EbicsResponseDocument) document).getEbicsResponse();
+        final EbicsResponse response = XmlUtils.parse(EbicsResponse.class, contentFactory.getContent());
         code = response.getHeader().getMutable().getReturnCode();
         text = response.getHeader().getMutable().getReportText();
         returnCode = ReturnCode.toReturnCode(code, text);
-        report();
         transactionId = response.getHeader().getStatic().getTransactionID();
+
+        return response;
+    }
+
+    public void report() throws EbicsException {
+        if (!returnCode.isOk()) {
+            returnCode.throwException();
+        }
     }
 
     /**
@@ -76,16 +87,7 @@ public class InitializationResponseElement extends DefaultResponseElement {
      *
      * @return the order type.
      */
-    public String getOrderType() {
-        return orderType.name();
+    public OrderType getOrderType() {
+        return orderType;
     }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    protected EbicsResponse response;
-    private final OrderType orderType;
-    private byte[] transactionId;
-    private static final long serialVersionUID = 7684048385353175772L;
 }

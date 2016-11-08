@@ -24,6 +24,7 @@ import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.EbicsRootElement;
 import org.kopi.ebics.interfaces.TraceManager;
 import org.kopi.ebics.io.IOUtils;
+import org.kopi.ebics.xml.XmlUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -77,6 +78,11 @@ public class DefaultTraceManager implements TraceManager {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    @Override
+    public <T> void trace(final Class<T> clazz, final T object) {
+        trace(XmlUtils.prettyPrint(clazz, object), XmlUtils.elementNameFrom(clazz));
     }
 
     @Override

@@ -20,6 +20,7 @@
 package org.kopi.ebics.client;
 
 import org.ebics.h004.EbicsRequest;
+import org.ebics.h004.EbicsResponse;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
 import org.kopi.ebics.io.ByteArrayContentFactory;
@@ -98,8 +99,8 @@ class FileTransfer {
         final InitializationResponseElement response = new InitializationResponseElement(sender.getResponseBody(),
                 orderType,
                 generateName(orderType));
-        response.build();
-        session.getConfiguration().getTraceManager().trace(response);
+        final EbicsResponse ebicsResponse = response.build();
+        session.getConfiguration().getTraceManager().trace(EbicsResponse.class, ebicsResponse);
         response.report();
         final TransferState state = new TransferState(initializer.getSegmentNumber(), response.getTransactionId());
 
@@ -184,8 +185,8 @@ class FileTransfer {
         int httpCode = sender.send(new ByteArrayContentFactory(xml));
         Utils.checkHttpCode(httpCode);
         final DInitializationResponseElement response = new DInitializationResponseElement(sender.getResponseBody(), orderType, generateName(orderType));
-        response.build();
-        session.getConfiguration().getTraceManager().trace(response);
+        final EbicsResponse ebicsResponse = response.build();
+        session.getConfiguration().getTraceManager().trace(EbicsResponse.class, ebicsResponse);
         response.report();
         final TransferState state = new TransferState(response.getSegmentsNumber(), response.getTransactionId());
         state.setSegmentNumber(response.getSegmentNumber());

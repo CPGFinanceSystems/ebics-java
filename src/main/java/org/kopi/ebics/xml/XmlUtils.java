@@ -160,12 +160,6 @@ public class XmlUtils {
 
     }
 
-    private static <T> void prettyPrint(final Class<T> clazz, final T object, final String elementName, final OutputStream outputStream) {
-        prettyPrint(
-                new JAXBElement<>(new QName(namespaceFromPackageAnnotation(clazz), elementName), clazz, object),
-                outputStream);
-    }
-
     public static byte[] canonize(final Node node) {
         try {
             final Canonicalizer canonicalizer = Canonicalizer.getInstance(CANONICALIZAION_METHOD);
@@ -175,14 +169,20 @@ public class XmlUtils {
         }
     }
 
-    private static <T> String namespaceFromPackageAnnotation(final Class<T> clazz) {
-        return clazz.getPackage().getAnnotation(XmlSchema.class).namespace();
-    }
-
-    private static <T> String elementNameFrom(final Class<T> clazz) {
+    public static <T> String elementNameFrom(final Class<T> clazz) {
         return Optional.ofNullable(clazz.getAnnotation(XmlRootElement.class))
                 .map(XmlRootElement::name)
                 .orElseGet(() -> elementNameFrom(clazz.getSimpleName()));
+    }
+
+    private static <T> void prettyPrint(final Class<T> clazz, final T object, final String elementName, final OutputStream outputStream) {
+        prettyPrint(
+                new JAXBElement<>(new QName(namespaceFromPackageAnnotation(clazz), elementName), clazz, object),
+                outputStream);
+    }
+
+    private static <T> String namespaceFromPackageAnnotation(final Class<T> clazz) {
+        return clazz.getPackage().getAnnotation(XmlSchema.class).namespace();
     }
 
     private static String elementNameFrom(final String clazzName) {
