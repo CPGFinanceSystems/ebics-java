@@ -19,11 +19,7 @@
 
 package org.kopi.ebics.xml;
 
-import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.exception.ReturnCode;
 import org.kopi.ebics.interfaces.ContentFactory;
-import org.kopi.ebics.schema.h004.EbicsResponseDocument;
-import org.kopi.ebics.schema.h004.EbicsResponseDocument.EbicsResponse;
 
 /**
  * The <code>TransferResponseElement</code> is the common element
@@ -31,7 +27,7 @@ import org.kopi.ebics.schema.h004.EbicsResponseDocument.EbicsResponse;
  *
  * @author Hachani
  */
-public class TransferResponseElement extends DefaultResponseElement {
+public class TransferResponseElement extends EbicsResponseElement {
 
     /**
      * Constructs a new <code>TransferResponseElement</code> element.
@@ -40,26 +36,6 @@ public class TransferResponseElement extends DefaultResponseElement {
      * @param name    the element name;
      */
     public TransferResponseElement(final ContentFactory factory, final String name) {
-        super(factory, name);
+        super(factory, null, name);
     }
-
-    @Override
-    public void build() throws EbicsException {
-        final String code;
-        final String text;
-
-        parse(factory);
-        response = ((EbicsResponseDocument) document).getEbicsResponse();
-        code = response.getHeader().getMutable().getReturnCode();
-        text = response.getHeader().getMutable().getReportText();
-        returnCode = ReturnCode.toReturnCode(code, text);
-        report();
-    }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    protected EbicsResponse response;
-    private static final long serialVersionUID = 7454118286687793155L;
 }

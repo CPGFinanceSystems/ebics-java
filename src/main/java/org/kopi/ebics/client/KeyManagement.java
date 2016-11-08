@@ -167,8 +167,8 @@ class KeyManagement {
         httpCode = sender.send(new ByteArrayContentFactory(requestXml));
         Utils.checkHttpCode(httpCode);
         response = new SPRResponseElement(sender.getResponseBody());
-        response.build();
-        session.getConfiguration().getTraceManager().trace(response);
+        final EbicsResponse ebicsResponse = response.build();
+        session.getConfiguration().getTraceManager().trace(EbicsResponse.class, ebicsResponse);
         response.report();
     }
 }

@@ -32,7 +32,7 @@ import org.kopi.ebics.session.OrderType;
  *
  * @author Hachani
  */
-public class DInitializationResponseElement extends InitializationResponseElement {
+public class DInitializationResponseElement extends EbicsResponseElement {
 
     private int numSegments;
     private int segmentNumber;

@@ -96,7 +96,7 @@ class FileTransfer {
         XmlUtils.validate(xml);
         final int httpCode = sender.send(new ByteArrayContentFactory(xml));
         Utils.checkHttpCode(httpCode);
-        final InitializationResponseElement response = new InitializationResponseElement(sender.getResponseBody(),
+        final EbicsResponseElement response = new EbicsResponseElement(sender.getResponseBody(),
                 orderType,
                 generateName(orderType));
         final EbicsResponse ebicsResponse = response.build();
@@ -150,8 +150,8 @@ class FileTransfer {
         final int httpCode = sender.send(new ByteArrayContentFactory(xml));
         Utils.checkHttpCode(httpCode);
         response = new TransferResponseElement(sender.getResponseBody(), generateName(orderType));
-        response.build();
-        session.getConfiguration().getTraceManager().trace(response);
+        final EbicsResponse ebicsResponse = response.build();
+        session.getConfiguration().getTraceManager().trace(EbicsResponse.class, ebicsResponse);
         response.report();
     }
 
@@ -212,8 +212,8 @@ class FileTransfer {
         httpCode = sender.send(new ByteArrayContentFactory(receiptXml));
         Utils.checkHttpCode(httpCode);
         final ReceiptResponseElement receiptResponse = new ReceiptResponseElement(sender.getResponseBody(), generateName(orderType));
-        receiptResponse.build();
-        session.getConfiguration().getTraceManager().trace(receiptResponse);
+        final EbicsResponse ebicsReceiptResponse = receiptResponse.build();
+        session.getConfiguration().getTraceManager().trace(EbicsResponse.class, ebicsReceiptResponse);
         receiptResponse.report();
     }
 
@@ -252,8 +252,8 @@ class FileTransfer {
         response = new DTransferResponseElement(sender.getResponseBody(),
                 orderType,
                 generateName(orderType));
-        response.build();
-        session.getConfiguration().getTraceManager().trace(response);
+        final EbicsResponse ebicsResponse = response.build();
+        session.getConfiguration().getTraceManager().trace(EbicsResponse.class, ebicsResponse);
         response.report();
         joiner.append(response.getOrderData());
     }
