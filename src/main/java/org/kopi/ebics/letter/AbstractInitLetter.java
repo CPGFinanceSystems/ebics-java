@@ -24,6 +24,7 @@ import org.kopi.ebics.interfaces.InitLetter;
 import org.kopi.ebics.messages.Messages;
 
 import java.io.*;
+import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -70,7 +71,7 @@ abstract class AbstractInitLetter implements InitLetter {
                          final String partnerId,
                          final String version,
                          final String pubKeyTitle,
-                         final RSAPublicKey publicKey,
+                         final PublicKey publicKey,
                          final String hashTitle,
                          final byte[] hash)
             throws IOException {
@@ -143,7 +144,7 @@ abstract class AbstractInitLetter implements InitLetter {
          * @throws IOException
          */
         public void build(final String pubKeyTitle,
-                          final RSAPublicKey publicKey,
+                          final PublicKey publicKey,
                           final String hashTitle,
                           final byte[] hash)
                 throws IOException {
@@ -213,16 +214,17 @@ abstract class AbstractInitLetter implements InitLetter {
             emit(LINE_SEPARATOR);
         }
 
-        public void buildPubKey(final String title, final RSAPublicKey publicKey) throws IOException {
+        public void buildPubKey(final String title, final PublicKey publicKey) throws IOException {
+            final RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
             emit(title);
             emit(LINE_SEPARATOR);
             emit(LINE_SEPARATOR);
             emit("Exponent" + LINE_SEPARATOR);
-            emit(Hex.encodeHexString(publicKey.getPublicExponent().toByteArray()).toUpperCase());
+            emit(Hex.encodeHexString(rsaPublicKey.getPublicExponent().toByteArray()).toUpperCase());
             emit(LINE_SEPARATOR);
             emit(LINE_SEPARATOR);
             emit("Modulus" + LINE_SEPARATOR);
-            emit(Hex.encodeHexString(publicKey.getModulus().toByteArray()).toUpperCase());
+            emit(Hex.encodeHexString(rsaPublicKey.getModulus().toByteArray()).toUpperCase());
             emit(LINE_SEPARATOR);
             emit(LINE_SEPARATOR);
         }

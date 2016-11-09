@@ -112,7 +112,6 @@ public class DInitializationRequestElement extends InitializationRequestElement 
                 fDLOrderParamsType.getParameters().add(parameter);
             }
 
-            orderDetails.setOrderID(session.getUser().getPartner().nextOrderId());
             orderDetails.setOrderParams(OBJECT_FACTORY.createFDLOrderParams(fDLOrderParamsType));
         } else {
             final StandardOrderParamsType standardOrderParamsType = OBJECT_FACTORY.createStandardOrderParamsType();

@@ -97,7 +97,7 @@ class FileTransfer {
         session.getConfiguration().getTraceManager().trace(xml, initializer.getName());
         XmlUtils.validate(xml);
         final HttpResponse httpResponse = HttpUtil.sendAndReceive(
-                session.getUser().getPartner().getBank().getURL(),
+                session.getUser().getPartner().getBank(),
                 new ByteArrayContentFactory(xml));
         HttpUtil.checkHttpCode(httpResponse.getStatusLine().getStatusCode());
         final EbicsResponseElement response = new EbicsResponseElement(httpResponse, orderType);
@@ -146,7 +146,7 @@ class FileTransfer {
         final byte[] xml = XmlUtils.prettyPrint(EbicsRequest.class, ebicsRequest);
         session.getConfiguration().getTraceManager().trace(xml, uploader.getName());
         XmlUtils.validate(xml);
-        final HttpResponse httpResponse = HttpUtil.sendAndReceive(session.getUser().getPartner().getBank().getURL(), new ByteArrayContentFactory(xml));
+        final HttpResponse httpResponse = HttpUtil.sendAndReceive(session.getUser().getPartner().getBank(), new ByteArrayContentFactory(xml));
         HttpUtil.checkHttpCode(httpResponse.getStatusLine().getStatusCode());
         response = new TransferResponseElement(httpResponse);
         final EbicsResponse ebicsResponse = response.build();
@@ -180,7 +180,7 @@ class FileTransfer {
         final byte[] xml = XmlUtils.prettyPrint(EbicsRequest.class, request);
         session.getConfiguration().getTraceManager().trace(xml, initializer.getName());
         XmlUtils.validate(xml);
-        HttpResponse httpResponse = HttpUtil.sendAndReceive(session.getUser().getPartner().getBank().getURL(), new ByteArrayContentFactory(xml));
+        HttpResponse httpResponse = HttpUtil.sendAndReceive(session.getUser().getPartner().getBank(), new ByteArrayContentFactory(xml));
         HttpUtil.checkHttpCode(httpResponse.getStatusLine().getStatusCode());
         final DInitializationResponseElement response = new DInitializationResponseElement(httpResponse, orderType);
         final EbicsResponse ebicsResponse = response.build();
@@ -207,7 +207,7 @@ class FileTransfer {
         final byte[] receiptXml = XmlUtils.prettyPrint(EbicsRequest.class, ebicsRequest);
         XmlUtils.validate(receiptXml);
         session.getConfiguration().getTraceManager().trace(receiptXml, receipt.getName());
-        httpResponse = HttpUtil.sendAndReceive(session.getUser().getPartner().getBank().getURL(), new ByteArrayContentFactory(receiptXml));
+        httpResponse = HttpUtil.sendAndReceive(session.getUser().getPartner().getBank(), new ByteArrayContentFactory(receiptXml));
         HttpUtil.checkHttpCode(httpResponse.getStatusLine().getStatusCode());
         final ReceiptResponseElement receiptResponse = new ReceiptResponseElement(httpResponse);
         final EbicsResponse ebicsReceiptResponse = receiptResponse.build();
@@ -240,7 +240,7 @@ class FileTransfer {
         final byte[] xml = XmlUtils.prettyPrint(EbicsRequest.class, ebicsRequest);
         session.getConfiguration().getTraceManager().trace(xml, downloader.getName());
         XmlUtils.validate(xml);
-        final HttpResponse httpResponse = HttpUtil.sendAndReceive(session.getUser().getPartner().getBank().getURL(), new ByteArrayContentFactory(xml));
+        final HttpResponse httpResponse = HttpUtil.sendAndReceive(session.getUser().getPartner().getBank(), new ByteArrayContentFactory(xml));
         HttpUtil.checkHttpCode(httpResponse.getStatusLine().getStatusCode());
         final DTransferResponseElement response = new DTransferResponseElement(httpResponse, orderType);
         final EbicsResponse ebicsResponse = response.build();

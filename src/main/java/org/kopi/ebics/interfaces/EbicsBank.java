@@ -19,7 +19,11 @@
 
 package org.kopi.ebics.interfaces;
 
-import java.net.URL;
+import lombok.Builder;
+import lombok.Value;
+import lombok.experimental.Wither;
+
+import java.net.URI;
 import java.security.interfaces.RSAPublicKey;
 
 /**
@@ -27,74 +31,26 @@ import java.security.interfaces.RSAPublicKey;
  *
  * @author Hachani
  */
-public interface EbicsBank extends Savable {
+@Value
+@Builder
+@Wither
+public class EbicsBank implements Identifiable {
 
-    /**
-     * Returns the URL needed for communication to the bank.
-     *
-     * @return the URL needed for communication to the bank.
-     */
-    URL getURL();
+    private static final long serialVersionUID = 1L;
 
-    /**
-     * Returns the encryption key digest you have obtained from the bank.
-     * Ensure that nobody was able to modify the digest on its way from the bank to you.
-     *
-     * @return the encryption key digest you have obtained from the bank.
-     */
-    byte[] getE002Digest();
+    private final URI uri;
 
-    /**
-     * Returns the authentication key digest you have obtained from the bank.
-     * Ensure that nobody was able to modify the digest on its way from the bank to you.
-     *
-     * @return the authentication key digest you have obtained from the bank.
-     */
-    byte[] getX002Digest();
+    private final byte[] e002Digest;
+    private final byte[] x002Digest;
 
-    /**
-     * Returns the banks encryption key.
-     *
-     * @return the banks encryption key.
-     */
-    RSAPublicKey getE002Key();
+    private final RSAPublicKey e002Key;
+    private final RSAPublicKey x002Key;
 
-    /**
-     * Returns the banks authentication key.
-     *
-     * @return the banks authentication key.
-     */
-    RSAPublicKey getX002Key();
+    private final String hostId;
+    private final String name;
 
-    /**
-     * Returns the bank's id.
-     *
-     * @return the bank's id.
-     */
-    String getHostId();
-
-    /**
-     * Returns the bank's name.
-     *
-     * @return the bank's name.
-     */
-    String getName();
-
-    /**
-     * Keys have been fetched from the bank.
-     * The getters for the appropriate attributes should return the given values from now on.
-     * For the sake of performance the values should be persisted for later usage.
-     *
-     * @param e002Key the banks encryption key.
-     * @param x002Key the banks authentication key.
-     */
-    void setBankKeys(RSAPublicKey e002Key, RSAPublicKey x002Key);
-
-    /**
-     * Sets the bank digests.
-     *
-     * @param e002Digest encryption digest
-     * @param x002Digest authentication digest
-     */
-    void setDigests(byte[] e002Digest, byte[] x002Digest);
+    @Override
+    public String getId() {
+        return getHostId();
+    }
 }

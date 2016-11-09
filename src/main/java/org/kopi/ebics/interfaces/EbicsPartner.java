@@ -19,33 +19,28 @@
 
 package org.kopi.ebics.interfaces;
 
-import java.io.Serializable;
+import lombok.Builder;
+import lombok.Value;
+import lombok.experimental.Wither;
 
 /**
  * Information about an EBICS customer.
  *
  * @author Hachani
  */
-public interface EbicsPartner extends Savable {
+@Value
+@Builder
+@Wither
+public class EbicsPartner implements Identifiable {
 
-    /**
-     * Returns the bank we are customer of.
-     *
-     * @return the bank we are customer of
-     */
-    EbicsBank getBank();
+    private static final long serialVersionUID = 1L;
 
-    /**
-     * Returns the customers id at the bank.
-     *
-     * @return the customers id at the bank.
-     */
-    String getPartnerId();
+    private final transient EbicsBank bank;
 
-    /**
-     * Creates the next order number.
-     *
-     * @return the next order number.
-     */
-    String nextOrderId();
+    private final String partnerId;
+
+    @Override
+    public String getId() {
+        return getPartnerId();
+    }
 }

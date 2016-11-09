@@ -36,16 +36,22 @@ import java.util.Map;
  */
 public class EbicsSession {
 
+    private final EbicsUser user;
+    private final EbicsConfiguration configuration;
+    private final Product product;
+    private final Map<String, String> parameters;
+
     /**
      * Constructs a new ebics session
      *
-     * @param user the ebics user
-     * @param the  ebics client configuration
+     * @param user          ebics user
+     * @param configuration ebics client configuration
      */
-    public EbicsSession(final EbicsUser user, final EbicsConfiguration configuration) {
+    public EbicsSession(final EbicsUser user, final EbicsConfiguration configuration, final Product product) {
         this.user = user;
         this.configuration = configuration;
-        parameters = new HashMap<>();
+        this.product = product;
+        this.parameters = new HashMap<>();
     }
 
     /**
@@ -101,15 +107,6 @@ public class EbicsSession {
     }
 
     /**
-     * Sets the optional product identification that will be sent to the bank during each request.
-     *
-     * @param product Product description
-     */
-    public void setProduct(final Product product) {
-        this.product = product;
-    }
-
-    /**
      * @return the product
      */
     public Product getProduct() {
@@ -139,13 +136,4 @@ public class EbicsSession {
 
         return parameters.get(key);
     }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private final EbicsUser user;
-    private final EbicsConfiguration configuration;
-    private Product product;
-    private final Map<String, String> parameters;
 }

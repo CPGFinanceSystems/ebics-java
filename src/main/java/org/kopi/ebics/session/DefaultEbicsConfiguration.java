@@ -49,7 +49,7 @@ public class DefaultEbicsConfiguration implements EbicsConfiguration {
         this.rootDir = rootDir;
         bundle = ResourceBundle.getBundle(RESOURCE_DIR);
         properties = new Properties();
-        serializationManager = new DefaultSerializationManager();
+        serializationManager = new DefaultSerializationManager(new File(getSerializationDirectory()));
         traceManager = new DefaultTraceManager();
     }
 
@@ -116,7 +116,6 @@ public class DefaultEbicsConfiguration implements EbicsConfiguration {
         //Create users directory
         IOUtils.createDirectories(getUsersDirectory());
 
-        serializationManager.setSerializationDirectory(getSerializationDirectory());
         letterManager = new DefaultLetterManager(getLocale());
     }
 

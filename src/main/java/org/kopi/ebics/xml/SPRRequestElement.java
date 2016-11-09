@@ -81,7 +81,6 @@ public class SPRRequestElement extends InitializationRequestElement {
         final StandardOrderParamsType standardOrderParamsType = OBJECT_FACTORY.createStandardOrderParamsType();
 
         final StaticHeaderOrderDetailsType orderDetails = OBJECT_FACTORY.createStaticHeaderOrderDetailsType();
-        orderDetails.setOrderID(session.getUser().getPartner().nextOrderId());
         orderDetails.setOrderAttribute(OrderAttributeType.UZHNN);
         orderDetails.setOrderType(orderType);
         orderDetails.setOrderParams(OBJECT_FACTORY.createStandardOrderParams(standardOrderParamsType));

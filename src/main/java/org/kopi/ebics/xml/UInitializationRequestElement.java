@@ -128,7 +128,6 @@ public class UInitializationRequestElement extends InitializationRequestElement 
                 fULOrderParams.getParameters().addAll(parameters);
             }
 
-            orderDetails.setOrderID(session.getUser().getPartner().nextOrderId());
             orderDetails.setOrderAttribute(OrderAttributeType.DZHNN);
             orderDetails.setOrderType(orderType);
             orderDetails.setOrderParams(OBJECT_FACTORY.createFULOrderParams(fULOrderParams));

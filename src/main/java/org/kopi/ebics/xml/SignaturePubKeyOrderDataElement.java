@@ -25,7 +25,6 @@ import org.ebics.s001.SignaturePubKeyInfo;
 import org.ebics.s001.SignaturePubKeyOrderData;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.session.EbicsSession;
-import org.w3.xmldsig.RSAKeyValue;
 
 import java.time.LocalDateTime;
 
@@ -52,12 +51,8 @@ public class SignaturePubKeyOrderDataElement {
     }
 
     public SignaturePubKeyOrderData build() throws EbicsException {
-        final RSAKeyValue rsaKeyValue = new org.w3.xmldsig.ObjectFactory().createRSAKeyValue();
-        rsaKeyValue.setExponent(session.getUser().getA005PublicKey().getPublicExponent().toByteArray());
-        rsaKeyValue.setModulus(session.getUser().getA005PublicKey().getModulus().toByteArray());
-
         final PubKeyValueType pubKeyValue = OBJECT_FACTORY.createPubKeyValueType();
-        pubKeyValue.setRSAKeyValue(rsaKeyValue);
+        pubKeyValue.setRSAKeyValue(HIARequestOrderDataElement.rsaKeyValue(session.getUser().getA005Key().getPublic()));
         pubKeyValue.setTimeStamp(LocalDateTime.now()); //TODO: Should contain date time from key creation
 
         final SignaturePubKeyInfo signaturePubKeyInfo = OBJECT_FACTORY.createSignaturePubKeyInfo();

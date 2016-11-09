@@ -93,7 +93,7 @@ public abstract class InitializationRequestElement {
      *
      * @return the transaction key
      */
-    protected byte[] generateTransactionKey() throws EbicsException {
+    byte[] generateTransactionKey() throws EbicsException {
         try {
             final Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
             cipher.init(Cipher.ENCRYPT_MODE, session.getBankE002Key());

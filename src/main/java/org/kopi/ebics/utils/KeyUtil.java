@@ -70,9 +70,10 @@ public abstract class KeyUtil {
      * @param publicKey the public key
      * @return the digest value
      */
-    public static byte[] getKeyDigest(final RSAPublicKey publicKey) throws EbicsException {
-        final String exponent = Hex.encodeHexString(publicKey.getPublicExponent().toByteArray()).replaceFirst("^0+", "");
-        final String modulus = Hex.encodeHexString(publicKey.getModulus().toByteArray()).replaceFirst("^0+", "");
+    public static byte[] getKeyDigest(final PublicKey publicKey) throws EbicsException {
+        final RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
+        final String exponent = Hex.encodeHexString(rsaPublicKey.getPublicExponent().toByteArray()).replaceFirst("^0+", "");
+        final String modulus = Hex.encodeHexString(rsaPublicKey.getModulus().toByteArray()).replaceFirst("^0+", "");
         final String hash = exponent.concat(" ").concat(modulus).toLowerCase();
 
         try {

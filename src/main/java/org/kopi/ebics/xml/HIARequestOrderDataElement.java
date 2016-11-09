@@ -26,6 +26,8 @@ import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.session.EbicsSession;
 import org.w3.xmldsig.RSAKeyValue;
 
+import java.security.PublicKey;
+import java.security.interfaces.RSAPublicKey;
 import java.time.LocalDateTime;
 
 
@@ -53,24 +55,16 @@ public class HIARequestOrderDataElement {
     }
 
     public HIARequestOrderDataType build() throws EbicsException {
-        final RSAKeyValue encryptionRsaKeyValue = W3C_OBJECT_FACTORY.createRSAKeyValue();
-        encryptionRsaKeyValue.setExponent(session.getUser().getE002PublicKey().getPublicExponent().toByteArray());
-        encryptionRsaKeyValue.setModulus(session.getUser().getE002PublicKey().getModulus().toByteArray());
-
         final org.ebics.h004.PubKeyValueType encryptionPubKeyValue = OBJECT_FACTORY.createPubKeyValueType();
-        encryptionPubKeyValue.setRSAKeyValue(encryptionRsaKeyValue);
+        encryptionPubKeyValue.setRSAKeyValue(rsaKeyValue(session.getUser().getE002Key().getPublic()));
         encryptionPubKeyValue.setTimeStamp(LocalDateTime.now()); //TODO: date time of key creation
 
         final EncryptionPubKeyInfoType encryptionPubKeyInfo = OBJECT_FACTORY.createEncryptionPubKeyInfoType();
         encryptionPubKeyInfo.setEncryptionVersion(session.getConfiguration().getEncryptionVersion());
         encryptionPubKeyInfo.setPubKeyValue(encryptionPubKeyValue);
 
-        final RSAKeyValue authRsaKeyValue = W3C_OBJECT_FACTORY.createRSAKeyValue();
-        authRsaKeyValue.setExponent(session.getUser().getX002PublicKey().getPublicExponent().toByteArray());
-        authRsaKeyValue.setModulus(session.getUser().getX002PublicKey().getModulus().toByteArray());
-
         final org.ebics.h004.PubKeyValueType authPubKeyValue = OBJECT_FACTORY.createPubKeyValueType();
-        authPubKeyValue.setRSAKeyValue(authRsaKeyValue);
+        authPubKeyValue.setRSAKeyValue(rsaKeyValue(session.getUser().getX002Key().getPublic()));
         authPubKeyValue.setTimeStamp(LocalDateTime.now()); //TODO: date time of key creation
 
         final AuthenticationPubKeyInfoType authenticationPubKeyInfo = OBJECT_FACTORY.createAuthenticationPubKeyInfoType();
@@ -88,5 +82,15 @@ public class HIARequestOrderDataElement {
 
     public String getName() {
         return "HIARequestOrderData.xml";
+    }
+
+    static RSAKeyValue rsaKeyValue(final PublicKey publicKey) {
+        final RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
+        final RSAKeyValue rsaKeyValue = W3C_OBJECT_FACTORY.createRSAKeyValue();
+
+        rsaKeyValue.setExponent(rsaPublicKey.getPublicExponent().toByteArray());
+        rsaKeyValue.setModulus(rsaPublicKey.getModulus().toByteArray());
+
+        return rsaKeyValue;
     }
 }

@@ -25,6 +25,7 @@ import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
+import org.kopi.ebics.interfaces.EbicsBank;
 import org.kopi.ebics.messages.Messages;
 
 import java.io.IOException;
@@ -49,9 +50,9 @@ public abstract class HttpUtil {
      * @param xmlRequest the ebics request
      * @return the HTTP return code
      */
-    public static HttpResponse sendAndReceive(final URL url, final ContentFactory xmlRequest) throws EbicsException {
+    public static HttpResponse sendAndReceive(final EbicsBank ebicsBank, final ContentFactory xmlRequest) throws EbicsException {
         try {
-            return Request.Post(url.toString())
+            return Request.Post(ebicsBank.getUri().toString())
                     .bodyStream(xmlRequest.getContent(), ContentType.APPLICATION_XML.withCharset(Charset.defaultCharset()))
                     // TODO .socketTimeout()
                     .execute()

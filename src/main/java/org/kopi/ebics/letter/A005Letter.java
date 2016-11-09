@@ -19,9 +19,9 @@
 
 package org.kopi.ebics.letter;
 
-import org.kopi.ebics.utils.KeyUtil;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.EbicsUser;
+import org.kopi.ebics.utils.KeyUtil;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -54,9 +54,9 @@ public class A005Letter extends AbstractInitLetter {
                 user.getPartner().getPartnerId(),
                 getString("INILetter.version", locale),
                 getString("INILetter.certificate", locale),
-                user.getA005PublicKey(),
+                user.getA005Key().getPublic(),
                 getString("INILetter.digest", locale),
-                KeyUtil.getKeyDigest(user.getA005PublicKey()));
+                KeyUtil.getKeyDigest(user.getA005Key().getPublic()));
     }
 
     @Override

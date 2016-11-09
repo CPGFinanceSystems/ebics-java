@@ -19,12 +19,12 @@
 
 package org.kopi.ebics.session;
 
-import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.interfaces.Savable;
+import org.kopi.ebics.interfaces.Identifiable;
 import org.kopi.ebics.interfaces.SerializationManager;
 import org.kopi.ebics.io.IOUtils;
 
 import java.io.*;
+import java.text.MessageFormat;
 
 
 /**
@@ -36,6 +36,8 @@ import java.io.*;
  */
 public class DefaultSerializationManager implements SerializationManager {
 
+    private final File serializationDir;
+
     /**
      * Constructs a new <code>SerializationManage</code>
      *
@@ -45,45 +47,28 @@ public class DefaultSerializationManager implements SerializationManager {
         this.serializationDir = serializationDir;
     }
 
-    /**
-     * Constructs a new <code>SerializationManage</code>
-     */
-    public DefaultSerializationManager() {
-        this(null);
+    @Override
+    public void serialize(final Identifiable object) throws IOException {
+        final ObjectOutputStream out = new ObjectOutputStream(
+                new FileOutputStream(IOUtils.createFile(serializationDir, object.getId())));
+        out.writeObject(object);
     }
 
     @Override
-    public void serialize(final Savable object) throws EbicsException {
+    public <T extends Identifiable> T deserialize(final Class<T> clazz, final String id) throws IOException {
+        final ObjectInputStream objectInputStream = new ObjectInputStream(
+                new FileInputStream(IOUtils.createFile(serializationDir, id)));
         try {
-            final ObjectOutputStream out;
-
-            out = new ObjectOutputStream(new FileOutputStream(IOUtils.createFile(serializationDir, object.getSaveName())));
-            object.save(out);
-        } catch (final IOException e) {
-            throw new EbicsException(e.getMessage());
+            final Object object = objectInputStream.readObject();
+            if (clazz.isAssignableFrom(object.getClass())) {
+                return clazz.cast(object);
+            } else {
+                throw new IOException(MessageFormat.format(
+                        "Invalid object class! Expected {0}, got {1} for {2}",
+                        clazz.getName(), object.getClass().getName(), id));
+            }
+        } catch (final ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
-
-    @Override
-    public ObjectInputStream deserialize(final String name) throws EbicsException {
-        try {
-            final ObjectInputStream input;
-
-            input = new ObjectInputStream(new FileInputStream(IOUtils.createFile(serializationDir, name + ".cer")));
-            return input;
-        } catch (final IOException e) {
-            throw new EbicsException(e.getMessage());
-        }
-    }
-
-    @Override
-    public void setSerializationDirectory(final String serializationDir) {
-        this.serializationDir = new File(serializationDir);
-    }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private File serializationDir;
 }

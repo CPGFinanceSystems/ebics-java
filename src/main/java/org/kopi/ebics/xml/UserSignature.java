@@ -24,6 +24,7 @@ import org.ebics.s001.OrderSignatureData;
 import org.ebics.s001.UserSignatureDataSigBookType;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.EbicsUser;
+import org.kopi.ebics.utils.CryptoUtil;
 
 import javax.xml.bind.JAXBElement;
 import java.io.IOException;
@@ -68,7 +69,7 @@ public class UserSignature {
         final byte[] signature;
 
         try {
-            signature = user.sign(toSign);
+            signature = CryptoUtil.sign(toSign, user.getA005Key().getPrivate());
         } catch (final IOException | GeneralSecurityException e) {
             throw new EbicsException(e.getMessage(), e);
         }

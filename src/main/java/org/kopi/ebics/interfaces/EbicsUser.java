@@ -19,9 +19,11 @@
 
 package org.kopi.ebics.interfaces;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.security.interfaces.RSAPublicKey;
+import lombok.Builder;
+import lombok.Value;
+import lombok.experimental.Wither;
+
+import java.security.KeyPair;
 
 
 /**
@@ -29,93 +31,29 @@ import java.security.interfaces.RSAPublicKey;
  *
  * @author Hachani
  */
-public interface EbicsUser extends Savable {
+@Value
+@Builder
+@Wither
+public class EbicsUser implements Identifiable {
 
-    /**
-     * Returns the public part of the signature key.
-     *
-     * @return the public part of the signature key.
-     */
-    RSAPublicKey getA005PublicKey();
+    private static final long serialVersionUID = 1L;
 
-    /**
-     * Returns the public part of the encryption key.
-     *
-     * @return the public part of the encryption key.
-     */
-    RSAPublicKey getE002PublicKey();
+    private final KeyPair a005Key;
+    private final KeyPair e002Key;
+    private final KeyPair x002Key;
 
-    /**
-     * Return the public part of the transport authentication key.
-     *
-     * @return the public part of the transport authentication key.
-     */
-    RSAPublicKey getX002PublicKey();
+    private final String securityMedium;
+    private final String userId;
+    private final String name;
 
-    /**
-     * Returns the type to security medium used to store the A005 key.
-     *
-     * @return the type to security medium used to store the A005 key.
-     */
-    String getSecurityMedium();
+    private final boolean initializedINI;
+    private final boolean initializedHIA;
 
-    /**
-     * Returns the customer in whose name we operate.
-     *
-     * @return the customer in whose name we operate.
-     */
-    EbicsPartner getPartner();
+    private final transient EbicsPartner partner;
+    private final transient PasswordCallback passwordCallback;
 
-    /**
-     * Returns the (bank provided) user id.
-     *
-     * @return the (bank provided) user id.
-     */
-    String getUserId();
-
-    /**
-     * Returns the user name.
-     *
-     * @return the user name.
-     */
-    String getName();
-
-    /**
-     * Returns the password callback handler for the current user.
-     *
-     * @return the password callback handler.
-     */
-    PasswordCallback getPasswordCallback();
-
-    /**
-     * Signs the given digest with the private X002 key.
-     *
-     * @param digest the given digest
-     * @return the signature.
-     */
-    byte[] authenticate(byte[] digest) throws GeneralSecurityException;
-
-    /**
-     * Signs the given digest with the private A005 key.
-     *
-     * @return the signature
-     */
-    byte[] sign(byte[] digest) throws IOException, GeneralSecurityException;
-
-    /**
-     * Uses the E001 key to decrypt the given secret key.
-     *
-     * @param encryptedKey   the given secret key
-     * @param transactionKey a given transaction key
-     * @return the decrypted key;
-     */
-    byte[] decrypt(byte[] encryptedKey, byte[] transactionKey);
-
-    boolean isInitializedINI();
-
-    void setInitializedINI(boolean value);
-
-    boolean isInitializedHIA();
-
-    void setInitializedHIA(boolean value);
+    @Override
+    public String getId() {
+        return getUserId();
+    }
 }

@@ -21,6 +21,7 @@ package org.kopi.ebics.io;
 
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.EbicsUser;
+import org.kopi.ebics.utils.CryptoUtil;
 import org.kopi.ebics.utils.ZipUtil;
 
 import java.io.ByteArrayOutputStream;
@@ -63,11 +64,12 @@ public class Joiner {
      */
     public void writeTo(final OutputStream output, final byte[] transactionKey) {
         try {
-            final byte[] decrypted;
 
             buffer.close();
-            decrypted = user.decrypt(buffer.toByteArray(), transactionKey);
-            output.write(ZipUtil.uncompress(decrypted));
+            output.write(ZipUtil.uncompress(CryptoUtil.decrypt(
+                    buffer.toByteArray(),
+                    transactionKey,
+                    user.getE002Key().getPrivate())));
             output.close();
         } catch (final IOException e) {
             throw new RuntimeException(e);

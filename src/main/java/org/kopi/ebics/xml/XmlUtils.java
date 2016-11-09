@@ -7,6 +7,7 @@ import org.apache.xml.security.c14n.InvalidCanonicalizerException;
 import org.ebics.h004.HIARequestOrderDataType;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.EbicsUser;
+import org.kopi.ebics.utils.CryptoUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -121,7 +122,7 @@ public class XmlUtils {
             final byte[] canonized = canonize(node);
             log.info("Canonized for sign: '{}'", new String(canonized));
 
-            return user.authenticate(canonized);
+            return CryptoUtil.authenticate(canonized, user.getX002Key().getPrivate());
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
