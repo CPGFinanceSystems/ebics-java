@@ -17,17 +17,19 @@
  * $Id$
  */
 
-package org.kopi.ebics.client;
+package org.kopi.ebics.utils;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
-import org.kopi.ebics.io.InputStreamContentFactory;
-import org.kopi.ebics.session.EbicsSession;
+import org.kopi.ebics.messages.Messages;
 
 import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.Charset;
 
 
 /**
@@ -37,51 +39,38 @@ import java.io.IOException;
  *
  * @author hachani
  */
-class HttpRequestSender {
-
-    private final EbicsSession session;
-
-    private ContentFactory response;
-
-    /**
-     * Constructs a new <code>HttpRequestSender</code> with a
-     * given ebics session.
-     *
-     * @param session the ebics session
-     */
-    HttpRequestSender(final EbicsSession session) {
-        this.session = session;
-    }
+public abstract class HttpUtil {
 
     /**
      * Sends the request contained in the <code>ContentFactory</code>.
      * The <code>ContentFactory</code> will deliver the request as
      * an <code>InputStream</code>.
      *
-     * @param request the ebics request
+     * @param xmlRequest the ebics request
      * @return the HTTP return code
      */
-    int send(final ContentFactory request) throws EbicsException {
+    public static HttpResponse sendAndReceive(final URL url, final ContentFactory xmlRequest) throws EbicsException {
         try {
-            final HttpResponse httpResponse = Request
-                    .Post(session.getUser().getPartner().getBank().getURL().toString())
-                    .bodyStream(request.getContent(), ContentType.APPLICATION_XML)
+            return Request.Post(url.toString())
+                    .bodyStream(xmlRequest.getContent(), ContentType.APPLICATION_XML.withCharset(Charset.defaultCharset()))
                     // TODO .socketTimeout()
                     .execute()
                     .returnResponse();
-            response = new InputStreamContentFactory(httpResponse.getEntity().getContent());
-            return httpResponse.getStatusLine().getStatusCode();
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     /**
-     * Returns the content factory of the response body
+     * Checks for the returned http code
      *
-     * @return the content factory of the response.
+     * @param httpCode the http code
      */
-    ContentFactory getResponseBody() {
-        return response;
+    public static void checkHttpCode(final int httpCode) throws EbicsException {
+        if (httpCode != HttpStatus.SC_OK) {
+            throw new EbicsException(Messages.getString("http.code.error",
+                    Constants.APPLICATION_BUNDLE_NAME,
+                    httpCode));
+        }
     }
 }

@@ -24,7 +24,7 @@ import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.EbicsPartner;
 import org.kopi.ebics.interfaces.EbicsUser;
 import org.kopi.ebics.interfaces.PasswordCallback;
-import org.kopi.ebics.utils.Utils;
+import org.kopi.ebics.utils.CryptoUtil;
 import org.kopi.ebics.xml.UserSignature;
 
 import javax.crypto.Cipher;
@@ -382,7 +382,7 @@ class User implements EbicsUser {
      */
     private byte[] decryptData(final byte[] input, final byte[] key)
             throws EbicsException {
-        return Utils.decrypt(input, new SecretKeySpec(key, "AES"));
+        return CryptoUtil.decrypt(input, new SecretKeySpec(key, "AES"));
     }
 
     // --------------------------------------------------------------------

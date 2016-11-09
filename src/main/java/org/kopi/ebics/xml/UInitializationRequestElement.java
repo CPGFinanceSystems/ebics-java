@@ -25,7 +25,7 @@ import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
 import org.kopi.ebics.io.Splitter;
 import org.kopi.ebics.session.EbicsSession;
-import org.kopi.ebics.utils.Utils;
+import org.kopi.ebics.utils.CryptoUtil;
 import org.kopi.ebics.utils.ZipUtil;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -170,7 +170,7 @@ public class UInitializationRequestElement extends InitializationRequestElement 
 
         final DataTransferRequestType.SignatureData signatureData = OBJECT_FACTORY.createDataTransferRequestTypeSignatureData();
         signatureData.setAuthenticate(true);
-        signatureData.setValue(Utils.encrypt(ZipUtil.compress(XmlUtils.prettyPrint(userSignatureElement)), keySpec));
+        signatureData.setValue(CryptoUtil.encrypt(ZipUtil.compress(XmlUtils.prettyPrint(userSignatureElement)), keySpec));
 
         final DataTransferRequestType.DataEncryptionInfo dataEncryptionInfo = OBJECT_FACTORY.createDataTransferRequestTypeDataEncryptionInfo();
         dataEncryptionInfo.setAuthenticate(true);

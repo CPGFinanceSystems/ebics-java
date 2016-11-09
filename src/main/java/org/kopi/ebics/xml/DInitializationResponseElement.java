@@ -19,11 +19,11 @@
 
 package org.kopi.ebics.xml;
 
+import org.apache.http.HttpResponse;
 import org.ebics.h004.EbicsResponse;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.exception.NoDownloadDataAvailableException;
 import org.kopi.ebics.exception.ReturnCode;
-import org.kopi.ebics.interfaces.ContentFactory;
 import org.kopi.ebics.session.OrderType;
 
 /**
@@ -40,17 +40,9 @@ public class DInitializationResponseElement extends EbicsResponseElement {
     private byte[] transactionKey;
     private byte[] orderData;
 
-    /**
-     * Constructs a new <code>DInitializationResponseElement</code> object
-     *
-     * @param factory   the content factory
-     * @param orderType the order type
-     * @param name      the element name
-     */
-    public DInitializationResponseElement(final ContentFactory factory,
-                                          final OrderType orderType,
-                                          final String name) {
-        super(factory, orderType, name);
+    public DInitializationResponseElement(final HttpResponse httpResponse,
+                                          final OrderType orderType) {
+        super(httpResponse, orderType);
     }
 
     @Override

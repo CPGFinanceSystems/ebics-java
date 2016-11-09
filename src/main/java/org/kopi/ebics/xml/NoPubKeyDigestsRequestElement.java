@@ -23,7 +23,7 @@ import org.ebics.h004.*;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
-import org.kopi.ebics.utils.Utils;
+import org.kopi.ebics.utils.CryptoUtil;
 
 import java.time.LocalDateTime;
 
@@ -59,7 +59,7 @@ public class NoPubKeyDigestsRequestElement {
 
         final NoPubKeyDigestsRequestStaticHeaderType xstatic = OBJECT_FACTORY.createNoPubKeyDigestsRequestStaticHeaderType();
         xstatic.setHostID(session.getBankID());
-        xstatic.setNonce(Utils.generateNonce());
+        xstatic.setNonce(CryptoUtil.generateNonce());
         xstatic.setTimestamp(LocalDateTime.now());
         xstatic.setPartnerID(session.getUser().getPartner().getPartnerId());
         xstatic.setUserID(session.getUser().getUserId());

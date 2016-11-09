@@ -19,7 +19,7 @@
 
 package org.kopi.ebics.xml;
 
-import org.kopi.ebics.interfaces.ContentFactory;
+import org.apache.http.HttpResponse;
 
 /**
  * The <code>TransferResponseElement</code> is the common element
@@ -29,13 +29,7 @@ import org.kopi.ebics.interfaces.ContentFactory;
  */
 public class TransferResponseElement extends EbicsResponseElement {
 
-    /**
-     * Constructs a new <code>TransferResponseElement</code> element.
-     *
-     * @param factory the content factory
-     * @param name    the element name;
-     */
-    public TransferResponseElement(final ContentFactory factory, final String name) {
-        super(factory, null, name);
+    public TransferResponseElement(final HttpResponse httpResponse) {
+        super(httpResponse, null);
     }
 }

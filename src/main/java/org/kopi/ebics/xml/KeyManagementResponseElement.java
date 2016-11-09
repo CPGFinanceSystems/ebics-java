@@ -19,10 +19,14 @@
 
 package org.kopi.ebics.xml;
 
+import org.apache.http.HttpResponse;
 import org.ebics.h004.EbicsKeyManagementResponse;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.exception.ReturnCode;
 import org.kopi.ebics.interfaces.ContentFactory;
+import org.kopi.ebics.io.InputStreamContentFactory;
+
+import java.io.IOException;
 
 /**
  * The <code>KeyManagementResponseElement</code> is the common element
@@ -38,14 +42,12 @@ public class KeyManagementResponseElement {
 
     private EbicsKeyManagementResponse response;
 
-    /**
-     * Creates a new <code>KeyManagementResponseElement</code>
-     * from a given <code>ContentFactory</code>
-     *
-     * @param factory the content factory enclosing the ebics response
-     */
-    public KeyManagementResponseElement(final ContentFactory factory) {
-        this.contentFactory = factory;
+    public KeyManagementResponseElement(final HttpResponse httpResponse) {
+        try {
+            this.contentFactory = new InputStreamContentFactory(httpResponse.getEntity().getContent());
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

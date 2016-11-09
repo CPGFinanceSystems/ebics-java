@@ -19,9 +19,9 @@
 
 package org.kopi.ebics.xml;
 
+import org.apache.http.HttpResponse;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.exception.ReturnCode;
-import org.kopi.ebics.interfaces.ContentFactory;
 
 /**
  * The <code>ReceiptResponseElement</code> is the response element
@@ -31,14 +31,8 @@ import org.kopi.ebics.interfaces.ContentFactory;
  */
 public class ReceiptResponseElement extends EbicsResponseElement {
 
-    /**
-     * Constructs a new <code>ReceiptResponseElement</code> object
-     *
-     * @param factory the content factory
-     * @param name    the element name
-     */
-    public ReceiptResponseElement(final ContentFactory factory, final String name) {
-        super(factory, null, name);
+    public ReceiptResponseElement(final HttpResponse httpResponse) {
+        super(httpResponse, null);
     }
 
     @Override

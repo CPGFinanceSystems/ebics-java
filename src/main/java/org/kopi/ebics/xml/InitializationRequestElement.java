@@ -25,7 +25,7 @@ import org.ebics.h004.ObjectFactory;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
-import org.kopi.ebics.utils.Utils;
+import org.kopi.ebics.utils.CryptoUtil;
 
 import javax.crypto.Cipher;
 import java.math.BigInteger;
@@ -60,7 +60,7 @@ public abstract class InitializationRequestElement {
         this.session = session;
         this.type = type;
         this.name = DefaultEbicsRootElement.generateName(type);
-        this.nonce = Utils.generateNonce();
+        this.nonce = CryptoUtil.generateNonce();
     }
 
     public EbicsRequest build() throws EbicsException {

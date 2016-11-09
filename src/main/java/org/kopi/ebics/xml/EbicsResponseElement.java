@@ -19,11 +19,15 @@
 
 package org.kopi.ebics.xml;
 
+import org.apache.http.HttpResponse;
 import org.ebics.h004.EbicsResponse;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.exception.ReturnCode;
 import org.kopi.ebics.interfaces.ContentFactory;
+import org.kopi.ebics.io.InputStreamContentFactory;
 import org.kopi.ebics.session.OrderType;
+
+import java.io.IOException;
 
 /**
  * The <code>InitializationResponseElement</code> is the common
@@ -36,22 +40,16 @@ public class EbicsResponseElement {
     private byte[] transactionId;
     protected ReturnCode returnCode;
     private final OrderType orderType;
-    private final String name;
     private final ContentFactory contentFactory;
 
-    /**
-     * Constructs a new <code>InitializationResponseElement</code> element.
-     *
-     * @param factory   the content factory
-     * @param orderType the order type
-     * @param name      the element name
-     */
-    public EbicsResponseElement(final ContentFactory factory,
-                                final OrderType orderType,
-                                final String name) {
+    public EbicsResponseElement(final HttpResponse httpResponse,
+                                final OrderType orderType) {
+        try {
+            this.contentFactory = new InputStreamContentFactory(httpResponse.getEntity().getContent());
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
         this.orderType = orderType;
-        this.name = name;
-        this.contentFactory = factory;
     }
 
     public EbicsResponse build() throws EbicsException {

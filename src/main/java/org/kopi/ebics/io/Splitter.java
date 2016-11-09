@@ -21,7 +21,7 @@ package org.kopi.ebics.io;
 
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
-import org.kopi.ebics.utils.Utils;
+import org.kopi.ebics.utils.CryptoUtil;
 import org.kopi.ebics.utils.ZipUtil;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -73,7 +73,7 @@ public class Splitter {
             if (isCompressionEnabled) {
                 input = ZipUtil.compress(input);
             }
-            content = Utils.encrypt(input, keySpec);
+            content = CryptoUtil.encrypt(input, keySpec);
             segmentation();
         } catch (final Exception e) {
             throw new EbicsException(e.getMessage());

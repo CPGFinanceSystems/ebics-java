@@ -19,7 +19,7 @@
 
 package org.kopi.ebics.xml;
 
-import org.kopi.ebics.interfaces.ContentFactory;
+import org.apache.http.HttpResponse;
 
 /**
  * The <code>SPRResponseElement</code> is the response element
@@ -29,12 +29,7 @@ import org.kopi.ebics.interfaces.ContentFactory;
  */
 public class SPRResponseElement extends EbicsResponseElement {
 
-    /**
-     * Constructs a new SPR response element.
-     *
-     * @param factory the content factory
-     */
-    public SPRResponseElement(final ContentFactory factory) {
-        super(factory, null, "SPRResponse.xml");
+    public SPRResponseElement(final HttpResponse httpResponse) {
+        super(httpResponse, null);
     }
 }

@@ -19,7 +19,6 @@
 
 package org.kopi.ebics.utils;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.kopi.ebics.exception.EbicsException;
 
@@ -34,7 +33,7 @@ import java.security.spec.RSAPublicKeySpec;
  *
  * @author hachani
  */
-public class KeyUtil {
+public abstract class KeyUtil {
 
     /**
      * EBICS key size
@@ -54,24 +53,6 @@ public class KeyUtil {
         keyGen.initialize(keyLen, new SecureRandom());
 
         return keyGen.generateKeyPair();
-    }
-
-    /**
-     * Generates a random password
-     *
-     * @return the password
-     */
-    public static String generatePassword() {
-        final SecureRandom random;
-
-        try {
-            random = SecureRandom.getInstance("SHA1PRNG");
-            final String pwd = Base64.encodeBase64String(random.generateSeed(5));
-
-            return pwd.substring(0, pwd.length() - 2);
-        } catch (final NoSuchAlgorithmException e) {
-            return "changeit";
-        }
     }
 
     /**

@@ -19,9 +19,9 @@
 
 package org.kopi.ebics.xml;
 
+import org.apache.http.HttpResponse;
 import org.ebics.h004.EbicsResponse;
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.interfaces.ContentFactory;
 import org.kopi.ebics.session.OrderType;
 
 /**
@@ -34,17 +34,9 @@ public class DTransferResponseElement extends EbicsResponseElement {
 
     private byte[] orderData;
 
-    /**
-     * Constructs a new <code>DTransferResponseElement</code> object.
-     *
-     * @param factory   the content factory
-     * @param orderType the order type
-     * @param name      the element name.
-     */
-    public DTransferResponseElement(final ContentFactory factory,
-                                    final OrderType orderType,
-                                    final String name) {
-        super(factory, orderType, name);
+    public DTransferResponseElement(final HttpResponse httpResponse,
+                                    final OrderType orderType) {
+        super(httpResponse, orderType);
     }
 
     public EbicsResponse build() throws EbicsException {

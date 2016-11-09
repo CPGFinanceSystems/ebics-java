@@ -19,21 +19,15 @@
 
 package org.kopi.ebics.utils;
 
-import org.apache.http.HttpStatus;
+import org.apache.commons.codec.binary.Base64;
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.messages.Messages;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.zip.DataFormatException;
-import java.util.zip.Deflater;
-import java.util.zip.Inflater;
 
 
 /**
@@ -41,7 +35,7 @@ import java.util.zip.Inflater;
  *
  * @author hachani
  */
-public class Utils {
+public abstract class CryptoUtil {
 
     /**
      * Generates a random nonce.
@@ -134,15 +128,20 @@ public class Utils {
     }
 
     /**
-     * Checks for the returned http code
+     * Generates a random password
      *
-     * @param httpCode the http code
+     * @return the password
      */
-    public static void checkHttpCode(final int httpCode) throws EbicsException {
-        if (httpCode != HttpStatus.SC_OK) {
-            throw new EbicsException(Messages.getString("http.code.error",
-                    Constants.APPLICATION_BUNDLE_NAME,
-                    httpCode));
+    public static String generatePassword() {
+        final SecureRandom random;
+
+        try {
+            random = SecureRandom.getInstance("SHA1PRNG");
+            final String pwd = Base64.encodeBase64String(random.generateSeed(5));
+
+            return pwd.substring(0, pwd.length() - 2);
+        } catch (final NoSuchAlgorithmException e) {
+            return "changeit";
         }
     }
 }
