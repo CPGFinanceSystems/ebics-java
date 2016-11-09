@@ -24,7 +24,7 @@ import org.ebics.h004.HIARequestOrderDataType;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
-import org.kopi.ebics.utils.Utils;
+import org.kopi.ebics.utils.ZipUtil;
 
 /**
  * The <code>HIARequestElement</code> is the root element used
@@ -55,7 +55,7 @@ public class HIARequestElement {
         final HIARequestOrderDataType orderDataType = requestOrderData.build();
         final UnsecuredRequestElement unsecuredRequest = new UnsecuredRequestElement(session,
                 OrderType.HIA,
-                Utils.zip(XmlUtils.prettyPrint(HIARequestOrderDataType.class, orderDataType)));
+                ZipUtil.compress(XmlUtils.prettyPrint(HIARequestOrderDataType.class, orderDataType)));
         return unsecuredRequest.build();
     }
 }

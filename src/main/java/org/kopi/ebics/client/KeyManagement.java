@@ -27,6 +27,7 @@ import org.kopi.ebics.interfaces.EbicsUser;
 import org.kopi.ebics.io.ByteArrayContentFactory;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.utils.Utils;
+import org.kopi.ebics.utils.ZipUtil;
 import org.kopi.ebics.xml.*;
 
 import java.io.IOException;
@@ -125,7 +126,7 @@ class KeyManagement {
         final KeyManagementResponseElement response = new KeyManagementResponseElement(sender.getResponseBody());
         final EbicsKeyManagementResponse keyManagementResponse = response.build();
         session.getConfiguration().getTraceManager().trace(XmlUtils.prettyPrint(EbicsKeyManagementResponse.class, keyManagementResponse), "HBPResponse");
-        final ContentFactory factory = new ByteArrayContentFactory(Utils.unzip(session.getUser().decrypt(response.getOrderData(), response.getTransactionKey())));
+        final ContentFactory factory = new ByteArrayContentFactory(ZipUtil.uncompress(session.getUser().decrypt(response.getOrderData(), response.getTransactionKey())));
         final HPBResponseOrderDataElement orderData = new HPBResponseOrderDataElement(factory);
         final HPBResponseOrderDataType orderDataResponse = orderData.build();
         session.getConfiguration().getTraceManager().trace(XmlUtils.prettyPrint(HPBResponseOrderDataType.class, orderDataResponse), orderData.getName());

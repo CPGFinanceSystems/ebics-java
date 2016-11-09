@@ -24,7 +24,7 @@ import org.ebics.s001.SignaturePubKeyOrderData;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
-import org.kopi.ebics.utils.Utils;
+import org.kopi.ebics.utils.ZipUtil;
 
 /**
  * The INI request XML element. This root element is to be sent
@@ -54,7 +54,7 @@ public class INIRequestElement {
         final SignaturePubKeyOrderData signaturePubKeyOrderData = signaturePubKey.build();
         final UnsecuredRequestElement unsecuredRequest = new UnsecuredRequestElement(session,
                 OrderType.INI,
-                Utils.zip(XmlUtils.prettyPrint(SignaturePubKeyOrderData.class, signaturePubKeyOrderData)));
+                ZipUtil.compress(XmlUtils.prettyPrint(SignaturePubKeyOrderData.class, signaturePubKeyOrderData)));
         return unsecuredRequest.build();
     }
 }

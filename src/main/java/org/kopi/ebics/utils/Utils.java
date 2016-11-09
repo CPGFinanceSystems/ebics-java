@@ -44,47 +44,6 @@ import java.util.zip.Inflater;
 public class Utils {
 
     /**
-     * Compresses an input of byte array
-     * <p>
-     * <p>The Decompression is ensured via Universal compression
-     * algorithm (RFC 1950, RFC 1951) As specified in the EBICS
-     * specification (16 Appendix: Standards and references)
-     *
-     * @param toZip the input to be compressed
-     * @return the compressed input data
-     */
-    public static byte[] zip(final byte[] toZip) throws EbicsException {
-
-        if (toZip == null) {
-            throw new EbicsException("The input to be zipped cannot be null");
-        }
-
-        final Deflater compressor;
-        final ByteArrayOutputStream output;
-        final byte[] buffer;
-
-        output = new ByteArrayOutputStream(toZip.length);
-        buffer = new byte[1024];
-        compressor = new Deflater(Deflater.BEST_COMPRESSION);
-        compressor.setInput(toZip);
-        compressor.finish();
-
-        while (!compressor.finished()) {
-            final int count = compressor.deflate(buffer);
-            output.write(buffer, 0, count);
-        }
-
-        try {
-            output.close();
-        } catch (final IOException e) {
-            throw new EbicsException(e.getMessage());
-        }
-        compressor.end();
-
-        return output.toByteArray();
-    }
-
-    /**
      * Generates a random nonce.
      * <p>
      * <p>EBICS Specification 2.4.2 - 11.6 Generation of the transaction IDs:
@@ -103,34 +62,6 @@ public class Utils {
         try {
             return SecureRandom.getInstance("SHA1PRNG").generateSeed(16);
         } catch (final NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Uncompresses a given byte array input.
-     * <p>
-     * <p>The Decompression is ensured via Universal compression
-     * algorithm (RFC 1950, RFC 1951) As specified in the EBICS
-     * specification (16 Appendix: Standards and references)
-     *
-     * @param zip the zipped input.
-     * @return the uncompressed data.
-     */
-    public static byte[] unzip(final byte[] zip) {
-        try (final ByteArrayOutputStream output = new ByteArrayOutputStream(zip.length)) {
-            final Inflater decompressor = new Inflater();
-            decompressor.setInput(zip);
-            final byte[] buf = new byte[1024];
-
-            while (!decompressor.finished()) {
-                final int count = decompressor.inflate(buf);
-                output.write(buf, 0, count);
-            }
-
-            decompressor.end(); //TODO: Check if AutoCloseable is available
-            return output.toByteArray();
-        } catch (IOException | DataFormatException e) {
             throw new RuntimeException(e);
         }
     }
