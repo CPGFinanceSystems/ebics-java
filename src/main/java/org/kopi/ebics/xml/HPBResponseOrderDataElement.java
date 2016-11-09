@@ -20,7 +20,7 @@
 package org.kopi.ebics.xml;
 
 import org.ebics.h004.HPBResponseOrderDataType;
-import org.kopi.ebics.certificate.KeyStoreManager;
+import org.kopi.ebics.utils.KeyUtil;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
 import org.w3.xmldsig.RSAKeyValue;
@@ -52,12 +52,12 @@ public class HPBResponseOrderDataElement {
 
     public RSAPublicKey getBankX002PublicKeyData() {
         final RSAKeyValue rsaKey = response.getAuthenticationPubKeyInfo().getPubKeyValue().getRSAKeyValue();
-        return KeyStoreManager.getPublicKey(rsaKey.getModulus(), rsaKey.getExponent());
+        return KeyUtil.getPublicKey(rsaKey.getModulus(), rsaKey.getExponent());
     }
 
     public RSAPublicKey getBankE002PublicKeyData() {
         final RSAKeyValue rsaKey = response.getEncryptionPubKeyInfo().getPubKeyValue().getRSAKeyValue();
-        return KeyStoreManager.getPublicKey(rsaKey.getModulus(), rsaKey.getExponent());
+        return KeyUtil.getPublicKey(rsaKey.getModulus(), rsaKey.getExponent());
     }
 
     public HPBResponseOrderDataType build() throws EbicsException {

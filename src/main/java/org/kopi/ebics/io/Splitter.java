@@ -65,7 +65,6 @@ public class Splitter {
      *
      * @param isCompressionEnabled enable compression?
      * @param keySpec              the secret key spec
-     * @throws EbicsException
      */
     public final void readInput(final boolean isCompressionEnabled, final SecretKeySpec keySpec)
             throws EbicsException {
@@ -105,7 +104,6 @@ public class Splitter {
      * a given segment number.
      *
      * @param segmentNumber the segment number
-     * @return
      */
     public ContentFactory getContent(final int segmentNumber) {
         final byte[] segment;

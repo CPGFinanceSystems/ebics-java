@@ -29,14 +29,14 @@ import java.util.ResourceBundle;
  *
  * @author Hachani
  */
-public class Messages {
+public abstract class Messages {
 
     /**
      * Return the corresponding value of a given key and string parameter.
      *
      * @param key        the given key
      * @param bundleName the bundle name
-     * @param params     the parameter
+     * @param param      the parameter
      * @return the corresponding key value
      */
     public static String getString(final String key, final String bundleName, final String param) {
@@ -93,7 +93,7 @@ public class Messages {
      * @param key        the given key
      * @param bundleName the bundle name
      * @param locale     the bundle locale
-     * @param params     the parameter
+     * @param param      the parameter
      * @return the corresponding key value
      */
     public static String getString(final String key, final String bundleName, final Locale locale, final String param) {

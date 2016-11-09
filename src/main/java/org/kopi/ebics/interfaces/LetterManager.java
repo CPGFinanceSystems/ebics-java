@@ -35,7 +35,7 @@ public interface LetterManager {
 
     /**
      * Creates the initialization letter for the INI request.
-     * This letter contains information about the signature certificate
+     * This letter contains information about the signature util
      * of the given user.
      *
      * @param user the ebics user.

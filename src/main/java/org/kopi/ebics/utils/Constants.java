@@ -19,8 +19,6 @@
 
 package org.kopi.ebics.utils;
 
-import java.text.SimpleDateFormat;
-
 /**
  * Application constants.
  *
@@ -29,5 +27,4 @@ import java.text.SimpleDateFormat;
 public interface Constants {
 
     String APPLICATION_BUNDLE_NAME = "org.kopi.ebics.client.messages";
-    SimpleDateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 }

@@ -30,7 +30,7 @@ import java.util.Date;
 import java.util.Locale;
 
 
-public abstract class AbstractInitLetter implements InitLetter {
+abstract class AbstractInitLetter implements InitLetter {
 
     /**
      * Constructs a new initialization letter.

@@ -20,8 +20,7 @@
 package org.kopi.ebics.client;
 
 import org.ebics.h004.*;
-import org.kopi.ebics.certificate.KeyStoreManager;
-import org.kopi.ebics.certificate.KeyUtil;
+import org.kopi.ebics.utils.KeyUtil;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
 import org.kopi.ebics.interfaces.EbicsUser;
@@ -30,8 +29,6 @@ import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.utils.Utils;
 import org.kopi.ebics.xml.*;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.interfaces.RSAPublicKey;
@@ -132,18 +129,10 @@ class KeyManagement {
         final HPBResponseOrderDataElement orderData = new HPBResponseOrderDataElement(factory);
         final HPBResponseOrderDataType orderDataResponse = orderData.build();
         session.getConfiguration().getTraceManager().trace(XmlUtils.prettyPrint(HPBResponseOrderDataType.class, orderDataResponse), orderData.getName());
-        final KeyStoreManager keystoreManager = new KeyStoreManager();
-        final String path = session.getConfiguration().getKeystoreDirectory(session.getUser());
-        keystoreManager.load("", session.getUser().getPasswordCallback().getPassword());
         final RSAPublicKey e002PubKey = orderData.getBankE002PublicKeyData();
         final RSAPublicKey x002PubKey = orderData.getBankX002PublicKeyData();
         session.getUser().getPartner().getBank().setBankKeys(e002PubKey, x002PubKey);
         session.getUser().getPartner().getBank().setDigests(KeyUtil.getKeyDigest(e002PubKey), KeyUtil.getKeyDigest(x002PubKey));
-        /* FIXME: Not possible to store public key entries in key stores - only private keys and trusted certificates are allowed
-        keystoreManager.setPublicKeyEntry(session.getBankID() + "-E002", e002PubKey);
-        keystoreManager.setPublicKeyEntry(session.getBankID() + "-X002", x002PubKey);
-         */
-        keystoreManager.save(new FileOutputStream(path + File.separator + session.getBankID() + ".p12"));
         return session.getUser();
     }
 

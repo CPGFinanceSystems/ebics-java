@@ -162,7 +162,6 @@ public class Utils {
      * @param input   the input to encrypt
      * @param keySpec the key spec
      * @return the encrypted input
-     * @throws EbicsException
      */
     public static byte[] encrypt(final byte[] input, final SecretKeySpec keySpec)
             throws EbicsException {
@@ -175,7 +174,6 @@ public class Utils {
      * @param input   the input to decrypt
      * @param keySpec the key spec
      * @return the decrypted input
-     * @throws EbicsException
      */
     public static byte[] decrypt(final byte[] input, final SecretKeySpec keySpec)
             throws EbicsException {

@@ -21,7 +21,6 @@ package org.kopi.ebics.interfaces;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.security.KeyPair;
 import java.security.interfaces.RSAPublicKey;
 
 
@@ -52,21 +51,6 @@ public interface EbicsUser extends Savable {
      * @return the public part of the transport authentication key.
      */
     RSAPublicKey getX002PublicKey();
-
-    /**
-     * Sets the signature key pair.
-     */
-    void setA005KeyPair(KeyPair a005KeyPair);
-
-    /**
-     * Sets the authentication key pair.
-     */
-    void setX002KeyPair(KeyPair x002KeyPair);
-
-    /**
-     * Sets the encryption key pair.
-     */
-    void setE002KeyPair(KeyPair e002KeyPair);
 
     /**
      * Returns the type to security medium used to store the A005 key.

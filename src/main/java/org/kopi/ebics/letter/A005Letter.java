@@ -19,7 +19,7 @@
 
 package org.kopi.ebics.letter;
 
-import org.kopi.ebics.certificate.KeyUtil;
+import org.kopi.ebics.utils.KeyUtil;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.EbicsUser;
 
@@ -30,7 +30,7 @@ import java.util.Locale;
 
 /**
  * The <code>A005Letter</code> is the initialization letter
- * for the signature certificate
+ * for the signature util
  *
  * @author Hachani
  */

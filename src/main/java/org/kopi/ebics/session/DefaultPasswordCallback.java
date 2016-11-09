@@ -17,7 +17,7 @@
  * $Id$
  */
 
-package org.kopi.ebics.security;
+package org.kopi.ebics.session;
 
 import org.kopi.ebics.interfaces.PasswordCallback;
 
@@ -27,7 +27,7 @@ import org.kopi.ebics.interfaces.PasswordCallback;
  *
  * @author hachani
  */
-public class UserPasswordHandler implements PasswordCallback {
+public class DefaultPasswordCallback implements PasswordCallback {
 
     /**
      * Creates a new user password handler from a given user id
@@ -36,7 +36,7 @@ public class UserPasswordHandler implements PasswordCallback {
      * @param userId the user id.
      * @param suffix the user suffix.
      */
-    public UserPasswordHandler(final String userId, final String suffix) {
+    public DefaultPasswordCallback(final String userId, final String suffix) {
         this.userId = userId;
         this.suffix = suffix;
     }

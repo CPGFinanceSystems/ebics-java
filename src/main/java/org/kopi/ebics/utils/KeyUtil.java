@@ -17,15 +17,17 @@
  * $Id$
  */
 
-package org.kopi.ebics.certificate;
+package org.kopi.ebics.utils;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.kopi.ebics.exception.EbicsException;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.security.*;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.RSAPublicKeySpec;
 
 /**
  * Some key utilities
@@ -35,20 +37,23 @@ import java.security.interfaces.RSAPublicKey;
 public class KeyUtil {
 
     /**
+     * EBICS key size
+     */
+    public static final int EBICS_KEY_SIZE = 2048;
+
+    /**
      * Generates a <code>KeyPair</code> in RSA format.
      *
      * @param keyLen - key size
      * @return KeyPair the key pair
-     * @throws NoSuchAlgorithmException
      */
-    public static KeyPair makeKeyPair(final int keyLen) throws NoSuchAlgorithmException {
+    public static KeyPair createRsaKeyPair(final int keyLen) throws NoSuchAlgorithmException {
         final KeyPairGenerator keyGen;
 
         keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(keyLen, new SecureRandom());
 
         return keyGen.generateKeyPair();
-
     }
 
     /**
@@ -83,7 +88,6 @@ public class KeyUtil {
      *
      * @param publicKey the public key
      * @return the digest value
-     * @throws EbicsException
      */
     public static byte[] getKeyDigest(final RSAPublicKey publicKey) throws EbicsException {
         final String exponent = Hex.encodeHexString(publicKey.getPublicExponent().toByteArray()).replaceFirst("^0+", "");
@@ -97,14 +101,13 @@ public class KeyUtil {
         }
     }
 
-    /**
-     * Remove the first byte of an byte array
-     *
-     * @return the array
-     */
-    private static byte[] removeFirstByte(final byte[] byteArray) {
-        final byte[] b = new byte[byteArray.length - 1];
-        System.arraycopy(byteArray, 1, b, 0, b.length);
-        return b;
+    public static RSAPublicKey getPublicKey(final byte[] modulus, final byte[] exponent) {
+        final RSAPublicKeySpec spec = new RSAPublicKeySpec(new BigInteger(modulus), new BigInteger(exponent));
+        try {
+            final KeyFactory factory = KeyFactory.getInstance("RSA");
+            return (RSAPublicKey) factory.generatePublic(spec);
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

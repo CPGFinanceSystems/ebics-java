@@ -28,7 +28,7 @@ import org.kopi.ebics.utils.Utils;
 
 /**
  * The INI request XML element. This root element is to be sent
- * to the ebics server to initiate the signature certificate.
+ * to the ebics server to initiate the signature util.
  *
  * @author hachani
  */

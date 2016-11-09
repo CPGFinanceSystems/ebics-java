@@ -19,8 +19,7 @@
 
 package org.kopi.ebics.letter;
 
-import org.apache.commons.codec.binary.Base64;
-import org.kopi.ebics.certificate.KeyUtil;
+import org.kopi.ebics.utils.KeyUtil;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.EbicsUser;
 
@@ -31,7 +30,7 @@ import java.util.Locale;
 
 /**
  * The <code>X002Letter</code> is the initialization letter
- * for the authentication certificate.
+ * for the authentication util.
  *
  * @author Hachani
  */

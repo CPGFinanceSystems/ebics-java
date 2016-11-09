@@ -19,7 +19,7 @@
 
 package org.kopi.ebics.letter;
 
-import org.kopi.ebics.certificate.KeyUtil;
+import org.kopi.ebics.utils.KeyUtil;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.EbicsUser;
 
@@ -30,7 +30,7 @@ import java.util.Locale;
 
 /**
  * The <code>E002Letter</code> is the initialization letter
- * for the encryption certificate.
+ * for the encryption util.
  *
  * @author Hachani
  */

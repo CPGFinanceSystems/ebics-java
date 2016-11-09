@@ -19,7 +19,7 @@
 
 package org.kopi.ebics.client;
 
-import org.kopi.ebics.certificate.UserKeyManager;
+import org.kopi.ebics.utils.KeyUtil;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.EbicsPartner;
 import org.kopi.ebics.interfaces.EbicsUser;
@@ -101,8 +101,9 @@ class User implements EbicsUser {
      * Creates new certificates for a user.
      */
     private void createUserKeyPairs() throws GeneralSecurityException, IOException {
-        final UserKeyManager manager = new UserKeyManager(this);
-        manager.create();
+        a005KeyPair = KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE);
+        x002KeyPair = KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE);
+        e002KeyPair = KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE);
     }
 
     @Override
@@ -195,24 +196,6 @@ class User implements EbicsUser {
      */
     public boolean needsSave() {
         return needSave;
-    }
-
-    @Override
-    public void setA005KeyPair(final KeyPair a005KeyPair) {
-        this.a005KeyPair = a005KeyPair;
-        needSave = true;
-    }
-
-    @Override
-    public void setE002KeyPair(final KeyPair e002KeyPair) {
-        this.e002KeyPair = e002KeyPair;
-        needSave = true;
-    }
-
-    @Override
-    public void setX002KeyPair(final KeyPair x002KeyPair) {
-        this.x002KeyPair = x002KeyPair;
-        needSave = true;
     }
 
     @Override
