@@ -23,7 +23,6 @@ import org.apache.http.HttpResponse;
 import org.ebics.h004.*;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
-import org.kopi.ebics.interfaces.EbicsUser;
 import org.kopi.ebics.io.ByteArrayContentFactory;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.utils.CryptoUtil;

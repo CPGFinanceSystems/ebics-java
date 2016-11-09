@@ -6,7 +6,7 @@ import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.c14n.InvalidCanonicalizerException;
 import org.ebics.h004.HIARequestOrderDataType;
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.interfaces.EbicsUser;
+import org.kopi.ebics.client.EbicsUser;
 import org.kopi.ebics.utils.CryptoUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;

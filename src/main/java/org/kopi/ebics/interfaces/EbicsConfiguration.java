@@ -19,6 +19,8 @@
 
 package org.kopi.ebics.interfaces;
 
+import org.kopi.ebics.client.EbicsUser;
+
 import java.util.Locale;
 
 

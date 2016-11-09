@@ -21,7 +21,7 @@ package org.kopi.ebics.session;
 
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.EbicsConfiguration;
-import org.kopi.ebics.interfaces.EbicsUser;
+import org.kopi.ebics.client.EbicsUser;
 
 import java.io.IOException;
 import java.security.interfaces.RSAPublicKey;

@@ -20,7 +20,7 @@
 package org.kopi.ebics.letter;
 
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.interfaces.EbicsUser;
+import org.kopi.ebics.client.EbicsUser;
 import org.kopi.ebics.interfaces.InitLetter;
 import org.kopi.ebics.interfaces.LetterManager;
 

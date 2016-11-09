@@ -23,7 +23,7 @@ import org.ebics.s001.ObjectFactory;
 import org.ebics.s001.OrderSignatureData;
 import org.ebics.s001.UserSignatureDataSigBookType;
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.interfaces.EbicsUser;
+import org.kopi.ebics.client.EbicsUser;
 import org.kopi.ebics.utils.CryptoUtil;
 
 import javax.xml.bind.JAXBElement;

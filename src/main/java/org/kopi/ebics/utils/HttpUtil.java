@@ -25,11 +25,10 @@ import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
-import org.kopi.ebics.interfaces.EbicsBank;
+import org.kopi.ebics.client.EbicsBank;
 import org.kopi.ebics.messages.Messages;
 
 import java.io.IOException;
-import java.net.URL;
 import java.nio.charset.Charset;
 
 

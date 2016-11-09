@@ -21,7 +21,7 @@ package org.kopi.ebics.letter;
 
 import org.kopi.ebics.utils.KeyUtil;
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.interfaces.EbicsUser;
+import org.kopi.ebics.client.EbicsUser;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;

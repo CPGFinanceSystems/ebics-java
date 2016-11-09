@@ -19,7 +19,7 @@
 
 package org.kopi.ebics.xml;
 
-import org.kopi.ebics.interfaces.EbicsUser;
+import org.kopi.ebics.client.EbicsUser;
 import org.w3.xmldsig.*;
 
 

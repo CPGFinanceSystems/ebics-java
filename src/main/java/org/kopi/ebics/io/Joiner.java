@@ -20,7 +20,7 @@
 package org.kopi.ebics.io;
 
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.interfaces.EbicsUser;
+import org.kopi.ebics.client.EbicsUser;
 import org.kopi.ebics.utils.CryptoUtil;
 import org.kopi.ebics.utils.ZipUtil;
 
