@@ -49,7 +49,6 @@ public class DefaultEbicsConfiguration implements EbicsConfiguration {
         this.rootDir = rootDir;
         bundle = ResourceBundle.getBundle(RESOURCE_DIR);
         properties = new Properties();
-        logger = new DefaultEbicsLogger();
         serializationManager = new DefaultSerializationManager();
         traceManager = new DefaultTraceManager();
     }
@@ -215,11 +214,6 @@ public class DefaultEbicsConfiguration implements EbicsConfiguration {
     }
 
     @Override
-    public EbicsLogger getLogger() {
-        return logger;
-    }
-
-    @Override
     public String getSignatureVersion() {
         return getString("signature.version");
     }
@@ -256,7 +250,6 @@ public class DefaultEbicsConfiguration implements EbicsConfiguration {
     private final String rootDir;
     private final ResourceBundle bundle;
     private final Properties properties;
-    private final EbicsLogger logger;
     private final SerializationManager serializationManager;
     private final TraceManager traceManager;
     private LetterManager letterManager;

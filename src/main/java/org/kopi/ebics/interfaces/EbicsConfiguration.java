@@ -70,7 +70,7 @@ public interface EbicsConfiguration {
      * Returns the directory path of the key store that contains
      * bank and user certificates.
      *
-     * @param the ebics user.
+     * @param user ebics user.
      * @return the key store directory of a given user.
      */
     String getKeystoreDirectory(EbicsUser user);
@@ -87,7 +87,6 @@ public interface EbicsConfiguration {
     /**
      * Returns the object serialization directory.
      *
-     * @param user the ebics user
      * @return the object serialization directory.
      */
     String getSerializationDirectory();
@@ -154,13 +153,6 @@ public interface EbicsConfiguration {
      * @return the users directory.
      */
     String getUserDirectory(EbicsUser user);
-
-    /**
-     * Returns the client application logger.
-     *
-     * @return the client application logger.
-     */
-    EbicsLogger getLogger();
 
     /**
      * Configuration initialization.

@@ -19,6 +19,7 @@
 
 package org.kopi.ebics.client;
 
+import lombok.extern.slf4j.Slf4j;
 import org.ebics.h004.EbicsRequest;
 import org.ebics.h004.EbicsResponse;
 import org.kopi.ebics.exception.EbicsException;
@@ -68,6 +69,7 @@ import static org.kopi.ebics.xml.DefaultEbicsRootElement.generateName;
  *
  * @author Hachani
  */
+@Slf4j
 class FileTransfer {
 
     private final EbicsSession session;
@@ -133,9 +135,7 @@ class FileTransfer {
                           final OrderType orderType) throws EbicsException {
         final TransferResponseElement response;
 
-        session.getConfiguration().getLogger().info(Messages.getString("upload.segment",
-                Constants.APPLICATION_BUNDLE_NAME,
-                segmentNumber));
+        log.info(Messages.getString("upload.segment", Constants.APPLICATION_BUNDLE_NAME, segmentNumber));
         final UTransferRequestElement uploader = new UTransferRequestElement(session,
                 orderType,
                 segmentNumber,
