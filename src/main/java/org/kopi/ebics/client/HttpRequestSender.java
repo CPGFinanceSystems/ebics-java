@@ -19,20 +19,15 @@
 
 package org.kopi.ebics.client;
 
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.RequestEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.fluent.Request;
+import org.apache.http.entity.ContentType;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
 import org.kopi.ebics.io.InputStreamContentFactory;
 import org.kopi.ebics.session.EbicsSession;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 
 /**
@@ -44,13 +39,17 @@ import java.io.InputStream;
  */
 class HttpRequestSender {
 
+    private final EbicsSession session;
+
+    private ContentFactory response;
+
     /**
      * Constructs a new <code>HttpRequestSender</code> with a
      * given ebics session.
      *
      * @param session the ebics session
      */
-    public HttpRequestSender(final EbicsSession session) {
+    HttpRequestSender(final EbicsSession session) {
         this.session = session;
     }
 
@@ -62,54 +61,19 @@ class HttpRequestSender {
      * @param request the ebics request
      * @return the HTTP return code
      */
-    public final int send(final ContentFactory request) throws EbicsException {
-        final HttpClient httpClient;
-        final String proxyConfiguration;
-        final PostMethod method;
-        final RequestEntity requestEntity;
-        final InputStream input;
-        int retCode;
-
-        httpClient = new HttpClient();
-        proxyConfiguration = session.getConfiguration().getProperty("http.proxy.host");
-
-        if (proxyConfiguration != null && !proxyConfiguration.equals("")) {
-            final HostConfiguration hostConfig;
-            final String proxyHost;
-            final int proxyPort;
-
-            hostConfig = httpClient.getHostConfiguration();
-            proxyHost = session.getConfiguration().getProperty("http.proxy.host").trim();
-            proxyPort = Integer.parseInt(session.getConfiguration().getProperty("http.proxy.port").trim());
-            hostConfig.setProxy(proxyHost, proxyPort);
-            if (!session.getConfiguration().getProperty("http.proxy.user").equals("")) {
-                final String user;
-                final String pwd;
-                final UsernamePasswordCredentials credentials;
-                final AuthScope authscope;
-
-                user = session.getConfiguration().getProperty("http.proxy.user").trim();
-                pwd = session.getConfiguration().getProperty("http.proxy.password").trim();
-                credentials = new UsernamePasswordCredentials(user, pwd);
-                authscope = new AuthScope(proxyHost, proxyPort);
-                httpClient.getState().setProxyCredentials(authscope, credentials);
-            }
-        }
-
+    int send(final ContentFactory request) throws EbicsException {
         try {
-            input = request.getContent();
-            method = new PostMethod(session.getUser().getPartner().getBank().getURL().toString());
-            method.getParams().setSoTimeout(30000);
-            requestEntity = new InputStreamRequestEntity(input);
-            method.setRequestEntity(requestEntity);
-            method.setRequestHeader("Content-type", "text/xml; charset=ISO-8859-1");
-            retCode = httpClient.executeMethod(method);
-            response = new InputStreamContentFactory(method.getResponseBodyAsStream());
+            final HttpResponse httpResponse = Request
+                    .Post(session.getUser().getPartner().getBank().getURL().toString())
+                    .bodyStream(request.getContent(), ContentType.APPLICATION_XML)
+                    // TODO .socketTimeout()
+                    .execute()
+                    .returnResponse();
+            response = new InputStreamContentFactory(httpResponse.getEntity().getContent());
+            return httpResponse.getStatusLine().getStatusCode();
         } catch (final IOException e) {
-            throw new EbicsException(e.getMessage(), e);
+            throw new RuntimeException(e);
         }
-
-        return retCode;
     }
 
     /**
@@ -117,14 +81,7 @@ class HttpRequestSender {
      *
      * @return the content factory of the response.
      */
-    public ContentFactory getResponseBody() {
+    ContentFactory getResponseBody() {
         return response;
     }
-
-    //////////////////////////////////////////////////////////////////
-    // DATA MEMBERS
-    //////////////////////////////////////////////////////////////////
-
-    private final EbicsSession session;
-    private ContentFactory response;
 }

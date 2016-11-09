@@ -19,6 +19,7 @@
 
 package org.kopi.ebics.utils;
 
+import org.apache.http.HttpStatus;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.messages.Messages;
 
@@ -30,8 +31,6 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.text.ParseException;
-import java.util.Date;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -53,7 +52,6 @@ public class Utils {
      *
      * @param toZip the input to be compressed
      * @return the compressed input data
-     * @throws IOException compression failed
      */
     public static byte[] zip(final byte[] toZip) throws EbicsException {
 
@@ -207,27 +205,12 @@ public class Utils {
     }
 
     /**
-     * Parses a string date
-     *
-     * @param date the given string date
-     * @return the date value
-     */
-    public static Date parse(final String date) throws EbicsException {
-        try {
-            return Constants.DEFAULT_DATE_FORMAT.parse(date);
-        } catch (final ParseException e) {
-            throw new EbicsException(e.getMessage());
-        }
-    }
-
-    /**
      * Checks for the returned http code
      *
      * @param httpCode the http code
-     * @throws EbicsException
      */
     public static void checkHttpCode(final int httpCode) throws EbicsException {
-        if (httpCode != 200) {
+        if (httpCode != HttpStatus.SC_OK) {
             throw new EbicsException(Messages.getString("http.code.error",
                     Constants.APPLICATION_BUNDLE_NAME,
                     httpCode));
