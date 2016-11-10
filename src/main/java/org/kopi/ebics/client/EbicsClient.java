@@ -21,7 +21,9 @@ package org.kopi.ebics.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.interfaces.*;
+import org.kopi.ebics.interfaces.EbicsConfiguration;
+import org.kopi.ebics.interfaces.InitLetter;
+import org.kopi.ebics.interfaces.PasswordCallback;
 import org.kopi.ebics.io.IOUtils;
 import org.kopi.ebics.messages.Messages;
 import org.kopi.ebics.session.EbicsSession;
@@ -175,12 +177,11 @@ public class EbicsClient {
         }
 
         final EbicsSession session = new EbicsSession(user, configuration, product);
-        final KeyManagement keyManager = new KeyManagement(session);
         configuration.getTraceManager().setTraceDirectory(configuration.getTransferTraceDirectory(user));
 
         try {
             log.info(Messages.getString("ini.send.success", Constants.APPLICATION_BUNDLE_NAME, user.getId()));
-            return keyManager.sendINI();
+            return KeyManagement.sendINI(session);
         } catch (final IOException e) {
             throw new EbicsException(Messages.getString("ini.send.error", Constants.APPLICATION_BUNDLE_NAME, user.getId()), e);
         }
@@ -200,12 +201,11 @@ public class EbicsClient {
         }
 
         final EbicsSession session = new EbicsSession(user, configuration, product);
-        final KeyManagement keyManager = new KeyManagement(session);
         configuration.getTraceManager().setTraceDirectory(configuration.getTransferTraceDirectory(user));
 
         try {
             log.info(Messages.getString("hia.send.success", Constants.APPLICATION_BUNDLE_NAME, user.getId()));
-            return keyManager.sendHIA();
+            return KeyManagement.sendHIA(session);
         } catch (final IOException e) {
             throw new EbicsException(Messages.getString("hia.send.error", Constants.APPLICATION_BUNDLE_NAME, user.getId()), e);
         }
@@ -221,12 +221,11 @@ public class EbicsClient {
         log.info(Messages.getString("hpb.request.send", Constants.APPLICATION_BUNDLE_NAME, user.getId()));
 
         final EbicsSession session = new EbicsSession(user, configuration, product);
-        final KeyManagement keyManager = new KeyManagement(session);
         configuration.getTraceManager().setTraceDirectory(configuration.getTransferTraceDirectory(user));
 
         try {
             log.info(Messages.getString("hpb.send.success", Constants.APPLICATION_BUNDLE_NAME, user.getId()));
-            return keyManager.sendHPB();
+            return KeyManagement.sendHPB(session);
         } catch (final Exception e) {
             throw new EbicsException(Messages.getString("hpb.send.error", Constants.APPLICATION_BUNDLE_NAME, user.getId()), e);
         }
@@ -242,13 +241,12 @@ public class EbicsClient {
         log.info(Messages.getString("spr.request.send", Constants.APPLICATION_BUNDLE_NAME, user.getId()));
 
         final EbicsSession session = new EbicsSession(user, configuration, product);
-        final KeyManagement keyManager = new KeyManagement(session);
 
         configuration.getTraceManager().setTraceDirectory(configuration.getTransferTraceDirectory(user));
 
         try {
             log.info(Messages.getString("spr.send.success", Constants.APPLICATION_BUNDLE_NAME, user.getId()));
-            return keyManager.lockAccess();
+            return KeyManagement.lockAccess(session);
         } catch (final Exception e) {
             throw new EbicsException(Messages.getString("spr.send.error", Constants.APPLICATION_BUNDLE_NAME, user.getId()), e);
         }
@@ -265,11 +263,10 @@ public class EbicsClient {
     public void uploadSepaDirectDebit(final String path, final EbicsUser user, final Product product) throws EbicsException {
         final EbicsSession session = new EbicsSession(user, configuration, product);
         session.addSessionParam("FORMAT", "pain.008.001.02");
-        final FileTransfer transferManager = new FileTransfer(session);
 
         configuration.getTraceManager().setTraceDirectory(configuration.getTransferTraceDirectory(user));
 
-        transferManager.sendFile(IOUtils.getFileContent(path), OrderType.CDD);
+        FileTransfer.sendFile(session, IOUtils.getFileContent(path), OrderType.CDD);
     }
 
     public void fetchFile(final String path,
@@ -284,12 +281,11 @@ public class EbicsClient {
         if (isTest) {
             session.addSessionParam("TEST", "true");
         }
-        final FileTransfer transferManager = new FileTransfer(session);
 
         configuration.getTraceManager().setTraceDirectory(configuration.getTransferTraceDirectory(user));
 
         try {
-            transferManager.fetchFile(orderType, start, end, new FileOutputStream(path));
+            FileTransfer.fetchFile(session, orderType, start, end, new FileOutputStream(path));
         } catch (final IOException | EbicsException e) {
             log.error(Messages.getString("download.file.error", Constants.APPLICATION_BUNDLE_NAME), e);
         }

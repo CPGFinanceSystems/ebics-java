@@ -71,18 +71,7 @@ import static org.kopi.ebics.xml.DefaultEbicsRootElement.generateName;
  * @author Hachani
  */
 @Slf4j
-class FileTransfer {
-
-    private final EbicsSession session;
-
-    /**
-     * Constructs a new FileTransfer session
-     *
-     * @param session the user session
-     */
-    FileTransfer(final EbicsSession session) {
-        this.session = session;
-    }
+abstract class FileTransfer {
 
     /**
      * Initiates a file transfer to the bank.
@@ -90,7 +79,7 @@ class FileTransfer {
      * @param content   The bytes you want to send.
      * @param orderType As which order type
      */
-    void sendFile(final byte[] content, final OrderType orderType) throws EbicsException {
+    static void sendFile(final EbicsSession session, final byte[] content, final OrderType orderType) throws EbicsException {
         final UInitializationRequestElement initializer = new UInitializationRequestElement(session, orderType, content);
         final EbicsRequest request = initializer.build();
         final byte[] xml = XmlUtils.prettyPrint(EbicsRequest.class, request);
@@ -110,7 +99,8 @@ class FileTransfer {
             final int segmentNumber;
 
             segmentNumber = state.next();
-            sendFile(initializer.getContent(segmentNumber),
+            sendFile(session,
+                    initializer.getContent(segmentNumber),
                     segmentNumber,
                     state.isLastSegment(),
                     state.getTransactionId(),
@@ -126,13 +116,13 @@ class FileTransfer {
      * @param lastSegment   is it the last segment?
      * @param transactionId the transaction Id
      * @param orderType     the order type
-     * @throws EbicsException
      */
-    private void sendFile(final ContentFactory factory,
-                          final int segmentNumber,
-                          final boolean lastSegment,
-                          final byte[] transactionId,
-                          final OrderType orderType) throws EbicsException {
+    private static void sendFile(final EbicsSession session,
+                                 final ContentFactory factory,
+                                 final int segmentNumber,
+                                 final boolean lastSegment,
+                                 final byte[] transactionId,
+                                 final OrderType orderType) throws EbicsException {
         final TransferResponseElement response;
 
         log.info(Messages.getString("upload.segment", Constants.APPLICATION_BUNDLE_NAME, segmentNumber));
@@ -167,11 +157,11 @@ class FileTransfer {
      * @throws IOException    communication error
      * @throws EbicsException server generated error
      */
-    void fetchFile(final OrderType orderType,
-                   final LocalDate start,
-                   final LocalDate end,
-                   final OutputStream dest)
-            throws IOException, EbicsException {
+    static void fetchFile(final EbicsSession session,
+                          final OrderType orderType,
+                          final LocalDate start,
+                          final LocalDate end,
+                          final OutputStream dest) throws IOException, EbicsException {
         final DInitializationRequestElement initializer = new DInitializationRequestElement(session,
                 orderType,
                 start,
@@ -194,7 +184,8 @@ class FileTransfer {
             final int segmentNumber;
 
             segmentNumber = state.next();
-            fetchFile(orderType,
+            fetchFile(session,
+                    orderType,
                     segmentNumber,
                     state.isLastSegment(),
                     state.getTransactionId(),
@@ -226,11 +217,12 @@ class FileTransfer {
      * @throws IOException    communication error
      * @throws EbicsException server generated error
      */
-    private void fetchFile(final OrderType orderType,
-                           final int segmentNumber,
-                           final boolean lastSegment,
-                           final byte[] transactionId,
-                           final Joiner joiner) throws IOException, EbicsException {
+    private static void fetchFile(final EbicsSession session,
+                                  final OrderType orderType,
+                                  final int segmentNumber,
+                                  final boolean lastSegment,
+                                  final byte[] transactionId,
+                                  final Joiner joiner) throws IOException, EbicsException {
         final DTransferRequestElement downloader = new DTransferRequestElement(session,
                 orderType,
                 segmentNumber,

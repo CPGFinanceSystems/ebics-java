@@ -19,9 +19,15 @@
 
 package org.kopi.ebics.session;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.experimental.Wither;
 import org.kopi.ebics.client.EbicsUser;
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.interfaces.*;
+import org.kopi.ebics.interfaces.EbicsConfiguration;
+import org.kopi.ebics.interfaces.LetterManager;
+import org.kopi.ebics.interfaces.SerializationManager;
+import org.kopi.ebics.interfaces.TraceManager;
 import org.kopi.ebics.io.IOUtils;
 import org.kopi.ebics.letter.DefaultLetterManager;
 
@@ -39,7 +45,18 @@ import java.util.ResourceBundle;
  *
  * @author hachani
  */
+@Wither
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DefaultEbicsConfiguration implements EbicsConfiguration {
+
+    private static final String RESOURCE_DIR = "org.kopi.ebics.client.config";
+
+    private final String rootDir;
+    private final ResourceBundle bundle;
+    private final Properties properties;
+    private final SerializationManager serializationManager;
+    private final TraceManager traceManager;
+    private final LetterManager letterManager;
 
     /**
      * Creates a new application configuration.
@@ -48,10 +65,11 @@ public class DefaultEbicsConfiguration implements EbicsConfiguration {
      */
     public DefaultEbicsConfiguration(final String rootDir) {
         this.rootDir = rootDir;
-        bundle = ResourceBundle.getBundle(RESOURCE_DIR);
-        properties = new Properties();
-        serializationManager = new DefaultSerializationManager(new File(getSerializationDirectory()));
-        traceManager = new DefaultTraceManager();
+        this.bundle = ResourceBundle.getBundle(RESOURCE_DIR);
+        this.properties = new Properties();
+        this.serializationManager = new DefaultSerializationManager(new File(getSerializationDirectory()));
+        this.traceManager = new DefaultTraceManager();
+        this.letterManager = new DefaultLetterManager(getLocale());
     }
 
     /**
@@ -82,17 +100,11 @@ public class DefaultEbicsConfiguration implements EbicsConfiguration {
      * @throws EbicsException
      */
     public void load(final String configFile) throws EbicsException {
-        if (isConfigFileLoad) {
-            return;
-        }
-
         try {
             properties.load(new FileInputStream(new File(configFile)));
         } catch (final IOException e) {
-            throw new EbicsException(e.getMessage());
+            throw new EbicsException(e.getMessage(), e);
         }
-
-        isConfigFileLoad = true;
     }
 
     @Override
@@ -116,8 +128,6 @@ public class DefaultEbicsConfiguration implements EbicsConfiguration {
         IOUtils.createDirectories(getSSLBankCertificates());
         //Create users directory
         IOUtils.createDirectories(getUsersDirectory());
-
-        letterManager = new DefaultLetterManager(getLocale());
     }
 
     @Override
@@ -142,10 +152,6 @@ public class DefaultEbicsConfiguration implements EbicsConfiguration {
 
     @Override
     public String getProperty(final String key) {
-        if (!isConfigFileLoad) {
-            return null;
-        }
-
         if (key == null) {
             return null;
         }
@@ -242,18 +248,4 @@ public class DefaultEbicsConfiguration implements EbicsConfiguration {
     public String getVersion() {
         return getString("ebics.version");
     }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private final String rootDir;
-    private final ResourceBundle bundle;
-    private final Properties properties;
-    private final SerializationManager serializationManager;
-    private final TraceManager traceManager;
-    private LetterManager letterManager;
-    private boolean isConfigFileLoad;
-
-    private static final String RESOURCE_DIR = "org.kopi.ebics.client.config";
 }
