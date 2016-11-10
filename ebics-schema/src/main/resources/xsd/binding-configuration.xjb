@@ -19,7 +19,7 @@
             <jaxb:package name="org.w3.xmldsig"/>
         </jaxb:schemaBindings>
         <jaxb:bindings>
-            <namespace:prefix name="ds" />
+            <namespace:prefix name="ds"/>
         </jaxb:bindings>
     </jaxb:bindings>
 </jaxb:bindings>

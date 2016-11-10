@@ -88,46 +88,6 @@ public abstract class Messages {
     }
 
     /**
-     * Return the corresponding value of a given key and string parameter.
-     *
-     * @param key        the given key
-     * @param bundleName the bundle name
-     * @param locale     the bundle locale
-     * @param param      the parameter
-     * @return the corresponding key value
-     */
-    public static String getString(final String key, final String bundleName, final Locale locale, final String param) {
-        try {
-            final ResourceBundle resourceBundle;
-
-            resourceBundle = ResourceBundle.getBundle(bundleName, locale);
-            return MessageFormat.format(resourceBundle.getString(key), param);
-        } catch (final MissingResourceException e) {
-            return "!!" + key + "!!";
-        }
-    }
-
-    /**
-     * Return the corresponding value of a given key and integer parameter.
-     *
-     * @param key        the given key
-     * @param bundleName the bundle name
-     * @param locale     the bundle locale
-     * @param param      the parameter
-     * @return the corresponding key value
-     */
-    public static String getString(final String key, final String bundleName, final Locale locale, final int param) {
-        try {
-            final ResourceBundle resourceBundle;
-
-            resourceBundle = ResourceBundle.getBundle(bundleName, locale);
-            return MessageFormat.format(resourceBundle.getString(key), param);
-        } catch (final MissingResourceException e) {
-            return "!!" + key + "!!";
-        }
-    }
-
-    /**
      * Return the corresponding value of a given key and parameters.
      *
      * @param key        the given key

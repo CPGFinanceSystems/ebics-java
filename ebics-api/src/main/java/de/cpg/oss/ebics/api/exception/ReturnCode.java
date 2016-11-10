@@ -108,7 +108,7 @@ public enum ReturnCode {
     EBICS_INVALID_SIGNER_STATE("091305"),
     EBICS_DUPLICATE_SIGNATURE("091306");
 
-    private static final String BUNDLE_NAME = "org.kopi.ebics.exception.messages";
+    private static final String BUNDLE_NAME = "de.cpg.oss.ebics.exception.messages";
     private static final long serialVersionUID = 1L;
 
     private final String code;
