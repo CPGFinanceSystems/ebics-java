@@ -38,20 +38,18 @@ public interface LetterManager {
      * This letter contains information about the signature util
      * of the given user.
      *
-     * @param user the ebics user.
      * @return the INI letter.
      */
-    InitLetter createA005Letter(EbicsUser user) throws GeneralSecurityException, IOException, EbicsException;
+    InitLetter createA005Letter(EbicsSession session) throws GeneralSecurityException, IOException, EbicsException;
 
     /**
      * Creates the initialization letter for the HIA request.
      * This letter contains information about the encryption
      * certificates of the given user.
      *
-     * @param user the ebics user
      * @return the HIA letter
      */
-    InitLetter createE002Letter(EbicsUser user) throws GeneralSecurityException, IOException, EbicsException;
+    InitLetter createE002Letter(EbicsSession session) throws GeneralSecurityException, IOException, EbicsException;
 
     /**
      * Creates the initialization letter for the HIA request.
@@ -61,5 +59,5 @@ public interface LetterManager {
      * @param user the ebics user
      * @return the HIA letter
      */
-    InitLetter createX002Letter(EbicsUser user) throws GeneralSecurityException, IOException, EbicsException;
+    InitLetter createX002Letter(EbicsSession session) throws GeneralSecurityException, IOException, EbicsException;
 }

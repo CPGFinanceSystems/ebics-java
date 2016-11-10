@@ -19,11 +19,11 @@
 
 package de.cpg.oss.ebics.xml;
 
+import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.io.ContentFactory;
 import de.cpg.oss.ebics.io.Splitter;
-import de.cpg.oss.ebics.session.EbicsSession;
 import de.cpg.oss.ebics.utils.CryptoUtil;
 import de.cpg.oss.ebics.utils.ZipUtil;
 import org.ebics.h004.*;
@@ -79,12 +79,12 @@ public class UInitializationRequestElement extends InitializationRequestElement 
         final StaticHeaderType.BankPubKeyDigests.Authentication authentication = OBJECT_FACTORY.createStaticHeaderTypeBankPubKeyDigestsAuthentication();
         authentication.setVersion(session.getConfiguration().getAuthenticationVersion());
         authentication.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
-        authentication.setValue(session.getUser().getPartner().getBank().getX002Digest());
+        authentication.setValue(session.getBank().getX002Digest());
 
         final StaticHeaderType.BankPubKeyDigests.Encryption encryption = OBJECT_FACTORY.createStaticHeaderTypeBankPubKeyDigestsEncryption();
         encryption.setVersion(session.getConfiguration().getEncryptionVersion());
         encryption.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
-        encryption.setValue(session.getUser().getPartner().getBank().getE002Digest());
+        encryption.setValue(session.getBank().getE002Digest());
 
         final StaticHeaderType.BankPubKeyDigests bankPubKeyDigests = OBJECT_FACTORY.createStaticHeaderTypeBankPubKeyDigests();
         bankPubKeyDigests.setAuthentication(authentication);
@@ -141,10 +141,10 @@ public class UInitializationRequestElement extends InitializationRequestElement 
         }
 
         final StaticHeaderType xstatic = OBJECT_FACTORY.createStaticHeaderType();
-        xstatic.setHostID(session.getBankID());
+        xstatic.setHostID(session.getHostId());
         xstatic.setNonce(nonce);
         xstatic.setNumSegments(BigInteger.valueOf(splitter.getNumSegments()));
-        xstatic.setPartnerID(session.getUser().getPartner().getPartnerId());
+        xstatic.setPartnerID(session.getPartner().getId());
         xstatic.setProduct(OBJECT_FACTORY.createStaticHeaderTypeProduct(product));
         xstatic.setSecurityMedium(session.getUser().getSecurityMedium());
         xstatic.setUserID(session.getUser().getUserId());
@@ -160,9 +160,9 @@ public class UInitializationRequestElement extends InitializationRequestElement 
         final DataEncryptionInfoType.EncryptionPubKeyDigest encryptionPubKeyDigest = OBJECT_FACTORY.createDataEncryptionInfoTypeEncryptionPubKeyDigest();
         encryptionPubKeyDigest.setVersion(session.getConfiguration().getEncryptionVersion());
         encryptionPubKeyDigest.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
-        encryptionPubKeyDigest.setValue(session.getUser().getPartner().getBank().getE002Digest());
+        encryptionPubKeyDigest.setValue(session.getBank().getE002Digest());
 
-        final UserSignature userSignature = new UserSignature(session.getUser(),
+        final UserSignature userSignature = new UserSignature(session,
                 DefaultEbicsRootElement.generateName("UserSignature"),
                 session.getConfiguration().getSignatureVersion(),
                 userData);

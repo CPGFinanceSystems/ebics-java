@@ -19,7 +19,7 @@
 
 package de.cpg.oss.ebics.letter;
 
-import de.cpg.oss.ebics.api.EbicsUser;
+import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.MessageProvider;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.KeyUtil;
@@ -47,17 +47,17 @@ public class X002Letter extends AbstractInitLetter {
     }
 
     @Override
-    public void create(final EbicsUser user) throws GeneralSecurityException, IOException, EbicsException {
-        build(user.getPartner().getBank().getHostId(),
-                user.getPartner().getBank().getName(),
-                user.getUserId(),
-                user.getName(),
-                user.getPartner().getPartnerId(),
+    public void create(final EbicsSession session) throws GeneralSecurityException, IOException, EbicsException {
+        build(session.getHostId(),
+                session.getBank().getName(),
+                session.getUser().getId(),
+                session.getUser().getName(),
+                session.getPartner().getPartnerId(),
                 getString("HIALetter.x002.version"),
                 getString("HIALetter.x002.certificate"),
-                user.getX002Key().getPublic(),
+                session.getUser().getX002Key().getPublic(),
                 getString("HIALetter.x002.digest"),
-                KeyUtil.getKeyDigest(user.getX002Key().getPublic()));
+                KeyUtil.getKeyDigest(session.getUser().getX002Key().getPublic()));
     }
 
     @Override

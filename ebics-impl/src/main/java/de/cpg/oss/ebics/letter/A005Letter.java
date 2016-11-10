@@ -19,9 +19,9 @@
 
 package de.cpg.oss.ebics.letter;
 
-import de.cpg.oss.ebics.api.EbicsUser;
 import de.cpg.oss.ebics.api.MessageProvider;
 import de.cpg.oss.ebics.api.exception.EbicsException;
+import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.utils.KeyUtil;
 
 import java.io.IOException;
@@ -47,17 +47,17 @@ public class A005Letter extends AbstractInitLetter {
     }
 
     @Override
-    public void create(final EbicsUser user) throws GeneralSecurityException, IOException, EbicsException {
-        build(user.getPartner().getBank().getHostId(),
-                user.getPartner().getBank().getName(),
-                user.getUserId(),
-                user.getName(),
-                user.getPartner().getPartnerId(),
+    public void create(final EbicsSession session) throws GeneralSecurityException, IOException, EbicsException {
+        build(session.getHostId(),
+                session.getBank().getName(),
+                session.getUser().getId(),
+                session.getUser().getName(),
+                session.getPartner().getId(),
                 getString("INILetter.version"),
                 getString("INILetter.certificate"),
-                user.getA005Key().getPublic(),
+                session.getUser().getA005Key().getPublic(),
                 getString("INILetter.digest"),
-                KeyUtil.getKeyDigest(user.getA005Key().getPublic()));
+                KeyUtil.getKeyDigest(session.getUser().getA005Key().getPublic()));
     }
 
     @Override

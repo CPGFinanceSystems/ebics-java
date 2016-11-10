@@ -19,8 +19,8 @@
 
 package de.cpg.oss.ebics.xml;
 
+import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.session.EbicsSession;
 import org.ebics.s001.ObjectFactory;
 import org.ebics.s001.PubKeyValueType;
 import org.ebics.s001.SignaturePubKeyInfo;
@@ -61,8 +61,8 @@ public class SignaturePubKeyOrderDataElement {
 
         final SignaturePubKeyOrderData signaturePubKeyOrderData = OBJECT_FACTORY.createSignaturePubKeyOrderData();
         signaturePubKeyOrderData.setSignaturePubKeyInfo(signaturePubKeyInfo);
-        signaturePubKeyOrderData.setPartnerID(session.getUser().getPartner().getPartnerId());
-        signaturePubKeyOrderData.setUserID(session.getUser().getUserId());
+        signaturePubKeyOrderData.setPartnerID(session.getPartner().getId());
+        signaturePubKeyOrderData.setUserID(session.getUser().getId());
 
         return signaturePubKeyOrderData;
     }

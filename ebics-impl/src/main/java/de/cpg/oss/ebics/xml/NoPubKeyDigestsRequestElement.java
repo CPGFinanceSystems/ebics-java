@@ -20,7 +20,7 @@
 package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.session.EbicsSession;
+import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.utils.CryptoUtil;
 import org.ebics.h004.*;
@@ -58,10 +58,10 @@ public class NoPubKeyDigestsRequestElement {
         orderDetails.setOrderType(OrderType.HPB.name());
 
         final NoPubKeyDigestsRequestStaticHeaderType xstatic = OBJECT_FACTORY.createNoPubKeyDigestsRequestStaticHeaderType();
-        xstatic.setHostID(session.getBankID());
+        xstatic.setHostID(session.getHostId());
         xstatic.setNonce(CryptoUtil.generateNonce());
         xstatic.setTimestamp(LocalDateTime.now());
-        xstatic.setPartnerID(session.getUser().getPartner().getPartnerId());
+        xstatic.setPartnerID(session.getPartner().getPartnerId());
         xstatic.setUserID(session.getUser().getUserId());
         xstatic.setProduct(OBJECT_FACTORY.createStaticHeaderBaseTypeProduct(product));
         xstatic.setOrderDetails(orderDetails);

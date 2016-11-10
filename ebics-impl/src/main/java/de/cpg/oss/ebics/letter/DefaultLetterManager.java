@@ -19,7 +19,7 @@
 
 package de.cpg.oss.ebics.letter;
 
-import de.cpg.oss.ebics.api.EbicsUser;
+import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.InitLetter;
 import de.cpg.oss.ebics.api.LetterManager;
 import de.cpg.oss.ebics.api.MessageProvider;
@@ -52,32 +52,32 @@ public class DefaultLetterManager implements LetterManager {
     }
 
     @Override
-    public InitLetter createA005Letter(final EbicsUser user)
+    public InitLetter createA005Letter(final EbicsSession session)
             throws GeneralSecurityException, IOException, EbicsException {
         final A005Letter letter;
 
         letter = new A005Letter(messageProvider, locale);
-        letter.create(user);
+        letter.create(session);
         return letter;
     }
 
     @Override
-    public InitLetter createE002Letter(final EbicsUser user)
+    public InitLetter createE002Letter(final EbicsSession session)
             throws GeneralSecurityException, IOException, EbicsException {
         final E002Letter letter;
 
         letter = new E002Letter(messageProvider, locale);
-        letter.create(user);
+        letter.create(session);
         return letter;
     }
 
     @Override
-    public InitLetter createX002Letter(final EbicsUser user)
+    public InitLetter createX002Letter(final EbicsSession session)
             throws GeneralSecurityException, IOException, EbicsException {
         final X002Letter letter;
 
         letter = new X002Letter(messageProvider, locale);
-        letter.create(user);
+        letter.create(session);
         return letter;
     }
 }

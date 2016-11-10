@@ -24,7 +24,7 @@ import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.io.ByteArrayContentFactory;
 import de.cpg.oss.ebics.io.ContentFactory;
 import de.cpg.oss.ebics.io.Joiner;
-import de.cpg.oss.ebics.session.EbicsSession;
+import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.utils.Constants;
 import de.cpg.oss.ebics.utils.HttpUtil;
 import de.cpg.oss.ebics.xml.*;
@@ -82,17 +82,17 @@ abstract class FileTransfer {
         final UInitializationRequestElement initializer = new UInitializationRequestElement(session, orderType, content);
         final EbicsRequest request = initializer.build();
         final byte[] xml = XmlUtils.prettyPrint(EbicsRequest.class, request);
-        session.getConfiguration().getTraceManager().trace(xml, initializer.getName(), session.getUser());
+        session.getTraceManager().trace(xml, initializer.getName(), session.getUser());
         XmlUtils.validate(xml);
         final HttpEntity httpEntity = HttpUtil.sendAndReceive(
-                session.getUser().getPartner().getBank(),
+                session.getBank(),
                 new ByteArrayContentFactory(xml),
-                session.getConfiguration().getMessageProvider());
+                session.getMessageProvider());
         final EbicsResponseElement response = new EbicsResponseElement(
                 httpEntity,
-                session.getConfiguration().getMessageProvider());
+                session.getMessageProvider());
         final EbicsResponse ebicsResponse = response.build();
-        session.getConfiguration().getTraceManager().trace(EbicsResponse.class, ebicsResponse, session.getUser());
+        session.getTraceManager().trace(EbicsResponse.class, ebicsResponse, session.getUser());
         response.report();
         final TransferState state = new TransferState(initializer.getSegmentNumber(), response.getTransactionId());
 
@@ -126,7 +126,7 @@ abstract class FileTransfer {
                                  final OrderType orderType) throws EbicsException {
         final TransferResponseElement response;
 
-        log.info(session.getConfiguration().getMessageProvider().getString(
+        log.info(session.getMessageProvider().getString(
                 "upload.segment",
                 Constants.APPLICATION_BUNDLE_NAME,
                 segmentNumber));
@@ -138,15 +138,15 @@ abstract class FileTransfer {
                 factory);
         final EbicsRequest ebicsRequest = uploader.build();
         final byte[] xml = XmlUtils.prettyPrint(EbicsRequest.class, ebicsRequest);
-        session.getConfiguration().getTraceManager().trace(xml, uploader.getName(), session.getUser());
+        session.getTraceManager().trace(xml, uploader.getName(), session.getUser());
         XmlUtils.validate(xml);
         final HttpEntity httpEntity = HttpUtil.sendAndReceive(
-                session.getUser().getPartner().getBank(),
+                session.getBank(),
                 new ByteArrayContentFactory(xml),
-                session.getConfiguration().getMessageProvider());
+                session.getMessageProvider());
         response = new TransferResponseElement(httpEntity);
         final EbicsResponse ebicsResponse = response.build();
-        session.getConfiguration().getTraceManager().trace(EbicsResponse.class, ebicsResponse, session.getUser());
+        session.getTraceManager().trace(EbicsResponse.class, ebicsResponse, session.getUser());
         response.report();
     }
 
@@ -174,17 +174,17 @@ abstract class FileTransfer {
                 end);
         final EbicsRequest request = initializer.build();
         final byte[] xml = XmlUtils.prettyPrint(EbicsRequest.class, request);
-        session.getConfiguration().getTraceManager().trace(xml, initializer.getName(), session.getUser());
+        session.getTraceManager().trace(xml, initializer.getName(), session.getUser());
         XmlUtils.validate(xml);
         HttpEntity httpEntity = HttpUtil.sendAndReceive(
-                session.getUser().getPartner().getBank(),
+                session.getBank(),
                 new ByteArrayContentFactory(xml),
-                session.getConfiguration().getMessageProvider());
+                session.getMessageProvider());
         final DInitializationResponseElement response = new DInitializationResponseElement(
                 httpEntity,
-                session.getConfiguration().getMessageProvider());
+                session.getMessageProvider());
         final EbicsResponse ebicsResponse = response.build();
-        session.getConfiguration().getTraceManager().trace(EbicsResponse.class, ebicsResponse, session.getUser());
+        session.getTraceManager().trace(EbicsResponse.class, ebicsResponse, session.getUser());
         response.report();
         final TransferState state = new TransferState(response.getSegmentsNumber(), response.getTransactionId());
         state.setSegmentNumber(response.getSegmentNumber());
@@ -207,14 +207,14 @@ abstract class FileTransfer {
         final EbicsRequest ebicsRequest = receipt.build();
         final byte[] receiptXml = XmlUtils.prettyPrint(EbicsRequest.class, ebicsRequest);
         XmlUtils.validate(receiptXml);
-        session.getConfiguration().getTraceManager().trace(receiptXml, receipt.getName(), session.getUser());
+        session.getTraceManager().trace(receiptXml, receipt.getName(), session.getUser());
         httpEntity = HttpUtil.sendAndReceive(
-                session.getUser().getPartner().getBank(),
+                session.getBank(),
                 new ByteArrayContentFactory(receiptXml),
-                session.getConfiguration().getMessageProvider());
-        final ReceiptResponseElement receiptResponse = new ReceiptResponseElement(httpEntity, session.getConfiguration().getMessageProvider());
+                session.getMessageProvider());
+        final ReceiptResponseElement receiptResponse = new ReceiptResponseElement(httpEntity, session.getMessageProvider());
         final EbicsResponse ebicsReceiptResponse = receiptResponse.build();
-        session.getConfiguration().getTraceManager().trace(EbicsResponse.class, ebicsReceiptResponse, session.getUser());
+        session.getTraceManager().trace(EbicsResponse.class, ebicsReceiptResponse, session.getUser());
         receiptResponse.report();
     }
 
@@ -242,17 +242,17 @@ abstract class FileTransfer {
                 transactionId);
         final EbicsRequest ebicsRequest = downloader.build();
         final byte[] xml = XmlUtils.prettyPrint(EbicsRequest.class, ebicsRequest);
-        session.getConfiguration().getTraceManager().trace(xml, downloader.getName(), session.getUser());
+        session.getTraceManager().trace(xml, downloader.getName(), session.getUser());
         XmlUtils.validate(xml);
         final HttpEntity httpEntity = HttpUtil.sendAndReceive(
-                session.getUser().getPartner().getBank(),
+                session.getBank(),
                 new ByteArrayContentFactory(xml),
-                session.getConfiguration().getMessageProvider());
+                session.getMessageProvider());
         final DTransferResponseElement response = new DTransferResponseElement(
                 httpEntity,
-                session.getConfiguration().getMessageProvider());
+                session.getMessageProvider());
         final EbicsResponse ebicsResponse = response.build();
-        session.getConfiguration().getTraceManager().trace(EbicsResponse.class, ebicsResponse, session.getUser());
+        session.getTraceManager().trace(EbicsResponse.class, ebicsResponse, session.getUser());
         response.report();
         joiner.append(response.getOrderData());
     }

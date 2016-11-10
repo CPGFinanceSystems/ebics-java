@@ -20,7 +20,7 @@
 package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.session.EbicsSession;
+import de.cpg.oss.ebics.api.EbicsSession;
 import org.ebics.h004.EbicsNoPubKeyDigestsRequest;
 import org.w3.xmldsig.SignatureType;
 

@@ -9,36 +9,35 @@ import java.time.LocalDate;
 public interface EbicsClient {
     void init();
 
-    EbicsUser createUser(URI uri,
-                         String bankName,
-                         String hostId,
-                         String partnerId,
-                         String userId,
-                         String userName,
-                         PasswordCallback passwordCallback) throws EbicsException;
+    EbicsSession createSession(URI uri,
+                               String bankName,
+                               String hostId,
+                               String partnerId,
+                               String userId,
+                               String userName,
+                               PasswordCallback passwordCallback) throws EbicsException;
 
-    EbicsUser loadUser(String hostId,
-                       String partnerId,
-                       String userId,
-                       PasswordCallback passwordCallback) throws EbicsException;
+    EbicsSession loadSession(String hostId,
+                             String partnerId,
+                             String userId,
+                             PasswordCallback passwordCallback) throws EbicsException;
 
-    EbicsUser sendINIRequest(EbicsUser user, Product product) throws EbicsException;
+    EbicsUser sendINIRequest(EbicsSession session) throws EbicsException;
 
-    EbicsUser sendHIARequest(EbicsUser user, Product product) throws EbicsException;
+    EbicsUser sendHIARequest(EbicsSession session) throws EbicsException;
 
-    EbicsUser sendHPBRequest(EbicsUser user, Product product) throws EbicsException;
+    EbicsBank sendHPBRequest(EbicsSession session) throws EbicsException;
 
-    EbicsUser revokeSubscriber(EbicsUser user, Product product) throws EbicsException;
+    EbicsUser revokeSubscriber(EbicsSession session) throws EbicsException;
 
-    void uploadSepaDirectDebit(String path, EbicsUser user, Product product) throws EbicsException;
+    void uploadSepaDirectDebit(String path, EbicsSession session) throws EbicsException;
 
     void fetchFile(String path,
-                   EbicsUser user,
-                   Product product,
+                   EbicsSession session,
                    OrderType orderType,
                    boolean isTest,
                    LocalDate start,
                    LocalDate end);
 
-    void quit(EbicsUser user) throws IOException;
+    void quit(EbicsSession session) throws IOException;
 }

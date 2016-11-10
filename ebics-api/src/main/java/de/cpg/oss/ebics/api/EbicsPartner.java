@@ -37,8 +37,6 @@ public class EbicsPartner implements Identifiable {
 
     private final String partnerId;
 
-    private final transient EbicsBank bank;
-
     @Override
     public String getId() {
         return getPartnerId();

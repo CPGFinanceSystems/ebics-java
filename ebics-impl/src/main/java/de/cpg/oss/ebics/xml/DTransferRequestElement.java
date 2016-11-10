@@ -20,7 +20,7 @@
 package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.session.EbicsSession;
+import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
 import org.ebics.h004.EbicsRequest;
 import org.ebics.h004.MutableHeaderType;
@@ -67,7 +67,7 @@ public class DTransferRequestElement extends TransferRequestElement {
         mutable.setSegmentNumber(OBJECT_FACTORY.createMutableHeaderTypeSegmentNumber(segmentNumber));
 
         final StaticHeaderType xstatic = OBJECT_FACTORY.createStaticHeaderType();
-        xstatic.setHostID(session.getBankID());
+        xstatic.setHostID(session.getHostId());
         xstatic.setTransactionID(transactionId);
 
         final EbicsRequest.Header header = OBJECT_FACTORY.createEbicsRequestHeader();

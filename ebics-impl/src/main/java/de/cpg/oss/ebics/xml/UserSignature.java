@@ -19,7 +19,7 @@
 
 package de.cpg.oss.ebics.xml;
 
-import de.cpg.oss.ebics.api.EbicsUser;
+import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.CryptoUtil;
 import org.ebics.s001.ObjectFactory;
@@ -42,7 +42,7 @@ public class UserSignature {
 
     private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
 
-    private final EbicsUser user;
+    private final EbicsSession session;
     private final String signatureVersion;
     private final byte[] toSign;
     private final String name;
@@ -55,11 +55,11 @@ public class UserSignature {
      * @param signatureVersion the signature version
      * @param toSign           the data to be signed
      */
-    public UserSignature(final EbicsUser user,
+    public UserSignature(final EbicsSession session,
                          final String name,
                          final String signatureVersion,
                          final byte[] toSign) {
-        this.user = user;
+        this.session = session;
         this.toSign = toSign;
         this.name = name;
         this.signatureVersion = signatureVersion;
@@ -69,15 +69,15 @@ public class UserSignature {
         final byte[] signature;
 
         try {
-            signature = CryptoUtil.sign(toSign, user.getA005Key().getPrivate());
+            signature = CryptoUtil.sign(toSign, session.getUser().getA005Key().getPrivate());
         } catch (final IOException | GeneralSecurityException e) {
             throw new EbicsException(e.getMessage(), e);
         }
 
         final OrderSignatureData orderSignatureData = OBJECT_FACTORY.createOrderSignatureData();
         orderSignatureData.setSignatureVersion(signatureVersion);
-        orderSignatureData.setPartnerID(user.getPartner().getPartnerId());
-        orderSignatureData.setUserID(user.getUserId());
+        orderSignatureData.setPartnerID(session.getPartner().getId());
+        orderSignatureData.setUserID(session.getUser().getId());
         orderSignatureData.setSignatureValue(signature);
 
         final UserSignatureDataSigBookType userSignatureData = OBJECT_FACTORY.createUserSignatureDataSigBookType();

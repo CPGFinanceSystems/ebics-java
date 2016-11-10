@@ -20,7 +20,7 @@
 package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.session.EbicsSession;
+import de.cpg.oss.ebics.api.EbicsSession;
 import org.ebics.h004.*;
 
 
@@ -60,7 +60,7 @@ public class ReceiptRequestElement {
         mutable.setTransactionPhase(TransactionPhaseType.RECEIPT);
 
         final StaticHeaderType xstatic = OBJECT_FACTORY.createStaticHeaderType();
-        xstatic.setHostID(session.getBankID());
+        xstatic.setHostID(session.getHostId());
         xstatic.setTransactionID(transactionId);
 
         final EbicsRequest.Header header = OBJECT_FACTORY.createEbicsRequestHeader();

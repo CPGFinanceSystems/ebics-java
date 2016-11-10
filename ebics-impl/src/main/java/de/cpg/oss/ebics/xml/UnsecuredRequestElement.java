@@ -19,9 +19,9 @@
 
 package de.cpg.oss.ebics.xml;
 
-import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.session.EbicsSession;
+import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
+import de.cpg.oss.ebics.api.exception.EbicsException;
 import org.ebics.h004.*;
 
 /**
@@ -63,9 +63,9 @@ public class UnsecuredRequestElement {
         productType.setValue(session.getProduct().getName());
 
         final UnsecuredRequestStaticHeaderType xstatic = OBJECT_FACTORY.createUnsecuredRequestStaticHeaderType();
-        xstatic.setHostID(session.getBankID());
+        xstatic.setHostID(session.getHostId());
         xstatic.setUserID(session.getUser().getUserId());
-        xstatic.setPartnerID(session.getUser().getPartner().getPartnerId());
+        xstatic.setPartnerID(session.getPartner().getId());
         xstatic.setProduct(OBJECT_FACTORY.createStaticHeaderBaseTypeProduct(productType));
         xstatic.setOrderDetails(orderDetails);
         xstatic.setSecurityMedium(OrderType.HIA.equals(orderType) ? "0000" : session.getUser().getSecurityMedium());

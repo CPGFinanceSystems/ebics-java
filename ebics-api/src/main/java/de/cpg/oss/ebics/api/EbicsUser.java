@@ -49,7 +49,6 @@ public class EbicsUser implements Identifiable {
     private final boolean initializedINI;
     private final boolean initializedHIA;
 
-    private final transient EbicsPartner partner;
     private final transient PasswordCallback passwordCallback;
 
     @Override

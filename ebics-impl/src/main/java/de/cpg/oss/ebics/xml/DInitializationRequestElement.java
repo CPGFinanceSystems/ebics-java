@@ -19,9 +19,9 @@
 
 package de.cpg.oss.ebics.xml;
 
+import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.session.EbicsSession;
 import org.ebics.h004.*;
 
 import java.time.LocalDate;
@@ -68,12 +68,12 @@ public class DInitializationRequestElement extends InitializationRequestElement 
         final StaticHeaderType.BankPubKeyDigests.Authentication authentication = OBJECT_FACTORY.createStaticHeaderTypeBankPubKeyDigestsAuthentication();
         authentication.setVersion(session.getConfiguration().getAuthenticationVersion());
         authentication.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
-        authentication.setValue(session.getUser().getPartner().getBank().getX002Digest());
+        authentication.setValue(session.getBank().getX002Digest());
 
         final StaticHeaderType.BankPubKeyDigests.Encryption encryption = OBJECT_FACTORY.createStaticHeaderTypeBankPubKeyDigestsEncryption();
         encryption.setVersion(session.getConfiguration().getEncryptionVersion());
         encryption.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
-        encryption.setValue(session.getUser().getPartner().getBank().getE002Digest());
+        encryption.setValue(session.getBank().getE002Digest());
 
         final StaticHeaderType.BankPubKeyDigests bankPubKeyDigests = OBJECT_FACTORY.createStaticHeaderTypeBankPubKeyDigests();
         bankPubKeyDigests.setAuthentication(authentication);
@@ -123,9 +123,9 @@ public class DInitializationRequestElement extends InitializationRequestElement 
         }
 
         final StaticHeaderType xstatic = OBJECT_FACTORY.createStaticHeaderType();
-        xstatic.setHostID(session.getBankID());
+        xstatic.setHostID(session.getHostId());
         xstatic.setNonce(nonce);
-        xstatic.setPartnerID(session.getUser().getPartner().getPartnerId());
+        xstatic.setPartnerID(session.getPartner().getId());
         xstatic.setProduct(OBJECT_FACTORY.createStaticHeaderTypeProduct(product));
         xstatic.setSecurityMedium(session.getUser().getSecurityMedium());
         xstatic.setUserID(session.getUser().getUserId());

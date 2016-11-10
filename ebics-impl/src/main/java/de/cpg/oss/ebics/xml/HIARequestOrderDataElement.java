@@ -18,8 +18,8 @@
 
 package de.cpg.oss.ebics.xml;
 
+import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.session.EbicsSession;
 import org.ebics.h004.AuthenticationPubKeyInfoType;
 import org.ebics.h004.EncryptionPubKeyInfoType;
 import org.ebics.h004.HIARequestOrderDataType;
@@ -74,8 +74,8 @@ public class HIARequestOrderDataElement {
         final HIARequestOrderDataType request = OBJECT_FACTORY.createHIARequestOrderDataType();
         request.setAuthenticationPubKeyInfo(authenticationPubKeyInfo);
         request.setEncryptionPubKeyInfo(encryptionPubKeyInfo);
-        request.setPartnerID(session.getUser().getPartner().getPartnerId());
-        request.setUserID(session.getUser().getUserId());
+        request.setPartnerID(session.getPartner().getId());
+        request.setUserID(session.getUser().getId());
 
         return request;
     }
