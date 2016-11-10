@@ -19,6 +19,7 @@
 
 package de.cpg.oss.ebics.xml;
 
+import de.cpg.oss.ebics.api.MessageProvider;
 import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import org.apache.http.HttpEntity;
@@ -35,8 +36,8 @@ public class DTransferResponseElement extends EbicsResponseElement {
     private byte[] orderData;
 
     public DTransferResponseElement(final HttpEntity httpEntity,
-                                    final OrderType orderType) {
-        super(httpEntity, orderType);
+                                    final MessageProvider messageProvider) {
+        super(httpEntity, messageProvider);
     }
 
     public EbicsResponse build() throws EbicsException {

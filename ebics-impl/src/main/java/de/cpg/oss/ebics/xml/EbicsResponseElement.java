@@ -19,7 +19,7 @@
 
 package de.cpg.oss.ebics.xml;
 
-import de.cpg.oss.ebics.api.OrderType;
+import de.cpg.oss.ebics.api.MessageProvider;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.exception.ReturnCode;
 import de.cpg.oss.ebics.io.ContentFactory;
@@ -37,19 +37,19 @@ import java.io.IOException;
  */
 public class EbicsResponseElement {
 
+    ReturnCode returnCode;
+    final MessageProvider messageProvider;
     private byte[] transactionId;
-    protected ReturnCode returnCode;
-    private final OrderType orderType;
     private final ContentFactory contentFactory;
 
     public EbicsResponseElement(final HttpEntity httpEntity,
-                                final OrderType orderType) {
+                                final MessageProvider messageProvider) {
         try {
             this.contentFactory = new InputStreamContentFactory(httpEntity.getContent());
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
-        this.orderType = orderType;
+        this.messageProvider = messageProvider;
     }
 
     public EbicsResponse build() throws EbicsException {
@@ -67,7 +67,7 @@ public class EbicsResponseElement {
 
     public void report() throws EbicsException {
         if (!returnCode.isOk()) {
-            returnCode.throwException();
+            returnCode.throwException(messageProvider);
         }
     }
 
@@ -78,14 +78,5 @@ public class EbicsResponseElement {
      */
     public byte[] getTransactionId() {
         return transactionId;
-    }
-
-    /**
-     * Returns the order type.
-     *
-     * @return the order type.
-     */
-    public OrderType getOrderType() {
-        return orderType;
     }
 }

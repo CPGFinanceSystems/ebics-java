@@ -26,22 +26,9 @@ package de.cpg.oss.ebics.api.exception;
  */
 public class NoDownloadDataAvailableException extends EbicsException {
 
+    private static final long serialVersionUID = 1L;
+
     public NoDownloadDataAvailableException() {
         super(ReturnCode.EBICS_NO_DOWNLOAD_DATA_AVAILABLE);
     }
-
-    @Override
-    public ReturnCode getReturnCode() {
-        return ReturnCode.EBICS_NO_DOWNLOAD_DATA_AVAILABLE;
-    }
-
-    @Override
-    public String getMessage() {
-        return getReturnCode().getText();
-    }
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private static final long serialVersionUID = -5156261061322817326L;
 }

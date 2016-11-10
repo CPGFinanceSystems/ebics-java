@@ -20,6 +20,7 @@
 package de.cpg.oss.ebics.letter;
 
 import de.cpg.oss.ebics.api.EbicsUser;
+import de.cpg.oss.ebics.api.MessageProvider;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.KeyUtil;
 
@@ -41,8 +42,8 @@ public class A005Letter extends AbstractInitLetter {
      *
      * @param locale the application local
      */
-    public A005Letter(final Locale locale) {
-        super(locale);
+    public A005Letter(final MessageProvider messageProvider, final Locale locale) {
+        super(messageProvider, locale);
     }
 
     @Override
@@ -52,20 +53,20 @@ public class A005Letter extends AbstractInitLetter {
                 user.getUserId(),
                 user.getName(),
                 user.getPartner().getPartnerId(),
-                getString("INILetter.version", locale),
-                getString("INILetter.certificate", locale),
+                getString("INILetter.version"),
+                getString("INILetter.certificate"),
                 user.getA005Key().getPublic(),
-                getString("INILetter.digest", locale),
+                getString("INILetter.digest"),
                 KeyUtil.getKeyDigest(user.getA005Key().getPublic()));
     }
 
     @Override
     public String getTitle() {
-        return getString("INILetter.title", locale);
+        return getString("INILetter.title");
     }
 
     @Override
     public String getName() {
-        return getString("INILetter.name", locale) + ".txt";
+        return getString("INILetter.name") + ".txt";
     }
 }

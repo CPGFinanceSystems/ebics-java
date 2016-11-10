@@ -80,6 +80,8 @@ public interface EbicsConfiguration {
      */
     LetterManager getLetterManager();
 
+    MessageProvider getMessageProvider();
+
     /**
      * Returns the initializations letters directory.
      *

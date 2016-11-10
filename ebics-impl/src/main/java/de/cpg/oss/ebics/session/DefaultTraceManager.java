@@ -19,6 +19,8 @@
 
 package de.cpg.oss.ebics.session;
 
+import de.cpg.oss.ebics.api.EbicsConfiguration;
+import de.cpg.oss.ebics.api.EbicsUser;
 import de.cpg.oss.ebics.api.TraceManager;
 import de.cpg.oss.ebics.io.IOUtils;
 import de.cpg.oss.ebics.xml.XmlUtils;
@@ -44,36 +46,29 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 public class DefaultTraceManager implements TraceManager {
 
-    @Override
-    public void trace(final byte[] xml, final String elementName) {
-        log.trace("\n{}", new String(xml));
-        if (null != traceDir) {
-            try {
-                final FileOutputStream out;
-                final File file;
+    private final EbicsConfiguration ebicsConfiguration;
 
-                file = IOUtils.createFile(traceDir, MessageFormat.format("{0}_{1}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), elementName));
-                out = new FileOutputStream(file);
-                out.write(xml);
-            } catch (final IOException e) {
-                throw new RuntimeException(e);
-            }
+    public DefaultTraceManager(final EbicsConfiguration configuration) {
+        this.ebicsConfiguration = configuration;
+    }
+
+    @Override
+    public void trace(final byte[] xml, final String elementName, final EbicsUser user) {
+        final File file = IOUtils.createFile(
+                ebicsConfiguration.getTransferTraceDirectory(user),
+                MessageFormat.format(
+                        "{0}_{1}.xml",
+                        LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                        elementName));
+        try (final FileOutputStream out = new FileOutputStream(file)) {
+            out.write(xml);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Override
-    public <T> void trace(final Class<T> clazz, final T object) {
-        trace(XmlUtils.prettyPrint(clazz, object), XmlUtils.elementNameFrom(clazz));
+    public <T> void trace(final Class<T> clazz, final T object, final EbicsUser user) {
+        trace(XmlUtils.prettyPrint(clazz, object), XmlUtils.elementNameFrom(clazz), user);
     }
-
-    @Override
-    public void setTraceDirectory(final String traceDir) {
-        this.traceDir = IOUtils.createDirectory(traceDir);
-    }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private File traceDir;
 }

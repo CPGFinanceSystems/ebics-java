@@ -48,6 +48,7 @@ public class DefaultEbicsConfiguration implements EbicsConfiguration {
     private final SerializationManager serializationManager;
     private final TraceManager traceManager;
     private final LetterManager letterManager;
+    private final MessageProvider messageProvider;
 
     /**
      * Creates a new application configuration.
@@ -58,8 +59,9 @@ public class DefaultEbicsConfiguration implements EbicsConfiguration {
         this.rootDir = rootDir;
         this.bundle = ResourceBundle.getBundle(RESOURCE_DIR);
         this.serializationManager = new DefaultSerializationManager(new File(getSerializationDirectory()));
-        this.traceManager = new DefaultTraceManager();
-        this.letterManager = new DefaultLetterManager(getLocale());
+        this.traceManager = new DefaultTraceManager(this);
+        this.letterManager = new DefaultLetterManager(getMessageProvider(), getLocale());
+        this.messageProvider = new DefaultMessageProvider(getLocale());
     }
 
     /**
@@ -132,6 +134,11 @@ public class DefaultEbicsConfiguration implements EbicsConfiguration {
     @Override
     public LetterManager getLetterManager() {
         return letterManager;
+    }
+
+    @Override
+    public MessageProvider getMessageProvider() {
+        return messageProvider;
     }
 
     @Override

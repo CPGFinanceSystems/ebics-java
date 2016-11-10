@@ -20,7 +20,7 @@
 package de.cpg.oss.ebics.letter;
 
 import de.cpg.oss.ebics.api.InitLetter;
-import de.cpg.oss.ebics.api.Messages;
+import de.cpg.oss.ebics.api.MessageProvider;
 import org.apache.commons.codec.binary.Hex;
 
 import java.io.*;
@@ -33,12 +33,8 @@ import java.util.Locale;
 
 abstract class AbstractInitLetter implements InitLetter {
 
-    /**
-     * Constructs a new initialization letter.
-     *
-     * @param locale the application locale
-     */
-    public AbstractInitLetter(final Locale locale) {
+    public AbstractInitLetter(final MessageProvider messageProvider, final Locale locale) {
+        this.messageProvider = messageProvider;
         this.locale = locale;
     }
 
@@ -88,12 +84,11 @@ abstract class AbstractInitLetter implements InitLetter {
     /**
      * Returns the value of the property key.
      *
-     * @param key    the property key
-     * @param locale the bundle locale
+     * @param key the property key
      * @return the property value
      */
-    protected String getString(final String key, final Locale locale) {
-        return Messages.getString(key, AbstractInitLetter.BUNDLE_NAME, locale);
+    protected String getString(final String key) {
+        return messageProvider.getString(key, AbstractInitLetter.BUNDLE_NAME, locale);
     }
 
     // --------------------------------------------------------------------
@@ -178,35 +173,35 @@ abstract class AbstractInitLetter implements InitLetter {
          * @throws IOException
          */
         public void buildHeader() throws IOException {
-            emit(Messages.getString("Letter.date", BUNDLE_NAME, locale));
+            emit(getString("Letter.date"));
             appendSpacer();
             emit(formatDate(new Date()));
             emit(LINE_SEPARATOR);
-            emit(Messages.getString("Letter.time", BUNDLE_NAME, locale));
+            emit(getString("Letter.time"));
             appendSpacer();
             emit(formatTime(new Date()));
             emit(LINE_SEPARATOR);
-            emit(Messages.getString("Letter.hostId", BUNDLE_NAME, locale));
+            emit(getString("Letter.hostId"));
             appendSpacer();
             emit(hostId);
             emit(LINE_SEPARATOR);
-            emit(Messages.getString("Letter.bank", BUNDLE_NAME, locale));
+            emit(getString("Letter.bank"));
             appendSpacer();
             emit(bankName);
             emit(LINE_SEPARATOR);
-            emit(Messages.getString("Letter.userId", BUNDLE_NAME, locale));
+            emit(getString("Letter.userId"));
             appendSpacer();
             emit(userId);
             emit(LINE_SEPARATOR);
-            emit(Messages.getString("Letter.username", BUNDLE_NAME, locale));
+            emit(getString("Letter.username"));
             appendSpacer();
             emit(username);
             emit(LINE_SEPARATOR);
-            emit(Messages.getString("Letter.partnerId", BUNDLE_NAME, locale));
+            emit(getString("Letter.partnerId"));
             appendSpacer();
             emit(partnerId);
             emit(LINE_SEPARATOR);
-            emit(Messages.getString("Letter.version", BUNDLE_NAME, locale));
+            emit(getString("Letter.version"));
             appendSpacer();
             emit(version);
             emit(LINE_SEPARATOR);
@@ -257,9 +252,9 @@ abstract class AbstractInitLetter implements InitLetter {
          * @throws IOException
          */
         public void buildFooter() throws IOException {
-            emit(Messages.getString("Letter.date", BUNDLE_NAME, locale));
+            emit(getString("Letter.date"));
             emit("                                  ");
-            emit(Messages.getString("Letter.signature", BUNDLE_NAME, locale));
+            emit(getString("Letter.signature"));
         }
 
         /**
@@ -290,7 +285,7 @@ abstract class AbstractInitLetter implements InitLetter {
         public String formatDate(final Date date) {
             final SimpleDateFormat formatter;
 
-            formatter = new SimpleDateFormat(Messages.getString("Letter.dateFormat", BUNDLE_NAME, locale), locale);
+            formatter = new SimpleDateFormat(getString("Letter.dateFormat"), locale);
             return formatter.format(date);
         }
 
@@ -303,7 +298,7 @@ abstract class AbstractInitLetter implements InitLetter {
         public String formatTime(final Date time) {
             final SimpleDateFormat formatter;
 
-            formatter = new SimpleDateFormat(Messages.getString("Letter.timeFormat", BUNDLE_NAME, locale), locale);
+            formatter = new SimpleDateFormat(getString("Letter.timeFormat"), locale);
             return formatter.format(time);
         }
 
@@ -336,8 +331,9 @@ abstract class AbstractInitLetter implements InitLetter {
     // --------------------------------------------------------------------
 
     private Letter letter;
-    protected Locale locale;
+    private final MessageProvider messageProvider;
+    final Locale locale;
 
-    protected static final String BUNDLE_NAME = "de.cpg.oss.ebics.letter.messages";
+    private static final String BUNDLE_NAME = "de.cpg.oss.ebics.letter.messages";
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 }

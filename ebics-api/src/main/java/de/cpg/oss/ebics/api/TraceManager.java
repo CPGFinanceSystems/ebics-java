@@ -28,12 +28,7 @@ package de.cpg.oss.ebics.api;
  */
 public interface TraceManager {
 
-    void trace(byte[] xml, String elementName);
+    void trace(byte[] xml, String elementName, final EbicsUser user);
 
-    <T> void trace(Class<T> clazz, T object);
-
-    /**
-     * Sets the trace directory
-     */
-    void setTraceDirectory(String traceDir);
+    <T> void trace(Class<T> clazz, T object, final EbicsUser user);
 }

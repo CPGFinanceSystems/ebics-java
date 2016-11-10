@@ -19,6 +19,7 @@
 
 package de.cpg.oss.ebics.xml;
 
+import de.cpg.oss.ebics.api.MessageProvider;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.exception.ReturnCode;
 import de.cpg.oss.ebics.io.ContentFactory;
@@ -39,12 +40,14 @@ import java.io.IOException;
 public class KeyManagementResponseElement {
 
     private final ContentFactory contentFactory;
+    private final MessageProvider messageProvider;
 
     private EbicsKeyManagementResponse response;
 
-    public KeyManagementResponseElement(final HttpEntity httpEntity) {
+    public KeyManagementResponseElement(final HttpEntity httpEntity, final MessageProvider messageProvider) {
         try {
             this.contentFactory = new InputStreamContentFactory(httpEntity.getContent());
+            this.messageProvider = messageProvider;
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
@@ -79,7 +82,7 @@ public class KeyManagementResponseElement {
         final ReturnCode returnCode = ReturnCode.toReturnCode(code, text);
 
         if (!returnCode.isOk()) {
-            returnCode.throwException();
+            returnCode.throwException(messageProvider);
         }
         return response;
     }

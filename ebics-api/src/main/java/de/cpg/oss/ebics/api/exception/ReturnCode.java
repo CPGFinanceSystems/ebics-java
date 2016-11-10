@@ -19,7 +19,7 @@
 
 package de.cpg.oss.ebics.api.exception;
 
-import de.cpg.oss.ebics.api.Messages;
+import de.cpg.oss.ebics.api.MessageProvider;
 import lombok.extern.slf4j.Slf4j;
 
 import java.text.MessageFormat;
@@ -127,11 +127,13 @@ public enum ReturnCode {
 
     /**
      * Throws an equivalent <code>EbicsException</code>
-     *
-     * @throws EbicsException
      */
-    public void throwException() throws EbicsException {
-        throw new EbicsException(this, MessageFormat.format("{0} [{1}]: {2}", getCode(), getSymbolicName(), getText()));
+    public void throwException(final MessageProvider messageProvider) throws EbicsException {
+        throw new EbicsException(this, MessageFormat.format(
+                "{0} [{1}]: {2}",
+                getCode(),
+                getSymbolicName(),
+                getText(messageProvider)));
     }
 
     /**
@@ -157,8 +159,8 @@ public enum ReturnCode {
      *
      * @return a text that can be displayed.
      */
-    public String getText() {
-        return Optional.ofNullable(text).orElseGet(() -> Messages.getString(code, BUNDLE_NAME));
+    public String getText(final MessageProvider messageProvider) {
+        return Optional.ofNullable(text).orElseGet(() -> messageProvider.getString(code, BUNDLE_NAME));
     }
 
     /**

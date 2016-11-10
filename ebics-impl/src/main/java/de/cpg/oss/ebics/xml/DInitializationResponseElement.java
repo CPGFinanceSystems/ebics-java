@@ -19,7 +19,7 @@
 
 package de.cpg.oss.ebics.xml;
 
-import de.cpg.oss.ebics.api.OrderType;
+import de.cpg.oss.ebics.api.MessageProvider;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.exception.NoDownloadDataAvailableException;
 import de.cpg.oss.ebics.api.exception.ReturnCode;
@@ -41,8 +41,8 @@ public class DInitializationResponseElement extends EbicsResponseElement {
     private byte[] orderData;
 
     public DInitializationResponseElement(final HttpEntity httpEntity,
-                                          final OrderType orderType) {
-        super(httpEntity, orderType);
+                                          final MessageProvider messageProvider) {
+        super(httpEntity, messageProvider);
     }
 
     @Override
