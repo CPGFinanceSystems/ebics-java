@@ -80,7 +80,7 @@ public class EbicsClient {
      * @param hostId           the bank host ID
      * @param partnerId        the partner ID
      * @param userId           UserId as obtained from the bank.
-     * @param name             the user name,
+     * @param userName         the user name,
      * @param passwordCallback a callback-handler that supplies us with the password.
      *                         This parameter can be null, in this case no password is used.
      */
@@ -89,13 +89,13 @@ public class EbicsClient {
                                 final String hostId,
                                 final String partnerId,
                                 final String userId,
-                                final String name,
+                                final String userName,
                                 final PasswordCallback passwordCallback) throws EbicsException {
         log.info(Messages.getString("user.create.info", Constants.APPLICATION_BUNDLE_NAME, userId));
 
         final EbicsBank bank = EbicsBank.builder()
                 .uri(uri)
-                .name(name)
+                .name(bankName)
                 .hostId(hostId)
                 .build();
         final EbicsPartner partner = EbicsPartner.builder()
@@ -106,7 +106,7 @@ public class EbicsClient {
             final EbicsUser user = EbicsUser.builder()
                     .partner(partner)
                     .userId(userId)
-                    .name(name)
+                    .name(userName)
                     .passwordCallback(passwordCallback)
                     .a005Key(KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE))
                     .e002Key(KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE))

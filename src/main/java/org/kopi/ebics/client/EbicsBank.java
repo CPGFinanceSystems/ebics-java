@@ -25,7 +25,7 @@ import lombok.experimental.Wither;
 import org.kopi.ebics.interfaces.Identifiable;
 
 import java.net.URI;
-import java.security.interfaces.RSAPublicKey;
+import java.security.PublicKey;
 
 /**
  * Details about EBICS communication with a given bank.
@@ -33,8 +33,8 @@ import java.security.interfaces.RSAPublicKey;
  * @author Hachani
  */
 @Value
-@Builder
 @Wither
+@Builder
 public class EbicsBank implements Identifiable {
 
     private static final long serialVersionUID = 1L;
@@ -44,8 +44,8 @@ public class EbicsBank implements Identifiable {
     private final byte[] e002Digest;
     private final byte[] x002Digest;
 
-    private final RSAPublicKey e002Key;
-    private final RSAPublicKey x002Key;
+    private final PublicKey e002Key;
+    private final PublicKey x002Key;
 
     private final String hostId;
     private final String name;

@@ -19,9 +19,9 @@
 
 package org.kopi.ebics.session;
 
+import org.kopi.ebics.client.EbicsUser;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.EbicsConfiguration;
-import org.kopi.ebics.client.EbicsUser;
 
 import java.io.IOException;
 import java.security.interfaces.RSAPublicKey;
@@ -63,7 +63,7 @@ public class EbicsSession {
      * @throws EbicsException Server error message generated during key retrieval.
      */
     public RSAPublicKey getBankE002Key() throws IOException, EbicsException {
-        return user.getPartner().getBank().getE002Key();
+        return (RSAPublicKey) user.getPartner().getBank().getE002Key();
     }
 
     /**
@@ -75,7 +75,7 @@ public class EbicsSession {
      * @throws EbicsException Server error message generated during key retrieval.
      */
     public RSAPublicKey getBankX002Key() throws IOException, EbicsException {
-        return user.getPartner().getBank().getX002Key();
+        return (RSAPublicKey) user.getPartner().getBank().getX002Key();
     }
 
     /**
