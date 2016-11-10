@@ -20,7 +20,6 @@
 package de.cpg.oss.ebics.io;
 
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.interfaces.ContentFactory;
 import de.cpg.oss.ebics.utils.CryptoUtil;
 import de.cpg.oss.ebics.utils.ZipUtil;
 
@@ -76,7 +75,7 @@ public class Splitter {
             content = CryptoUtil.encrypt(input, keySpec);
             segmentation();
         } catch (final Exception e) {
-            throw new EbicsException(e.getMessage());
+            throw new EbicsException(e);
         }
     }
 

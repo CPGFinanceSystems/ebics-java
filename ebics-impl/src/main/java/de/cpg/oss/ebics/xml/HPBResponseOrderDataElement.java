@@ -20,7 +20,7 @@
 package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.interfaces.ContentFactory;
+import de.cpg.oss.ebics.io.ContentFactory;
 import de.cpg.oss.ebics.utils.KeyUtil;
 import org.ebics.h004.HPBResponseOrderDataType;
 import org.w3.xmldsig.RSAKeyValue;

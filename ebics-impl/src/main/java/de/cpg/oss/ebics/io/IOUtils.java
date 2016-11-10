@@ -159,7 +159,7 @@ public class IOUtils {
             input.close();
             return content;
         } catch (final IOException e) {
-            throw new EbicsException(e.getMessage());
+            throw new EbicsException(e);
         }
     }
 

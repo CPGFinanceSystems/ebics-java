@@ -19,7 +19,7 @@
 
 package de.cpg.oss.ebics.xml;
 
-import org.apache.http.HttpResponse;
+import org.apache.http.HttpEntity;
 
 /**
  * The <code>SPRResponseElement</code> is the response element
@@ -29,7 +29,7 @@ import org.apache.http.HttpResponse;
  */
 public class SPRResponseElement extends EbicsResponseElement {
 
-    public SPRResponseElement(final HttpResponse httpResponse) {
-        super(httpResponse, null);
+    public SPRResponseElement(final HttpEntity httpEntity) {
+        super(httpEntity, null);
     }
 }

@@ -22,7 +22,8 @@ package de.cpg.oss.ebics.utils;
 import de.cpg.oss.ebics.api.EbicsBank;
 import de.cpg.oss.ebics.api.Messages;
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.interfaces.ContentFactory;
+import de.cpg.oss.ebics.io.ContentFactory;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;
@@ -47,30 +48,22 @@ public abstract class HttpUtil {
      * an <code>InputStream</code>.
      *
      * @param xmlRequest the ebics request
-     * @return the HTTP return code
      */
-    public static HttpResponse sendAndReceive(final EbicsBank ebicsBank, final ContentFactory xmlRequest) throws EbicsException {
+    public static HttpEntity sendAndReceive(final EbicsBank ebicsBank, final ContentFactory xmlRequest) throws EbicsException {
         try {
-            return Request.Post(ebicsBank.getUri().toString())
+            final HttpResponse httpResponse = Request.Post(ebicsBank.getUri().toString())
                     .bodyStream(xmlRequest.getContent(), ContentType.APPLICATION_XML.withCharset(Charset.defaultCharset()))
                     // TODO .socketTimeout()
                     .execute()
                     .returnResponse();
+            if (httpResponse.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                throw new IOException(Messages.getString("http.code.error",
+                        Constants.APPLICATION_BUNDLE_NAME,
+                        httpResponse.getStatusLine().getStatusCode()));
+            }
+            return httpResponse.getEntity();
         } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Checks for the returned http code
-     *
-     * @param httpCode the http code
-     */
-    public static void checkHttpCode(final int httpCode) throws EbicsException {
-        if (httpCode != HttpStatus.SC_OK) {
-            throw new EbicsException(Messages.getString("http.code.error",
-                    Constants.APPLICATION_BUNDLE_NAME,
-                    httpCode));
+            throw new EbicsException(e);
         }
     }
 }

@@ -21,6 +21,7 @@ package de.cpg.oss.ebics.session;
 
 import de.cpg.oss.ebics.api.EbicsConfiguration;
 import de.cpg.oss.ebics.api.EbicsUser;
+import de.cpg.oss.ebics.api.Product;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 
 import java.io.IOException;

@@ -19,12 +19,12 @@
 
 package de.cpg.oss.ebics.xml;
 
+import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.exception.ReturnCode;
-import de.cpg.oss.ebics.interfaces.ContentFactory;
+import de.cpg.oss.ebics.io.ContentFactory;
 import de.cpg.oss.ebics.io.InputStreamContentFactory;
-import de.cpg.oss.ebics.session.OrderType;
-import org.apache.http.HttpResponse;
+import org.apache.http.HttpEntity;
 import org.ebics.h004.EbicsResponse;
 
 import java.io.IOException;
@@ -42,10 +42,10 @@ public class EbicsResponseElement {
     private final OrderType orderType;
     private final ContentFactory contentFactory;
 
-    public EbicsResponseElement(final HttpResponse httpResponse,
+    public EbicsResponseElement(final HttpEntity httpEntity,
                                 final OrderType orderType) {
         try {
-            this.contentFactory = new InputStreamContentFactory(httpResponse.getEntity().getContent());
+            this.contentFactory = new InputStreamContentFactory(httpEntity.getContent());
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }

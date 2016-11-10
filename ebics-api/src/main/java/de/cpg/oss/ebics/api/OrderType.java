@@ -17,7 +17,7 @@
  * $Id$
  */
 
-package de.cpg.oss.ebics.session;
+package de.cpg.oss.ebics.api;
 
 import lombok.Getter;
 

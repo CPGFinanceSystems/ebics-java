@@ -17,7 +17,7 @@
  * $Id$
  */
 
-package de.cpg.oss.ebics.interfaces;
+package de.cpg.oss.ebics.io;
 
 import java.io.InputStream;
 import java.io.Serializable;

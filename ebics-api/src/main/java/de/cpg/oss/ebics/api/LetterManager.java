@@ -40,12 +40,8 @@ public interface LetterManager {
      *
      * @param user the ebics user.
      * @return the INI letter.
-     * @throws EbicsException
-     * @throws IOException
-     * @throws GeneralSecurityException
      */
-    InitLetter createA005Letter(EbicsUser user)
-            throws GeneralSecurityException, IOException, EbicsException;
+    InitLetter createA005Letter(EbicsUser user) throws GeneralSecurityException, IOException, EbicsException;
 
     /**
      * Creates the initialization letter for the HIA request.
@@ -54,12 +50,8 @@ public interface LetterManager {
      *
      * @param user the ebics user
      * @return the HIA letter
-     * @throws EbicsException
-     * @throws IOException
-     * @throws GeneralSecurityException
      */
-    InitLetter createE002Letter(EbicsUser user)
-            throws GeneralSecurityException, IOException, EbicsException;
+    InitLetter createE002Letter(EbicsUser user) throws GeneralSecurityException, IOException, EbicsException;
 
     /**
      * Creates the initialization letter for the HIA request.
@@ -68,10 +60,6 @@ public interface LetterManager {
      *
      * @param user the ebics user
      * @return the HIA letter
-     * @throws EbicsException
-     * @throws IOException
-     * @throws GeneralSecurityException
      */
-    InitLetter createX002Letter(EbicsUser user)
-            throws GeneralSecurityException, IOException, EbicsException;
+    InitLetter createX002Letter(EbicsUser user) throws GeneralSecurityException, IOException, EbicsException;
 }

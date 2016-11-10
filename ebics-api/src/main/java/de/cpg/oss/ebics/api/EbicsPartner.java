@@ -35,9 +35,9 @@ public class EbicsPartner implements Identifiable {
 
     private static final long serialVersionUID = 1L;
 
-    private final transient EbicsBank bank;
-
     private final String partnerId;
+
+    private final transient EbicsBank bank;
 
     @Override
     public String getId() {

@@ -21,7 +21,7 @@ package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.session.EbicsSession;
-import de.cpg.oss.ebics.session.OrderType;
+import de.cpg.oss.ebics.api.OrderType;
 import org.ebics.h004.*;
 
 /**

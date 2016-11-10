@@ -21,7 +21,7 @@ package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.exception.ReturnCode;
-import org.apache.http.HttpResponse;
+import org.apache.http.HttpEntity;
 
 /**
  * The <code>ReceiptResponseElement</code> is the response element
@@ -31,8 +31,8 @@ import org.apache.http.HttpResponse;
  */
 public class ReceiptResponseElement extends EbicsResponseElement {
 
-    public ReceiptResponseElement(final HttpResponse httpResponse) {
-        super(httpResponse, null);
+    public ReceiptResponseElement(final HttpEntity httpEntity) {
+        super(httpEntity, null);
     }
 
     @Override

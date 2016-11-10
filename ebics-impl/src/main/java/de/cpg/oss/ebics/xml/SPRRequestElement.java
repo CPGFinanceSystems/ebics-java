@@ -19,6 +19,7 @@
 
 package de.cpg.oss.ebics.xml;
 
+import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.session.EbicsSession;
 import de.cpg.oss.ebics.utils.CryptoUtil;
@@ -48,7 +49,7 @@ public class SPRRequestElement extends InitializationRequestElement {
      * @param session the current ebic session.
      */
     public SPRRequestElement(final EbicsSession session) throws EbicsException {
-        super(session, de.cpg.oss.ebics.session.OrderType.SPR);
+        super(session, OrderType.SPR);
         this.keySpec = new SecretKeySpec(nonce, "AES");
     }
 

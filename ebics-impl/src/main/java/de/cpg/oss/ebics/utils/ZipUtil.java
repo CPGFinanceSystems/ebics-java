@@ -22,7 +22,7 @@ public abstract class ZipUtil {
     public static byte[] compress(final byte[] toZip) throws EbicsException {
 
         if (toZip == null) {
-            throw new EbicsException("The input to be zipped cannot be null");
+            throw new IllegalArgumentException("The input to be zipped cannot be null");
         }
 
         final Deflater compressor;
@@ -43,7 +43,7 @@ public abstract class ZipUtil {
         try {
             output.close();
         } catch (final IOException e) {
-            throw new EbicsException(e.getMessage());
+            throw new EbicsException(e);
         }
         compressor.end();
 

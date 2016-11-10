@@ -26,19 +26,12 @@ package de.cpg.oss.ebics.api.exception;
  */
 public class EbicsException extends Exception {
 
-    /**
-     * A means to construct a server error.
-     */
-    public EbicsException() {
-    }
+    private static final long serialVersionUID = 1L;
 
-    /**
-     * A means to construct a server error with an additional message.
-     *
-     * @param message the exception message
-     */
-    public EbicsException(final String message) {
-        super(message);
+    private ReturnCode returnCode;
+
+    public EbicsException(final Throwable cause) {
+        super(cause);
     }
 
     public EbicsException(final String message, final Throwable cause) {
@@ -48,7 +41,7 @@ public class EbicsException extends Exception {
     /**
      * A means to construct a server error with no additional message.
      *
-     * @param returnCode the ebics return code.
+     * @param returnCode the EBICS return code.
      */
     public EbicsException(final ReturnCode returnCode) {
         this.returnCode = returnCode;
@@ -57,7 +50,7 @@ public class EbicsException extends Exception {
     /**
      * A means to construct a server error with an additional message.
      *
-     * @param returnCode the ebics return code.
+     * @param returnCode the EBICS return code.
      * @param message    the additional message.
      */
     public EbicsException(final ReturnCode returnCode, final String message) {
@@ -67,17 +60,8 @@ public class EbicsException extends Exception {
 
     /**
      * Returns the standardized error code.
-     *
-     * @return the standardized error code.
      */
     public ReturnCode getReturnCode() {
         return returnCode;
     }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private ReturnCode returnCode;
-    private static final long serialVersionUID = 2728820344946361669L;
 }

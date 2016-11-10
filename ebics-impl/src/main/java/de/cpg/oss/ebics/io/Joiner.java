@@ -52,7 +52,7 @@ public class Joiner {
             buffer.write(data);
             buffer.flush();
         } catch (final IOException e) {
-            throw new EbicsException(e.getMessage());
+            throw new EbicsException(e);
         }
     }
 

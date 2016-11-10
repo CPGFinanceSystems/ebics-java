@@ -19,6 +19,7 @@
 
 package de.cpg.oss.ebics.xml;
 
+import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.session.EbicsSession;
 import org.ebics.h004.*;
@@ -47,7 +48,7 @@ public class DInitializationRequestElement extends InitializationRequestElement 
      * @param endRange   the end range download
      */
     public DInitializationRequestElement(final EbicsSession session,
-                                         final de.cpg.oss.ebics.session.OrderType type,
+                                         final OrderType type,
                                          final LocalDate startRange,
                                          final LocalDate endRange) {
         super(session, type);
@@ -84,7 +85,7 @@ public class DInitializationRequestElement extends InitializationRequestElement 
         final StaticHeaderOrderDetailsType orderDetails = OBJECT_FACTORY.createStaticHeaderOrderDetailsType();
         orderDetails.setOrderAttribute(OrderAttributeType.DZHNN);
         orderDetails.setOrderType(orderType);
-        if (type.equals(de.cpg.oss.ebics.session.OrderType.FDL)) {
+        if (type.equals(OrderType.FDL)) {
             final FileFormatType fileFormat = OBJECT_FACTORY.createFileFormatType();
             fileFormat.setCountryCode(session.getConfiguration().getLocale().getCountry().toUpperCase());
             fileFormat.setValue(session.getSessionParam("FORMAT"));

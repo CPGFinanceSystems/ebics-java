@@ -26,6 +26,10 @@ package de.cpg.oss.ebics.api.exception;
  */
 public class NoDownloadDataAvailableException extends EbicsException {
 
+    public NoDownloadDataAvailableException() {
+        super(ReturnCode.EBICS_NO_DOWNLOAD_DATA_AVAILABLE);
+    }
+
     @Override
     public ReturnCode getReturnCode() {
         return ReturnCode.EBICS_NO_DOWNLOAD_DATA_AVAILABLE;

@@ -23,8 +23,6 @@ import de.cpg.oss.ebics.api.*;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.io.IOUtils;
 import de.cpg.oss.ebics.session.EbicsSession;
-import de.cpg.oss.ebics.session.OrderType;
-import de.cpg.oss.ebics.session.Product;
 import de.cpg.oss.ebics.utils.Constants;
 import de.cpg.oss.ebics.utils.KeyUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +43,7 @@ import java.time.LocalDate;
  * @author hachani
  */
 @Slf4j
-public class EbicsClient {
+public class EbicsClientImpl implements EbicsClient {
 
     private final EbicsConfiguration configuration;
 
@@ -54,7 +52,7 @@ public class EbicsClient {
      *
      * @param configuration the application configuration
      */
-    public EbicsClient(final EbicsConfiguration configuration) {
+    public EbicsClientImpl(final EbicsConfiguration configuration) {
         this.configuration = configuration;
         Messages.setLocale(configuration.getLocale());
     }
@@ -63,6 +61,7 @@ public class EbicsClient {
      * Initiates the application by creating the
      * application root directories and its children
      */
+    @Override
     public void init() {
         log.info(Messages.getString("init.configuration", Constants.APPLICATION_BUNDLE_NAME));
         configuration.init();
@@ -81,6 +80,7 @@ public class EbicsClient {
      * @param passwordCallback a callback-handler that supplies us with the password.
      *                         This parameter can be null, in this case no password is used.
      */
+    @Override
     public EbicsUser createUser(final URI uri,
                                 final String bankName,
                                 final String hostId,
@@ -135,6 +135,7 @@ public class EbicsClient {
      * @param partnerId the partner ID
      * @param userId    the user ID
      */
+    @Override
     public EbicsUser loadUser(final String hostId,
                               final String partnerId,
                               final String userId,
@@ -165,6 +166,7 @@ public class EbicsClient {
      * @param user    the user
      * @param product the application product
      */
+    @Override
     public EbicsUser sendINIRequest(final EbicsUser user, final Product product) throws EbicsException {
         log.info(Messages.getString("ini.request.send", Constants.APPLICATION_BUNDLE_NAME, user.getId()));
 
@@ -190,6 +192,7 @@ public class EbicsClient {
      * @param user    the user.
      * @param product the application product.
      */
+    @Override
     public EbicsUser sendHIARequest(final EbicsUser user, final Product product) throws EbicsException {
         log.info(Messages.getString("hia.request.send", Constants.APPLICATION_BUNDLE_NAME, user.getId()));
         if (user.isInitializedHIA()) {
@@ -214,6 +217,7 @@ public class EbicsClient {
      * @param user    the user.
      * @param product the application product.
      */
+    @Override
     public EbicsUser sendHPBRequest(final EbicsUser user, final Product product) throws EbicsException {
         log.info(Messages.getString("hpb.request.send", Constants.APPLICATION_BUNDLE_NAME, user.getId()));
 
@@ -234,6 +238,7 @@ public class EbicsClient {
      * @param user    the user
      * @param product the session product
      */
+    @Override
     public EbicsUser revokeSubscriber(final EbicsUser user, final Product product) throws EbicsException {
         log.info(Messages.getString("spr.request.send", Constants.APPLICATION_BUNDLE_NAME, user.getId()));
 
@@ -257,6 +262,7 @@ public class EbicsClient {
      * @param user    the user that sends the file.
      * @param product the application product.
      */
+    @Override
     public void uploadSepaDirectDebit(final String path, final EbicsUser user, final Product product) throws EbicsException {
         final EbicsSession session = new EbicsSession(user, configuration, product);
         session.addSessionParam("FORMAT", "pain.008.001.02");
@@ -266,6 +272,7 @@ public class EbicsClient {
         FileTransfer.sendFile(session, IOUtils.getFileContent(path), OrderType.CDD);
     }
 
+    @Override
     public void fetchFile(final String path,
                           final EbicsUser user,
                           final Product product,
@@ -291,6 +298,7 @@ public class EbicsClient {
     /**
      * Performs buffers save before quitting the client application.
      */
+    @Override
     public void quit(final EbicsUser user) throws IOException {
         log.info(Messages.getString("app.quit.users", Constants.APPLICATION_BUNDLE_NAME, user.getUserId()));
         configuration.getSerializationManager().serialize(user);
@@ -313,8 +321,6 @@ public class EbicsClient {
         IOUtils.createDirectories(configuration.getUserDirectory(user));
         //Create the traces directory
         IOUtils.createDirectories(configuration.getTransferTraceDirectory(user));
-        //Create the key stores directory
-        IOUtils.createDirectories(configuration.getKeystoreDirectory(user));
         //Create the letters directory
         IOUtils.createDirectories(configuration.getLettersDirectory(user));
     }

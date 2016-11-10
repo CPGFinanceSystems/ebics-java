@@ -21,9 +21,9 @@ package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.exception.ReturnCode;
-import de.cpg.oss.ebics.interfaces.ContentFactory;
+import de.cpg.oss.ebics.io.ContentFactory;
 import de.cpg.oss.ebics.io.InputStreamContentFactory;
-import org.apache.http.HttpResponse;
+import org.apache.http.HttpEntity;
 import org.ebics.h004.EbicsKeyManagementResponse;
 
 import java.io.IOException;
@@ -42,9 +42,9 @@ public class KeyManagementResponseElement {
 
     private EbicsKeyManagementResponse response;
 
-    public KeyManagementResponseElement(final HttpResponse httpResponse) {
+    public KeyManagementResponseElement(final HttpEntity httpEntity) {
         try {
-            this.contentFactory = new InputStreamContentFactory(httpResponse.getEntity().getContent());
+            this.contentFactory = new InputStreamContentFactory(httpEntity.getContent());
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }

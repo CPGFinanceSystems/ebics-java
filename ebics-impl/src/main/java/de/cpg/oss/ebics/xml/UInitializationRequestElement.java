@@ -19,8 +19,9 @@
 
 package de.cpg.oss.ebics.xml;
 
+import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.interfaces.ContentFactory;
+import de.cpg.oss.ebics.io.ContentFactory;
 import de.cpg.oss.ebics.io.Splitter;
 import de.cpg.oss.ebics.session.EbicsSession;
 import de.cpg.oss.ebics.utils.CryptoUtil;
@@ -56,7 +57,7 @@ public class UInitializationRequestElement extends InitializationRequestElement 
      * @param userData  the user data to be uploaded
      */
     public UInitializationRequestElement(final EbicsSession session,
-                                         final de.cpg.oss.ebics.session.OrderType orderType,
+                                         final OrderType orderType,
                                          final byte[] userData) {
         super(session, orderType);
         this.userData = userData;
@@ -117,7 +118,7 @@ public class UInitializationRequestElement extends InitializationRequestElement 
         }
 
         final StaticHeaderOrderDetailsType orderDetails = OBJECT_FACTORY.createStaticHeaderOrderDetailsType();
-        if (type.equals(de.cpg.oss.ebics.session.OrderType.FUL)) {
+        if (type.equals(OrderType.FUL)) {
             final FileFormatType fileFormat = OBJECT_FACTORY.createFileFormatType();
             fileFormat.setCountryCode(session.getConfiguration().getLocale().getCountry().toUpperCase());
             fileFormat.setValue(session.getSessionParam("FORMAT"));

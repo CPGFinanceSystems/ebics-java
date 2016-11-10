@@ -37,45 +37,6 @@ public interface EbicsConfiguration {
     String getRootDirectory();
 
     /**
-     * Returns the default log directory of the application.
-     *
-     * @return the default log directory
-     */
-    String getLogDirectory();
-
-    /**
-     * Returns the default log file name of the application
-     *
-     * @return the default log file name
-     */
-    String getLogFileName();
-
-    /**
-     * Returns the EBICS configuration file.
-     *
-     * @return the EBICS configuration file.
-     */
-    String getConfigurationFile();
-
-    /**
-     * Returns the property value of a given key from
-     * the configuration file
-     *
-     * @param key the given key
-     * @return the property value
-     */
-    String getProperty(String key);
-
-    /**
-     * Returns the directory path of the key store that contains
-     * bank and user certificates.
-     *
-     * @param user ebics user.
-     * @return the key store directory of a given user.
-     */
-    String getKeystoreDirectory(EbicsUser user);
-
-    /**
      * Returns the directory path that contains the traces
      * XML transfer files.
      *
@@ -90,27 +51,6 @@ public interface EbicsConfiguration {
      * @return the object serialization directory.
      */
     String getSerializationDirectory();
-
-    /**
-     * Returns the SSL trusted store directory.
-     *
-     * @return the SSL trusted store directory.
-     */
-    String getSSLTrustedStoreDirectory();
-
-    /**
-     * Return the SSL key store directory
-     *
-     * @return the SSL key store directory
-     */
-    String getSSLKeyStoreDirectory();
-
-    /**
-     * Returns the SSL bank server certificates.
-     *
-     * @return the SSL bank server certificates.
-     */
-    String getSSLBankCertificates();
 
     /**
      * Returns the users directory.

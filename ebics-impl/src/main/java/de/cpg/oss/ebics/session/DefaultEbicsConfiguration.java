@@ -20,7 +20,6 @@
 package de.cpg.oss.ebics.session;
 
 import de.cpg.oss.ebics.api.*;
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.io.IOUtils;
 import de.cpg.oss.ebics.letter.DefaultLetterManager;
 import lombok.AccessLevel;
@@ -28,11 +27,8 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.Wither;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Locale;
 import java.util.MissingResourceException;
-import java.util.Properties;
 import java.util.ResourceBundle;
 
 
@@ -49,7 +45,6 @@ public class DefaultEbicsConfiguration implements EbicsConfiguration {
 
     private final String rootDir;
     private final ResourceBundle bundle;
-    private final Properties properties;
     private final SerializationManager serializationManager;
     private final TraceManager traceManager;
     private final LetterManager letterManager;
@@ -62,7 +57,6 @@ public class DefaultEbicsConfiguration implements EbicsConfiguration {
     public DefaultEbicsConfiguration(final String rootDir) {
         this.rootDir = rootDir;
         this.bundle = ResourceBundle.getBundle(RESOURCE_DIR);
-        this.properties = new Properties();
         this.serializationManager = new DefaultSerializationManager(new File(getSerializationDirectory()));
         this.traceManager = new DefaultTraceManager();
         this.letterManager = new DefaultLetterManager(getLocale());
@@ -90,19 +84,6 @@ public class DefaultEbicsConfiguration implements EbicsConfiguration {
         }
     }
 
-    /**
-     * Loads the configuration
-     *
-     * @throws EbicsException
-     */
-    public void load(final String configFile) throws EbicsException {
-        try {
-            properties.load(new FileInputStream(new File(configFile)));
-        } catch (final IOException e) {
-            throw new EbicsException(e.getMessage(), e);
-        }
-    }
-
     @Override
     public String getRootDirectory() {
         return rootDir;
@@ -112,16 +93,8 @@ public class DefaultEbicsConfiguration implements EbicsConfiguration {
     public void init() {
         //Create the root directory
         IOUtils.createDirectories(getRootDirectory());
-        //Create the logs directory
-        IOUtils.createDirectories(getLogDirectory());
         //Create the serialization directory
         IOUtils.createDirectories(getSerializationDirectory());
-        //create the SSL trusted stores directories
-        IOUtils.createDirectories(getSSLTrustedStoreDirectory());
-        //create the SSL key stores directories
-        IOUtils.createDirectories(getSSLKeyStoreDirectory());
-        //Create the SSL bank certificates directories
-        IOUtils.createDirectories(getSSLBankCertificates());
         //Create users directory
         IOUtils.createDirectories(getUsersDirectory());
     }
@@ -132,35 +105,6 @@ public class DefaultEbicsConfiguration implements EbicsConfiguration {
     }
 
     @Override
-    public String getLogDirectory() {
-        return rootDir + File.separator + getString("log.dir.name");
-    }
-
-    @Override
-    public String getLogFileName() {
-        return getString("log.file.name");
-    }
-
-    @Override
-    public String getConfigurationFile() {
-        return rootDir + File.separator + getString("conf.file.name");
-    }
-
-    @Override
-    public String getProperty(final String key) {
-        if (key == null) {
-            return null;
-        }
-
-        return properties.getProperty(key);
-    }
-
-    @Override
-    public String getKeystoreDirectory(final EbicsUser user) {
-        return getUserDirectory(user) + File.separator + getString("keystore.dir.name");
-    }
-
-    @Override
     public String getTransferTraceDirectory(final EbicsUser user) {
         return getUserDirectory(user) + File.separator + getString("traces.dir.name");
     }
@@ -168,21 +112,6 @@ public class DefaultEbicsConfiguration implements EbicsConfiguration {
     @Override
     public String getSerializationDirectory() {
         return rootDir + File.separator + getString("serialization.dir.name");
-    }
-
-    @Override
-    public String getSSLTrustedStoreDirectory() {
-        return rootDir + File.separator + getString("ssltruststore.dir.name");
-    }
-
-    @Override
-    public String getSSLKeyStoreDirectory() {
-        return rootDir + File.separator + getString("sslkeystore.dir.name");
-    }
-
-    @Override
-    public String getSSLBankCertificates() {
-        return rootDir + File.separator + getString("sslbankcert.dir.name");
     }
 
     @Override

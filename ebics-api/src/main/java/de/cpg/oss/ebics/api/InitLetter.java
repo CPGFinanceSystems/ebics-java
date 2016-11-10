@@ -39,12 +39,8 @@ public interface InitLetter {
      * Creates an <code>InitLetter</code> for a given <code>EbicsUser</code>
      *
      * @param user the ebics user.
-     * @throws EbicsException
-     * @throws IOException
-     * @throws GeneralSecurityException
      */
-    void create(EbicsUser user)
-            throws GeneralSecurityException, IOException, EbicsException;
+    void create(EbicsUser user) throws GeneralSecurityException, IOException, EbicsException;
 
     /**
      * Saves the <code>InitLetter</code> to the given output stream.

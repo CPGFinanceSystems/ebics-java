@@ -19,8 +19,6 @@
 
 package de.cpg.oss.ebics.io;
 
-import de.cpg.oss.ebics.interfaces.ContentFactory;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
