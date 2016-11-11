@@ -28,8 +28,8 @@ public class EbicsSession {
     private final LetterManager letterManager;
     private final Map<String, String> parameters = new HashMap<>();
 
-    public RSAPublicKey getBankE002Key() {
-        return (RSAPublicKey) getBank().getE002Key();
+    public RSAPublicKey getBankEncryptionKey() {
+        return (RSAPublicKey) getBank().getEncryptionKey().getPublicKey();
     }
 
     public String getHostId() {

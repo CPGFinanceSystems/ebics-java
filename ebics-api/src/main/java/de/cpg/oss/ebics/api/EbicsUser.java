@@ -24,9 +24,6 @@ import lombok.NonNull;
 import lombok.Value;
 import lombok.experimental.Wither;
 
-import java.security.KeyPair;
-import java.time.LocalDateTime;
-
 
 /**
  * Things an EBICS user must be able to perform.
@@ -38,14 +35,14 @@ import java.time.LocalDateTime;
 @Wither
 public class EbicsUser implements Identifiable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
-    private final KeyPair a005Key;
-    private final KeyPair e002Key;
-    private final KeyPair x002Key;
-    private final LocalDateTime keyCreationDateTime;
+    private final EbicsRsaKey<SignatureVersion> signatureKey;
+    private final EbicsRsaKey<EncryptionVersion> encryptionKey;
+    private final EbicsRsaKey<AuthenticationVersion> authenticationKey;
 
     private final String securityMedium;
+
     @NonNull
     private final String userId;
     private final String name;

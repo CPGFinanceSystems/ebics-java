@@ -25,7 +25,6 @@ import lombok.Value;
 import lombok.experimental.Wither;
 
 import java.net.URI;
-import java.security.PublicKey;
 
 /**
  * Details about EBICS communication with a given bank.
@@ -37,16 +36,13 @@ import java.security.PublicKey;
 @Builder
 public class EbicsBank implements Identifiable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     @NonNull
     private final URI uri;
 
-    private final byte[] e002Digest;
-    private final byte[] x002Digest;
-
-    private final PublicKey e002Key;
-    private final PublicKey x002Key;
+    private final EbicsRsaKey<AuthenticationVersion> authenticationKey;
+    private final EbicsRsaKey<EncryptionVersion> encryptionKey;
 
     @NonNull
     private final String hostId;

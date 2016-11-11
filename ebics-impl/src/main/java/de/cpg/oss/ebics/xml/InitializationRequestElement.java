@@ -96,11 +96,11 @@ public abstract class InitializationRequestElement {
     byte[] generateTransactionKey() throws EbicsException {
         try {
             final Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-            cipher.init(Cipher.ENCRYPT_MODE, session.getBankE002Key());
+            cipher.init(Cipher.ENCRYPT_MODE, session.getBankEncryptionKey());
             final BigInteger data = new BigInteger(nonce);
             log.info("Data bits: {}", data.bitLength());
-            log.info("Modulus bits: {}", session.getBankE002Key().getModulus().bitLength());
-            log.info("Compare: {}", data.compareTo(session.getBankE002Key().getModulus()));
+            log.info("Modulus bits: {}", session.getBankEncryptionKey().getModulus().bitLength());
+            log.info("Compare: {}", data.compareTo(session.getBankEncryptionKey().getModulus()));
             return cipher.doFinal(nonce);
         } catch (final Exception e) {
             throw new RuntimeException(e);

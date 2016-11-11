@@ -1,5 +1,5 @@
 package de.cpg.oss.ebics.api;
 
-public enum EncryptionVerion {
+public enum EncryptionVersion {
     E002
 }

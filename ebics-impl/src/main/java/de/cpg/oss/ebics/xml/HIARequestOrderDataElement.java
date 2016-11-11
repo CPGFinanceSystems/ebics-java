@@ -55,16 +55,16 @@ public class HIARequestOrderDataElement {
 
     public HIARequestOrderDataType build() throws EbicsException {
         final org.ebics.h004.PubKeyValueType encryptionPubKeyValue = OBJECT_FACTORY.createPubKeyValueType();
-        encryptionPubKeyValue.setRSAKeyValue(rsaKeyValue(session.getUser().getE002Key().getPublic()));
-        encryptionPubKeyValue.setTimeStamp(session.getUser().getKeyCreationDateTime());
+        encryptionPubKeyValue.setRSAKeyValue(rsaKeyValue(session.getUser().getEncryptionKey().getPublicKey()));
+        encryptionPubKeyValue.setTimeStamp(session.getUser().getEncryptionKey().getCreationTime());
 
         final EncryptionPubKeyInfoType encryptionPubKeyInfo = OBJECT_FACTORY.createEncryptionPubKeyInfoType();
         encryptionPubKeyInfo.setEncryptionVersion(session.getConfiguration().getEncryptionVersion().name());
         encryptionPubKeyInfo.setPubKeyValue(encryptionPubKeyValue);
 
         final org.ebics.h004.PubKeyValueType authPubKeyValue = OBJECT_FACTORY.createPubKeyValueType();
-        authPubKeyValue.setRSAKeyValue(rsaKeyValue(session.getUser().getX002Key().getPublic()));
-        authPubKeyValue.setTimeStamp(session.getUser().getKeyCreationDateTime());
+        authPubKeyValue.setRSAKeyValue(rsaKeyValue(session.getUser().getAuthenticationKey().getPublicKey()));
+        authPubKeyValue.setTimeStamp(session.getUser().getAuthenticationKey().getCreationTime());
 
         final AuthenticationPubKeyInfoType authenticationPubKeyInfo = OBJECT_FACTORY.createAuthenticationPubKeyInfoType();
         authenticationPubKeyInfo.setAuthenticationVersion(session.getConfiguration().getAuthenticationVersion().name());

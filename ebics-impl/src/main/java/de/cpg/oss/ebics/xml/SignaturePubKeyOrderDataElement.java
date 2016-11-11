@@ -26,8 +26,6 @@ import org.ebics.s001.PubKeyValueType;
 import org.ebics.s001.SignaturePubKeyInfo;
 import org.ebics.s001.SignaturePubKeyOrderData;
 
-import java.time.LocalDateTime;
-
 
 /**
  * The <code>SignaturePubKeyOrderDataElement</code> is the order data
@@ -52,8 +50,8 @@ public class SignaturePubKeyOrderDataElement {
 
     public SignaturePubKeyOrderData build() throws EbicsException {
         final PubKeyValueType pubKeyValue = OBJECT_FACTORY.createPubKeyValueType();
-        pubKeyValue.setRSAKeyValue(HIARequestOrderDataElement.rsaKeyValue(session.getUser().getA005Key().getPublic()));
-        pubKeyValue.setTimeStamp(LocalDateTime.now()); //TODO: Should contain date time from key creation
+        pubKeyValue.setRSAKeyValue(HIARequestOrderDataElement.rsaKeyValue(session.getUser().getSignatureKey().getPublicKey()));
+        pubKeyValue.setTimeStamp(session.getUser().getSignatureKey().getCreationTime());
 
         final SignaturePubKeyInfo signaturePubKeyInfo = OBJECT_FACTORY.createSignaturePubKeyInfo();
         signaturePubKeyInfo.setPubKeyValue(pubKeyValue);

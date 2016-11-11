@@ -27,7 +27,6 @@ import de.cpg.oss.ebics.io.ByteArrayContentFactory;
 import de.cpg.oss.ebics.io.ContentFactory;
 import de.cpg.oss.ebics.utils.CryptoUtil;
 import de.cpg.oss.ebics.utils.HttpUtil;
-import de.cpg.oss.ebics.utils.KeyUtil;
 import de.cpg.oss.ebics.utils.ZipUtil;
 import de.cpg.oss.ebics.xml.*;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +35,6 @@ import org.ebics.h004.*;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.security.interfaces.RSAPublicKey;
 
 
 /**
@@ -129,17 +127,13 @@ abstract class KeyManagement {
         final ContentFactory factory = new ByteArrayContentFactory(ZipUtil.uncompress(CryptoUtil.decrypt(
                 response.getOrderData(),
                 response.getTransactionKey(),
-                session.getUser().getE002Key().getPrivate())));
+                session.getUser().getEncryptionKey().getPrivateKey())));
         final HPBResponseOrderDataElement orderData = new HPBResponseOrderDataElement(factory);
         final HPBResponseOrderDataType orderDataResponse = orderData.build();
         session.getTraceManager().trace(XmlUtils.prettyPrint(HPBResponseOrderDataType.class, orderDataResponse), orderData.getName(), session.getUser());
-        final RSAPublicKey e002PubKey = orderData.getBankE002PublicKeyData();
-        final RSAPublicKey x002PubKey = orderData.getBankX002PublicKeyData();
         return session.getBank()
-                .withE002Key(e002PubKey)
-                .withX002Key(x002PubKey)
-                .withE002Digest(KeyUtil.getKeyDigest(e002PubKey))
-                .withX002Digest(KeyUtil.getKeyDigest(x002PubKey));
+                .withAuthenticationKey(orderData.getBankAuthenticationKey())
+                .withEncryptionKey(orderData.getBankEncryptionKey());
     }
 
     /**

@@ -22,7 +22,6 @@ package de.cpg.oss.ebics.letter;
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.MessageProvider;
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.utils.KeyUtil;
 
 
 /**
@@ -49,9 +48,9 @@ public class A005Letter extends AbstractInitLetter {
                 session.getPartner().getId(),
                 getString("INILetter.version"),
                 getString("INILetter.certificate"),
-                session.getUser().getA005Key().getPublic(),
+                session.getUser().getSignatureKey().getPublicKey(),
                 getString("INILetter.digest"),
-                KeyUtil.getKeyDigest(session.getUser().getA005Key().getPublic()));
+                session.getUser().getSignatureKey().getDigest());
     }
 
     @Override

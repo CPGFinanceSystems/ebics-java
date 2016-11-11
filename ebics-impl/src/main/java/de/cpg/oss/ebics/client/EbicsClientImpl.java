@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -101,7 +102,7 @@ public class EbicsClientImpl implements EbicsClient {
 
     @Override
     public EbicsBank getBankInformation(final EbicsSession session) throws EbicsException {
-        if (null == session.getBank().getE002Key() || null == session.getBank().getX002Key()) {
+        if (null == session.getBank().getEncryptionKey() || null == session.getBank().getAuthenticationKey()) {
             return sendHPBRequest(session);
         }
         return session.getBank();
@@ -358,16 +359,27 @@ public class EbicsClientImpl implements EbicsClient {
     }
 
     private EbicsSession createUserKeys(final EbicsSession session) throws EbicsException {
+        final EbicsUser userWithKeys = session.getUser()
+                .withSignatureKey(createRsaKeyPair(SignatureVersion.A005))
+                .withEncryptionKey(createRsaKeyPair(EncryptionVersion.E002))
+                .withAuthenticationKey(createRsaKeyPair(AuthenticationVersion.X002));
+        return session.withUser(userWithKeys);
+    }
+
+    private <T extends Enum> EbicsRsaKey<T> createRsaKeyPair(final T version) throws EbicsException {
         try {
-            final EbicsUser userWithKeys = session.getUser()
-                    .withA005Key(KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE))
-                    .withE002Key(KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE))
-                    .withX002Key(KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE))
-                    .withKeyCreationDateTime(LocalDateTime.now());
-            return session.withUser(userWithKeys);
+            final KeyPair keyPair = KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE);
+            return EbicsRsaKey.<T>builder()
+                    .privateKey(keyPair.getPrivate())
+                    .publicKey(keyPair.getPublic())
+                    .creationTime(LocalDateTime.now())
+                    .digest(KeyUtil.getKeyDigest(keyPair.getPublic()))
+                    .version(version)
+                    .build();
         } catch (final NoSuchAlgorithmException e) {
             throw new EbicsException(e);
         }
+
     }
 
     private EbicsBank sendHPBRequest(final EbicsSession session) throws EbicsException {

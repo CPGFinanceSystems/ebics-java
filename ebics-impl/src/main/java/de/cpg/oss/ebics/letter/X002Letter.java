@@ -22,7 +22,6 @@ package de.cpg.oss.ebics.letter;
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.MessageProvider;
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.utils.KeyUtil;
 
 
 /**
@@ -49,9 +48,9 @@ public class X002Letter extends AbstractInitLetter {
                 session.getPartner().getPartnerId(),
                 getString("HIALetter.x002.version"),
                 getString("HIALetter.x002.certificate"),
-                session.getUser().getX002Key().getPublic(),
+                session.getUser().getAuthenticationKey().getPublicKey(),
                 getString("HIALetter.x002.digest"),
-                KeyUtil.getKeyDigest(session.getUser().getX002Key().getPublic()));
+                session.getUser().getAuthenticationKey().getDigest());
     }
 
     @Override

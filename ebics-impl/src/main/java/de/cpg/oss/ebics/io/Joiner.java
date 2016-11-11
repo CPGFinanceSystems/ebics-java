@@ -69,7 +69,7 @@ public class Joiner {
             output.write(ZipUtil.uncompress(CryptoUtil.decrypt(
                     buffer.toByteArray(),
                     transactionKey,
-                    user.getE002Key().getPrivate())));
+                    user.getEncryptionKey().getPrivateKey())));
             output.close();
         } catch (final IOException e) {
             throw new RuntimeException(e);

@@ -79,12 +79,12 @@ public class UInitializationRequestElement extends InitializationRequestElement 
         final StaticHeaderType.BankPubKeyDigests.Authentication authentication = OBJECT_FACTORY.createStaticHeaderTypeBankPubKeyDigestsAuthentication();
         authentication.setVersion(session.getConfiguration().getAuthenticationVersion().name());
         authentication.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
-        authentication.setValue(session.getBank().getX002Digest());
+        authentication.setValue(session.getBank().getAuthenticationKey().getDigest());
 
         final StaticHeaderType.BankPubKeyDigests.Encryption encryption = OBJECT_FACTORY.createStaticHeaderTypeBankPubKeyDigestsEncryption();
         encryption.setVersion(session.getConfiguration().getEncryptionVersion().name());
         encryption.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
-        encryption.setValue(session.getBank().getE002Digest());
+        encryption.setValue(session.getBank().getEncryptionKey().getDigest());
 
         final StaticHeaderType.BankPubKeyDigests bankPubKeyDigests = OBJECT_FACTORY.createStaticHeaderTypeBankPubKeyDigests();
         bankPubKeyDigests.setAuthentication(authentication);
@@ -160,7 +160,7 @@ public class UInitializationRequestElement extends InitializationRequestElement 
         final DataEncryptionInfoType.EncryptionPubKeyDigest encryptionPubKeyDigest = OBJECT_FACTORY.createDataEncryptionInfoTypeEncryptionPubKeyDigest();
         encryptionPubKeyDigest.setVersion(session.getConfiguration().getEncryptionVersion().name());
         encryptionPubKeyDigest.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
-        encryptionPubKeyDigest.setValue(session.getBank().getE002Digest());
+        encryptionPubKeyDigest.setValue(session.getBank().getEncryptionKey().getDigest());
 
         final UserSignature userSignature = new UserSignature(session,
                 DefaultEbicsRootElement.generateName("UserSignature"),

@@ -122,7 +122,7 @@ public class XmlUtils {
             final byte[] canonized = canonize(node);
             log.info("Canonized for sign: '{}'", new String(canonized));
 
-            return CryptoUtil.authenticate(canonized, user.getX002Key().getPrivate());
+            return CryptoUtil.authenticate(canonized, user.getAuthenticationKey().getPrivateKey());
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }

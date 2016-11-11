@@ -19,6 +19,9 @@
 
 package de.cpg.oss.ebics.xml;
 
+import de.cpg.oss.ebics.api.AuthenticationVersion;
+import de.cpg.oss.ebics.api.EbicsRsaKey;
+import de.cpg.oss.ebics.api.EncryptionVersion;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.io.ContentFactory;
 import de.cpg.oss.ebics.utils.KeyUtil;
@@ -50,14 +53,24 @@ public class HPBResponseOrderDataElement {
         this.contentFactory = factory;
     }
 
-    public RSAPublicKey getBankX002PublicKeyData() {
-        final RSAKeyValue rsaKey = response.getAuthenticationPubKeyInfo().getPubKeyValue().getRSAKeyValue();
-        return KeyUtil.getPublicKey(rsaKey.getModulus(), rsaKey.getExponent());
+    public EbicsRsaKey<AuthenticationVersion> getBankAuthenticationKey() throws EbicsException {
+        final RSAPublicKey publicKey = getBankAuthenticationPublicKey();
+        return EbicsRsaKey.<AuthenticationVersion>builder()
+                .publicKey(publicKey)
+                .digest(KeyUtil.getKeyDigest(publicKey))
+                .creationTime(response.getAuthenticationPubKeyInfo().getPubKeyValue().getTimeStamp())
+                .version(AuthenticationVersion.valueOf(response.getAuthenticationPubKeyInfo().getAuthenticationVersion()))
+                .build();
     }
 
-    public RSAPublicKey getBankE002PublicKeyData() {
-        final RSAKeyValue rsaKey = response.getEncryptionPubKeyInfo().getPubKeyValue().getRSAKeyValue();
-        return KeyUtil.getPublicKey(rsaKey.getModulus(), rsaKey.getExponent());
+    public EbicsRsaKey<EncryptionVersion> getBankEncryptionKey() throws EbicsException {
+        final RSAPublicKey publicKey = getBankEncryptionPublicKey();
+        return EbicsRsaKey.<EncryptionVersion>builder()
+                .publicKey(publicKey)
+                .digest(KeyUtil.getKeyDigest(publicKey))
+                .creationTime(response.getEncryptionPubKeyInfo().getPubKeyValue().getTimeStamp())
+                .version(EncryptionVersion.valueOf(response.getEncryptionPubKeyInfo().getEncryptionVersion()))
+                .build();
     }
 
     public HPBResponseOrderDataType build() throws EbicsException {
@@ -67,5 +80,15 @@ public class HPBResponseOrderDataElement {
 
     public String getName() {
         return "HPBData.xml";
+    }
+
+    private RSAPublicKey getBankAuthenticationPublicKey() {
+        final RSAKeyValue rsaKey = response.getAuthenticationPubKeyInfo().getPubKeyValue().getRSAKeyValue();
+        return KeyUtil.getPublicKey(rsaKey.getModulus(), rsaKey.getExponent());
+    }
+
+    private RSAPublicKey getBankEncryptionPublicKey() {
+        final RSAKeyValue rsaKey = response.getEncryptionPubKeyInfo().getPubKeyValue().getRSAKeyValue();
+        return KeyUtil.getPublicKey(rsaKey.getModulus(), rsaKey.getExponent());
     }
 }

@@ -69,7 +69,7 @@ public class UserSignature {
         final byte[] signature;
 
         try {
-            signature = CryptoUtil.sign(toSign, session.getUser().getA005Key().getPrivate());
+            signature = CryptoUtil.sign(toSign, session.getUser().getSignatureKey().getPrivateKey());
         } catch (final IOException | GeneralSecurityException e) {
             throw new EbicsException(e.getMessage(), e);
         }

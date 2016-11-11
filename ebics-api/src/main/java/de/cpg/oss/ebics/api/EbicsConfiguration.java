@@ -18,7 +18,7 @@ public class EbicsConfiguration {
 
     private final SignatureVersion signatureVersion = SignatureVersion.A005;
     private final AuthenticationVersion authenticationVersion = AuthenticationVersion.X002;
-    private final EncryptionVerion encryptionVersion = EncryptionVerion.E002;
+    private final EncryptionVersion encryptionVersion = EncryptionVersion.E002;
     private final boolean compressionEnabled = true;
     private final int revision = 1;
     private final EbicsVersion version = EbicsVersion.H004;
