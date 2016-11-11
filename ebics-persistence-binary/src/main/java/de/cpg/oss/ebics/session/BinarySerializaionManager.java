@@ -36,7 +36,7 @@ public class BinarySerializaionManager implements SerializationManager {
                         clazz.getName(), object.getClass().getName(), id));
             }
         } catch (final ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new IOException(e);
         }
     }
 

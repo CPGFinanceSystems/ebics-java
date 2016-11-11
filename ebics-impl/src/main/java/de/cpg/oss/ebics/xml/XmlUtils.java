@@ -120,7 +120,7 @@ public class XmlUtils {
             final Node node = (Node) xPath.evaluate("//*[local-name()='SignedInfo']", document.getDocumentElement(), XPathConstants.NODE);
 
             final byte[] canonized = canonize(node);
-            log.info("Canonized for sign: '{}'", new String(canonized));
+            log.trace("Canonized for sign: '{}'", new String(canonized));
 
             return CryptoUtil.authenticate(canonized, user.getAuthenticationKey().getPrivateKey());
         } catch (final Exception e) {
@@ -140,7 +140,7 @@ public class XmlUtils {
             for (int i = 0; i < nodes.getLength(); ++i) {
                 final Node node = nodes.item(i);
                 final byte[] canonized = canonize(node);
-                log.info("Canonized for digest: '{}'", new String(canonized));
+                log.trace("Canonized for digest: '{}'", new String(canonized));
                 digester.update(canonized);
             }
             return digester.digest();

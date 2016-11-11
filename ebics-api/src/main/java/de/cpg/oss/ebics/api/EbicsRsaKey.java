@@ -1,17 +1,17 @@
 package de.cpg.oss.ebics.api;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
 
 import java.io.Serializable;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.time.LocalDateTime;
 
-@Value
-@Builder
-public class EbicsRsaKey<T extends Enum> implements Serializable {
+@Getter
+@AllArgsConstructor
+public abstract class EbicsRsaKey<T extends Enum> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

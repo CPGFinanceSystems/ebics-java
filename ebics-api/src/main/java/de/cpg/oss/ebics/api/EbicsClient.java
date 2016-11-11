@@ -10,11 +10,11 @@ public interface EbicsClient {
 
     EbicsSession loadOrCreateSession(EbicsSessionParameter sessionParameter) throws EbicsException;
 
-    EbicsUser initializeUser(EbicsSession session) throws EbicsException;
+    EbicsSession initializeUser(EbicsSession session) throws EbicsException;
 
-    EbicsBank getBankInformation(EbicsSession session) throws EbicsException;
+    EbicsSession getBankInformation(EbicsSession session) throws EbicsException;
 
-    EbicsUser revokeSubscriber(EbicsSession session) throws EbicsException;
+    EbicsSession revokeSubscriber(EbicsSession session) throws EbicsException;
 
     void uploadSepaDirectDebit(String path, EbicsSession session) throws EbicsException;
 

@@ -59,6 +59,9 @@ public class JsonSerializationManager implements SerializationManager {
         module.setMixInAnnotation(EbicsBank.class, EbicsBankMixin.class);
         module.setMixInAnnotation(EbicsPartner.class, EbicsPartnerMixin.class);
         module.setMixInAnnotation(EbicsUser.class, EbicsUserMixin.class);
+        module.setMixInAnnotation(EbicsSignatureKey.class, EbicsSignatureKeyMixin.class);
+        module.setMixInAnnotation(EbicsAuthenticationKey.class, EbicsAuthenticationKeyMixin.class);
+        module.setMixInAnnotation(EbicsEncryptionKey.class, EbicsEncryptionKeyMixin.class);
 
         final ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper

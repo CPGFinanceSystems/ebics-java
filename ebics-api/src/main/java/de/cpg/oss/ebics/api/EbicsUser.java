@@ -37,9 +37,9 @@ public class EbicsUser implements Identifiable {
 
     private static final long serialVersionUID = 2L;
 
-    private final EbicsRsaKey<SignatureVersion> signatureKey;
-    private final EbicsRsaKey<EncryptionVersion> encryptionKey;
-    private final EbicsRsaKey<AuthenticationVersion> authenticationKey;
+    private final EbicsSignatureKey signatureKey;
+    private final EbicsEncryptionKey encryptionKey;
+    private final EbicsAuthenticationKey authenticationKey;
 
     private final String securityMedium;
 

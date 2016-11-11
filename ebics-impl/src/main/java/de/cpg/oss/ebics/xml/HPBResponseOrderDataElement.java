@@ -20,7 +20,8 @@
 package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.AuthenticationVersion;
-import de.cpg.oss.ebics.api.EbicsRsaKey;
+import de.cpg.oss.ebics.api.EbicsAuthenticationKey;
+import de.cpg.oss.ebics.api.EbicsEncryptionKey;
 import de.cpg.oss.ebics.api.EncryptionVersion;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.io.ContentFactory;
@@ -53,9 +54,9 @@ public class HPBResponseOrderDataElement {
         this.contentFactory = factory;
     }
 
-    public EbicsRsaKey<AuthenticationVersion> getBankAuthenticationKey() throws EbicsException {
+    public EbicsAuthenticationKey getBankAuthenticationKey() throws EbicsException {
         final RSAPublicKey publicKey = getBankAuthenticationPublicKey();
-        return EbicsRsaKey.<AuthenticationVersion>builder()
+        return EbicsAuthenticationKey.builder()
                 .publicKey(publicKey)
                 .digest(KeyUtil.getKeyDigest(publicKey))
                 .creationTime(response.getAuthenticationPubKeyInfo().getPubKeyValue().getTimeStamp())
@@ -63,9 +64,9 @@ public class HPBResponseOrderDataElement {
                 .build();
     }
 
-    public EbicsRsaKey<EncryptionVersion> getBankEncryptionKey() throws EbicsException {
+    public EbicsEncryptionKey getBankEncryptionKey() throws EbicsException {
         final RSAPublicKey publicKey = getBankEncryptionPublicKey();
-        return EbicsRsaKey.<EncryptionVersion>builder()
+        return EbicsEncryptionKey.builder()
                 .publicKey(publicKey)
                 .digest(KeyUtil.getKeyDigest(publicKey))
                 .creationTime(response.getEncryptionPubKeyInfo().getPubKeyValue().getTimeStamp())
