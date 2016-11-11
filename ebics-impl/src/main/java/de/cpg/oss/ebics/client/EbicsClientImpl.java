@@ -2,14 +2,15 @@ package de.cpg.oss.ebics.client;
 
 import de.cpg.oss.ebics.api.*;
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.io.IOUtils;
 import de.cpg.oss.ebics.letter.DefaultLetterManager;
 import de.cpg.oss.ebics.session.BinarySerializaionManager;
 import de.cpg.oss.ebics.session.DefaultPasswordCallback;
 import de.cpg.oss.ebics.session.DefaultTraceManager;
 import de.cpg.oss.ebics.utils.Constants;
+import de.cpg.oss.ebics.utils.IOUtils;
 import de.cpg.oss.ebics.utils.KeyUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,6 +18,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.security.Security;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -53,6 +55,7 @@ public class EbicsClientImpl implements EbicsClient {
                 "init.configuration",
                 Constants.APPLICATION_BUNDLE_NAME));
         org.apache.xml.security.Init.init();
+        Security.addProvider(new BouncyCastleProvider());
         IOUtils.createDirectories(configuration.getRootDirectory());
         IOUtils.createDirectories(configuration.getSerializationDirectory());
         IOUtils.createDirectories(configuration.getUsersDirectory());

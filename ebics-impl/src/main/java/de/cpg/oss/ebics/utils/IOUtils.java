@@ -1,4 +1,4 @@
-package de.cpg.oss.ebics.io;
+package de.cpg.oss.ebics.utils;
 
 import lombok.extern.slf4j.Slf4j;
 

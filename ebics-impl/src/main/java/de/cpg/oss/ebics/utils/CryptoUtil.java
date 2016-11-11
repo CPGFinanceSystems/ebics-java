@@ -19,9 +19,11 @@
 
 package de.cpg.oss.ebics.utils;
 
+import de.cpg.oss.ebics.api.EbicsSignatureKey;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.xml.UserSignature;
 import org.apache.commons.codec.binary.Base64;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -230,11 +232,23 @@ public abstract class CryptoUtil {
      * algorithm. This signature is then put in a {@link UserSignature} XML object that
      * will be sent to the EBICS server.
      */
-    public static byte[] sign(final byte[] digest, final PrivateKey signatureKey) throws IOException, GeneralSecurityException {
-        final Signature signature = Signature.getInstance("SHA256WithRSA");
-        signature.initSign(signatureKey);
-        signature.update(removeOSSpecificChars(digest));
-        return signature.sign();
+    public static byte[] sign(final byte[] digest, final EbicsSignatureKey signatureKey) throws IOException, GeneralSecurityException {
+        final Signature signature;
+        switch (signatureKey.getVersion()) {
+            case A005:
+                signature = Signature.getInstance("SHA256withRSA");
+                signature.initSign(signatureKey.getPrivateKey());
+                signature.update(removeOSSpecificChars(digest));
+                return signature.sign();
+
+            default:
+            case A006:
+                signature = Signature.getInstance("SHA256withRSAandMGF1", BouncyCastleProvider.PROVIDER_NAME);
+                signature.initSign(signatureKey.getPrivateKey());
+                final MessageDigest digester = MessageDigest.getInstance("SHA-256");
+                signature.update(digester.digest(removeOSSpecificChars(digest)));
+                return signature.sign();
+        }
     }
 
     /**

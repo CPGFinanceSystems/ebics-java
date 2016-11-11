@@ -16,7 +16,7 @@ public class EbicsConfiguration {
     private final File rootDirectory;
     private final MessageProvider messageProvider;
 
-    private final SignatureVersion signatureVersion = SignatureVersion.A005;
+    private final SignatureVersion signatureVersion = SignatureVersion.A006;
     private final AuthenticationVersion authenticationVersion = AuthenticationVersion.X002;
     private final EncryptionVersion encryptionVersion = EncryptionVersion.E002;
     private final boolean compressionEnabled = true;
