@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.security.KeyPair;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 
 @Slf4j
@@ -50,8 +50,8 @@ public class JsonSerializationManager implements SerializationManager {
 
     private static ObjectMapper objectMapper() {
         final SimpleModule module = new SimpleModule();
-        module.addSerializer(new KeyPairSerializer(KeyPair.class));
-        module.addDeserializer(KeyPair.class, new KeyPairDeserializer(KeyPair.class));
+        module.addSerializer(new PrivateKeySerializer(PrivateKey.class));
+        module.addDeserializer(PrivateKey.class, new PrivateKeyDeserializer(PrivateKey.class));
 
         module.addSerializer(new PublicKeySerializer(PublicKey.class));
         module.addDeserializer(PublicKey.class, new PublicKeyDeserializer(PublicKey.class));

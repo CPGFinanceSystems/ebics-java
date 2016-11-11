@@ -11,16 +11,12 @@ class PublicKeySerializer extends StdSerializer<PublicKey> {
 
     private static final long serialVersionUID = 1L;
 
-    static final String PUBLIC_NODE_NAME = "public";
-
-    protected PublicKeySerializer(final Class<PublicKey> clazz) {
+    PublicKeySerializer(final Class<PublicKey> clazz) {
         super(clazz);
     }
 
     @Override
     public void serialize(final PublicKey publicKey, final JsonGenerator jsonGenerator, final SerializerProvider serializerProvider) throws IOException {
-        jsonGenerator.writeStartObject();
-        jsonGenerator.writeBinaryField(PUBLIC_NODE_NAME, publicKey.getEncoded());
-        jsonGenerator.writeEndObject();
+        jsonGenerator.writeBinary(publicKey.getEncoded());
     }
 }
