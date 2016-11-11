@@ -360,9 +360,9 @@ public class EbicsClientImpl implements EbicsClient {
 
     private EbicsSession createUserKeys(final EbicsSession session) throws EbicsException {
         final EbicsUser userWithKeys = session.getUser()
-                .withSignatureKey(createRsaKeyPair(SignatureVersion.A005))
-                .withEncryptionKey(createRsaKeyPair(EncryptionVersion.E002))
-                .withAuthenticationKey(createRsaKeyPair(AuthenticationVersion.X002));
+                .withSignatureKey(createRsaKeyPair(configuration.getSignatureVersion()))
+                .withEncryptionKey(createRsaKeyPair(configuration.getEncryptionVersion()))
+                .withAuthenticationKey(createRsaKeyPair(configuration.getAuthenticationVersion()));
         return session.withUser(userWithKeys);
     }
 

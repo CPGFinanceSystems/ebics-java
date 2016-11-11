@@ -230,9 +230,9 @@ public abstract class CryptoUtil {
      * algorithm. This signature is then put in a {@link UserSignature} XML object that
      * will be sent to the EBICS server.
      */
-    public static byte[] sign(final byte[] digest, final PrivateKey a005Key) throws IOException, GeneralSecurityException {
+    public static byte[] sign(final byte[] digest, final PrivateKey signatureKey) throws IOException, GeneralSecurityException {
         final Signature signature = Signature.getInstance("SHA256WithRSA");
-        signature.initSign(a005Key);
+        signature.initSign(signatureKey);
         signature.update(removeOSSpecificChars(digest));
         return signature.sign();
     }

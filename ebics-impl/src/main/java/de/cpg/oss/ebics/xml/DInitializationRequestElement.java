@@ -66,12 +66,12 @@ public class DInitializationRequestElement extends InitializationRequestElement 
         product.setValue(session.getProduct().getName());
 
         final StaticHeaderType.BankPubKeyDigests.Authentication authentication = OBJECT_FACTORY.createStaticHeaderTypeBankPubKeyDigestsAuthentication();
-        authentication.setVersion(session.getConfiguration().getAuthenticationVersion().name());
+        authentication.setVersion(session.getBank().getAuthenticationKey().getVersion().name());
         authentication.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
         authentication.setValue(session.getBank().getAuthenticationKey().getDigest());
 
         final StaticHeaderType.BankPubKeyDigests.Encryption encryption = OBJECT_FACTORY.createStaticHeaderTypeBankPubKeyDigestsEncryption();
-        encryption.setVersion(session.getConfiguration().getEncryptionVersion().name());
+        encryption.setVersion(session.getBank().getEncryptionKey().getVersion().name());
         encryption.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
         encryption.setValue(session.getBank().getEncryptionKey().getDigest());
 

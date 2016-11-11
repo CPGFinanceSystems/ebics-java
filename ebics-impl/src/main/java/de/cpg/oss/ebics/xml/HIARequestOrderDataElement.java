@@ -59,7 +59,7 @@ public class HIARequestOrderDataElement {
         encryptionPubKeyValue.setTimeStamp(session.getUser().getEncryptionKey().getCreationTime());
 
         final EncryptionPubKeyInfoType encryptionPubKeyInfo = OBJECT_FACTORY.createEncryptionPubKeyInfoType();
-        encryptionPubKeyInfo.setEncryptionVersion(session.getConfiguration().getEncryptionVersion().name());
+        encryptionPubKeyInfo.setEncryptionVersion(session.getUser().getEncryptionKey().getVersion().name());
         encryptionPubKeyInfo.setPubKeyValue(encryptionPubKeyValue);
 
         final org.ebics.h004.PubKeyValueType authPubKeyValue = OBJECT_FACTORY.createPubKeyValueType();
@@ -67,7 +67,7 @@ public class HIARequestOrderDataElement {
         authPubKeyValue.setTimeStamp(session.getUser().getAuthenticationKey().getCreationTime());
 
         final AuthenticationPubKeyInfoType authenticationPubKeyInfo = OBJECT_FACTORY.createAuthenticationPubKeyInfoType();
-        authenticationPubKeyInfo.setAuthenticationVersion(session.getConfiguration().getAuthenticationVersion().name());
+        authenticationPubKeyInfo.setAuthenticationVersion(session.getUser().getAuthenticationKey().getVersion().name());
         authenticationPubKeyInfo.setPubKeyValue(authPubKeyValue);
 
         final HIARequestOrderDataType request = OBJECT_FACTORY.createHIARequestOrderDataType();

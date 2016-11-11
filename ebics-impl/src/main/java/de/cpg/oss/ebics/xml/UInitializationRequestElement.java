@@ -77,12 +77,12 @@ public class UInitializationRequestElement extends InitializationRequestElement 
         product.setValue(session.getProduct().getName());
 
         final StaticHeaderType.BankPubKeyDigests.Authentication authentication = OBJECT_FACTORY.createStaticHeaderTypeBankPubKeyDigestsAuthentication();
-        authentication.setVersion(session.getConfiguration().getAuthenticationVersion().name());
+        authentication.setVersion(session.getBank().getAuthenticationKey().getVersion().name());
         authentication.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
         authentication.setValue(session.getBank().getAuthenticationKey().getDigest());
 
         final StaticHeaderType.BankPubKeyDigests.Encryption encryption = OBJECT_FACTORY.createStaticHeaderTypeBankPubKeyDigestsEncryption();
-        encryption.setVersion(session.getConfiguration().getEncryptionVersion().name());
+        encryption.setVersion(session.getBank().getEncryptionKey().getVersion().name());
         encryption.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
         encryption.setValue(session.getBank().getEncryptionKey().getDigest());
 
@@ -158,13 +158,13 @@ public class UInitializationRequestElement extends InitializationRequestElement 
         header.setStatic(xstatic);
 
         final DataEncryptionInfoType.EncryptionPubKeyDigest encryptionPubKeyDigest = OBJECT_FACTORY.createDataEncryptionInfoTypeEncryptionPubKeyDigest();
-        encryptionPubKeyDigest.setVersion(session.getConfiguration().getEncryptionVersion().name());
+        encryptionPubKeyDigest.setVersion(session.getBank().getEncryptionKey().getVersion().name());
         encryptionPubKeyDigest.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
         encryptionPubKeyDigest.setValue(session.getBank().getEncryptionKey().getDigest());
 
         final UserSignature userSignature = new UserSignature(session,
                 DefaultEbicsRootElement.generateName("UserSignature"),
-                session.getConfiguration().getSignatureVersion(),
+                session.getUser().getSignatureKey().getVersion(),
                 userData);
         final JAXBElement<UserSignatureDataSigBookType> userSignatureElement = userSignature.build();
 
