@@ -20,6 +20,7 @@
 package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.EbicsSession;
+import de.cpg.oss.ebics.api.SignatureVersion;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.CryptoUtil;
 import org.ebics.s001.ObjectFactory;
@@ -43,7 +44,7 @@ public class UserSignature {
     private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
 
     private final EbicsSession session;
-    private final String signatureVersion;
+    private final SignatureVersion signatureVersion;
     private final byte[] toSign;
     private final String name;
 
@@ -51,13 +52,12 @@ public class UserSignature {
      * Constructs a new <code>UserSignature</code> element for
      * an Ebics user and a data to sign
      *
-     * @param user             the ebics user
      * @param signatureVersion the signature version
      * @param toSign           the data to be signed
      */
     public UserSignature(final EbicsSession session,
                          final String name,
-                         final String signatureVersion,
+                         final SignatureVersion signatureVersion,
                          final byte[] toSign) {
         this.session = session;
         this.toSign = toSign;
@@ -75,7 +75,7 @@ public class UserSignature {
         }
 
         final OrderSignatureData orderSignatureData = OBJECT_FACTORY.createOrderSignatureData();
-        orderSignatureData.setSignatureVersion(signatureVersion);
+        orderSignatureData.setSignatureVersion(signatureVersion.name());
         orderSignatureData.setPartnerID(session.getPartner().getId());
         orderSignatureData.setUserID(session.getUser().getId());
         orderSignatureData.setSignatureValue(signature);

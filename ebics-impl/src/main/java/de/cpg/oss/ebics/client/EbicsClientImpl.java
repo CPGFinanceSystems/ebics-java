@@ -1,27 +1,12 @@
-/*
- * Copyright (c) 1990-2012 kopiLeft Development SARL, Bizerte, Tunisia
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License version 2.1 as published by the Free Software Foundation.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- *
- * $Id$
- */
-
 package de.cpg.oss.ebics.client;
 
 import de.cpg.oss.ebics.api.*;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.io.IOUtils;
+import de.cpg.oss.ebics.letter.DefaultLetterManager;
+import de.cpg.oss.ebics.session.BinarySerializaionManager;
+import de.cpg.oss.ebics.session.DefaultPasswordCallback;
+import de.cpg.oss.ebics.session.DefaultTraceManager;
 import de.cpg.oss.ebics.utils.Constants;
 import de.cpg.oss.ebics.utils.KeyUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -29,9 +14,10 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.security.GeneralSecurityException;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 /**
  * The ebics client application. Performs necessary tasks to contact
@@ -64,165 +50,61 @@ public class EbicsClientImpl implements EbicsClient {
         log.info(configuration.getMessageProvider().getString(
                 "init.configuration",
                 Constants.APPLICATION_BUNDLE_NAME));
-        configuration.init();
         org.apache.xml.security.Init.init();
+        IOUtils.createDirectories(configuration.getRootDirectory());
+        IOUtils.createDirectories(configuration.getSerializationDirectory());
+        IOUtils.createDirectories(configuration.getUsersDirectory());
     }
 
-    /**
-     * Creates a new ebics user and generates its certificates.
-     *
-     * @param uri              the bank url
-     * @param bankName         the bank name
-     * @param hostId           the bank host ID
-     * @param partnerId        the partner ID
-     * @param userId           UserId as obtained from the bank.
-     * @param userName         the user name,
-     * @param passwordCallback a callback-handler that supplies us with the password.
-     *                         This parameter can be null, in this case no password is used.
-     */
     @Override
-    public EbicsSession createSession(final URI uri,
-                                      final String bankName,
-                                      final String hostId,
-                                      final String partnerId,
-                                      final String userId,
-                                      final String userName,
-                                      final PasswordCallback passwordCallback) throws EbicsException {
+    public EbicsSession loadOrCreateSession(final EbicsSessionParameter sessionParameter) throws EbicsException {
+        final EbicsSessionParameter parameter = sessionParameter
+                .withSerializationManager(Optional.ofNullable(sessionParameter.getSerializationManager())
+                        .orElseGet(() -> new BinarySerializaionManager(configuration.getSerializationDirectory())));
+        EbicsSession ebicsSession;
         try {
-            log.info(configuration.getMessageProvider().getString("user.create.info", Constants.APPLICATION_BUNDLE_NAME, userId));
-
-            final EbicsBank bank = EbicsBank.builder()
-                    .uri(uri)
-                    .name(bankName)
-                    .hostId(hostId)
-                    .build();
-            final EbicsPartner partner = EbicsPartner.builder()
-                    .partnerId(partnerId)
-                    .build();
-            final EbicsUser user = EbicsUser.builder()
-                    .userId(userId)
-                    .name(userName)
-                    .passwordCallback(passwordCallback)
-                    .a005Key(KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE))
-                    .e002Key(KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE))
-                    .x002Key(KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE))
-                    .securityMedium("0100")
-                    .build();
-
-            createUserDirectories(user);
-
-            configuration.getSerializationManager().serialize(bank);
-            configuration.getSerializationManager().serialize(partner);
-            configuration.getSerializationManager().serialize(user);
-
-            final EbicsSession session = EbicsSession.builder()
-                    .user(user)
-                    .partner(partner)
-                    .bank(bank)
-                    .configuration(configuration)
-                    .build();
-
-            final InitLetter a005Letter = configuration.getLetterManager().createA005Letter(session);
-            final InitLetter x002Letter = configuration.getLetterManager().createE002Letter(session);
-            final InitLetter e002Letter = configuration.getLetterManager().createX002Letter(session);
-
-            a005Letter.save(new FileOutputStream(configuration.getLettersDirectory(user) + File.separator + a005Letter.getName()));
-            e002Letter.save(new FileOutputStream(configuration.getLettersDirectory(user) + File.separator + e002Letter.getName()));
-            x002Letter.save(new FileOutputStream(configuration.getLettersDirectory(user) + File.separator + x002Letter.getName()));
-
-            log.info(configuration.getMessageProvider().getString("user.create.success", Constants.APPLICATION_BUNDLE_NAME, userId));
-            return session;
-        } catch (GeneralSecurityException | IOException e) {
-            throw new EbicsException(configuration.getMessageProvider().getString(
-                    "user.create.error",
-                    Constants.APPLICATION_BUNDLE_NAME), e);
+            ebicsSession = loadSession(parameter.getHostId(),
+                    parameter.getPartnerId(),
+                    parameter.getUserId(),
+                    parameter.getSerializationManager());
+        } catch (final EbicsException e) {
+            log.info("No previous session data found. Creating a new session");
+            ebicsSession = createSession(parameter);
         }
+        return ebicsSession
+                .withLetterManager(Optional.ofNullable(sessionParameter.getLetterManager())
+                        .orElseGet(() -> new DefaultLetterManager(configuration.getMessageProvider())))
+                .withTraceManager(Optional.ofNullable(sessionParameter.getTraceManager())
+                        .orElseGet(() -> new DefaultTraceManager(configuration)))
+                .withUser(ebicsSession.getUser()
+                        .withPasswordCallback(Optional.ofNullable(sessionParameter.getPasswordCallback())
+                                .orElseGet(() -> new DefaultPasswordCallback(sessionParameter.getUserId(), ""))));
     }
 
-    /**
-     * Loads a user knowing its ID
-     *
-     * @param hostId    the host ID
-     * @param partnerId the partner ID
-     * @param userId    the user ID
-     */
     @Override
-    public EbicsSession loadSession(final String hostId,
-                                    final String partnerId,
-                                    final String userId,
-                                    final PasswordCallback passwordCallback) throws EbicsException {
-        try {
-            log.info(configuration.getMessageProvider().getString("user.load.info", Constants.APPLICATION_BUNDLE_NAME, userId));
+    public EbicsUser initializeUser(final EbicsSession session) throws EbicsException {
+        EbicsSession updatedSession = session;
 
-            final EbicsBank bank = configuration.getSerializationManager().deserialize(EbicsBank.class, hostId);
-            final EbicsPartner partner = configuration.getSerializationManager().deserialize(EbicsPartner.class, partnerId);
-            final EbicsUser user = configuration.getSerializationManager().deserialize(EbicsUser.class, userId)
-                    .withPasswordCallback(passwordCallback);
-
-            log.info(configuration.getMessageProvider().getString("user.load.success", Constants.APPLICATION_BUNDLE_NAME, userId));
-            return EbicsSession.builder()
-                    .bank(bank)
-                    .partner(partner)
-                    .user(user)
-                    .configuration(configuration)
-                    .build();
-        } catch (final IOException e) {
-            throw new EbicsException(configuration.getMessageProvider().getString("user.load.error", Constants.APPLICATION_BUNDLE_NAME), e);
+        if (!updatedSession.getUser().isInitializedINI()) {
+            createUserDirectories(updatedSession.getUser());
+            updatedSession = createUserKeys(session);
+            updatedSession = updatedSession.withUser(sendINIRequest(updatedSession));
         }
+
+        if (!updatedSession.getUser().isInitializedHIA()) {
+            createInitLetters(updatedSession);
+            updatedSession = updatedSession.withUser(sendHIARequest(updatedSession));
+        }
+
+        return updatedSession.getUser();
     }
 
-    /**
-     * Sends an INI request to the ebics bank server
-     */
     @Override
-    public EbicsUser sendINIRequest(final EbicsSession session) throws EbicsException {
-        log.info(configuration.getMessageProvider().getString("ini.request.send", Constants.APPLICATION_BUNDLE_NAME, session.getUser().getId()));
-
-        if (session.getUser().isInitializedINI()) {
-            log.info(configuration.getMessageProvider().getString("user.already.initialized", Constants.APPLICATION_BUNDLE_NAME, session.getUser().getId()));
-            return session.getUser();
+    public EbicsBank getBankInformation(final EbicsSession session) throws EbicsException {
+        if (null == session.getBank().getE002Key() || null == session.getBank().getX002Key()) {
+            return sendHPBRequest(session);
         }
-
-        try {
-            log.info(configuration.getMessageProvider().getString("ini.send.success", Constants.APPLICATION_BUNDLE_NAME, session.getUser().getId()));
-            return KeyManagement.sendINI(session);
-        } catch (final IOException e) {
-            throw new EbicsException(configuration.getMessageProvider().getString("ini.send.error", Constants.APPLICATION_BUNDLE_NAME, session.getUser().getId()), e);
-        }
-    }
-
-    /**
-     * Sends a HIA request to the ebics server.
-     */
-    @Override
-    public EbicsUser sendHIARequest(final EbicsSession session) throws EbicsException {
-        log.info(configuration.getMessageProvider().getString("hia.request.send", Constants.APPLICATION_BUNDLE_NAME, session.getUser().getId()));
-        if (session.getUser().isInitializedHIA()) {
-            log.info(configuration.getMessageProvider().getString("user.already.hia.initialized", Constants.APPLICATION_BUNDLE_NAME, session.getUser().getId()));
-            return session.getUser();
-        }
-
-        try {
-            log.info(configuration.getMessageProvider().getString("hia.send.success", Constants.APPLICATION_BUNDLE_NAME, session.getUser().getId()));
-            return KeyManagement.sendHIA(session);
-        } catch (final IOException e) {
-            throw new EbicsException(configuration.getMessageProvider().getString("hia.send.error", Constants.APPLICATION_BUNDLE_NAME, session.getUser().getId()), e);
-        }
-    }
-
-    /**
-     * Sends a HPB request to the ebics server.
-     */
-    @Override
-    public EbicsBank sendHPBRequest(final EbicsSession session) throws EbicsException {
-        log.info(configuration.getMessageProvider().getString("hpb.request.send", Constants.APPLICATION_BUNDLE_NAME, session.getUser().getId()));
-
-        try {
-            log.info(configuration.getMessageProvider().getString("hpb.send.success", Constants.APPLICATION_BUNDLE_NAME, session.getUser().getId()));
-            return KeyManagement.sendHPB(session);
-        } catch (final Exception e) {
-            throw new EbicsException(configuration.getMessageProvider().getString("hpb.send.error", Constants.APPLICATION_BUNDLE_NAME, session.getUser().getId()), e);
-        }
+        return session.getBank();
     }
 
     /**
@@ -230,13 +112,24 @@ public class EbicsClientImpl implements EbicsClient {
      */
     @Override
     public EbicsUser revokeSubscriber(final EbicsSession session) throws EbicsException {
-        log.info(configuration.getMessageProvider().getString("spr.request.send", Constants.APPLICATION_BUNDLE_NAME, session.getUser().getId()));
+        log.info(configuration.getMessageProvider().getString(
+                "spr.request.send",
+                Constants.APPLICATION_BUNDLE_NAME,
+                session.getUser().getId()));
 
         try {
-            log.info(configuration.getMessageProvider().getString("spr.send.success", Constants.APPLICATION_BUNDLE_NAME, session.getUser().getId()));
+            log.info(configuration.getMessageProvider().getString(
+                    "spr.send.success",
+                    Constants.APPLICATION_BUNDLE_NAME,
+                    session.getUser().getId()));
             return KeyManagement.lockAccess(session);
         } catch (final Exception e) {
-            throw new EbicsException(configuration.getMessageProvider().getString("spr.send.error", Constants.APPLICATION_BUNDLE_NAME, session.getUser().getId()), e);
+            throw new EbicsException(
+                    configuration.getMessageProvider().getString(
+                            "spr.send.error",
+                            Constants.APPLICATION_BUNDLE_NAME,
+                            session.getUser().getId()),
+                    e);
         }
 
     }
@@ -248,8 +141,13 @@ public class EbicsClientImpl implements EbicsClient {
      */
     @Override
     public void uploadSepaDirectDebit(final String path, final EbicsSession session) throws EbicsException {
-        session.addSessionParam("FORMAT", "pain.008.001.02");
-        FileTransfer.sendFile(session, IOUtils.getFileContent(path), OrderType.CDD);
+        try {
+            session.addSessionParam("FORMAT", "pain.008.001.02");
+            //TODO: send file via streaming
+            FileTransfer.sendFile(session, IOUtils.getFileContent(path), OrderType.CDD);
+        } catch (final IOException e) {
+            throw new EbicsException(e);
+        }
     }
 
     @Override
@@ -266,7 +164,11 @@ public class EbicsClientImpl implements EbicsClient {
         try {
             FileTransfer.fetchFile(session, orderType, start, end, new FileOutputStream(path));
         } catch (final IOException | EbicsException e) {
-            log.error(configuration.getMessageProvider().getString("download.file.error", Constants.APPLICATION_BUNDLE_NAME), e);
+            log.error(
+                    configuration.getMessageProvider().getString(
+                            "download.file.error",
+                            Constants.APPLICATION_BUNDLE_NAME),
+                    e);
         }
     }
 
@@ -275,28 +177,218 @@ public class EbicsClientImpl implements EbicsClient {
      */
     @Override
     public void quit(final EbicsSession session) throws IOException {
-        log.info(configuration.getMessageProvider().getString("app.quit.users", Constants.APPLICATION_BUNDLE_NAME, session.getUser().getId()));
-        configuration.getSerializationManager().serialize(session.getUser());
+        log.info(configuration.getMessageProvider().getString(
+                "app.quit.users",
+                Constants.APPLICATION_BUNDLE_NAME,
+                session.getUser().getId()));
+        session.getSerializationManager().serialize(session.getUser());
 
-        log.info(configuration.getMessageProvider().getString("app.quit.partners", Constants.APPLICATION_BUNDLE_NAME, session.getPartner().getId()));
-        configuration.getSerializationManager().serialize(session.getPartner());
+        log.info(configuration.getMessageProvider().getString(
+                "app.quit.partners",
+                Constants.APPLICATION_BUNDLE_NAME,
+                session.getPartner().getId()));
+        session.getSerializationManager().serialize(session.getPartner());
 
-        log.info(configuration.getMessageProvider().getString("app.quit.banks", Constants.APPLICATION_BUNDLE_NAME, session.getBank().getId()));
-        configuration.getSerializationManager().serialize(session.getBank());
+        log.info(configuration.getMessageProvider().getString(
+                "app.quit.banks",
+                Constants.APPLICATION_BUNDLE_NAME,
+                session.getBank().getId()));
+        session.getSerializationManager().serialize(session.getBank());
     }
 
-    /**
-     * Creates the user necessary directories
-     *
-     * @param user the concerned user
-     */
+    private EbicsSession loadSession(final String hostId,
+                                     final String partnerId,
+                                     final String userId,
+                                     final SerializationManager serializationManager) throws EbicsException {
+        try {
+            log.info(configuration.getMessageProvider().getString(
+                    "user.load.info",
+                    Constants.APPLICATION_BUNDLE_NAME,
+                    userId));
+
+            final EbicsBank bank = serializationManager.deserialize(EbicsBank.class, hostId);
+            final EbicsPartner partner = serializationManager.deserialize(EbicsPartner.class, partnerId);
+            final EbicsUser user = serializationManager.deserialize(EbicsUser.class, userId);
+
+            log.info(configuration.getMessageProvider().getString(
+                    "user.load.success",
+                    Constants.APPLICATION_BUNDLE_NAME,
+                    userId));
+            return EbicsSession.builder()
+                    .bank(bank)
+                    .partner(partner)
+                    .user(user)
+                    .configuration(configuration)
+                    .serializationManager(serializationManager)
+                    .build();
+        } catch (final IOException e) {
+            throw new EbicsException(e);
+        }
+    }
+
+    private EbicsSession createSession(final EbicsSessionParameter sessionParameter) throws EbicsException {
+        try {
+            log.info(configuration.getMessageProvider().getString(
+                    "user.create.info",
+                    Constants.APPLICATION_BUNDLE_NAME,
+                    sessionParameter.getUserId()));
+
+            final EbicsBank bank = EbicsBank.builder()
+                    .uri(sessionParameter.getBankUri())
+                    .name(sessionParameter.getBankName())
+                    .hostId(sessionParameter.getHostId())
+                    .build();
+            sessionParameter.getSerializationManager().serialize(bank);
+
+            final EbicsPartner partner = EbicsPartner.builder()
+                    .partnerId(sessionParameter.getPartnerId())
+                    .build();
+            sessionParameter.getSerializationManager().serialize(partner);
+
+            final EbicsUser user = EbicsUser.builder()
+                    .userId(sessionParameter.getUserId())
+                    .name(sessionParameter.getUserName())
+                    .securityMedium("0100")
+                    .build();
+            sessionParameter.getSerializationManager().serialize(user);
+
+            log.info(configuration.getMessageProvider().getString(
+                    "user.create.success",
+                    Constants.APPLICATION_BUNDLE_NAME,
+                    sessionParameter.getUserId()));
+            return EbicsSession.builder()
+                    .user(user)
+                    .partner(partner)
+                    .bank(bank)
+                    .configuration(configuration)
+                    .serializationManager(sessionParameter.getSerializationManager())
+                    .build();
+        } catch (final IOException e) {
+            throw new EbicsException(configuration.getMessageProvider().getString(
+                    "user.create.error",
+                    Constants.APPLICATION_BUNDLE_NAME), e);
+        }
+    }
+
     private void createUserDirectories(final EbicsUser user) {
-        log.info(configuration.getMessageProvider().getString("user.create.directories", Constants.APPLICATION_BUNDLE_NAME, user.getUserId()));
-        //Create the user directory
+        log.info(configuration.getMessageProvider().getString(
+                "user.create.directories",
+                Constants.APPLICATION_BUNDLE_NAME,
+                user.getUserId()));
         IOUtils.createDirectories(configuration.getUserDirectory(user));
-        //Create the traces directory
         IOUtils.createDirectories(configuration.getTransferTraceDirectory(user));
-        //Create the letters directory
         IOUtils.createDirectories(configuration.getLettersDirectory(user));
+    }
+
+    private EbicsUser sendINIRequest(final EbicsSession session) throws EbicsException {
+        log.info(configuration.getMessageProvider().getString(
+                "ini.request.send",
+                Constants.APPLICATION_BUNDLE_NAME,
+                session.getUser().getId()));
+
+        if (session.getUser().isInitializedINI()) {
+            log.info(configuration.getMessageProvider().getString(
+                    "user.already.initialized",
+                    Constants.APPLICATION_BUNDLE_NAME,
+                    session.getUser().getId()));
+            return session.getUser();
+        }
+
+        try {
+            log.info(configuration.getMessageProvider().getString(
+                    "ini.send.success",
+                    Constants.APPLICATION_BUNDLE_NAME,
+                    session.getUser().getId()));
+            return KeyManagement.sendINI(session);
+        } catch (final IOException e) {
+            throw new EbicsException(
+                    configuration.getMessageProvider().getString(
+                            "ini.send.error",
+                            Constants.APPLICATION_BUNDLE_NAME,
+                            session.getUser().getId()),
+                    e);
+        }
+    }
+
+    private EbicsUser sendHIARequest(final EbicsSession session) throws EbicsException {
+        log.info(configuration.getMessageProvider().getString(
+                "hia.request.send",
+                Constants.APPLICATION_BUNDLE_NAME,
+                session.getUser().getId()));
+        if (session.getUser().isInitializedHIA()) {
+            log.info(configuration.getMessageProvider().getString(
+                    "user.already.hia.initialized",
+                    Constants.APPLICATION_BUNDLE_NAME,
+                    session.getUser().getId()));
+            return session.getUser();
+        }
+
+        try {
+            log.info(configuration.getMessageProvider().getString(
+                    "hia.send.success",
+                    Constants.APPLICATION_BUNDLE_NAME,
+                    session.getUser().getId()));
+            return KeyManagement.sendHIA(session);
+        } catch (final IOException e) {
+            throw new EbicsException(
+                    configuration.getMessageProvider().getString(
+                            "hia.send.error",
+                            Constants.APPLICATION_BUNDLE_NAME,
+                            session.getUser().getId()),
+                    e);
+        }
+    }
+
+    private void createInitLetters(final EbicsSession session) throws EbicsException {
+        try {
+            final InitLetter a005Letter = session.getLetterManager().createA005Letter(session);
+            a005Letter.save(new FileOutputStream(
+                    new File(configuration.getLettersDirectory(session.getUser()), a005Letter.getName())));
+
+            final InitLetter x002Letter = session.getLetterManager().createE002Letter(session);
+            x002Letter.save(new FileOutputStream(
+                    new File(configuration.getLettersDirectory(session.getUser()), x002Letter.getName())));
+
+            final InitLetter e002Letter = session.getLetterManager().createX002Letter(session);
+            e002Letter.save(new FileOutputStream(
+                    new File(configuration.getLettersDirectory(session.getUser()), e002Letter.getName())));
+        } catch (final IOException e) {
+            throw new EbicsException(e);
+        }
+    }
+
+    private EbicsSession createUserKeys(final EbicsSession session) throws EbicsException {
+        try {
+            final EbicsUser userWithKeys = session.getUser()
+                    .withA005Key(KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE))
+                    .withE002Key(KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE))
+                    .withX002Key(KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE))
+                    .withKeyCreationDateTime(LocalDateTime.now());
+            return session.withUser(userWithKeys);
+        } catch (final NoSuchAlgorithmException e) {
+            throw new EbicsException(e);
+        }
+    }
+
+    private EbicsBank sendHPBRequest(final EbicsSession session) throws EbicsException {
+        log.info(configuration.getMessageProvider().getString(
+                "hpb.request.send",
+                Constants.APPLICATION_BUNDLE_NAME,
+                session.getUser().getId()));
+
+        try {
+            log.info(configuration.getMessageProvider().getString(
+                    "hpb.send.success",
+                    Constants.APPLICATION_BUNDLE_NAME,
+                    session.getUser().getId()));
+            return KeyManagement.sendHPB(session);
+        } catch (final Exception e) {
+            throw new EbicsException(
+                    configuration.getMessageProvider().getString(
+                            "hpb.send.error",
+                            Constants.APPLICATION_BUNDLE_NAME,
+                            session.getUser().getId()),
+                    e);
+        }
     }
 }

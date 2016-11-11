@@ -26,6 +26,7 @@ import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
 import org.ebics.h004.*;
 
+import java.io.IOException;
 import java.math.BigInteger;
 
 import static de.cpg.oss.ebics.xml.DefaultEbicsRootElement.generateName;
@@ -61,7 +62,7 @@ public class UTransferRequestElement extends TransferRequestElement {
     }
 
     @Override
-    public EbicsRequest buildTransfer() throws EbicsException {
+    public EbicsRequest buildTransfer() throws IOException {
         final MutableHeaderType.SegmentNumber segmentNumber = OBJECT_FACTORY.createMutableHeaderTypeSegmentNumber();
         segmentNumber.setValue(BigInteger.valueOf(this.segmentNumber));
         segmentNumber.setLastSegment(lastSegment);
@@ -90,7 +91,7 @@ public class UTransferRequestElement extends TransferRequestElement {
 
         final EbicsRequest request = OBJECT_FACTORY.createEbicsRequest();
         request.setRevision(session.getConfiguration().getRevision());
-        request.setVersion(session.getConfiguration().getVersion());
+        request.setVersion(session.getConfiguration().getVersion().name());
         request.setHeader(header);
         request.setBody(body);
 

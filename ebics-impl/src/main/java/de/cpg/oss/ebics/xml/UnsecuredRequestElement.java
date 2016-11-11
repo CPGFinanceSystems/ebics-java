@@ -90,7 +90,7 @@ public class UnsecuredRequestElement {
         unsecuredRequest.setHeader(header);
         unsecuredRequest.setBody(body);
         unsecuredRequest.setRevision(session.getConfiguration().getRevision());
-        unsecuredRequest.setVersion(session.getConfiguration().getVersion());
+        unsecuredRequest.setVersion(session.getConfiguration().getVersion().name());
 
         return unsecuredRequest;
     }

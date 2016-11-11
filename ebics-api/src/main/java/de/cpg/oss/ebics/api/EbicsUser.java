@@ -20,10 +20,12 @@
 package de.cpg.oss.ebics.api;
 
 import lombok.Builder;
+import lombok.NonNull;
 import lombok.Value;
 import lombok.experimental.Wither;
 
 import java.security.KeyPair;
+import java.time.LocalDateTime;
 
 
 /**
@@ -41,8 +43,10 @@ public class EbicsUser implements Identifiable {
     private final KeyPair a005Key;
     private final KeyPair e002Key;
     private final KeyPair x002Key;
+    private final LocalDateTime keyCreationDateTime;
 
     private final String securityMedium;
+    @NonNull
     private final String userId;
     private final String name;
 

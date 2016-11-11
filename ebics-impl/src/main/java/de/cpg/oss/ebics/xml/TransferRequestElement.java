@@ -19,11 +19,13 @@
 
 package de.cpg.oss.ebics.xml;
 
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
+import de.cpg.oss.ebics.api.exception.EbicsException;
 import org.ebics.h004.EbicsRequest;
 import org.ebics.h004.ObjectFactory;
+
+import java.io.IOException;
 
 
 /**
@@ -69,7 +71,12 @@ public abstract class TransferRequestElement {
     }
 
     public EbicsRequest build() throws EbicsException {
-        final EbicsRequest request = buildTransfer();
+        final EbicsRequest request;
+        try {
+            request = buildTransfer();
+        } catch (final IOException e) {
+            throw new EbicsException(e);
+        }
 
         final SignedInfoElement signedInfo = new SignedInfoElement(session.getUser(), XmlUtils.digest(EbicsRequest.class, request));
         request.setAuthSignature(signedInfo.build());
@@ -95,8 +102,6 @@ public abstract class TransferRequestElement {
 
     /**
      * Builds the transfer request.
-     *
-     * @throws EbicsException
      */
-    public abstract EbicsRequest buildTransfer() throws EbicsException;
+    public abstract EbicsRequest buildTransfer() throws IOException;
 }

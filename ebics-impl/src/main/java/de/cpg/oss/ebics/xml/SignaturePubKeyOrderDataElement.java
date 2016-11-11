@@ -57,7 +57,7 @@ public class SignaturePubKeyOrderDataElement {
 
         final SignaturePubKeyInfo signaturePubKeyInfo = OBJECT_FACTORY.createSignaturePubKeyInfo();
         signaturePubKeyInfo.setPubKeyValue(pubKeyValue);
-        signaturePubKeyInfo.setSignatureVersion(session.getConfiguration().getSignatureVersion());
+        signaturePubKeyInfo.setSignatureVersion(session.getConfiguration().getSignatureVersion().name());
 
         final SignaturePubKeyOrderData signaturePubKeyOrderData = OBJECT_FACTORY.createSignaturePubKeyOrderData();
         signaturePubKeyOrderData.setSignaturePubKeyInfo(signaturePubKeyInfo);

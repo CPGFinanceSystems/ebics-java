@@ -24,10 +24,6 @@ import de.cpg.oss.ebics.api.MessageProvider;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.KeyUtil;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.Locale;
-
 
 /**
  * The <code>X002Letter</code> is the initialization letter
@@ -39,15 +35,13 @@ public class X002Letter extends AbstractInitLetter {
 
     /**
      * Constructs a new <code>X002Letter</code>
-     *
-     * @param locale the application locale
      */
-    public X002Letter(final MessageProvider messageProvider, final Locale locale) {
-        super(messageProvider, locale);
+    public X002Letter(final MessageProvider messageProvider) {
+        super(messageProvider);
     }
 
     @Override
-    public void create(final EbicsSession session) throws GeneralSecurityException, IOException, EbicsException {
+    public void create(final EbicsSession session) throws EbicsException {
         build(session.getHostId(),
                 session.getBank().getName(),
                 session.getUser().getId(),

@@ -20,6 +20,7 @@
 package de.cpg.oss.ebics.api;
 
 import lombok.Builder;
+import lombok.NonNull;
 import lombok.Value;
 import lombok.experimental.Wither;
 
@@ -38,6 +39,7 @@ public class EbicsBank implements Identifiable {
 
     private static final long serialVersionUID = 1L;
 
+    @NonNull
     private final URI uri;
 
     private final byte[] e002Digest;
@@ -46,6 +48,7 @@ public class EbicsBank implements Identifiable {
     private final PublicKey e002Key;
     private final PublicKey x002Key;
 
+    @NonNull
     private final String hostId;
     private final String name;
 

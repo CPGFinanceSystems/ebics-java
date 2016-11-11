@@ -22,7 +22,6 @@ package de.cpg.oss.ebics.session;
 import de.cpg.oss.ebics.api.EbicsConfiguration;
 import de.cpg.oss.ebics.api.EbicsUser;
 import de.cpg.oss.ebics.api.TraceManager;
-import de.cpg.oss.ebics.io.IOUtils;
 import de.cpg.oss.ebics.xml.XmlUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,7 +53,7 @@ public class DefaultTraceManager implements TraceManager {
 
     @Override
     public void trace(final byte[] xml, final String elementName, final EbicsUser user) {
-        final File file = IOUtils.createFile(
+        final File file = new File(
                 ebicsConfiguration.getTransferTraceDirectory(user),
                 MessageFormat.format(
                         "{0}_{1}.xml",

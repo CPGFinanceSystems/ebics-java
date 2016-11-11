@@ -25,10 +25,6 @@ import de.cpg.oss.ebics.api.LetterManager;
 import de.cpg.oss.ebics.api.MessageProvider;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.Locale;
-
 
 /**
  * The <code>DefaultLetterManager</code> is a simple way
@@ -39,44 +35,37 @@ import java.util.Locale;
 public class DefaultLetterManager implements LetterManager {
 
     private final MessageProvider messageProvider;
-    private final Locale locale;
 
     /**
      * Constructs a new <code>LetterManager</code>
-     *
-     * @param locale the application locale.
      */
-    public DefaultLetterManager(final MessageProvider messageProvider, final Locale locale) {
+    public DefaultLetterManager(final MessageProvider messageProvider) {
         this.messageProvider = messageProvider;
-        this.locale = locale;
     }
 
     @Override
-    public InitLetter createA005Letter(final EbicsSession session)
-            throws GeneralSecurityException, IOException, EbicsException {
+    public InitLetter createA005Letter(final EbicsSession session) throws EbicsException {
         final A005Letter letter;
 
-        letter = new A005Letter(messageProvider, locale);
+        letter = new A005Letter(messageProvider);
         letter.create(session);
         return letter;
     }
 
     @Override
-    public InitLetter createE002Letter(final EbicsSession session)
-            throws GeneralSecurityException, IOException, EbicsException {
+    public InitLetter createE002Letter(final EbicsSession session) throws EbicsException {
         final E002Letter letter;
 
-        letter = new E002Letter(messageProvider, locale);
+        letter = new E002Letter(messageProvider);
         letter.create(session);
         return letter;
     }
 
     @Override
-    public InitLetter createX002Letter(final EbicsSession session)
-            throws GeneralSecurityException, IOException, EbicsException {
+    public InitLetter createX002Letter(final EbicsSession session) throws EbicsException {
         final X002Letter letter;
 
-        letter = new X002Letter(messageProvider, locale);
+        letter = new X002Letter(messageProvider);
         letter.create(session);
         return letter;
     }

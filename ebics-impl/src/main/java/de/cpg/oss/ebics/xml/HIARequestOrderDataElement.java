@@ -28,7 +28,6 @@ import org.w3.xmldsig.RSAKeyValue;
 
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
-import java.time.LocalDateTime;
 
 
 /**
@@ -57,18 +56,18 @@ public class HIARequestOrderDataElement {
     public HIARequestOrderDataType build() throws EbicsException {
         final org.ebics.h004.PubKeyValueType encryptionPubKeyValue = OBJECT_FACTORY.createPubKeyValueType();
         encryptionPubKeyValue.setRSAKeyValue(rsaKeyValue(session.getUser().getE002Key().getPublic()));
-        encryptionPubKeyValue.setTimeStamp(LocalDateTime.now()); //TODO: date time of key creation
+        encryptionPubKeyValue.setTimeStamp(session.getUser().getKeyCreationDateTime());
 
         final EncryptionPubKeyInfoType encryptionPubKeyInfo = OBJECT_FACTORY.createEncryptionPubKeyInfoType();
-        encryptionPubKeyInfo.setEncryptionVersion(session.getConfiguration().getEncryptionVersion());
+        encryptionPubKeyInfo.setEncryptionVersion(session.getConfiguration().getEncryptionVersion().name());
         encryptionPubKeyInfo.setPubKeyValue(encryptionPubKeyValue);
 
         final org.ebics.h004.PubKeyValueType authPubKeyValue = OBJECT_FACTORY.createPubKeyValueType();
         authPubKeyValue.setRSAKeyValue(rsaKeyValue(session.getUser().getX002Key().getPublic()));
-        authPubKeyValue.setTimeStamp(LocalDateTime.now()); //TODO: date time of key creation
+        authPubKeyValue.setTimeStamp(session.getUser().getKeyCreationDateTime());
 
         final AuthenticationPubKeyInfoType authenticationPubKeyInfo = OBJECT_FACTORY.createAuthenticationPubKeyInfoType();
-        authenticationPubKeyInfo.setAuthenticationVersion(session.getConfiguration().getAuthenticationVersion());
+        authenticationPubKeyInfo.setAuthenticationVersion(session.getConfiguration().getAuthenticationVersion().name());
         authenticationPubKeyInfo.setPubKeyValue(authPubKeyValue);
 
         final HIARequestOrderDataType request = OBJECT_FACTORY.createHIARequestOrderDataType();

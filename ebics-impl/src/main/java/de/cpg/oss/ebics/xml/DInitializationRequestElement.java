@@ -66,12 +66,12 @@ public class DInitializationRequestElement extends InitializationRequestElement 
         product.setValue(session.getProduct().getName());
 
         final StaticHeaderType.BankPubKeyDigests.Authentication authentication = OBJECT_FACTORY.createStaticHeaderTypeBankPubKeyDigestsAuthentication();
-        authentication.setVersion(session.getConfiguration().getAuthenticationVersion());
+        authentication.setVersion(session.getConfiguration().getAuthenticationVersion().name());
         authentication.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
         authentication.setValue(session.getBank().getX002Digest());
 
         final StaticHeaderType.BankPubKeyDigests.Encryption encryption = OBJECT_FACTORY.createStaticHeaderTypeBankPubKeyDigestsEncryption();
-        encryption.setVersion(session.getConfiguration().getEncryptionVersion());
+        encryption.setVersion(session.getConfiguration().getEncryptionVersion().name());
         encryption.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
         encryption.setValue(session.getBank().getE002Digest());
 
@@ -140,7 +140,7 @@ public class DInitializationRequestElement extends InitializationRequestElement 
 
         final EbicsRequest request = OBJECT_FACTORY.createEbicsRequest();
         request.setRevision(session.getConfiguration().getRevision());
-        request.setVersion(session.getConfiguration().getVersion());
+        request.setVersion(session.getConfiguration().getVersion().name());
         request.setHeader(header);
         request.setBody(OBJECT_FACTORY.createEbicsRequestBody());
 

@@ -77,7 +77,7 @@ public class ReceiptRequestElement {
 
         final EbicsRequest request = OBJECT_FACTORY.createEbicsRequest();
         request.setRevision(session.getConfiguration().getRevision());
-        request.setVersion(session.getConfiguration().getVersion());
+        request.setVersion(session.getConfiguration().getVersion().name());
         request.setHeader(header);
         request.setBody(body);
 

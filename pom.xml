@@ -20,6 +20,8 @@
     <modules>
         <module>ebics-api</module>
         <module>ebics-schema</module>
+        <module>ebics-persistence-binary</module>
+        <module>ebics-persistence-json</module>
         <module>ebics-impl</module>
     </modules>
 

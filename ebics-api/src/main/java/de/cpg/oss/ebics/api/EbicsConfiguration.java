@@ -1,156 +1,68 @@
-/*
- * Copyright (c) 1990-2012 kopiLeft Development SARL, Bizerte, Tunisia
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License version 2.1 as published by the Free Software Foundation.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- *
- * $Id$
- */
-
 package de.cpg.oss.ebics.api;
 
+import lombok.Value;
+import lombok.experimental.Wither;
+
+import java.io.File;
 import java.util.Locale;
+import java.util.Optional;
 
+@Value
+@Wither
+public class EbicsConfiguration {
 
-/**
- * EBICS client application configuration.
- *
- * @author hachani
- */
-public interface EbicsConfiguration {
+    private static final String EBICS_PROPERTY_ROOT = "ebics.client";
 
-    /**
-     * Returns the root directory of the client application.
-     *
-     * @return the root directory of the client application.
-     */
-    String getRootDirectory();
+    private final File rootDirectory;
+    private final MessageProvider messageProvider;
 
-    /**
-     * Returns the directory path that contains the traces
-     * XML transfer files.
-     *
-     * @param user the ebics user
-     * @return the transfer trace directory
-     */
-    String getTransferTraceDirectory(EbicsUser user);
+    private final SignatureVersion signatureVersion = SignatureVersion.A005;
+    private final AuthenticationVersion authenticationVersion = AuthenticationVersion.X002;
+    private final EncryptionVerion encryptionVersion = EncryptionVerion.E002;
+    private final boolean compressionEnabled = true;
+    private final int revision = 1;
+    private final EbicsVersion version = EbicsVersion.H004;
 
-    /**
-     * Returns the object serialization directory.
-     *
-     * @return the object serialization directory.
-     */
-    String getSerializationDirectory();
+    public EbicsConfiguration(final File rootDirectory, final Locale locale) {
+        this(rootDirectory, new MessageProvider() {
+            @Override
+            public Locale getLocale() {
+                return locale;
+            }
+        });
+    }
 
-    /**
-     * Returns the users directory.
-     *
-     * @return the users directory.
-     */
-    String getUsersDirectory();
+    public EbicsConfiguration(final File rootDirectory, final MessageProvider messageProvider) {
+        this.rootDirectory = rootDirectory;
+        this.messageProvider = messageProvider;
+    }
 
-    /**
-     * Returns the Ebics client serialization manager.
-     *
-     * @return the Ebics client serialization manager.
-     */
-    SerializationManager getSerializationManager();
+    public File getSerializationDirectory() {
+        return new File(getRootDirectory(), getProperty("serialization.dir.name", "serialized"));
+    }
 
-    /**
-     * Returns the Ebics client trace manager.
-     *
-     * @return the Ebics client trace manager.
-     */
-    TraceManager getTraceManager();
+    public File getUsersDirectory() {
+        return new File(getRootDirectory(), getProperty("users.dir.name", "users"));
+    }
 
-    /**
-     * Returns the letter manager.
-     *
-     * @return the letter manager.
-     */
-    LetterManager getLetterManager();
+    public File getTransferTraceDirectory(final EbicsUser user) {
+        return new File(getUserDirectory(user), getProperty("traces.dir.name", "traces"));
+    }
 
-    MessageProvider getMessageProvider();
+    public File getLettersDirectory(final EbicsUser user) {
+        return new File(getUserDirectory(user), getProperty("letters.dir.name", "letters"));
+    }
 
-    /**
-     * Returns the initializations letters directory.
-     *
-     * @return the initializations letters directory.
-     */
-    String getLettersDirectory(EbicsUser user);
+    public File getUserDirectory(final EbicsUser user) {
+        return new File(getUsersDirectory(), user.getId());
+    }
 
-    /**
-     * Returns the users directory.
-     *
-     * @return the users directory.
-     */
-    String getUserDirectory(EbicsUser user);
+    public Locale getLocale() {
+        return getMessageProvider().getLocale();
+    }
 
-    /**
-     * Configuration initialization.
-     * Creates the necessary directories for the ebics configuration.
-     */
-    void init();
-
-    /**
-     * Returns the application locale.
-     *
-     * @return the application locale.
-     */
-    Locale getLocale();
-
-    /**
-     * Returns the client application signature version
-     *
-     * @return the signature version
-     */
-    String getSignatureVersion();
-
-    /**
-     * Returns the client application authentication version
-     *
-     * @return the authentication version
-     */
-    String getAuthenticationVersion();
-
-    /**
-     * Returns the client application encryption version
-     *
-     * @return the encryption version
-     */
-    String getEncryptionVersion();
-
-    /**
-     * Returns if the files to be transferred should be
-     * compressed or sent without compression. This can
-     * affect the time of data upload especially for big
-     * files
-     *
-     * @return true if the file compression is enabled
-     */
-    boolean isCompressionEnabled();
-
-    /**
-     * Returns the default revision of sent XML.
-     *
-     * @return the default revision of sent XML.
-     */
-    int getRevision();
-
-    /**
-     * Returns the version of the EBICS protocol used by the client.
-     *
-     * @return the version of the EBICS protocol.
-     */
-    String getVersion();
+    private static String getProperty(final String key, final String defaultValue) {
+        return Optional.ofNullable(System.getProperty(EBICS_PROPERTY_ROOT.concat(".").concat(key)))
+                .orElse(defaultValue);
+    }
 }

@@ -21,6 +21,7 @@ package de.cpg.oss.ebics.letter;
 
 import de.cpg.oss.ebics.api.InitLetter;
 import de.cpg.oss.ebics.api.MessageProvider;
+import de.cpg.oss.ebics.api.exception.EbicsException;
 import org.apache.commons.codec.binary.Hex;
 
 import java.io.*;
@@ -28,14 +29,12 @@ import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 
 abstract class AbstractInitLetter implements InitLetter {
 
-    public AbstractInitLetter(final MessageProvider messageProvider, final Locale locale) {
+    public AbstractInitLetter(final MessageProvider messageProvider) {
         this.messageProvider = messageProvider;
-        this.locale = locale;
     }
 
     @Override
@@ -58,7 +57,6 @@ abstract class AbstractInitLetter implements InitLetter {
      * @param publicKey   the public key
      * @param hashTitle   the hash title
      * @param hash        the hash value
-     * @throws IOException
      */
     protected void build(final String hostId,
                          final String bankName,
@@ -70,7 +68,7 @@ abstract class AbstractInitLetter implements InitLetter {
                          final PublicKey publicKey,
                          final String hashTitle,
                          final byte[] hash)
-            throws IOException {
+            throws EbicsException {
         letter = new Letter(getTitle(),
                 hostId,
                 bankName,
@@ -88,7 +86,7 @@ abstract class AbstractInitLetter implements InitLetter {
      * @return the property value
      */
     protected String getString(final String key) {
-        return messageProvider.getString(key, AbstractInitLetter.BUNDLE_NAME, locale);
+        return messageProvider.getString(key, AbstractInitLetter.BUNDLE_NAME);
     }
 
     // --------------------------------------------------------------------
@@ -142,17 +140,21 @@ abstract class AbstractInitLetter implements InitLetter {
                           final PublicKey publicKey,
                           final String hashTitle,
                           final byte[] hash)
-                throws IOException {
-            out = new ByteArrayOutputStream();
-            writer = new PrintWriter(out, true);
-            buildTitle();
-            buildHeader();
-            buildPubKey(pubKeyTitle, publicKey);
-            buildHash(hashTitle, hash);
-            buildFooter();
-            writer.close();
-            out.flush();
-            out.close();
+                throws EbicsException {
+            try {
+                out = new ByteArrayOutputStream();
+                writer = new PrintWriter(out, true);
+                buildTitle();
+                buildHeader();
+                buildPubKey(pubKeyTitle, publicKey);
+                buildHash(hashTitle, hash);
+                buildFooter();
+                writer.close();
+                out.flush();
+                out.close();
+            } catch (final IOException e) {
+                throw new EbicsException(e);
+            }
         }
 
         /**
@@ -285,7 +287,7 @@ abstract class AbstractInitLetter implements InitLetter {
         public String formatDate(final Date date) {
             final SimpleDateFormat formatter;
 
-            formatter = new SimpleDateFormat(getString("Letter.dateFormat"), locale);
+            formatter = new SimpleDateFormat(getString("Letter.dateFormat"), messageProvider.getLocale());
             return formatter.format(date);
         }
 
@@ -298,7 +300,7 @@ abstract class AbstractInitLetter implements InitLetter {
         public String formatTime(final Date time) {
             final SimpleDateFormat formatter;
 
-            formatter = new SimpleDateFormat(getString("Letter.timeFormat"), locale);
+            formatter = new SimpleDateFormat(getString("Letter.timeFormat"), messageProvider.getLocale());
             return formatter.format(time);
         }
 
@@ -332,7 +334,6 @@ abstract class AbstractInitLetter implements InitLetter {
 
     private Letter letter;
     private final MessageProvider messageProvider;
-    final Locale locale;
 
     private static final String BUNDLE_NAME = "de.cpg.oss.ebics.letter.messages";
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");

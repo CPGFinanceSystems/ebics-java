@@ -19,14 +19,10 @@
 
 package de.cpg.oss.ebics.letter;
 
+import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.MessageProvider;
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.utils.KeyUtil;
-
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.Locale;
 
 
 /**
@@ -39,15 +35,13 @@ public class A005Letter extends AbstractInitLetter {
 
     /**
      * Constructs a new <code>A005Letter</code>
-     *
-     * @param locale the application local
      */
-    public A005Letter(final MessageProvider messageProvider, final Locale locale) {
-        super(messageProvider, locale);
+    public A005Letter(final MessageProvider messageProvider) {
+        super(messageProvider);
     }
 
     @Override
-    public void create(final EbicsSession session) throws GeneralSecurityException, IOException, EbicsException {
+    public void create(final EbicsSession session) throws EbicsException {
         build(session.getHostId(),
                 session.getBank().getName(),
                 session.getUser().getId(),

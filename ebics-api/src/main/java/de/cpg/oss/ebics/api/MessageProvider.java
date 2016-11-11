@@ -1,14 +1,37 @@
 package de.cpg.oss.ebics.api;
 
+import java.text.MessageFormat;
 import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
 public interface MessageProvider {
 
-    String getString(String key, String bundleName);
+    default Locale getLocale() {
+        return Locale.getDefault();
+    }
 
-    String getString(String key, String bundleName, Object... params);
+    default String getString(final String key, final String bundleName) {
+        return getString(key, bundleName, getLocale());
+    }
 
-    String getString(String key, String bundleName, Locale locale);
+    default String getString(final String key, final String bundleName, final Object... params) {
+        return getString(key, bundleName, getLocale(), params);
+    }
 
-    String getString(String key, String bundleName, Locale locale, Object... params);
+    default String getString(final String key, final String bundleName, final Locale locale) {
+        try {
+            return ResourceBundle.getBundle(bundleName, locale).getString(key);
+        } catch (final MissingResourceException e) {
+            return "!!" + key + "!!";
+        }
+    }
+
+    default String getString(final String key, final String bundleName, final Locale locale, final Object... params) {
+        try {
+            return MessageFormat.format(ResourceBundle.getBundle(bundleName, locale).getString(key), params);
+        } catch (final MissingResourceException e) {
+            return "!!" + key + "!!";
+        }
+    }
 }

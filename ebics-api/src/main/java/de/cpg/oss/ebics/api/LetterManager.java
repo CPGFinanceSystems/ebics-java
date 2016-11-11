@@ -21,9 +21,6 @@ package de.cpg.oss.ebics.api;
 
 import de.cpg.oss.ebics.api.exception.EbicsException;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-
 
 /**
  * Initialization letters manager.
@@ -40,7 +37,7 @@ public interface LetterManager {
      *
      * @return the INI letter.
      */
-    InitLetter createA005Letter(EbicsSession session) throws GeneralSecurityException, IOException, EbicsException;
+    InitLetter createA005Letter(EbicsSession session) throws EbicsException;
 
     /**
      * Creates the initialization letter for the HIA request.
@@ -49,15 +46,14 @@ public interface LetterManager {
      *
      * @return the HIA letter
      */
-    InitLetter createE002Letter(EbicsSession session) throws GeneralSecurityException, IOException, EbicsException;
+    InitLetter createE002Letter(EbicsSession session) throws EbicsException;
 
     /**
      * Creates the initialization letter for the HIA request.
      * This letter contains information about the authentication
      * certificates of the given user.
      *
-     * @param user the ebics user
      * @return the HIA letter
      */
-    InitLetter createX002Letter(EbicsSession session) throws GeneralSecurityException, IOException, EbicsException;
+    InitLetter createX002Letter(EbicsSession session) throws EbicsException;
 }

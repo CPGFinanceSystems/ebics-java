@@ -78,7 +78,7 @@ public class NoPubKeyDigestsRequestElement {
 
         final EbicsNoPubKeyDigestsRequest request = OBJECT_FACTORY.createEbicsNoPubKeyDigestsRequest();
         request.setRevision(session.getConfiguration().getRevision());
-        request.setVersion(session.getConfiguration().getVersion());
+        request.setVersion(session.getConfiguration().getVersion().name());
         request.setHeader(header);
         request.setBody(body);
 

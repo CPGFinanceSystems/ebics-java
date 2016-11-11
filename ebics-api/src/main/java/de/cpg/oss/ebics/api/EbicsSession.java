@@ -1,6 +1,7 @@
 package de.cpg.oss.ebics.api;
 
 import lombok.Builder;
+import lombok.NonNull;
 import lombok.Value;
 import lombok.experimental.Wither;
 
@@ -13,11 +14,18 @@ import java.util.Map;
 @Builder
 public class EbicsSession {
 
+    @NonNull
     private final EbicsUser user;
+    @NonNull
     private final EbicsPartner partner;
+    @NonNull
     private final EbicsBank bank;
+    @NonNull
     private final EbicsConfiguration configuration;
     private final Product product;
+    private final SerializationManager serializationManager;
+    private final TraceManager traceManager;
+    private final LetterManager letterManager;
     private final Map<String, String> parameters = new HashMap<>();
 
     public RSAPublicKey getBankE002Key() {
@@ -28,12 +36,8 @@ public class EbicsSession {
         return getBank().getHostId();
     }
 
-    public TraceManager getTraceManager() {
-        return getConfiguration().getTraceManager();
-    }
-
     public MessageProvider getMessageProvider() {
-        return getConfiguration().getMessageProvider();
+        return configuration.getMessageProvider();
     }
 
     public void addSessionParam(final String key, final String value) {
