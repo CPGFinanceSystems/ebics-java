@@ -19,9 +19,9 @@
 
 package de.cpg.oss.ebics.xml;
 
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
+import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.CryptoUtil;
 import org.ebics.h004.*;
 
@@ -49,10 +49,6 @@ public class NoPubKeyDigestsRequestElement {
     }
 
     public EbicsNoPubKeyDigestsRequest build() throws EbicsException {
-        final ProductElementType product = OBJECT_FACTORY.createProductElementType();
-        product.setLanguage(session.getProduct().getLanguage());
-        product.setValue(session.getProduct().getName());
-
         final OrderDetailsType orderDetails = OBJECT_FACTORY.createNoPubKeyDigestsReqOrderDetailsType();
         orderDetails.setOrderAttribute(OrderAttributeType.DZHNN.name());
         orderDetails.setOrderType(OrderType.HPB.name());
@@ -63,7 +59,7 @@ public class NoPubKeyDigestsRequestElement {
         xstatic.setTimestamp(LocalDateTime.now());
         xstatic.setPartnerID(session.getPartner().getPartnerId());
         xstatic.setUserID(session.getUser().getUserId());
-        xstatic.setProduct(OBJECT_FACTORY.createStaticHeaderBaseTypeProduct(product));
+        xstatic.setProduct(EbicsXmlFactory.unsecuredProduct(session.getProduct()));
         xstatic.setOrderDetails(orderDetails);
         xstatic.setSecurityMedium(session.getUser().getSecurityMedium());
 

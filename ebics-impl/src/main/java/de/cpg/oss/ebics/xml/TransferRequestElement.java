@@ -20,7 +20,6 @@
 package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.EbicsSession;
-import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import org.ebics.h004.EbicsRequest;
 import org.ebics.h004.ObjectFactory;
@@ -39,32 +38,24 @@ public abstract class TransferRequestElement {
     protected static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
 
     protected final EbicsSession session;
-    protected final int segmentNumber;
-    protected final boolean lastSegment;
-    protected final byte[] transactionId;
 
-    private final OrderType type;
-    private final String name;
+    final int segmentNumber;
+    final boolean lastSegment;
+    final byte[] transactionId;
 
     /**
      * Constructs a new <code>TransferRequestElement</code> element.
      *
      * @param session       the current ebics session
-     * @param name          the element name
-     * @param type          the order type
      * @param segmentNumber the segment number to be sent
      * @param lastSegment   is it the last segment?
      * @param transactionId the transaction ID
      */
     public TransferRequestElement(final EbicsSession session,
-                                  final String name,
-                                  final OrderType type,
                                   final int segmentNumber,
                                   final boolean lastSegment,
                                   final byte[] transactionId) {
         this.session = session;
-        this.type = type;
-        this.name = name;
         this.segmentNumber = segmentNumber;
         this.lastSegment = lastSegment;
         this.transactionId = transactionId;
@@ -85,19 +76,6 @@ public abstract class TransferRequestElement {
         request.getAuthSignature().getSignatureValue().setValue(signature);
 
         return request;
-    }
-
-    public String getName() {
-        return name + ".xml";
-    }
-
-    /**
-     * Returns the order type of the element.
-     *
-     * @return the order type element.
-     */
-    public String getOrderType() {
-        return type.name();
     }
 
     /**

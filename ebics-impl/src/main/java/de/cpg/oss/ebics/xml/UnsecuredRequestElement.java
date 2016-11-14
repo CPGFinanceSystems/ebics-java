@@ -58,15 +58,11 @@ public class UnsecuredRequestElement {
         orderDetails.setOrderAttribute("DZNNN");
         orderDetails.setOrderType(orderType.name());
 
-        final ProductElementType productType = OBJECT_FACTORY.createProductElementType();
-        productType.setLanguage(session.getProduct().getLanguage());
-        productType.setValue(session.getProduct().getName());
-
         final UnsecuredRequestStaticHeaderType xstatic = OBJECT_FACTORY.createUnsecuredRequestStaticHeaderType();
         xstatic.setHostID(session.getHostId());
         xstatic.setUserID(session.getUser().getUserId());
         xstatic.setPartnerID(session.getPartner().getId());
-        xstatic.setProduct(OBJECT_FACTORY.createStaticHeaderBaseTypeProduct(productType));
+        xstatic.setProduct(EbicsXmlFactory.unsecuredProduct(session.getProduct()));
         xstatic.setOrderDetails(orderDetails);
         xstatic.setSecurityMedium(OrderType.HIA.equals(orderType) ? "0000" : session.getUser().getSecurityMedium());
 

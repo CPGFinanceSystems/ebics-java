@@ -19,12 +19,12 @@
 
 package de.cpg.oss.ebics.client;
 
+import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.io.ByteArrayContentFactory;
 import de.cpg.oss.ebics.io.ContentFactory;
 import de.cpg.oss.ebics.io.Joiner;
-import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.utils.Constants;
 import de.cpg.oss.ebics.utils.HttpUtil;
 import de.cpg.oss.ebics.xml.*;
@@ -104,8 +104,7 @@ abstract class FileTransfer {
                     initializer.getContent(segmentNumber),
                     segmentNumber,
                     state.isLastSegment(),
-                    state.getTransactionId(),
-                    orderType);
+                    state.getTransactionId());
         }
     }
 
@@ -116,14 +115,12 @@ abstract class FileTransfer {
      * @param segmentNumber the segment number
      * @param lastSegment   is it the last segment?
      * @param transactionId the transaction Id
-     * @param orderType     the order type
      */
     private static void sendFile(final EbicsSession session,
                                  final ContentFactory factory,
                                  final int segmentNumber,
                                  final boolean lastSegment,
-                                 final byte[] transactionId,
-                                 final OrderType orderType) throws EbicsException {
+                                 final byte[] transactionId) throws EbicsException {
         final TransferResponseElement response;
 
         log.info(session.getMessageProvider().getString(
@@ -131,14 +128,13 @@ abstract class FileTransfer {
                 Constants.APPLICATION_BUNDLE_NAME,
                 segmentNumber));
         final UTransferRequestElement uploader = new UTransferRequestElement(session,
-                orderType,
                 segmentNumber,
                 lastSegment,
                 transactionId,
                 factory);
         final EbicsRequest ebicsRequest = uploader.build();
+        session.getTraceManager().trace(EbicsRequest.class, ebicsRequest, session.getUser());
         final byte[] xml = XmlUtils.prettyPrint(EbicsRequest.class, ebicsRequest);
-        session.getTraceManager().trace(xml, uploader.getName(), session.getUser());
         XmlUtils.validate(xml);
         final HttpEntity httpEntity = HttpUtil.sendAndReceive(
                 session.getBank(),
@@ -195,7 +191,6 @@ abstract class FileTransfer {
 
             segmentNumber = state.next();
             fetchFile(session,
-                    orderType,
                     segmentNumber,
                     state.isLastSegment(),
                     state.getTransactionId(),
@@ -221,7 +216,6 @@ abstract class FileTransfer {
     /**
      * Fetches a given portion of a file.
      *
-     * @param orderType     the order type
      * @param segmentNumber the segment number
      * @param lastSegment   is it the last segment?
      * @param transactionId the transaction ID
@@ -230,19 +224,17 @@ abstract class FileTransfer {
      * @throws EbicsException server generated error
      */
     private static void fetchFile(final EbicsSession session,
-                                  final OrderType orderType,
                                   final int segmentNumber,
                                   final boolean lastSegment,
                                   final byte[] transactionId,
                                   final Joiner joiner) throws IOException, EbicsException {
         final DTransferRequestElement downloader = new DTransferRequestElement(session,
-                orderType,
                 segmentNumber,
                 lastSegment,
                 transactionId);
         final EbicsRequest ebicsRequest = downloader.build();
+        session.getTraceManager().trace(EbicsRequest.class, ebicsRequest, session.getUser());
         final byte[] xml = XmlUtils.prettyPrint(EbicsRequest.class, ebicsRequest);
-        session.getTraceManager().trace(xml, downloader.getName(), session.getUser());
         XmlUtils.validate(xml);
         final HttpEntity httpEntity = HttpUtil.sendAndReceive(
                 session.getBank(),

@@ -19,9 +19,11 @@
 
 package de.cpg.oss.ebics.xml;
 
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.EbicsSession;
-import org.ebics.h004.*;
+import de.cpg.oss.ebics.api.exception.EbicsException;
+import org.ebics.h004.EbicsRequest;
+import org.ebics.h004.ObjectFactory;
+import org.ebics.h004.TransactionPhaseType;
 
 
 /**
@@ -56,18 +58,6 @@ public class ReceiptRequestElement {
     public EbicsRequest build() throws EbicsException {
         final SignedInfoElement signedInfo;
 
-        final MutableHeaderType mutable = OBJECT_FACTORY.createMutableHeaderType();
-        mutable.setTransactionPhase(TransactionPhaseType.RECEIPT);
-
-        final StaticHeaderType xstatic = OBJECT_FACTORY.createStaticHeaderType();
-        xstatic.setHostID(session.getHostId());
-        xstatic.setTransactionID(transactionId);
-
-        final EbicsRequest.Header header = OBJECT_FACTORY.createEbicsRequestHeader();
-        header.setAuthenticate(true);
-        header.setMutable(mutable);
-        header.setStatic(xstatic);
-
         final EbicsRequest.Body.TransferReceipt transferReceipt = OBJECT_FACTORY.createEbicsRequestBodyTransferReceipt();
         transferReceipt.setAuthenticate(true);
         transferReceipt.setReceiptCode(0);
@@ -75,11 +65,12 @@ public class ReceiptRequestElement {
         final EbicsRequest.Body body = OBJECT_FACTORY.createEbicsRequestBody();
         body.setTransferReceipt(transferReceipt);
 
-        final EbicsRequest request = OBJECT_FACTORY.createEbicsRequest();
-        request.setRevision(session.getConfiguration().getRevision());
-        request.setVersion(session.getConfiguration().getVersion().name());
-        request.setHeader(header);
-        request.setBody(body);
+        final EbicsRequest request = EbicsXmlFactory.request(
+                session.getConfiguration(),
+                EbicsXmlFactory.header(
+                        EbicsXmlFactory.mutableHeader(TransactionPhaseType.RECEIPT),
+                        EbicsXmlFactory.staticHeader(session.getHostId(), transactionId)),
+                body);
 
         signedInfo = new SignedInfoElement(session.getUser(), XmlUtils.digest(EbicsRequest.class, request));
         request.setAuthSignature(signedInfo.build());

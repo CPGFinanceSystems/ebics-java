@@ -75,27 +75,24 @@ public class XmlUtils {
         return outputStream.toByteArray();
     }
 
-    public static <T> byte[] prettyPrint(final JAXBElement<T> element) {
+    static <T> byte[] prettyPrint(final JAXBElement<T> element) {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         prettyPrint(element, outputStream);
         return outputStream.toByteArray();
     }
 
-    public static void validate(final byte[] xml) throws EbicsException {
-        validate(new ByteArrayInputStream(xml));
-    }
-
-    public static void validate(final InputStream inputStream) throws EbicsException {
+    public static byte[] validate(final byte[] xml) throws EbicsException {
         try {
             final Validator validator = XML_SCHEMAS.newValidator();
             validator.setErrorHandler(LoggingErrorHandler.INSTANCE);
-            validator.validate(new StreamSource(inputStream));
+            validator.validate(new StreamSource(new ByteArrayInputStream(xml)));
+            return xml;
         } catch (IOException | SAXException e) {
             throw new EbicsException(e.getMessage(), e);
         }
     }
 
-    public static <T> T parse(final Class<T> clazz, final InputStream inputStream) {
+    static <T> T parse(final Class<T> clazz, final InputStream inputStream) {
         try {
             final JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
             final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
@@ -176,7 +173,11 @@ public class XmlUtils {
                 .orElseGet(() -> elementNameFrom(clazz.getSimpleName()));
     }
 
-    private static <T> void prettyPrint(final Class<T> clazz, final T object, final String elementName, final OutputStream outputStream) {
+    private static <T> void prettyPrint(
+            final Class<T> clazz,
+            final T object,
+            final String elementName,
+            final OutputStream outputStream) {
         prettyPrint(
                 new JAXBElement<>(new QName(namespaceFromPackageAnnotation(clazz), elementName), clazz, object),
                 outputStream);

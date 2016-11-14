@@ -19,16 +19,14 @@
 
 package de.cpg.oss.ebics.xml;
 
+import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.io.ContentFactory;
 import de.cpg.oss.ebics.utils.IOUtils;
-import de.cpg.oss.ebics.api.EbicsSession;
-import de.cpg.oss.ebics.api.OrderType;
-import org.ebics.h004.*;
+import org.ebics.h004.DataTransferRequestType;
+import org.ebics.h004.EbicsRequest;
+import org.ebics.h004.TransactionPhaseType;
 
 import java.io.IOException;
-import java.math.BigInteger;
-
-import static de.cpg.oss.ebics.xml.DefaultEbicsRootElement.generateName;
 
 /**
  * The <code>UTransferRequestElement</code> is the root element
@@ -44,41 +42,22 @@ public class UTransferRequestElement extends TransferRequestElement {
      * Constructs a new <code>UTransferRequestElement</code> for ebics upload transfer.
      *
      * @param session        the current ebics session
-     * @param orderType      the upload order type
      * @param segmentNumber  the segment number
      * @param lastSegment    i it the last segment?
      * @param transactionId  the transaction ID
      * @param contentFactory the contentFactory factory
      */
     public UTransferRequestElement(final EbicsSession session,
-                                   final OrderType orderType,
                                    final int segmentNumber,
                                    final boolean lastSegment,
                                    final byte[] transactionId,
                                    final ContentFactory contentFactory) {
-        super(session, generateName(orderType), orderType, segmentNumber, lastSegment, transactionId);
+        super(session, segmentNumber, lastSegment, transactionId);
         this.contentFactory = contentFactory;
     }
 
     @Override
     public EbicsRequest buildTransfer() throws IOException {
-        final MutableHeaderType.SegmentNumber segmentNumber = OBJECT_FACTORY.createMutableHeaderTypeSegmentNumber();
-        segmentNumber.setValue(BigInteger.valueOf(this.segmentNumber));
-        segmentNumber.setLastSegment(lastSegment);
-
-        final MutableHeaderType mutable = OBJECT_FACTORY.createMutableHeaderType();
-        mutable.setTransactionPhase(TransactionPhaseType.TRANSFER);
-        mutable.setSegmentNumber(OBJECT_FACTORY.createMutableHeaderTypeSegmentNumber(segmentNumber));
-
-        final StaticHeaderType xstatic = OBJECT_FACTORY.createStaticHeaderType();
-        xstatic.setHostID(session.getHostId());
-        xstatic.setTransactionID(transactionId);
-
-        final EbicsRequest.Header header = OBJECT_FACTORY.createEbicsRequestHeader();
-        header.setAuthenticate(true);
-        header.setMutable(mutable);
-        header.setStatic(xstatic);
-
         final DataTransferRequestType.OrderData orderData = OBJECT_FACTORY.createDataTransferRequestTypeOrderData();
         orderData.setValue(IOUtils.read(contentFactory.getContent()));
 
@@ -88,12 +67,11 @@ public class UTransferRequestElement extends TransferRequestElement {
         final EbicsRequest.Body body = OBJECT_FACTORY.createEbicsRequestBody();
         body.setDataTransfer(dataTransfer);
 
-        final EbicsRequest request = OBJECT_FACTORY.createEbicsRequest();
-        request.setRevision(session.getConfiguration().getRevision());
-        request.setVersion(session.getConfiguration().getVersion().name());
-        request.setHeader(header);
-        request.setBody(body);
-
-        return request;
+        return EbicsXmlFactory.request(
+                session.getConfiguration(),
+                EbicsXmlFactory.header(
+                        EbicsXmlFactory.mutableHeader(TransactionPhaseType.TRANSFER, segmentNumber, lastSegment),
+                        EbicsXmlFactory.staticHeader(session.getHostId(), transactionId)),
+                body);
     }
 }
