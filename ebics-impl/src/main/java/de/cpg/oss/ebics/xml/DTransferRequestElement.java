@@ -20,10 +20,9 @@
 package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.EbicsSession;
+import de.cpg.oss.ebics.api.exception.EbicsException;
 import org.ebics.h004.EbicsRequest;
 import org.ebics.h004.TransactionPhaseType;
-
-import java.io.IOException;
 
 /**
  * The <code>DTransferRequestElement</code> is the common elements
@@ -31,7 +30,11 @@ import java.io.IOException;
  *
  * @author Hachani
  */
-public class DTransferRequestElement extends TransferRequestElement {
+public class DTransferRequestElement extends EbicsRequestElement {
+
+    private final int segmentNumber;
+    private final boolean lastSegment;
+    private final byte[] transactionId;
 
     /**
      * Constructs a new <code>DTransferRequestElement</code> element.
@@ -45,11 +48,14 @@ public class DTransferRequestElement extends TransferRequestElement {
                                    final int segmentNumber,
                                    final boolean lastSegment,
                                    final byte[] transactionId) {
-        super(session, segmentNumber, lastSegment, transactionId);
+        super(session);
+        this.segmentNumber = segmentNumber;
+        this.lastSegment = lastSegment;
+        this.transactionId = transactionId;
     }
 
     @Override
-    public EbicsRequest buildTransfer() throws IOException {
+    public EbicsRequest buildEbicsRequest() throws EbicsException {
         return EbicsXmlFactory.request(
                 session.getConfiguration(),
                 EbicsXmlFactory.header(

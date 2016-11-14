@@ -43,8 +43,8 @@ import java.util.List;
  */
 public class UInitializationRequestElement extends InitializationRequestElement {
 
+    private final OrderType orderType;
     private final byte[] userData;
-    private final SecretKeySpec keySpec;
     private final Splitter splitter;
 
     /**
@@ -57,14 +57,17 @@ public class UInitializationRequestElement extends InitializationRequestElement 
     public UInitializationRequestElement(final EbicsSession session,
                                          final OrderType orderType,
                                          final byte[] userData) {
-        super(session, orderType);
+        super(session);
+        this.orderType = orderType;
         this.userData = userData;
-        keySpec = new SecretKeySpec(nonce, "AES");
-        splitter = new Splitter(userData);
+        this.splitter = new Splitter(userData);
     }
 
     @Override
-    public EbicsRequest buildInitialization() throws EbicsException {
+    public EbicsRequest buildEbicsRequest() throws EbicsException {
+        final byte[] nonce = CryptoUtil.generateNonce();
+        final SecretKeySpec keySpec = new SecretKeySpec(nonce, "AES");
+
         splitter.readInput(session.getConfiguration().isCompressionEnabled(), keySpec);
 
         final List<Parameter> parameters = new ArrayList<>();
@@ -92,7 +95,7 @@ public class UInitializationRequestElement extends InitializationRequestElement 
         }
 
         final StaticHeaderOrderDetailsType orderDetails = OBJECT_FACTORY.createStaticHeaderOrderDetailsType();
-        if (type.equals(OrderType.FUL)) {
+        if (orderType.equals(OrderType.FUL)) {
             final FileFormatType fileFormat = OBJECT_FACTORY.createFileFormatType();
             fileFormat.setCountryCode(session.getConfiguration().getLocale().getCountry().toUpperCase());
             fileFormat.setValue(session.getSessionParam("FORMAT"));
@@ -104,13 +107,13 @@ public class UInitializationRequestElement extends InitializationRequestElement 
             }
 
             orderDetails.setOrderAttribute(OrderAttributeType.DZHNN);
-            orderDetails.setOrderType(EbicsXmlFactory.orderType(type));
+            orderDetails.setOrderType(EbicsXmlFactory.orderType(orderType));
             orderDetails.setOrderParams(OBJECT_FACTORY.createFULOrderParams(fULOrderParams));
         } else {
             final StandardOrderParamsType standardOrderParamsType = OBJECT_FACTORY.createStandardOrderParamsType();
 
             orderDetails.setOrderAttribute(OrderAttributeType.OZHNN);
-            orderDetails.setOrderType(EbicsXmlFactory.orderType(type));
+            orderDetails.setOrderType(EbicsXmlFactory.orderType(orderType));
             orderDetails.setOrderParams(OBJECT_FACTORY.createStandardOrderParams(standardOrderParamsType));
         }
 
@@ -131,7 +134,7 @@ public class UInitializationRequestElement extends InitializationRequestElement 
         final DataTransferRequestType.DataEncryptionInfo dataEncryptionInfo = OBJECT_FACTORY.createDataTransferRequestTypeDataEncryptionInfo();
         dataEncryptionInfo.setAuthenticate(true);
         dataEncryptionInfo.setEncryptionPubKeyDigest(encryptionPubKeyDigest);
-        dataEncryptionInfo.setTransactionKey(generateTransactionKey());
+        dataEncryptionInfo.setTransactionKey(generateTransactionKey(nonce));
 
         final DataTransferRequestType dataTransfer = OBJECT_FACTORY.createDataTransferRequestType();
         dataTransfer.setDataEncryptionInfo(dataEncryptionInfo);

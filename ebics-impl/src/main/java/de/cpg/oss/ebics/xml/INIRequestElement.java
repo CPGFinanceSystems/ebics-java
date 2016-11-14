@@ -48,7 +48,7 @@ public class INIRequestElement {
     public EbicsUnsecuredRequest build() throws EbicsException {
         final SignaturePubKeyOrderDataElement signaturePubKey = new SignaturePubKeyOrderDataElement(session);
         final SignaturePubKeyOrderData signaturePubKeyOrderData = signaturePubKey.build();
-        final UnsecuredRequestElement unsecuredRequest = new UnsecuredRequestElement(session,
+        final EbicsUnsecuredRequestElement unsecuredRequest = new EbicsUnsecuredRequestElement(session,
                 OrderType.INI,
                 ZipUtil.compress(XmlUtils.prettyPrint(SignaturePubKeyOrderData.class, signaturePubKeyOrderData)));
         return unsecuredRequest.build();

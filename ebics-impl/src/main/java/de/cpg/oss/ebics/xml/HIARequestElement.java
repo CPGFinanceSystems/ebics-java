@@ -49,7 +49,7 @@ public class HIARequestElement {
     public EbicsUnsecuredRequest build() throws EbicsException {
         final HIARequestOrderDataElement requestOrderData = new HIARequestOrderDataElement(session);
         final HIARequestOrderDataType orderDataType = requestOrderData.build();
-        final UnsecuredRequestElement unsecuredRequest = new UnsecuredRequestElement(session,
+        final EbicsUnsecuredRequestElement unsecuredRequest = new EbicsUnsecuredRequestElement(session,
                 OrderType.HIA,
                 ZipUtil.compress(XmlUtils.prettyPrint(HIARequestOrderDataType.class, orderDataType)));
         return unsecuredRequest.build();

@@ -20,12 +20,8 @@
 package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.EbicsSession;
-import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.utils.CryptoUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.ebics.h004.EbicsRequest;
-import org.ebics.h004.ObjectFactory;
 
 import javax.crypto.Cipher;
 import java.math.BigInteger;
@@ -39,63 +35,23 @@ import java.math.BigInteger;
  * @author Hachani
  */
 @Slf4j
-public abstract class InitializationRequestElement {
+public abstract class InitializationRequestElement extends EbicsRequestElement {
 
-    protected static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
-
-    protected final EbicsSession session;
-    protected final OrderType type;
-    final byte[] nonce;
-
-    /**
-     * Construct a new <code>InitializationRequestElement</code> root element.
-     *
-     * @param session the current ebics session.
-     * @param type    the initialization type (UPLOAD, DOWNLOAD).
-     */
-    public InitializationRequestElement(final EbicsSession session,
-                                        final OrderType type) {
-        this.session = session;
-        this.type = type;
-        this.nonce = CryptoUtil.generateNonce();
+    public InitializationRequestElement(final EbicsSession session) {
+        super(session);
     }
 
-    public EbicsRequest build() throws EbicsException {
-        final EbicsRequest ebicsRequest = buildInitialization();
-
-        final SignedInfoElement signedInfo = new SignedInfoElement(XmlUtils.digest(EbicsRequest.class, ebicsRequest));
-        ebicsRequest.setAuthSignature(signedInfo.build());
-
-        final byte[] signature = XmlUtils.sign(EbicsRequest.class, ebicsRequest, session.getUser());
-        ebicsRequest.getAuthSignature().getSignatureValue().setValue(signature);
-
-        return ebicsRequest;
-    }
-
-    /**
-     * Generates the upload transaction key
-     *
-     * @return the transaction key
-     */
-    byte[] generateTransactionKey() throws EbicsException {
+    byte[] generateTransactionKey(final byte[] nonce) throws EbicsException {
         try {
             final Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
             cipher.init(Cipher.ENCRYPT_MODE, session.getBankEncryptionKey());
             final BigInteger data = new BigInteger(nonce);
-            log.info("Data bits: {}", data.bitLength());
-            log.info("Modulus bits: {}", session.getBankEncryptionKey().getModulus().bitLength());
-            log.info("Compare: {}", data.compareTo(session.getBankEncryptionKey().getModulus()));
+            log.debug("Data bits: {}", data.bitLength());
+            log.debug("Modulus bits: {}", session.getBankEncryptionKey().getModulus().bitLength());
+            log.debug("Compare: {}", data.compareTo(session.getBankEncryptionKey().getModulus()));
             return cipher.doFinal(nonce);
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
     }
-
-    /**
-     * Builds the initialization request according to the
-     * element type.
-     *
-     * @throws EbicsException build fails
-     */
-    protected abstract EbicsRequest buildInitialization() throws EbicsException;
 }

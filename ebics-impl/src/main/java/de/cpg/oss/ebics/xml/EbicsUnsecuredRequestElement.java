@@ -30,7 +30,7 @@ import org.ebics.h004.*;
  *
  * @author hachani
  */
-public class UnsecuredRequestElement {
+public class EbicsUnsecuredRequestElement {
 
     private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
 
@@ -44,9 +44,9 @@ public class UnsecuredRequestElement {
      * @param session   the ebics session.
      * @param orderType the order type (INI | HIA).
      */
-    public UnsecuredRequestElement(final EbicsSession session,
-                                   final OrderType orderType,
-                                   final byte[] orderData) {
+    public EbicsUnsecuredRequestElement(final EbicsSession session,
+                                        final OrderType orderType,
+                                        final byte[] orderData) {
         this.session = session;
         this.orderType = orderType;
         this.orderData = orderData;

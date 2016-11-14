@@ -20,6 +20,7 @@
 package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.EbicsSession;
+import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.io.ContentFactory;
 import de.cpg.oss.ebics.utils.IOUtils;
 import org.ebics.h004.DataTransferRequestType;
@@ -34,8 +35,11 @@ import java.io.IOException;
  *
  * @author Hachani
  */
-public class UTransferRequestElement extends TransferRequestElement {
+public class UTransferRequestElement extends EbicsRequestElement {
 
+    private final int segmentNumber;
+    private final boolean lastSegment;
+    private final byte[] transactionId;
     private final ContentFactory contentFactory;
 
     /**
@@ -52,14 +56,21 @@ public class UTransferRequestElement extends TransferRequestElement {
                                    final boolean lastSegment,
                                    final byte[] transactionId,
                                    final ContentFactory contentFactory) {
-        super(session, segmentNumber, lastSegment, transactionId);
+        super(session);
+        this.segmentNumber = segmentNumber;
+        this.lastSegment = lastSegment;
+        this.transactionId = transactionId;
         this.contentFactory = contentFactory;
     }
 
     @Override
-    public EbicsRequest buildTransfer() throws IOException {
+    public EbicsRequest buildEbicsRequest() throws EbicsException {
         final DataTransferRequestType.OrderData orderData = OBJECT_FACTORY.createDataTransferRequestTypeOrderData();
-        orderData.setValue(IOUtils.read(contentFactory.getContent()));
+        try {
+            orderData.setValue(IOUtils.read(contentFactory.getContent()));
+        } catch (final IOException e) {
+            throw new EbicsException(e);
+        }
 
         final DataTransferRequestType dataTransfer = OBJECT_FACTORY.createDataTransferRequestType();
         dataTransfer.setOrderData(orderData);

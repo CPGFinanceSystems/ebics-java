@@ -40,6 +40,7 @@ import javax.xml.bind.JAXBElement;
 public class SPRRequestElement extends InitializationRequestElement {
 
     private final SecretKeySpec keySpec;
+    private final byte[] nonce;
 
     /**
      * Constructs a new SPR request element.
@@ -47,17 +48,18 @@ public class SPRRequestElement extends InitializationRequestElement {
      * @param session the current ebic session.
      */
     public SPRRequestElement(final EbicsSession session) throws EbicsException {
-        super(session, OrderType.SPR);
+        super(session);
+        this.nonce = CryptoUtil.generateNonce();
         this.keySpec = new SecretKeySpec(nonce, "AES");
     }
 
     @Override
-    public EbicsRequest buildInitialization() throws EbicsException {
+    public EbicsRequest buildEbicsRequest() throws EbicsException {
         final StandardOrderParamsType standardOrderParamsType = OBJECT_FACTORY.createStandardOrderParamsType();
 
         final StaticHeaderOrderDetailsType orderDetails = OBJECT_FACTORY.createStaticHeaderOrderDetailsType();
         orderDetails.setOrderAttribute(OrderAttributeType.UZHNN);
-        orderDetails.setOrderType(EbicsXmlFactory.orderType(type));
+        orderDetails.setOrderType(EbicsXmlFactory.orderType(OrderType.SPR));
         orderDetails.setOrderParams(OBJECT_FACTORY.createStandardOrderParams(standardOrderParamsType));
 
         final DataEncryptionInfoType.EncryptionPubKeyDigest encryptionPubKeyDigest = OBJECT_FACTORY.createDataEncryptionInfoTypeEncryptionPubKeyDigest();
@@ -77,7 +79,7 @@ public class SPRRequestElement extends InitializationRequestElement {
         final DataTransferRequestType.DataEncryptionInfo dataEncryptionInfo = OBJECT_FACTORY.createDataTransferRequestTypeDataEncryptionInfo();
         dataEncryptionInfo.setAuthenticate(true);
         dataEncryptionInfo.setEncryptionPubKeyDigest(encryptionPubKeyDigest);
-        dataEncryptionInfo.setTransactionKey(generateTransactionKey());
+        dataEncryptionInfo.setTransactionKey(generateTransactionKey(nonce));
 
         final DataTransferRequestType dataTransfer = OBJECT_FACTORY.createDataTransferRequestType();
         dataTransfer.setDataEncryptionInfo(dataEncryptionInfo);
