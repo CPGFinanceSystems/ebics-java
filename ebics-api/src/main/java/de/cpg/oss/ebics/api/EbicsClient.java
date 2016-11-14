@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 
 public interface EbicsClient {
-    void init();
-
     EbicsSession loadOrCreateSession(EbicsSessionParameter sessionParameter) throws EbicsException;
 
     EbicsSession initializeUser(EbicsSession session) throws EbicsException;
@@ -25,5 +23,5 @@ public interface EbicsClient {
                    LocalDate start,
                    LocalDate end);
 
-    void quit(EbicsSession session) throws IOException;
+    void save(EbicsSession session) throws IOException;
 }

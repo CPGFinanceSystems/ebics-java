@@ -43,22 +43,7 @@ public class EbicsClientImpl implements EbicsClient {
      */
     public EbicsClientImpl(final EbicsConfiguration configuration) {
         this.configuration = configuration;
-    }
-
-    /**
-     * Initiates the application by creating the
-     * application root directories and its children
-     */
-    @Override
-    public void init() {
-        log.info(configuration.getMessageProvider().getString(
-                "init.configuration",
-                Constants.APPLICATION_BUNDLE_NAME));
-        org.apache.xml.security.Init.init();
-        Security.addProvider(new BouncyCastleProvider());
-        IOUtil.createDirectories(configuration.getRootDirectory());
-        IOUtil.createDirectories(configuration.getSerializationDirectory());
-        IOUtil.createDirectories(configuration.getUsersDirectory());
+        init();
     }
 
     @Override
@@ -209,7 +194,7 @@ public class EbicsClientImpl implements EbicsClient {
      * Performs buffers save before quitting the client application.
      */
     @Override
-    public void quit(final EbicsSession session) throws IOException {
+    public void save(final EbicsSession session) throws IOException {
         log.info(configuration.getMessageProvider().getString(
                 "app.quit.users",
                 Constants.APPLICATION_BUNDLE_NAME,
@@ -227,6 +212,17 @@ public class EbicsClientImpl implements EbicsClient {
                 Constants.APPLICATION_BUNDLE_NAME,
                 session.getBank().getId()));
         session.getSerializationManager().serialize(session.getBank());
+    }
+
+    private void init() {
+        log.info(configuration.getMessageProvider().getString(
+                "init.configuration",
+                Constants.APPLICATION_BUNDLE_NAME));
+        org.apache.xml.security.Init.init();
+        Security.addProvider(new BouncyCastleProvider());
+        IOUtil.createDirectories(configuration.getRootDirectory());
+        IOUtil.createDirectories(configuration.getSerializationDirectory());
+        IOUtil.createDirectories(configuration.getUsersDirectory());
     }
 
     private EbicsSession loadSession(final String hostId,
