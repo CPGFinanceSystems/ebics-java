@@ -22,11 +22,11 @@ package de.cpg.oss.ebics.xml;
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.io.ContentFactory;
 import de.cpg.oss.ebics.io.Splitter;
 import de.cpg.oss.ebics.utils.CryptoUtil;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import de.cpg.oss.ebics.utils.ZipUtil;
+import lombok.Getter;
 import org.ebics.h004.*;
 import org.ebics.s001.UserSignatureDataSigBookType;
 
@@ -46,6 +46,7 @@ public class UInitializationRequestElement extends InitializationRequestElement 
 
     private final OrderType orderType;
     private final byte[] userData;
+    @Getter
     private final Splitter splitter;
 
     /**
@@ -150,24 +151,5 @@ public class UInitializationRequestElement extends InitializationRequestElement 
                         EbicsXmlFactory.mutableHeader(TransactionPhaseType.INITIALISATION),
                         EbicsXmlFactory.staticHeader(session, nonce, splitter.getNumSegments(), orderDetails)),
                 body);
-    }
-
-    /**
-     * Returns the content of a given segment.
-     *
-     * @param segment the segment number
-     * @return the content of the given segment
-     */
-    public ContentFactory getContent(final int segment) {
-        return splitter.getContent(segment);
-    }
-
-    /**
-     * Returns the total segment number.
-     *
-     * @return the total segment number.
-     */
-    public int getSegmentNumber() {
-        return splitter.getNumSegments();
     }
 }

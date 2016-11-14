@@ -1,114 +1,47 @@
-/*
- * Copyright (c) 1990-2012 kopiLeft Development SARL, Bizerte, Tunisia
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License version 2.1 as published by the Free Software Foundation.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- *
- * $Id$
- */
-
 package de.cpg.oss.ebics.client;
 
-import java.io.Serializable;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.Value;
+import lombok.experimental.Wither;
 
-/**
- * Persistable state of a file transfer.
- * It may be used to continue a transfer via
- * <code>FileTransfer.nextChunk(TransferState)</code>
- * in this or a future session.
- *
- * @author Hachani
- */
+import java.io.Serializable;
+import java.text.MessageFormat;
+
+@Value
+@Wither
+@Builder
 class TransferState implements Serializable {
 
-    public TransferState(final int numSegments, final byte[] transactionId) {
-        this.numSegments = numSegments;
-        this.transactionId = transactionId;
-    }
+    private static final long serialVersionUID = 1L;
+
+    @NonNull
+    private final byte[] transactionId;
+    @NonNull
+    private final int segmentNumber;
+    @NonNull
+    private final int numSegments;
 
     /**
      * Returns the next segment number to be transferred.
-     *
-     * @return the next segment number to be transferred.
      */
-    public int next() {
-        segmentNumber++;
-
-        if (segmentNumber == numSegments) {
-            lastSegment = true;
+    TransferState next() {
+        if (!hasNext()) {
+            throw new IllegalStateException(MessageFormat.format(
+                    "All segments ({0} in total) already processed for transaction {1}",
+                    getNumSegments(), getTransactionId()));
         }
-
-        return segmentNumber;
+        return withSegmentNumber(getSegmentNumber() + 1);
     }
 
-    public boolean hasNext() {
-        return segmentNumber < numSegments;
-    }
-
-    /**
-     * Sets the segment number
-     *
-     * @param segmentNumber the segment number
-     */
-    public void setSegmentNumber(final int segmentNumber) {
-        this.segmentNumber = segmentNumber;
+    boolean hasNext() {
+        return getSegmentNumber() < getNumSegments();
     }
 
     /**
      * Is the current segment is the last one?
-     *
-     * @return True if it is the last segment
      */
-    public boolean isLastSegment() {
-        return lastSegment;
+    boolean isLastSegment() {
+        return getSegmentNumber() == getNumSegments();
     }
-
-    /**
-     * @return the transactionID
-     */
-    public byte[] getTransactionId() {
-        return transactionId;
-    }
-
-    /**
-     * @param transactionId the transactionID to set
-     */
-    public void setTransactionId(final byte[] transactionId) {
-        this.transactionId = transactionId;
-    }
-
-    /**
-     * @return the numSegments
-     */
-    public int getNumSegments() {
-        return numSegments;
-    }
-
-    /**
-     * @param numSegments the numSegments to set
-     */
-    public void setNumSegments(final int numSegments) {
-        this.numSegments = numSegments;
-    }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private byte[] transactionId;
-    private int segmentNumber;
-    private int numSegments;
-    private transient boolean lastSegment;
-
-    private static final long serialVersionUID = -3189235892639115408L;
 }
