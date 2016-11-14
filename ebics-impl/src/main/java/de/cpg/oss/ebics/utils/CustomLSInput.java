@@ -1,4 +1,4 @@
-package de.cpg.oss.ebics.xml;
+package de.cpg.oss.ebics.utils;
 
 import org.w3c.dom.ls.LSInput;
 

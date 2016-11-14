@@ -26,6 +26,7 @@ import de.cpg.oss.ebics.api.EncryptionVersion;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.io.ContentFactory;
 import de.cpg.oss.ebics.utils.KeyUtil;
+import de.cpg.oss.ebics.utils.XmlUtil;
 import org.ebics.h004.HPBResponseOrderDataType;
 import org.w3.xmldsig.RSAKeyValue;
 
@@ -75,7 +76,7 @@ public class HPBResponseOrderDataElement {
     }
 
     public HPBResponseOrderDataType build() throws EbicsException {
-        response = XmlUtils.parse(HPBResponseOrderDataType.class, contentFactory.getContent());
+        response = XmlUtil.parse(HPBResponseOrderDataType.class, contentFactory.getContent());
         return response;
     }
 

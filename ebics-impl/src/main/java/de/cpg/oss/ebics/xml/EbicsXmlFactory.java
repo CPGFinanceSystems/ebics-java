@@ -1,6 +1,7 @@
 package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.*;
+import de.cpg.oss.ebics.utils.XmlUtil;
 import org.ebics.h004.*;
 
 import javax.xml.bind.JAXBElement;
@@ -111,7 +112,7 @@ abstract class EbicsXmlFactory {
     private static StaticHeaderType.BankPubKeyDigests.Authentication authentication(final EbicsAuthenticationKey authenticationKey) {
         final StaticHeaderType.BankPubKeyDigests.Authentication authentication = OBJECT_FACTORY.createStaticHeaderTypeBankPubKeyDigestsAuthentication();
         authentication.setVersion(authenticationKey.getVersion().name());
-        authentication.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
+        authentication.setAlgorithm(XmlUtil.SIGNATURE_METHOD);
         authentication.setValue(authenticationKey.getDigest());
         return authentication;
     }
@@ -119,7 +120,7 @@ abstract class EbicsXmlFactory {
     private static StaticHeaderType.BankPubKeyDigests.Encryption encryption(final EbicsEncryptionKey encryptionKey) {
         final StaticHeaderType.BankPubKeyDigests.Encryption encryption = OBJECT_FACTORY.createStaticHeaderTypeBankPubKeyDigestsEncryption();
         encryption.setVersion(encryptionKey.getVersion().name());
-        encryption.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
+        encryption.setAlgorithm(XmlUtil.SIGNATURE_METHOD);
         encryption.setValue(encryptionKey.getDigest());
         return encryption;
     }

@@ -21,6 +21,7 @@ package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.exception.EbicsException;
+import de.cpg.oss.ebics.utils.XmlUtil;
 import org.ebics.h004.EbicsRequest;
 import org.ebics.h004.ObjectFactory;
 import org.ebics.h004.TransactionPhaseType;
@@ -68,7 +69,7 @@ public class ReceiptRequestElement {
                         EbicsXmlFactory.staticHeader(session.getHostId(), transactionId)),
                 body);
 
-        signedInfo = new SignedInfoElement(XmlUtils.digest(EbicsRequest.class, request));
+        signedInfo = new SignedInfoElement(XmlUtil.digest(EbicsRequest.class, request));
         request.setAuthSignature(signedInfo.build());
 
         return request;

@@ -24,6 +24,7 @@ import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.exception.ReturnCode;
 import de.cpg.oss.ebics.io.ContentFactory;
 import de.cpg.oss.ebics.io.InputStreamContentFactory;
+import de.cpg.oss.ebics.utils.XmlUtil;
 import org.apache.http.HttpEntity;
 import org.ebics.h004.EbicsKeyManagementResponse;
 
@@ -75,7 +76,7 @@ public class KeyManagementResponseElement {
         final String code;
         final String text;
 
-        response = XmlUtils.parse(EbicsKeyManagementResponse.class, contentFactory.getContent());
+        response = XmlUtil.parse(EbicsKeyManagementResponse.class, contentFactory.getContent());
 
         code = response.getHeader().getMutable().getReturnCode();
         text = response.getHeader().getMutable().getReportText();

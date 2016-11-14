@@ -23,6 +23,7 @@ import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.CryptoUtil;
+import de.cpg.oss.ebics.utils.XmlUtil;
 import de.cpg.oss.ebics.utils.ZipUtil;
 import org.ebics.h004.*;
 import org.ebics.s001.UserSignatureDataSigBookType;
@@ -64,7 +65,7 @@ public class SPRRequestElement extends InitializationRequestElement {
 
         final DataEncryptionInfoType.EncryptionPubKeyDigest encryptionPubKeyDigest = OBJECT_FACTORY.createDataEncryptionInfoTypeEncryptionPubKeyDigest();
         encryptionPubKeyDigest.setVersion(session.getBank().getEncryptionKey().getVersion().name());
-        encryptionPubKeyDigest.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
+        encryptionPubKeyDigest.setAlgorithm(XmlUtil.SIGNATURE_METHOD);
         encryptionPubKeyDigest.setValue(session.getBank().getEncryptionKey().getDigest());
 
         final UserSignature userSignature = new UserSignature(session,
@@ -74,7 +75,7 @@ public class SPRRequestElement extends InitializationRequestElement {
 
         final DataTransferRequestType.SignatureData signatureData = OBJECT_FACTORY.createDataTransferRequestTypeSignatureData();
         signatureData.setAuthenticate(true);
-        signatureData.setValue(CryptoUtil.encrypt(ZipUtil.compress(XmlUtils.prettyPrint(userSignatureElement)), keySpec));
+        signatureData.setValue(CryptoUtil.encrypt(ZipUtil.compress(XmlUtil.prettyPrint(userSignatureElement)), keySpec));
 
         final DataTransferRequestType.DataEncryptionInfo dataEncryptionInfo = OBJECT_FACTORY.createDataTransferRequestTypeDataEncryptionInfo();
         dataEncryptionInfo.setAuthenticate(true);

@@ -21,6 +21,7 @@ package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.exception.EbicsException;
+import de.cpg.oss.ebics.utils.XmlUtil;
 import org.ebics.h004.EbicsNoPubKeyDigestsRequest;
 import org.w3.xmldsig.SignatureType;
 
@@ -48,11 +49,11 @@ public class HPBRequestElement {
         final EbicsNoPubKeyDigestsRequest request = noPubKeyDigestsRequest.build();
 
         final SignedInfoElement signedInfo = new SignedInfoElement(
-                XmlUtils.digest(EbicsNoPubKeyDigestsRequest.class, request));
+                XmlUtil.digest(EbicsNoPubKeyDigestsRequest.class, request));
         final SignatureType signatureType = signedInfo.build();
         request.setAuthSignature(signatureType);
 
-        final byte[] signature = XmlUtils.sign(EbicsNoPubKeyDigestsRequest.class, request, session.getUser());
+        final byte[] signature = XmlUtil.sign(EbicsNoPubKeyDigestsRequest.class, request, session.getUser());
         request.getAuthSignature().getSignatureValue().setValue(signature);
 
         return request;

@@ -22,6 +22,7 @@ package de.cpg.oss.ebics.xml;
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
+import de.cpg.oss.ebics.utils.XmlUtil;
 import de.cpg.oss.ebics.utils.ZipUtil;
 import org.ebics.h004.EbicsUnsecuredRequest;
 import org.ebics.h004.HIARequestOrderDataType;
@@ -51,7 +52,7 @@ public class HIARequestElement {
         final HIARequestOrderDataType orderDataType = requestOrderData.build();
         final EbicsUnsecuredRequestElement unsecuredRequest = new EbicsUnsecuredRequestElement(session,
                 OrderType.HIA,
-                ZipUtil.compress(XmlUtils.prettyPrint(HIARequestOrderDataType.class, orderDataType)));
+                ZipUtil.compress(XmlUtil.prettyPrint(HIARequestOrderDataType.class, orderDataType)));
         return unsecuredRequest.build();
     }
 }

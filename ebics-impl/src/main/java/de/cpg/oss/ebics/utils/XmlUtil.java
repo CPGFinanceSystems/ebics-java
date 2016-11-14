@@ -1,8 +1,7 @@
-package de.cpg.oss.ebics.xml;
+package de.cpg.oss.ebics.utils;
 
 import de.cpg.oss.ebics.api.EbicsUser;
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.utils.CryptoUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.Canonicalizer;
@@ -38,16 +37,16 @@ import java.security.MessageDigest;
 import java.util.Optional;
 
 @Slf4j
-public class XmlUtils {
+public abstract class XmlUtil {
 
     private static final Schema XML_SCHEMAS;
     private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY;
     private static final XPathFactory X_PATH_FACTORY = XPathFactory.newInstance();
 
-    static String CANONICALIZAION_METHOD = CanonicalizationMethod.INCLUSIVE;
-    static String DIGEST_METHOD = DigestMethod.SHA256;
-    static String SIGNATURE_METHOD = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
-    static String XPATH_SELECTOR = "//*[@authenticate='true']";
+    public static String CANONICALIZAION_METHOD = CanonicalizationMethod.INCLUSIVE;
+    public static String DIGEST_METHOD = DigestMethod.SHA256;
+    public static String SIGNATURE_METHOD = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
+    public static String XPATH_SELECTOR = "//*[@authenticate='true']";
 
     static {
         DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
@@ -63,7 +62,7 @@ public class XmlUtils {
                     return new CustomLSInput(publicId, systemId, resourceAsStream);
                 }
             });
-            XML_SCHEMAS = factory.newSchema(new StreamSource(XmlUtils.class.getResourceAsStream("/xsd/ebics_H004.xsd")));
+            XML_SCHEMAS = factory.newSchema(new StreamSource(XmlUtil.class.getResourceAsStream("/xsd/ebics_H004.xsd")));
         } catch (final SAXException e) {
             throw new RuntimeException(e);
         }
@@ -75,7 +74,7 @@ public class XmlUtils {
         return outputStream.toByteArray();
     }
 
-    static <T> byte[] prettyPrint(final JAXBElement<T> element) {
+    public static <T> byte[] prettyPrint(final JAXBElement<T> element) {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         prettyPrint(element, outputStream);
         return outputStream.toByteArray();
@@ -92,7 +91,7 @@ public class XmlUtils {
         }
     }
 
-    static <T> T parse(final Class<T> clazz, final InputStream inputStream) {
+    public static <T> T parse(final Class<T> clazz, final InputStream inputStream) {
         try {
             final JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
             final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
@@ -108,7 +107,7 @@ public class XmlUtils {
         }
     }
 
-    static <T> byte[] sign(final Class<T> clazz, final T object, final EbicsUser user) {
+    public static <T> byte[] sign(final Class<T> clazz, final T object, final EbicsUser user) {
         try {
             final DocumentBuilder builder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
             final Document document = builder.parse(new ByteArrayInputStream(prettyPrint(clazz, object)));

@@ -7,7 +7,7 @@ import de.cpg.oss.ebics.session.BinarySerializaionManager;
 import de.cpg.oss.ebics.session.DefaultPasswordCallback;
 import de.cpg.oss.ebics.session.DefaultTraceManager;
 import de.cpg.oss.ebics.utils.Constants;
-import de.cpg.oss.ebics.utils.IOUtils;
+import de.cpg.oss.ebics.utils.IOUtil;
 import de.cpg.oss.ebics.utils.KeyUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -56,9 +56,9 @@ public class EbicsClientImpl implements EbicsClient {
                 Constants.APPLICATION_BUNDLE_NAME));
         org.apache.xml.security.Init.init();
         Security.addProvider(new BouncyCastleProvider());
-        IOUtils.createDirectories(configuration.getRootDirectory());
-        IOUtils.createDirectories(configuration.getSerializationDirectory());
-        IOUtils.createDirectories(configuration.getUsersDirectory());
+        IOUtil.createDirectories(configuration.getRootDirectory());
+        IOUtil.createDirectories(configuration.getSerializationDirectory());
+        IOUtil.createDirectories(configuration.getUsersDirectory());
     }
 
     @Override
@@ -177,7 +177,7 @@ public class EbicsClientImpl implements EbicsClient {
         try {
             session.addSessionParam("FORMAT", "pain.008.001.02");
             //TODO: send file via streaming
-            FileTransfer.sendFile(session, IOUtils.getFileContent(path), OrderType.CDD);
+            FileTransfer.sendFile(session, IOUtil.getFileContent(path), OrderType.CDD);
         } catch (final IOException e) {
             throw new EbicsException(e);
         }
@@ -304,9 +304,9 @@ public class EbicsClientImpl implements EbicsClient {
                 "user.create.directories",
                 Constants.APPLICATION_BUNDLE_NAME,
                 user.getUserId()));
-        IOUtils.createDirectories(configuration.getUserDirectory(user));
-        IOUtils.createDirectories(configuration.getTransferTraceDirectory(user));
-        IOUtils.createDirectories(configuration.getLettersDirectory(user));
+        IOUtil.createDirectories(configuration.getUserDirectory(user));
+        IOUtil.createDirectories(configuration.getTransferTraceDirectory(user));
+        IOUtil.createDirectories(configuration.getLettersDirectory(user));
     }
 
     private EbicsUser sendINIRequest(final EbicsSession session) throws EbicsException {

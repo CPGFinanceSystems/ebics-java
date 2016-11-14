@@ -19,6 +19,7 @@
 
 package de.cpg.oss.ebics.xml;
 
+import de.cpg.oss.ebics.utils.XmlUtil;
 import org.w3.xmldsig.*;
 
 
@@ -49,25 +50,25 @@ public class SignedInfoElement {
 
     public SignatureType build() {
         final Transform transform = OBJECT_FACTORY.createTransform();
-        transform.setAlgorithm(XmlUtils.CANONICALIZAION_METHOD);
+        transform.setAlgorithm(XmlUtil.CANONICALIZAION_METHOD);
 
         final DigestMethod digestMethod = OBJECT_FACTORY.createDigestMethod();
-        digestMethod.setAlgorithm(XmlUtils.DIGEST_METHOD);
+        digestMethod.setAlgorithm(XmlUtil.DIGEST_METHOD);
 
         final Transforms transforms = OBJECT_FACTORY.createTransforms();
         transforms.getTransforms().add(transform);
 
         final Reference reference = OBJECT_FACTORY.createReference();
-        reference.setURI("#xpointer(" + XmlUtils.XPATH_SELECTOR + ")");
+        reference.setURI("#xpointer(" + XmlUtil.XPATH_SELECTOR + ")");
         reference.setTransforms(transforms);
         reference.setDigestMethod(digestMethod);
         reference.setDigestValue(digest);
 
         final SignatureMethod signatureMethod = OBJECT_FACTORY.createSignatureMethod();
-        signatureMethod.setAlgorithm(XmlUtils.SIGNATURE_METHOD);
+        signatureMethod.setAlgorithm(XmlUtil.SIGNATURE_METHOD);
 
         final CanonicalizationMethod canonicalizationMethod = OBJECT_FACTORY.createCanonicalizationMethod();
-        canonicalizationMethod.setAlgorithm(XmlUtils.CANONICALIZAION_METHOD);
+        canonicalizationMethod.setAlgorithm(XmlUtil.CANONICALIZAION_METHOD);
 
         final SignedInfo signedInfo = OBJECT_FACTORY.createSignedInfo();
         signedInfo.setCanonicalizationMethod(canonicalizationMethod);

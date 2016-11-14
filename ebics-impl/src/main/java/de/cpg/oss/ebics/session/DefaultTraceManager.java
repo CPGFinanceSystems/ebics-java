@@ -22,7 +22,7 @@ package de.cpg.oss.ebics.session;
 import de.cpg.oss.ebics.api.EbicsConfiguration;
 import de.cpg.oss.ebics.api.EbicsUser;
 import de.cpg.oss.ebics.api.TraceManager;
-import de.cpg.oss.ebics.xml.XmlUtils;
+import de.cpg.oss.ebics.utils.XmlUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -68,6 +68,6 @@ public class DefaultTraceManager implements TraceManager {
 
     @Override
     public <T> void trace(final Class<T> clazz, final T object, final EbicsUser user) {
-        trace(XmlUtils.prettyPrint(clazz, object), XmlUtils.elementNameFrom(clazz), user);
+        trace(XmlUtil.prettyPrint(clazz, object), XmlUtil.elementNameFrom(clazz), user);
     }
 }

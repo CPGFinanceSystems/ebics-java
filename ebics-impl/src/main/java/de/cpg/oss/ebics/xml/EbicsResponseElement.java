@@ -24,6 +24,7 @@ import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.exception.ReturnCode;
 import de.cpg.oss.ebics.io.ContentFactory;
 import de.cpg.oss.ebics.io.InputStreamContentFactory;
+import de.cpg.oss.ebics.utils.XmlUtil;
 import org.apache.http.HttpEntity;
 import org.ebics.h004.EbicsResponse;
 
@@ -56,7 +57,7 @@ public class EbicsResponseElement {
         final String code;
         final String text;
 
-        final EbicsResponse response = XmlUtils.parse(EbicsResponse.class, contentFactory.getContent());
+        final EbicsResponse response = XmlUtil.parse(EbicsResponse.class, contentFactory.getContent());
         code = response.getHeader().getMutable().getReturnCode();
         text = response.getHeader().getMutable().getReportText();
         returnCode = ReturnCode.toReturnCode(code, text);

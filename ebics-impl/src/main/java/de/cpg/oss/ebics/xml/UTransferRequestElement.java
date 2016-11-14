@@ -22,7 +22,7 @@ package de.cpg.oss.ebics.xml;
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.io.ContentFactory;
-import de.cpg.oss.ebics.utils.IOUtils;
+import de.cpg.oss.ebics.utils.IOUtil;
 import org.ebics.h004.DataTransferRequestType;
 import org.ebics.h004.EbicsRequest;
 import org.ebics.h004.TransactionPhaseType;
@@ -67,7 +67,7 @@ public class UTransferRequestElement extends EbicsRequestElement {
     public EbicsRequest buildEbicsRequest() throws EbicsException {
         final DataTransferRequestType.OrderData orderData = OBJECT_FACTORY.createDataTransferRequestTypeOrderData();
         try {
-            orderData.setValue(IOUtils.read(contentFactory.getContent()));
+            orderData.setValue(IOUtil.read(contentFactory.getContent()));
         } catch (final IOException e) {
             throw new EbicsException(e);
         }

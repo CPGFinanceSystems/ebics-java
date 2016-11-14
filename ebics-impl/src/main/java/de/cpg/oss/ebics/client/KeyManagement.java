@@ -27,6 +27,7 @@ import de.cpg.oss.ebics.io.ByteArrayContentFactory;
 import de.cpg.oss.ebics.io.ContentFactory;
 import de.cpg.oss.ebics.utils.CryptoUtil;
 import de.cpg.oss.ebics.utils.HttpUtil;
+import de.cpg.oss.ebics.utils.XmlUtil;
 import de.cpg.oss.ebics.utils.ZipUtil;
 import de.cpg.oss.ebics.xml.*;
 import lombok.extern.slf4j.Slf4j;
@@ -59,9 +60,9 @@ abstract class KeyManagement {
 
         final INIRequestElement request = new INIRequestElement(session);
         final EbicsUnsecuredRequest unsecuredRequest = request.build();
-        final byte[] xml = XmlUtils.prettyPrint(EbicsUnsecuredRequest.class, unsecuredRequest);
+        final byte[] xml = XmlUtil.prettyPrint(EbicsUnsecuredRequest.class, unsecuredRequest);
         session.getTraceManager().trace(EbicsUnsecuredRequest.class, unsecuredRequest, session.getUser());
-        XmlUtils.validate(xml);
+        XmlUtil.validate(xml);
         final HttpEntity httpEntity = HttpUtil.sendAndReceive(
                 session.getBank(),
                 new ByteArrayContentFactory(xml),
@@ -70,7 +71,7 @@ abstract class KeyManagement {
                 httpEntity,
                 session.getMessageProvider());
         final EbicsKeyManagementResponse keyManagementResponse = response.build();
-        session.getTraceManager().trace(XmlUtils.prettyPrint(EbicsKeyManagementResponse.class, keyManagementResponse), "INIResponse", session.getUser());
+        session.getTraceManager().trace(XmlUtil.prettyPrint(EbicsKeyManagementResponse.class, keyManagementResponse), "INIResponse", session.getUser());
 
         return session.getUser().withInitializedINI(true);
     }
@@ -84,9 +85,9 @@ abstract class KeyManagement {
     static EbicsUser sendHIA(final EbicsSession session) throws IOException, EbicsException {
         final HIARequestElement request = new HIARequestElement(session);
         final EbicsUnsecuredRequest unsecuredRequest = request.build();
-        final byte[] xml = XmlUtils.prettyPrint(EbicsUnsecuredRequest.class, unsecuredRequest);
+        final byte[] xml = XmlUtil.prettyPrint(EbicsUnsecuredRequest.class, unsecuredRequest);
         session.getTraceManager().trace(EbicsUnsecuredRequest.class, unsecuredRequest, session.getUser());
-        XmlUtils.validate(xml);
+        XmlUtil.validate(xml);
         final HttpEntity httpEntity = HttpUtil.sendAndReceive(
                 session.getBank(),
                 new ByteArrayContentFactory(xml),
@@ -95,7 +96,7 @@ abstract class KeyManagement {
                 httpEntity,
                 session.getMessageProvider());
         final EbicsKeyManagementResponse keyManagementResponse = response.build();
-        session.getTraceManager().trace(XmlUtils.prettyPrint(EbicsKeyManagementResponse.class, keyManagementResponse), "HIAResponse", session.getUser());
+        session.getTraceManager().trace(XmlUtil.prettyPrint(EbicsKeyManagementResponse.class, keyManagementResponse), "HIAResponse", session.getUser());
 
         return session.getUser().withInitializedHIA(true);
     }
@@ -112,9 +113,9 @@ abstract class KeyManagement {
     static EbicsBank sendHPB(final EbicsSession session) throws IOException, GeneralSecurityException, EbicsException {
         final HPBRequestElement request = new HPBRequestElement(session);
         final EbicsNoPubKeyDigestsRequest ebicsNoPubKeyDigestsRequest = request.build();
-        final byte[] xml = XmlUtils.prettyPrint(EbicsNoPubKeyDigestsRequest.class, ebicsNoPubKeyDigestsRequest);
+        final byte[] xml = XmlUtil.prettyPrint(EbicsNoPubKeyDigestsRequest.class, ebicsNoPubKeyDigestsRequest);
         session.getTraceManager().trace(EbicsNoPubKeyDigestsRequest.class, ebicsNoPubKeyDigestsRequest, session.getUser());
-        XmlUtils.validate(xml);
+        XmlUtil.validate(xml);
         final HttpEntity httpEntity = HttpUtil.sendAndReceive(
                 session.getBank(),
                 new ByteArrayContentFactory(xml),
@@ -123,7 +124,7 @@ abstract class KeyManagement {
                 httpEntity,
                 session.getMessageProvider());
         final EbicsKeyManagementResponse keyManagementResponse = response.build();
-        session.getTraceManager().trace(XmlUtils.prettyPrint(EbicsKeyManagementResponse.class, keyManagementResponse), "HBPResponse", session.getUser());
+        session.getTraceManager().trace(XmlUtil.prettyPrint(EbicsKeyManagementResponse.class, keyManagementResponse), "HBPResponse", session.getUser());
         final ContentFactory factory = new ByteArrayContentFactory(ZipUtil.uncompress(CryptoUtil.decrypt(
                 response.getOrderData(),
                 response.getTransactionKey(),
@@ -146,9 +147,9 @@ abstract class KeyManagement {
     static EbicsUser lockAccess(final EbicsSession session) throws IOException, EbicsException {
         final SPRRequestElement request = new SPRRequestElement(session);
         final EbicsRequest ebicsRequest = request.build();
-        final byte[] requestXml = XmlUtils.prettyPrint(EbicsRequest.class, ebicsRequest);
+        final byte[] requestXml = XmlUtil.prettyPrint(EbicsRequest.class, ebicsRequest);
         session.getTraceManager().trace(EbicsRequest.class, ebicsRequest, session.getUser());
-        XmlUtils.validate(requestXml);
+        XmlUtil.validate(requestXml);
         final HttpEntity httpEntity = HttpUtil.sendAndReceive(
                 session.getBank(),
                 new ByteArrayContentFactory(requestXml),
