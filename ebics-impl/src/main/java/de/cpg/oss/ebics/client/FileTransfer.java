@@ -37,8 +37,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.time.LocalDate;
 
-import static de.cpg.oss.ebics.xml.DefaultEbicsRootElement.generateName;
-
 
 /**
  * Handling of file transfers.
@@ -82,7 +80,7 @@ abstract class FileTransfer {
         final UInitializationRequestElement initializer = new UInitializationRequestElement(session, orderType, content);
         final EbicsRequest request = initializer.build();
         final byte[] xml = XmlUtils.prettyPrint(EbicsRequest.class, request);
-        session.getTraceManager().trace(xml, initializer.getName(), session.getUser());
+        session.getTraceManager().trace(EbicsRequest.class, request, session.getUser());
         XmlUtils.validate(xml);
         final HttpEntity httpEntity = HttpUtil.sendAndReceive(
                 session.getBank(),
@@ -170,7 +168,7 @@ abstract class FileTransfer {
                 end);
         final EbicsRequest request = initializer.build();
         final byte[] xml = XmlUtils.prettyPrint(EbicsRequest.class, request);
-        session.getTraceManager().trace(xml, initializer.getName(), session.getUser());
+        session.getTraceManager().trace(EbicsRequest.class, request, session.getUser());
         XmlUtils.validate(xml);
         HttpEntity httpEntity = HttpUtil.sendAndReceive(
                 session.getBank(),
@@ -198,11 +196,11 @@ abstract class FileTransfer {
         }
 
         joiner.writeTo(dest, response.getTransactionKey());
-        final ReceiptRequestElement receipt = new ReceiptRequestElement(session, state.getTransactionId(), generateName(orderType));
+        final ReceiptRequestElement receipt = new ReceiptRequestElement(session, state.getTransactionId());
         final EbicsRequest ebicsRequest = receipt.build();
         final byte[] receiptXml = XmlUtils.prettyPrint(EbicsRequest.class, ebicsRequest);
         XmlUtils.validate(receiptXml);
-        session.getTraceManager().trace(receiptXml, receipt.getName(), session.getUser());
+        session.getTraceManager().trace(EbicsRequest.class, ebicsRequest, session.getUser());
         httpEntity = HttpUtil.sendAndReceive(
                 session.getBank(),
                 new ByteArrayContentFactory(receiptXml),

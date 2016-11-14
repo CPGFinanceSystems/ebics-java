@@ -19,9 +19,9 @@
 
 package de.cpg.oss.ebics.xml;
 
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
+import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.CryptoUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.ebics.h004.EbicsRequest;
@@ -45,9 +45,7 @@ public abstract class InitializationRequestElement {
 
     protected final EbicsSession session;
     protected final OrderType type;
-    protected final byte[] nonce;
-
-    private final String name;
+    final byte[] nonce;
 
     /**
      * Construct a new <code>InitializationRequestElement</code> root element.
@@ -59,33 +57,19 @@ public abstract class InitializationRequestElement {
                                         final OrderType type) {
         this.session = session;
         this.type = type;
-        this.name = DefaultEbicsRootElement.generateName(type);
         this.nonce = CryptoUtil.generateNonce();
     }
 
     public EbicsRequest build() throws EbicsException {
         final EbicsRequest ebicsRequest = buildInitialization();
 
-        final SignedInfoElement signedInfo = new SignedInfoElement(session.getUser(), XmlUtils.digest(EbicsRequest.class, ebicsRequest));
+        final SignedInfoElement signedInfo = new SignedInfoElement(XmlUtils.digest(EbicsRequest.class, ebicsRequest));
         ebicsRequest.setAuthSignature(signedInfo.build());
 
         final byte[] signature = XmlUtils.sign(EbicsRequest.class, ebicsRequest, session.getUser());
         ebicsRequest.getAuthSignature().getSignatureValue().setValue(signature);
 
         return ebicsRequest;
-    }
-
-    public String getName() {
-        return name + ".xml";
-    }
-
-    /**
-     * Returns the element type.
-     *
-     * @return the element type.
-     */
-    public String getType() {
-        return type.name();
     }
 
     /**

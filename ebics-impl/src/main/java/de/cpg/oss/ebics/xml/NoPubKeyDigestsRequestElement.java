@@ -80,8 +80,4 @@ public class NoPubKeyDigestsRequestElement {
 
         return request;
     }
-
-    public String getName() {
-        return "NoPubKeyDigestsRequest.xml";
-    }
 }

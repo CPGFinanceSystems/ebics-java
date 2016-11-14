@@ -64,8 +64,4 @@ public class SignaturePubKeyOrderDataElement {
 
         return signaturePubKeyOrderData;
     }
-
-    public String getName() {
-        return "SignaturePubKeyOrderData.xml";
-    }
 }

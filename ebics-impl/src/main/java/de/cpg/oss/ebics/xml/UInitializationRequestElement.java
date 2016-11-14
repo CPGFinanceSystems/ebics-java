@@ -120,7 +120,6 @@ public class UInitializationRequestElement extends InitializationRequestElement 
         encryptionPubKeyDigest.setValue(session.getBank().getEncryptionKey().getDigest());
 
         final UserSignature userSignature = new UserSignature(session,
-                DefaultEbicsRootElement.generateName("UserSignature"),
                 session.getUser().getSignatureKey().getVersion(),
                 userData);
         final JAXBElement<UserSignatureDataSigBookType> userSignatureElement = userSignature.build();

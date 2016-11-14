@@ -79,10 +79,6 @@ public class HPBResponseOrderDataElement {
         return response;
     }
 
-    public String getName() {
-        return "HPBData.xml";
-    }
-
     private RSAPublicKey getBankAuthenticationPublicKey() {
         final RSAKeyValue rsaKey = response.getAuthenticationPubKeyInfo().getPubKeyValue().getRSAKeyValue();
         return KeyUtil.getPublicKey(rsaKey.getModulus(), rsaKey.getExponent());

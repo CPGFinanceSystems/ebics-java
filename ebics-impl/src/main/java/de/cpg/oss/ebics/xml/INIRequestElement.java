@@ -19,9 +19,9 @@
 
 package de.cpg.oss.ebics.xml;
 
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
+import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.ZipUtil;
 import org.ebics.h004.EbicsUnsecuredRequest;
 import org.ebics.s001.SignaturePubKeyOrderData;
@@ -43,10 +43,6 @@ public class INIRequestElement {
      */
     public INIRequestElement(final EbicsSession session) {
         this.session = session;
-    }
-
-    public String getName() {
-        return "INIRequest.xml";
     }
 
     public EbicsUnsecuredRequest build() throws EbicsException {

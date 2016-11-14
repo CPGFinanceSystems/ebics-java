@@ -79,10 +79,6 @@ public class HIARequestOrderDataElement {
         return request;
     }
 
-    public String getName() {
-        return "HIARequestOrderData.xml";
-    }
-
     static RSAKeyValue rsaKeyValue(final PublicKey publicKey) {
         final RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
         final RSAKeyValue rsaKeyValue = W3C_OBJECT_FACTORY.createRSAKeyValue();

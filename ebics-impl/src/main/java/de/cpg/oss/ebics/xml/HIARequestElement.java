@@ -19,9 +19,9 @@
 
 package de.cpg.oss.ebics.xml;
 
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
+import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.ZipUtil;
 import org.ebics.h004.EbicsUnsecuredRequest;
 import org.ebics.h004.HIARequestOrderDataType;
@@ -44,10 +44,6 @@ public class HIARequestElement {
      */
     public HIARequestElement(final EbicsSession session) {
         this.session = session;
-    }
-
-    public String getName() {
-        return "HIARequest.xml";
     }
 
     public EbicsUnsecuredRequest build() throws EbicsException {

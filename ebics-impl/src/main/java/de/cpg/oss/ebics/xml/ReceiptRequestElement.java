@@ -35,7 +35,6 @@ import org.ebics.h004.TransactionPhaseType;
 public class ReceiptRequestElement {
 
     private final byte[] transactionId;
-    private final String name;
 
     protected final static ObjectFactory OBJECT_FACTORY = new ObjectFactory();
     protected final EbicsSession session;
@@ -45,14 +44,11 @@ public class ReceiptRequestElement {
      * Construct a new <code>ReceiptRequestElement</code> element.
      *
      * @param session the current ebics session
-     * @param name    the element name
      */
     public ReceiptRequestElement(final EbicsSession session,
-                                 final byte[] transactionId,
-                                 final String name) {
+                                 final byte[] transactionId) {
         this.session = session;
         this.transactionId = transactionId;
-        this.name = name;
     }
 
     public EbicsRequest build() throws EbicsException {
@@ -72,13 +68,9 @@ public class ReceiptRequestElement {
                         EbicsXmlFactory.staticHeader(session.getHostId(), transactionId)),
                 body);
 
-        signedInfo = new SignedInfoElement(session.getUser(), XmlUtils.digest(EbicsRequest.class, request));
+        signedInfo = new SignedInfoElement(XmlUtils.digest(EbicsRequest.class, request));
         request.setAuthSignature(signedInfo.build());
 
         return request;
-    }
-
-    public String getName() {
-        return name + ".xml";
     }
 }

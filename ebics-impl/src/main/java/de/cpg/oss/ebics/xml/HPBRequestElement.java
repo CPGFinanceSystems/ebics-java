@@ -19,8 +19,8 @@
 
 package de.cpg.oss.ebics.xml;
 
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.EbicsSession;
+import de.cpg.oss.ebics.api.exception.EbicsException;
 import org.ebics.h004.EbicsNoPubKeyDigestsRequest;
 import org.w3.xmldsig.SignatureType;
 
@@ -43,16 +43,11 @@ public class HPBRequestElement {
         this.session = session;
     }
 
-    public String getName() {
-        return "HPBRequest.xml";
-    }
-
     public EbicsNoPubKeyDigestsRequest build() throws EbicsException {
         final NoPubKeyDigestsRequestElement noPubKeyDigestsRequest = new NoPubKeyDigestsRequestElement(session);
         final EbicsNoPubKeyDigestsRequest request = noPubKeyDigestsRequest.build();
 
         final SignedInfoElement signedInfo = new SignedInfoElement(
-                session.getUser(),
                 XmlUtils.digest(EbicsNoPubKeyDigestsRequest.class, request));
         final SignatureType signatureType = signedInfo.build();
         request.setAuthSignature(signatureType);

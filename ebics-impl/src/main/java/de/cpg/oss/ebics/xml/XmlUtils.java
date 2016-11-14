@@ -44,10 +44,10 @@ public class XmlUtils {
     private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY;
     private static final XPathFactory X_PATH_FACTORY = XPathFactory.newInstance();
 
-    public static String CANONICALIZAION_METHOD = CanonicalizationMethod.INCLUSIVE;
-    public static String DIGEST_METHOD = DigestMethod.SHA256;
-    public static String SIGNATURE_METHOD = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
-    public static String XPATH_SELECTOR = "//*[@authenticate='true']";
+    static String CANONICALIZAION_METHOD = CanonicalizationMethod.INCLUSIVE;
+    static String DIGEST_METHOD = DigestMethod.SHA256;
+    static String SIGNATURE_METHOD = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
+    static String XPATH_SELECTOR = "//*[@authenticate='true']";
 
     static {
         DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
@@ -108,7 +108,7 @@ public class XmlUtils {
         }
     }
 
-    public static <T> byte[] sign(final Class<T> clazz, final T object, final EbicsUser user) {
+    static <T> byte[] sign(final Class<T> clazz, final T object, final EbicsUser user) {
         try {
             final DocumentBuilder builder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
             final Document document = builder.parse(new ByteArrayInputStream(prettyPrint(clazz, object)));
@@ -158,15 +158,6 @@ public class XmlUtils {
 
     }
 
-    public static byte[] canonize(final Node node) {
-        try {
-            final Canonicalizer canonicalizer = Canonicalizer.getInstance(CANONICALIZAION_METHOD);
-            return canonicalizer.canonicalizeSubtree(node);
-        } catch (InvalidCanonicalizerException | CanonicalizationException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static <T> String elementNameFrom(final Class<T> clazz) {
         return Optional.ofNullable(clazz.getAnnotation(XmlRootElement.class))
                 .map(XmlRootElement::name)
@@ -181,6 +172,15 @@ public class XmlUtils {
         prettyPrint(
                 new JAXBElement<>(new QName(namespaceFromPackageAnnotation(clazz), elementName), clazz, object),
                 outputStream);
+    }
+
+    private static byte[] canonize(final Node node) {
+        try {
+            final Canonicalizer canonicalizer = Canonicalizer.getInstance(CANONICALIZAION_METHOD);
+            return canonicalizer.canonicalizeSubtree(node);
+        } catch (InvalidCanonicalizerException | CanonicalizationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static <T> String namespaceFromPackageAnnotation(final Class<T> clazz) {

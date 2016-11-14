@@ -66,7 +66,6 @@ public class SPRRequestElement extends InitializationRequestElement {
         encryptionPubKeyDigest.setValue(session.getBank().getEncryptionKey().getDigest());
 
         final UserSignature userSignature = new UserSignature(session,
-                DefaultEbicsRootElement.generateName("SIG"),
                 session.getUser().getSignatureKey().getVersion(),
                 " ".getBytes());
         final JAXBElement<UserSignatureDataSigBookType> userSignatureElement = userSignature.build();

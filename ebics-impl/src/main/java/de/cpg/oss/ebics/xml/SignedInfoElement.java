@@ -19,7 +19,6 @@
 
 package de.cpg.oss.ebics.xml;
 
-import de.cpg.oss.ebics.api.EbicsUser;
 import org.w3.xmldsig.*;
 
 
@@ -34,19 +33,17 @@ public class SignedInfoElement {
     private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
 
     private final byte[] digest;
-    private final EbicsUser user;
 
     /**
      * Constructs a new <code>SignedInfo</code> element
      *
      * @param digest the digest value
      */
-    public SignedInfoElement(final EbicsUser user, final byte[] digest) {
+    public SignedInfoElement(final byte[] digest) {
         if (digest == null) {
             throw new IllegalArgumentException("digest value must not be null");
         }
 
-        this.user = user;
         this.digest = digest;
     }
 
@@ -82,9 +79,5 @@ public class SignedInfoElement {
         signatureType.setSignatureValue(OBJECT_FACTORY.createSignatureValue());
 
         return signatureType;
-    }
-
-    public String getName() {
-        return "SignedInfo.xml";
     }
 }

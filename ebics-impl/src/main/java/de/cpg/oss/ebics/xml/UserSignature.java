@@ -46,7 +46,6 @@ public class UserSignature {
     private final EbicsSession session;
     private final SignatureVersion signatureVersion;
     private final byte[] toSign;
-    private final String name;
 
     /**
      * Constructs a new <code>UserSignature</code> element for
@@ -56,12 +55,10 @@ public class UserSignature {
      * @param toSign           the data to be signed
      */
     public UserSignature(final EbicsSession session,
-                         final String name,
                          final SignatureVersion signatureVersion,
                          final byte[] toSign) {
         this.session = session;
         this.toSign = toSign;
-        this.name = name;
         this.signatureVersion = signatureVersion;
     }
 
@@ -84,9 +81,5 @@ public class UserSignature {
         userSignatureData.getOrderSignaturesAndOrderSignatureDatas().add(orderSignatureData);
 
         return OBJECT_FACTORY.createUserSignatureData(userSignatureData);
-    }
-
-    public String getName() {
-        return name + ".xml";
     }
 }

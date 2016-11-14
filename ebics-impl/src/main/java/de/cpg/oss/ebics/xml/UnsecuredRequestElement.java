@@ -90,8 +90,4 @@ public class UnsecuredRequestElement {
 
         return unsecuredRequest;
     }
-
-    public String getName() {
-        return "UnsecuredRequest.xml";
-    }
 }
