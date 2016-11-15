@@ -20,6 +20,7 @@
 package de.cpg.oss.ebics.client;
 
 import de.cpg.oss.ebics.api.EbicsSession;
+import de.cpg.oss.ebics.api.FileTransferState;
 import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.io.ByteArrayContentFactory;
@@ -96,7 +97,7 @@ abstract class FileTransfer {
         final EbicsResponse ebicsResponse = response.getResponse();
         session.getTraceManager().trace(EbicsResponse.class, ebicsResponse, session.getUser());
         response.report(session.getMessageProvider());
-        TransferState state = TransferState.builder()
+        FileTransferState state = FileTransferState.builder()
                 .numSegments(splitter.getNumSegments())
                 .transactionId(response.getTransactionId())
                 .build();
@@ -111,18 +112,18 @@ abstract class FileTransfer {
     /**
      * Sends a segment to the ebics bank server.
      */
-    private static TransferState sendFile(final EbicsSession session,
-                                          final Splitter splitter,
-                                          final TransferState transferState) throws EbicsException, IOException {
+    private static FileTransferState sendFile(final EbicsSession session,
+                                              final Splitter splitter,
+                                              final FileTransferState fileTransferState) throws EbicsException, IOException {
         log.info(session.getMessageProvider().getString(
                 "upload.segment",
                 Constants.APPLICATION_BUNDLE_NAME,
-                transferState.getSegmentNumber()));
+                fileTransferState.getSegmentNumber()));
         final EbicsRequest ebicsRequest = UTransferRequestElement.builder()
-                .segmentNumber(transferState.getSegmentNumber())
-                .lastSegment(transferState.isLastSegment())
-                .transactionId(transferState.getTransactionId())
-                .contentFactory(splitter.getContent(transferState.getSegmentNumber()))
+                .segmentNumber(fileTransferState.getSegmentNumber())
+                .lastSegment(fileTransferState.isLastSegment())
+                .transactionId(fileTransferState.getTransactionId())
+                .contentFactory(splitter.getContent(fileTransferState.getSegmentNumber()))
                 .build().create(session);
         session.getTraceManager().trace(EbicsRequest.class, ebicsRequest, session.getUser());
         final byte[] xml = XmlUtil.prettyPrint(EbicsRequest.class, ebicsRequest);
@@ -136,7 +137,7 @@ abstract class FileTransfer {
         session.getTraceManager().trace(EbicsResponse.class, ebicsResponse, session.getUser());
         response.report(session.getMessageProvider());
 
-        return transferState;
+        return fileTransferState;
     }
 
     /**
@@ -173,11 +174,7 @@ abstract class FileTransfer {
         final EbicsResponse ebicsResponse = responseElement.getResponse();
         session.getTraceManager().trace(EbicsResponse.class, ebicsResponse, session.getUser());
         responseElement.report(session.getMessageProvider());
-        TransferState state = TransferState.builder()
-                .segmentNumber(responseElement.getSegmentNumber())
-                .numSegments(responseElement.getNumSegments())
-                .transactionId(responseElement.getTransactionId())
-                .build();
+        FileTransferState state = responseElement.getFileTransferState();
         final Joiner joiner = new Joiner(session.getUser());
         joiner.append(responseElement.getOrderData());
         while (state.hasNext()) {
@@ -207,13 +204,13 @@ abstract class FileTransfer {
      * @throws IOException    communication error
      * @throws EbicsException server generated error
      */
-    private static TransferState fetchFile(final EbicsSession session,
-                                           final TransferState transferState,
-                                           final Joiner joiner) throws IOException, EbicsException {
+    private static FileTransferState fetchFile(final EbicsSession session,
+                                               final FileTransferState fileTransferState,
+                                               final Joiner joiner) throws IOException, EbicsException {
         final EbicsRequest ebicsRequest = DTransferRequestElement.builder()
-                .segmentNumber(transferState.getSegmentNumber())
-                .lastSegment(transferState.isLastSegment())
-                .transactionId(transferState.getTransactionId())
+                .segmentNumber(fileTransferState.getSegmentNumber())
+                .lastSegment(fileTransferState.isLastSegment())
+                .transactionId(fileTransferState.getTransactionId())
                 .build().create(session);
         session.getTraceManager().trace(EbicsRequest.class, ebicsRequest, session.getUser());
         final byte[] xml = XmlUtil.prettyPrint(EbicsRequest.class, ebicsRequest);
@@ -228,6 +225,6 @@ abstract class FileTransfer {
         responseElement.report(session.getMessageProvider());
         joiner.append(responseElement.getOrderData());
 
-        return transferState;
+        return fileTransferState;
     }
 }

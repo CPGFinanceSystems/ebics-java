@@ -1,5 +1,6 @@
 package de.cpg.oss.ebics.xml;
 
+import de.cpg.oss.ebics.api.FileTransferState;
 import de.cpg.oss.ebics.api.MessageProvider;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.exception.NoDownloadDataAvailableException;
@@ -24,16 +25,12 @@ public class DInitializationResponseElement extends EbicsResponseElement {
         }
     }
 
-    public int getNumSegments() {
-        return getHeader().getStatic().getNumSegments().intValue();
-    }
-
-    public int getSegmentNumber() {
-        return getHeader().getMutable().getSegmentNumber().getValue().intValue();
-    }
-
-    public boolean isLastSegment() {
-        return getHeader().getMutable().getSegmentNumber().isLastSegment();
+    public FileTransferState getFileTransferState() {
+        return FileTransferState.builder()
+                .numSegments(getHeader().getStatic().getNumSegments().intValue())
+                .segmentNumber(getHeader().getMutable().getSegmentNumber().getValue().intValue())
+                .transactionId(getTransactionId())
+                .build();
     }
 
     public byte[] getTransactionKey() {

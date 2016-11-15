@@ -3,6 +3,7 @@ package de.cpg.oss.ebics.xml;
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import lombok.Builder;
+import lombok.NonNull;
 import org.ebics.h004.EbicsRequest;
 import org.ebics.h004.TransactionPhaseType;
 
@@ -11,6 +12,7 @@ public class DTransferRequestElement implements EbicsRequestElement {
 
     private final int segmentNumber;
     private final boolean lastSegment;
+    @NonNull
     private final byte[] transactionId;
 
     @Override

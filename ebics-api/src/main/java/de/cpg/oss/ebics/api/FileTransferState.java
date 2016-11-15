@@ -1,4 +1,4 @@
-package de.cpg.oss.ebics.client;
+package de.cpg.oss.ebics.api;
 
 import lombok.Builder;
 import lombok.NonNull;
@@ -11,21 +11,19 @@ import java.text.MessageFormat;
 @Value
 @Wither
 @Builder
-class TransferState implements Serializable {
+public class FileTransferState implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @NonNull
     private final byte[] transactionId;
-    @NonNull
     private final int segmentNumber;
-    @NonNull
     private final int numSegments;
 
     /**
      * Returns the next segment number to be transferred.
      */
-    TransferState next() {
+    public FileTransferState next() {
         if (!hasNext()) {
             throw new IllegalStateException(MessageFormat.format(
                     "All segments ({0} in total) already processed for transaction {1}",
@@ -34,14 +32,14 @@ class TransferState implements Serializable {
         return withSegmentNumber(getSegmentNumber() + 1);
     }
 
-    boolean hasNext() {
+    public boolean hasNext() {
         return getSegmentNumber() < getNumSegments();
     }
 
     /**
      * Is the current segment is the last one?
      */
-    boolean isLastSegment() {
+    public boolean isLastSegment() {
         return getSegmentNumber() == getNumSegments();
     }
 }

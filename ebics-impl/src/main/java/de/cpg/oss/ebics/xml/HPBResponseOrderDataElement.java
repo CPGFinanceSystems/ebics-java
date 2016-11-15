@@ -8,11 +8,14 @@ import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.io.ContentFactory;
 import de.cpg.oss.ebics.utils.KeyUtil;
 import de.cpg.oss.ebics.utils.XmlUtil;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import org.ebics.h004.HPBResponseOrderDataType;
 import org.w3.xmldsig.RSAKeyValue;
 
 import java.security.interfaces.RSAPublicKey;
 
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class HPBResponseOrderDataElement {
 
     private final HPBResponseOrderDataType responseOrderData;
@@ -22,7 +25,8 @@ public class HPBResponseOrderDataElement {
     }
 
     public EbicsAuthenticationKey getBankAuthenticationKey() throws EbicsException {
-        final RSAPublicKey publicKey = getBankAuthenticationPublicKey();
+        final RSAKeyValue rsaKey = responseOrderData.getAuthenticationPubKeyInfo().getPubKeyValue().getRSAKeyValue();
+        final RSAPublicKey publicKey = KeyUtil.getPublicKey(rsaKey.getModulus(), rsaKey.getExponent());
         return EbicsAuthenticationKey.builder()
                 .publicKey(publicKey)
                 .digest(KeyUtil.getKeyDigest(publicKey))
@@ -32,26 +36,13 @@ public class HPBResponseOrderDataElement {
     }
 
     public EbicsEncryptionKey getBankEncryptionKey() throws EbicsException {
-        final RSAPublicKey publicKey = getBankEncryptionPublicKey();
+        final RSAKeyValue rsaKey = responseOrderData.getEncryptionPubKeyInfo().getPubKeyValue().getRSAKeyValue();
+        final RSAPublicKey publicKey = KeyUtil.getPublicKey(rsaKey.getModulus(), rsaKey.getExponent());
         return EbicsEncryptionKey.builder()
                 .publicKey(publicKey)
                 .digest(KeyUtil.getKeyDigest(publicKey))
                 .creationTime(responseOrderData.getEncryptionPubKeyInfo().getPubKeyValue().getTimeStamp())
                 .version(EncryptionVersion.valueOf(responseOrderData.getEncryptionPubKeyInfo().getEncryptionVersion()))
                 .build();
-    }
-
-    private HPBResponseOrderDataElement(final HPBResponseOrderDataType responseOrderData) {
-        this.responseOrderData = responseOrderData;
-    }
-
-    private RSAPublicKey getBankAuthenticationPublicKey() {
-        final RSAKeyValue rsaKey = responseOrderData.getAuthenticationPubKeyInfo().getPubKeyValue().getRSAKeyValue();
-        return KeyUtil.getPublicKey(rsaKey.getModulus(), rsaKey.getExponent());
-    }
-
-    private RSAPublicKey getBankEncryptionPublicKey() {
-        final RSAKeyValue rsaKey = responseOrderData.getEncryptionPubKeyInfo().getPubKeyValue().getRSAKeyValue();
-        return KeyUtil.getPublicKey(rsaKey.getModulus(), rsaKey.getExponent());
     }
 }
