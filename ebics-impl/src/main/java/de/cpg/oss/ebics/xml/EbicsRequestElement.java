@@ -1,34 +1,24 @@
 package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.EbicsSession;
+import de.cpg.oss.ebics.api.EbicsUser;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.XmlUtil;
-import lombok.extern.slf4j.Slf4j;
 import org.ebics.h004.EbicsRequest;
-import org.ebics.h004.ObjectFactory;
 
+interface EbicsRequestElement {
 
-@Slf4j
-public abstract class EbicsRequestElement {
+    EbicsRequest createForSigning(EbicsSession session) throws EbicsException;
 
-    protected static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
-
-    protected final EbicsSession session;
-
-    public EbicsRequestElement(final EbicsSession session) {
-        this.session = session;
+    default EbicsRequest create(final EbicsSession session) throws EbicsException {
+        return sign(createForSigning(session), session.getUser());
     }
 
-    public EbicsRequest build() throws EbicsException {
-        final EbicsRequest ebicsRequest = buildEbicsRequest();
-
-        ebicsRequest.setAuthSignature(XmlSignatureFactory.signatureType(
-                XmlUtil.digest(EbicsRequest.class, ebicsRequest)));
-        ebicsRequest.getAuthSignature().getSignatureValue().setValue(
-                XmlUtil.sign(EbicsRequest.class, ebicsRequest, session.getUser()));
-
-        return ebicsRequest;
+    static EbicsRequest sign(final EbicsRequest requestToSign, final EbicsUser user) throws EbicsException {
+        requestToSign.setAuthSignature(XmlSignatureFactory.signatureType(
+                XmlUtil.digest(EbicsRequest.class, requestToSign)));
+        requestToSign.getAuthSignature().getSignatureValue().setValue(
+                XmlUtil.sign(EbicsRequest.class, requestToSign, user));
+        return requestToSign;
     }
-
-    protected abstract EbicsRequest buildEbicsRequest() throws EbicsException;
 }

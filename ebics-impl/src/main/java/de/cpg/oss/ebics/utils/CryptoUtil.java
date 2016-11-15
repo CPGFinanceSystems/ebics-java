@@ -21,6 +21,7 @@ package de.cpg.oss.ebics.utils;
 
 import de.cpg.oss.ebics.api.EbicsSignatureKey;
 import de.cpg.oss.ebics.api.exception.EbicsException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
@@ -29,7 +30,9 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.*;
+import java.security.interfaces.RSAPublicKey;
 
 
 /**
@@ -37,6 +40,7 @@ import java.security.*;
  *
  * @author hachani
  */
+@Slf4j
 public abstract class CryptoUtil {
 
     /**
@@ -324,5 +328,19 @@ public abstract class CryptoUtil {
     private static byte[] decryptData(final byte[] input, final byte[] key)
             throws EbicsException {
         return decrypt(input, new SecretKeySpec(key, "AES"));
+    }
+
+    public static byte[] generateTransactionKey(final byte[] nonce, final RSAPublicKey encryptionKey) throws EbicsException {
+        try {
+            final Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, encryptionKey);
+            final BigInteger data = new BigInteger(nonce);
+            log.debug("Data bits: {}", data.bitLength());
+            log.debug("Modulus bits: {}", encryptionKey.getModulus().bitLength());
+            log.debug("Compare: {}", data.compareTo(encryptionKey.getModulus()));
+            return cipher.doFinal(nonce);
+        } catch (final Exception e) {
+            throw new EbicsException(e);
+        }
     }
 }

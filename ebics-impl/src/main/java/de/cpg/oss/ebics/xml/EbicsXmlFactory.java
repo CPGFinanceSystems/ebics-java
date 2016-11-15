@@ -15,7 +15,7 @@ import java.util.Optional;
 
 public abstract class EbicsXmlFactory {
 
-    private final static ObjectFactory OBJECT_FACTORY = new ObjectFactory();
+    final static ObjectFactory OBJECT_FACTORY = new ObjectFactory();
 
     static JAXBElement<ProductElementType> unsecuredProduct(final Product product) {
         final ProductElementType productType = OBJECT_FACTORY.createProductElementType();

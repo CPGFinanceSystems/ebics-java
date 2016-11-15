@@ -91,7 +91,7 @@ public abstract class XmlUtil {
         }
     }
 
-    public static <T> T parse(final Class<T> clazz, final InputStream inputStream) {
+    public static <T> T parse(final Class<T> clazz, final InputStream inputStream) throws EbicsException {
         try {
             final JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
             final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
@@ -103,7 +103,7 @@ public abstract class XmlUtil {
                 return jaxbElement.getValue();
             }
         } catch (final JAXBException e) {
-            throw new RuntimeException(e);
+            throw new EbicsException(e);
         }
     }
 

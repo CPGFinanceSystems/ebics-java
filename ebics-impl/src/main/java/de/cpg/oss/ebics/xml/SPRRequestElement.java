@@ -1,22 +1,3 @@
-/*
- * Copyright (c) 1990-2012 kopiLeft Development SARL, Bizerte, Tunisia
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License version 2.1 as published by the Free Software Foundation.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- *
- * $Id$
- */
-
 package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.EbicsSession;
@@ -31,30 +12,12 @@ import javax.crypto.spec.SecretKeySpec;
 
 import static de.cpg.oss.ebics.xml.EbicsXmlFactory.*;
 
-/**
- * The <code>SPRRequestElement</code> is the request element
- * for revoking a subscriber
- *
- * @author Hachani
- */
-public class SPRRequestElement extends InitializationRequestElement {
-
-    private final SecretKeySpec keySpec;
-    private final byte[] nonce;
-
-    /**
-     * Constructs a new SPR request element.
-     *
-     * @param session the current ebic session.
-     */
-    public SPRRequestElement(final EbicsSession session) throws EbicsException {
-        super(session);
-        this.nonce = CryptoUtil.generateNonce();
-        this.keySpec = new SecretKeySpec(nonce, "AES");
-    }
+public class SPRRequestElement implements EbicsRequestElement {
 
     @Override
-    public EbicsRequest buildEbicsRequest() throws EbicsException {
+    public EbicsRequest createForSigning(final EbicsSession session) throws EbicsException {
+        final byte[] nonce = CryptoUtil.generateNonce();
+
         return request(
                 session.getConfiguration(),
                 header(
@@ -69,7 +32,7 @@ public class SPRRequestElement extends InitializationRequestElement {
                 body(dataTransferRequest(
                         session,
                         " ".getBytes(),
-                        keySpec,
-                        generateTransactionKey(nonce))));
+                        new SecretKeySpec(nonce, "AES"),
+                        CryptoUtil.generateTransactionKey(nonce, session.getBankEncryptionKey()))));
     }
 }

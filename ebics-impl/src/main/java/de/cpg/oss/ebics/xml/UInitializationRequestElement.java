@@ -1,22 +1,3 @@
-/*
- * Copyright (c) 1990-2012 kopiLeft Development SARL, Bizerte, Tunisia
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License version 2.1 as published by the Free Software Foundation.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- *
- * $Id$
- */
-
 package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.EbicsSession;
@@ -24,7 +5,9 @@ import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.io.Splitter;
 import de.cpg.oss.ebics.utils.CryptoUtil;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
 import org.ebics.h004.*;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -33,38 +16,18 @@ import java.util.List;
 
 import static de.cpg.oss.ebics.xml.EbicsXmlFactory.*;
 
+@Builder
+public class UInitializationRequestElement implements EbicsRequestElement {
 
-/**
- * The <code>UInitializationRequestElement</code> is the common initialization
- * element for all ebics file uploads.
- *
- * @author Hachani
- */
-public class UInitializationRequestElement extends InitializationRequestElement {
-
+    @NonNull
     private final OrderType orderType;
     private final byte[] userData;
     @Getter
+    @NonNull
     private final Splitter splitter;
 
-    /**
-     * Constructs a new <code>UInitializationRequestElement</code> for uploads initializations.
-     *
-     * @param session   the current ebics session.
-     * @param orderType the upload order type
-     * @param userData  the user data to be uploaded
-     */
-    public UInitializationRequestElement(final EbicsSession session,
-                                         final OrderType orderType,
-                                         final byte[] userData) {
-        super(session);
-        this.orderType = orderType;
-        this.userData = userData;
-        this.splitter = new Splitter(userData);
-    }
-
     @Override
-    public EbicsRequest buildEbicsRequest() throws EbicsException {
+    public EbicsRequest createForSigning(final EbicsSession session) throws EbicsException {
         final byte[] nonce = CryptoUtil.generateNonce();
         final SecretKeySpec keySpec = new SecretKeySpec(nonce, "AES");
 
@@ -120,6 +83,10 @@ public class UInitializationRequestElement extends InitializationRequestElement 
                         mutableHeader(TransactionPhaseType.INITIALISATION),
                         staticHeader(session, nonce, splitter.getNumSegments(), orderDetails)),
                 body(
-                        dataTransferRequest(session, userData, keySpec, generateTransactionKey(nonce))));
+                        dataTransferRequest(
+                                session,
+                                userData,
+                                keySpec,
+                                CryptoUtil.generateTransactionKey(nonce, session.getBankEncryptionKey()))));
     }
 }
