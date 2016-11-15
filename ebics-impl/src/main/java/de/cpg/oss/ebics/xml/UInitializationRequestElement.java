@@ -45,7 +45,6 @@ import java.util.List;
 public class UInitializationRequestElement extends InitializationRequestElement {
 
     private final OrderType orderType;
-    private final byte[] userData;
     @Getter
     private final Splitter splitter;
 
@@ -61,7 +60,6 @@ public class UInitializationRequestElement extends InitializationRequestElement 
                                          final byte[] userData) {
         super(session);
         this.orderType = orderType;
-        this.userData = userData;
         this.splitter = new Splitter(userData);
     }
 
@@ -126,7 +124,7 @@ public class UInitializationRequestElement extends InitializationRequestElement 
 
         final UserSignature userSignature = new UserSignature(session,
                 session.getUser().getSignatureKey().getVersion(),
-                userData);
+                splitter.getInput());
         final JAXBElement<UserSignatureDataSigBookType> userSignatureElement = userSignature.build();
 
         final DataTransferRequestType.SignatureData signatureData = OBJECT_FACTORY.createDataTransferRequestTypeSignatureData();

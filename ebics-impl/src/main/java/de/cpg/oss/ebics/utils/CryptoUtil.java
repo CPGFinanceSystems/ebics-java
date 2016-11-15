@@ -1,22 +1,3 @@
-/*
- * Copyright (c) 1990-2012 kopiLeft Development SARL, Bizerte, Tunisia
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License version 2.1 as published by the Free Software Foundation.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- *
- * $Id$
- */
-
 package de.cpg.oss.ebics.utils;
 
 import de.cpg.oss.ebics.api.EbicsSignatureKey;
@@ -26,10 +7,12 @@ import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.*;
 
 
@@ -96,6 +79,10 @@ public abstract class CryptoUtil {
         return encryptOrDecrypt(Cipher.ENCRYPT_MODE, input, keySpec);
     }
 
+    public static InputStream encrypt(final InputStream inputStream, final SecretKeySpec keySpec) {
+        return encryptOrDecrypt(Cipher.ENCRYPT_MODE, inputStream, keySpec);
+    }
+
     /**
      * Decrypts the given input according to key spec.
      *
@@ -103,7 +90,7 @@ public abstract class CryptoUtil {
      * @param keySpec the key spec
      * @return the decrypted input
      */
-    public static byte[] decrypt(final byte[] input, final SecretKeySpec keySpec)
+    private static byte[] decrypt(final byte[] input, final SecretKeySpec keySpec)
             throws EbicsException {
         return encryptOrDecrypt(Cipher.DECRYPT_MODE, input, keySpec);
     }
@@ -117,14 +104,22 @@ public abstract class CryptoUtil {
      * @return the encrypted or decrypted data.
      */
     private static byte[] encryptOrDecrypt(final int mode, final byte[] input, final SecretKeySpec keySpec) {
-        final IvParameterSpec iv;
-        final Cipher cipher;
-
-        iv = new IvParameterSpec(new byte[16]);
+        final IvParameterSpec iv = new IvParameterSpec(new byte[16]);
         try {
-            cipher = Cipher.getInstance("AES/CBC/ISO10126Padding");
+            final Cipher cipher = Cipher.getInstance("AES/CBC/ISO10126Padding");
             cipher.init(mode, keySpec, iv);
             return cipher.doFinal(input);
+        } catch (final GeneralSecurityException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static InputStream encryptOrDecrypt(final int mode, final InputStream inputStream, final SecretKeySpec keySpec) {
+        final IvParameterSpec iv = new IvParameterSpec(new byte[16]);
+        try {
+            final Cipher cipher = Cipher.getInstance("AES/CBC/ISO10126Padding");
+            cipher.init(mode, keySpec, iv);
+            return new CipherInputStream(inputStream, cipher);
         } catch (final GeneralSecurityException e) {
             throw new RuntimeException(e);
         }
