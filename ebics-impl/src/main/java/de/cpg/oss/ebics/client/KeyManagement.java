@@ -22,6 +22,7 @@ package de.cpg.oss.ebics.client;
 import de.cpg.oss.ebics.api.EbicsBank;
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.EbicsUser;
+import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.io.ByteArrayContentFactory;
 import de.cpg.oss.ebics.io.ContentFactory;
@@ -33,6 +34,7 @@ import de.cpg.oss.ebics.xml.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.ebics.h004.*;
+import org.ebics.s001.SignaturePubKeyOrderData;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -58,8 +60,7 @@ abstract class KeyManagement {
      */
     static EbicsUser sendINI(final EbicsSession session) throws EbicsException, IOException {
 
-        final INIRequestElement request = new INIRequestElement(session);
-        final EbicsUnsecuredRequest unsecuredRequest = request.build();
+        final EbicsUnsecuredRequest unsecuredRequest = iniRequest(session);
         final byte[] xml = XmlUtil.prettyPrint(EbicsUnsecuredRequest.class, unsecuredRequest);
         session.getTraceManager().trace(EbicsUnsecuredRequest.class, unsecuredRequest, session.getUser());
         XmlUtil.validate(xml);
@@ -83,8 +84,7 @@ abstract class KeyManagement {
      * @throws EbicsException server generated error message
      */
     static EbicsUser sendHIA(final EbicsSession session) throws IOException, EbicsException {
-        final HIARequestElement request = new HIARequestElement(session);
-        final EbicsUnsecuredRequest unsecuredRequest = request.build();
+        final EbicsUnsecuredRequest unsecuredRequest = hiaRequest(session);
         final byte[] xml = XmlUtil.prettyPrint(EbicsUnsecuredRequest.class, unsecuredRequest);
         session.getTraceManager().trace(EbicsUnsecuredRequest.class, unsecuredRequest, session.getUser());
         XmlUtil.validate(xml);
@@ -159,5 +159,23 @@ abstract class KeyManagement {
         session.getTraceManager().trace(EbicsResponse.class, ebicsResponse, session.getUser());
         response.report();
         return session.getUser();
+    }
+
+    private static EbicsUnsecuredRequest iniRequest(final EbicsSession session) throws EbicsException {
+        return EbicsXmlFactory.ebicsUnsecuredRequest(
+                session,
+                OrderType.INI,
+                ZipUtil.compress(XmlUtil.prettyPrint(
+                        SignaturePubKeyOrderData.class,
+                        EbicsSignatureXmlFactory.signaturePubKeyOrderData(session))));
+    }
+
+    private static EbicsUnsecuredRequest hiaRequest(final EbicsSession session) throws EbicsException {
+        return EbicsXmlFactory.ebicsUnsecuredRequest(
+                session,
+                OrderType.HIA,
+                ZipUtil.compress(XmlUtil.prettyPrint(
+                        HIARequestOrderDataType.class,
+                        EbicsXmlFactory.hiaRequestOrderData(session))));
     }
 }

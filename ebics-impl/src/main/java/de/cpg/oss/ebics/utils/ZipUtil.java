@@ -1,7 +1,5 @@
 package de.cpg.oss.ebics.utils;
 
-import de.cpg.oss.ebics.api.exception.EbicsException;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.zip.DataFormatException;
@@ -19,7 +17,7 @@ public abstract class ZipUtil {
      * @param toZip the input to be compressed
      * @return the compressed input data
      */
-    public static byte[] compress(final byte[] toZip) throws EbicsException {
+    public static byte[] compress(final byte[] toZip) {
 
         if (toZip == null) {
             throw new IllegalArgumentException("The input to be zipped cannot be null");
@@ -43,7 +41,7 @@ public abstract class ZipUtil {
         try {
             output.close();
         } catch (final IOException e) {
-            throw new EbicsException(e);
+            throw new RuntimeException(e);
         }
         compressor.end();
 

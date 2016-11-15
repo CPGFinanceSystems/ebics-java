@@ -21,7 +21,6 @@ package de.cpg.oss.ebics.utils;
 
 import de.cpg.oss.ebics.api.EbicsSignatureKey;
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.xml.UserSignature;
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
@@ -91,8 +90,7 @@ public abstract class CryptoUtil {
      * @param keySpec the key spec
      * @return the encrypted input
      */
-    public static byte[] encrypt(final byte[] input, final SecretKeySpec keySpec)
-            throws EbicsException {
+    public static byte[] encrypt(final byte[] input, final SecretKeySpec keySpec) {
         return encryptOrDecrypt(Cipher.ENCRYPT_MODE, input, keySpec);
     }
 
@@ -229,8 +227,7 @@ public abstract class CryptoUtil {
      * <p>
      * <p> The {@code digest} will be signed with the RSA user signature key using the
      * {@link Signature} that will be instantiated with the <b>SHA-256</b>
-     * algorithm. This signature is then put in a {@link UserSignature} XML object that
-     * will be sent to the EBICS server.
+     * algorithm. This signature is then put in a UserSignature XML object that will be sent to the EBICS server.
      */
     public static byte[] sign(final byte[] digest, final EbicsSignatureKey signatureKey) throws IOException, GeneralSecurityException {
         final Signature signature;

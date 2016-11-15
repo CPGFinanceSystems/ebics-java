@@ -1,54 +1,26 @@
-/*
- * Copyright (c) 1990-2012 kopiLeft Development SARL, Bizerte, Tunisia
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License version 2.1 as published by the Free Software Foundation.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- *
- * $Id$
- */
-
 package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.utils.XmlUtil;
 import org.w3.xmldsig.*;
 
+import java.security.PublicKey;
+import java.security.interfaces.RSAPublicKey;
 
-/**
- * A representation of the SignedInfo element
- * performing signature for signed ebics requests
- *
- * @author hachani
- */
-public class SignedInfoElement {
+public abstract class XmlSignatureFactory {
 
     private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
 
-    private final byte[] digest;
+    static RSAKeyValue rsaPublicKey(final PublicKey publicKey) {
+        final RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
+        final RSAKeyValue rsaKeyValue = OBJECT_FACTORY.createRSAKeyValue();
 
-    /**
-     * Constructs a new <code>SignedInfo</code> element
-     *
-     * @param digest the digest value
-     */
-    public SignedInfoElement(final byte[] digest) {
-        if (digest == null) {
-            throw new IllegalArgumentException("digest value must not be null");
-        }
+        rsaKeyValue.setExponent(rsaPublicKey.getPublicExponent().toByteArray());
+        rsaKeyValue.setModulus(rsaPublicKey.getModulus().toByteArray());
 
-        this.digest = digest;
+        return rsaKeyValue;
     }
 
-    public SignatureType build() {
+    static SignatureType signatureType(final byte[] digest) {
         final Transform transform = OBJECT_FACTORY.createTransform();
         transform.setAlgorithm(XmlUtil.CANONICALIZAION_METHOD);
 

@@ -29,6 +29,8 @@ import org.ebics.h004.TransactionPhaseType;
 
 import java.io.IOException;
 
+import static de.cpg.oss.ebics.xml.EbicsXmlFactory.*;
+
 /**
  * The <code>UTransferRequestElement</code> is the root element
  * for all ebics upload transfers.
@@ -75,14 +77,11 @@ public class UTransferRequestElement extends EbicsRequestElement {
         final DataTransferRequestType dataTransfer = OBJECT_FACTORY.createDataTransferRequestType();
         dataTransfer.setOrderData(orderData);
 
-        final EbicsRequest.Body body = OBJECT_FACTORY.createEbicsRequestBody();
-        body.setDataTransfer(dataTransfer);
-
-        return EbicsXmlFactory.request(
+        return request(
                 session.getConfiguration(),
-                EbicsXmlFactory.header(
-                        EbicsXmlFactory.mutableHeader(TransactionPhaseType.TRANSFER, segmentNumber, lastSegment),
-                        EbicsXmlFactory.staticHeader(session.getHostId(), transactionId)),
-                body);
+                header(
+                        mutableHeader(TransactionPhaseType.TRANSFER, segmentNumber, lastSegment),
+                        staticHeader(session.getHostId(), transactionId)),
+                body(dataTransfer));
     }
 }

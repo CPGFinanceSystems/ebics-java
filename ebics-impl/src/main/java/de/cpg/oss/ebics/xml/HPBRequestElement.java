@@ -23,7 +23,6 @@ import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import org.ebics.h004.EbicsNoPubKeyDigestsRequest;
-import org.w3.xmldsig.SignatureType;
 
 /**
  * The <code>HPBRequestElement</code> is the element to be sent when
@@ -48,13 +47,10 @@ public class HPBRequestElement {
         final NoPubKeyDigestsRequestElement noPubKeyDigestsRequest = new NoPubKeyDigestsRequestElement(session);
         final EbicsNoPubKeyDigestsRequest request = noPubKeyDigestsRequest.build();
 
-        final SignedInfoElement signedInfo = new SignedInfoElement(
-                XmlUtil.digest(EbicsNoPubKeyDigestsRequest.class, request));
-        final SignatureType signatureType = signedInfo.build();
-        request.setAuthSignature(signatureType);
-
-        final byte[] signature = XmlUtil.sign(EbicsNoPubKeyDigestsRequest.class, request, session.getUser());
-        request.getAuthSignature().getSignatureValue().setValue(signature);
+        request.setAuthSignature(XmlSignatureFactory.signatureType(
+                XmlUtil.digest(EbicsNoPubKeyDigestsRequest.class, request)));
+        request.getAuthSignature().getSignatureValue().setValue(
+                XmlUtil.sign(EbicsNoPubKeyDigestsRequest.class, request, session.getUser()));
 
         return request;
     }

@@ -26,6 +26,8 @@ import org.ebics.h004.EbicsRequest;
 import org.ebics.h004.ObjectFactory;
 import org.ebics.h004.TransactionPhaseType;
 
+import static de.cpg.oss.ebics.xml.EbicsXmlFactory.*;
+
 
 /**
  * The <code>ReceiptRequestElement</code> is the element containing the
@@ -53,8 +55,6 @@ public class ReceiptRequestElement {
     }
 
     public EbicsRequest build() throws EbicsException {
-        final SignedInfoElement signedInfo;
-
         final EbicsRequest.Body.TransferReceipt transferReceipt = OBJECT_FACTORY.createEbicsRequestBodyTransferReceipt();
         transferReceipt.setAuthenticate(true);
         transferReceipt.setReceiptCode(0);
@@ -62,15 +62,14 @@ public class ReceiptRequestElement {
         final EbicsRequest.Body body = OBJECT_FACTORY.createEbicsRequestBody();
         body.setTransferReceipt(transferReceipt);
 
-        final EbicsRequest request = EbicsXmlFactory.request(
+        final EbicsRequest request = request(
                 session.getConfiguration(),
-                EbicsXmlFactory.header(
-                        EbicsXmlFactory.mutableHeader(TransactionPhaseType.RECEIPT),
-                        EbicsXmlFactory.staticHeader(session.getHostId(), transactionId)),
+                header(
+                        mutableHeader(TransactionPhaseType.RECEIPT),
+                        staticHeader(session.getHostId(), transactionId)),
                 body);
 
-        signedInfo = new SignedInfoElement(XmlUtil.digest(EbicsRequest.class, request));
-        request.setAuthSignature(signedInfo.build());
+        request.setAuthSignature(XmlSignatureFactory.signatureType(XmlUtil.digest(EbicsRequest.class, request)));
 
         return request;
     }

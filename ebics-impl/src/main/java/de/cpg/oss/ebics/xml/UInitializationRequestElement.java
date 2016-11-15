@@ -24,16 +24,14 @@ import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.io.Splitter;
 import de.cpg.oss.ebics.utils.CryptoUtil;
-import de.cpg.oss.ebics.utils.XmlUtil;
-import de.cpg.oss.ebics.utils.ZipUtil;
 import lombok.Getter;
 import org.ebics.h004.*;
-import org.ebics.s001.UserSignatureDataSigBookType;
 
 import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.JAXBElement;
 import java.util.ArrayList;
 import java.util.List;
+
+import static de.cpg.oss.ebics.xml.EbicsXmlFactory.*;
 
 
 /**
@@ -96,7 +94,7 @@ public class UInitializationRequestElement extends InitializationRequestElement 
             parameters.add(parameter);
         }
 
-        final StaticHeaderOrderDetailsType orderDetails = OBJECT_FACTORY.createStaticHeaderOrderDetailsType();
+        final StaticHeaderOrderDetailsType orderDetails;
         if (orderType.equals(OrderType.FUL)) {
             final FileFormatType fileFormat = OBJECT_FACTORY.createFileFormatType();
             fileFormat.setCountryCode(session.getConfiguration().getLocale().getCountry().toUpperCase());
@@ -108,48 +106,20 @@ public class UInitializationRequestElement extends InitializationRequestElement 
                 fULOrderParams.getParameters().addAll(parameters);
             }
 
-            orderDetails.setOrderAttribute(OrderAttributeType.DZHNN);
-            orderDetails.setOrderType(EbicsXmlFactory.orderType(orderType));
-            orderDetails.setOrderParams(OBJECT_FACTORY.createFULOrderParams(fULOrderParams));
+            orderDetails = orderDetails(
+                    OrderAttributeType.DZHNN,
+                    orderType,
+                    OBJECT_FACTORY.createFULOrderParams(fULOrderParams));
         } else {
-            final StandardOrderParamsType standardOrderParamsType = OBJECT_FACTORY.createStandardOrderParamsType();
-
-            orderDetails.setOrderAttribute(OrderAttributeType.OZHNN);
-            orderDetails.setOrderType(EbicsXmlFactory.orderType(orderType));
-            orderDetails.setOrderParams(OBJECT_FACTORY.createStandardOrderParams(standardOrderParamsType));
+            orderDetails = orderDetails(OrderAttributeType.OZHNN, orderType);
         }
 
-        final DataEncryptionInfoType.EncryptionPubKeyDigest encryptionPubKeyDigest = OBJECT_FACTORY.createDataEncryptionInfoTypeEncryptionPubKeyDigest();
-        encryptionPubKeyDigest.setVersion(session.getBank().getEncryptionKey().getVersion().name());
-        encryptionPubKeyDigest.setAlgorithm(XmlUtil.SIGNATURE_METHOD);
-        encryptionPubKeyDigest.setValue(session.getBank().getEncryptionKey().getDigest());
-
-        final UserSignature userSignature = new UserSignature(session,
-                session.getUser().getSignatureKey().getVersion(),
-                userData);
-        final JAXBElement<UserSignatureDataSigBookType> userSignatureElement = userSignature.build();
-
-        final DataTransferRequestType.SignatureData signatureData = OBJECT_FACTORY.createDataTransferRequestTypeSignatureData();
-        signatureData.setAuthenticate(true);
-        signatureData.setValue(CryptoUtil.encrypt(ZipUtil.compress(XmlUtil.prettyPrint(userSignatureElement)), keySpec));
-
-        final DataTransferRequestType.DataEncryptionInfo dataEncryptionInfo = OBJECT_FACTORY.createDataTransferRequestTypeDataEncryptionInfo();
-        dataEncryptionInfo.setAuthenticate(true);
-        dataEncryptionInfo.setEncryptionPubKeyDigest(encryptionPubKeyDigest);
-        dataEncryptionInfo.setTransactionKey(generateTransactionKey(nonce));
-
-        final DataTransferRequestType dataTransfer = OBJECT_FACTORY.createDataTransferRequestType();
-        dataTransfer.setDataEncryptionInfo(dataEncryptionInfo);
-        dataTransfer.setSignatureData(signatureData);
-
-        final EbicsRequest.Body body = OBJECT_FACTORY.createEbicsRequestBody();
-        body.setDataTransfer(dataTransfer);
-
-        return EbicsXmlFactory.request(
+        return request(
                 session.getConfiguration(),
-                EbicsXmlFactory.header(
-                        EbicsXmlFactory.mutableHeader(TransactionPhaseType.INITIALISATION),
-                        EbicsXmlFactory.staticHeader(session, nonce, splitter.getNumSegments(), orderDetails)),
-                body);
+                header(
+                        mutableHeader(TransactionPhaseType.INITIALISATION),
+                        staticHeader(session, nonce, splitter.getNumSegments(), orderDetails)),
+                body(
+                        dataTransferRequest(session, userData, keySpec, generateTransactionKey(nonce))));
     }
 }

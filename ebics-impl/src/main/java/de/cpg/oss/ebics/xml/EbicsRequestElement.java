@@ -22,11 +22,10 @@ public abstract class EbicsRequestElement {
     public EbicsRequest build() throws EbicsException {
         final EbicsRequest ebicsRequest = buildEbicsRequest();
 
-        final SignedInfoElement signedInfo = new SignedInfoElement(XmlUtil.digest(EbicsRequest.class, ebicsRequest));
-        ebicsRequest.setAuthSignature(signedInfo.build());
-
-        final byte[] signature = XmlUtil.sign(EbicsRequest.class, ebicsRequest, session.getUser());
-        ebicsRequest.getAuthSignature().getSignatureValue().setValue(signature);
+        ebicsRequest.setAuthSignature(XmlSignatureFactory.signatureType(
+                XmlUtil.digest(EbicsRequest.class, ebicsRequest)));
+        ebicsRequest.getAuthSignature().getSignatureValue().setValue(
+                XmlUtil.sign(EbicsRequest.class, ebicsRequest, session.getUser()));
 
         return ebicsRequest;
     }

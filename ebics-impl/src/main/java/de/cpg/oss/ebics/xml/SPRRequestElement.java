@@ -23,14 +23,13 @@ import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.CryptoUtil;
-import de.cpg.oss.ebics.utils.XmlUtil;
-import de.cpg.oss.ebics.utils.ZipUtil;
-import org.ebics.h004.*;
-import org.ebics.s001.UserSignatureDataSigBookType;
+import org.ebics.h004.EbicsRequest;
+import org.ebics.h004.OrderAttributeType;
+import org.ebics.h004.TransactionPhaseType;
 
 import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.JAXBElement;
 
+import static de.cpg.oss.ebics.xml.EbicsXmlFactory.*;
 
 /**
  * The <code>SPRRequestElement</code> is the request element
@@ -56,44 +55,21 @@ public class SPRRequestElement extends InitializationRequestElement {
 
     @Override
     public EbicsRequest buildEbicsRequest() throws EbicsException {
-        final StandardOrderParamsType standardOrderParamsType = OBJECT_FACTORY.createStandardOrderParamsType();
-
-        final StaticHeaderOrderDetailsType orderDetails = OBJECT_FACTORY.createStaticHeaderOrderDetailsType();
-        orderDetails.setOrderAttribute(OrderAttributeType.UZHNN);
-        orderDetails.setOrderType(EbicsXmlFactory.orderType(OrderType.SPR));
-        orderDetails.setOrderParams(OBJECT_FACTORY.createStandardOrderParams(standardOrderParamsType));
-
-        final DataEncryptionInfoType.EncryptionPubKeyDigest encryptionPubKeyDigest = OBJECT_FACTORY.createDataEncryptionInfoTypeEncryptionPubKeyDigest();
-        encryptionPubKeyDigest.setVersion(session.getBank().getEncryptionKey().getVersion().name());
-        encryptionPubKeyDigest.setAlgorithm(XmlUtil.SIGNATURE_METHOD);
-        encryptionPubKeyDigest.setValue(session.getBank().getEncryptionKey().getDigest());
-
-        final UserSignature userSignature = new UserSignature(session,
-                session.getUser().getSignatureKey().getVersion(),
-                " ".getBytes());
-        final JAXBElement<UserSignatureDataSigBookType> userSignatureElement = userSignature.build();
-
-        final DataTransferRequestType.SignatureData signatureData = OBJECT_FACTORY.createDataTransferRequestTypeSignatureData();
-        signatureData.setAuthenticate(true);
-        signatureData.setValue(CryptoUtil.encrypt(ZipUtil.compress(XmlUtil.prettyPrint(userSignatureElement)), keySpec));
-
-        final DataTransferRequestType.DataEncryptionInfo dataEncryptionInfo = OBJECT_FACTORY.createDataTransferRequestTypeDataEncryptionInfo();
-        dataEncryptionInfo.setAuthenticate(true);
-        dataEncryptionInfo.setEncryptionPubKeyDigest(encryptionPubKeyDigest);
-        dataEncryptionInfo.setTransactionKey(generateTransactionKey(nonce));
-
-        final DataTransferRequestType dataTransfer = OBJECT_FACTORY.createDataTransferRequestType();
-        dataTransfer.setDataEncryptionInfo(dataEncryptionInfo);
-        dataTransfer.setSignatureData(signatureData);
-
-        final EbicsRequest.Body body = OBJECT_FACTORY.createEbicsRequestBody();
-        body.setDataTransfer(dataTransfer);
-
-        return EbicsXmlFactory.request(
+        return request(
                 session.getConfiguration(),
-                EbicsXmlFactory.header(
-                        EbicsXmlFactory.mutableHeader(TransactionPhaseType.INITIALISATION),
-                        EbicsXmlFactory.staticHeader(session, nonce, 0, orderDetails)),
-                body);
+                header(
+                        mutableHeader(TransactionPhaseType.INITIALISATION),
+                        staticHeader(
+                                session,
+                                nonce,
+                                0,
+                                orderDetails(
+                                        OrderAttributeType.UZHNN,
+                                        OrderType.SPR))),
+                body(dataTransferRequest(
+                        session,
+                        " ".getBytes(),
+                        keySpec,
+                        generateTransactionKey(nonce))));
     }
 }

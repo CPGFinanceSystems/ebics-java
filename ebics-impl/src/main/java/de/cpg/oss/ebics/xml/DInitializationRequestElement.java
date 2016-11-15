@@ -25,6 +25,7 @@ import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.CryptoUtil;
 import org.ebics.h004.*;
 
+import javax.xml.bind.JAXBElement;
 import java.time.LocalDate;
 
 
@@ -60,9 +61,8 @@ public class DInitializationRequestElement extends InitializationRequestElement 
 
     @Override
     public EbicsRequest buildEbicsRequest() throws EbicsException {
-        final StaticHeaderOrderDetailsType orderDetails = OBJECT_FACTORY.createStaticHeaderOrderDetailsType();
-        orderDetails.setOrderAttribute(OrderAttributeType.DZHNN);
-        orderDetails.setOrderType(EbicsXmlFactory.orderType(orderType));
+        final StaticHeaderOrderDetailsType orderDetails;
+
         if (orderType.equals(OrderType.FDL)) {
             final FileFormatType fileFormat = OBJECT_FACTORY.createFileFormatType();
             fileFormat.setCountryCode(session.getConfiguration().getLocale().getCountry().toUpperCase());
@@ -91,13 +91,10 @@ public class DInitializationRequestElement extends InitializationRequestElement 
                 fDLOrderParamsType.getParameters().add(parameter);
             }
 
-            orderDetails.setOrderParams(OBJECT_FACTORY.createFDLOrderParams(fDLOrderParamsType));
+            final JAXBElement<FDLOrderParamsType> orderParams = OBJECT_FACTORY.createFDLOrderParams(fDLOrderParamsType);
+            orderDetails = EbicsXmlFactory.orderDetails(OrderAttributeType.DZHNN, orderType, orderParams);
         } else {
-            final StandardOrderParamsType standardOrderParamsType = OBJECT_FACTORY.createStandardOrderParamsType();
-
-            //FIXME Some banks cannot handle OrderID element in download process. Add parameter in configuration!!!
-            orderDetails.setOrderID(null);
-            orderDetails.setOrderParams(OBJECT_FACTORY.createStandardOrderParams(standardOrderParamsType));
+            orderDetails = EbicsXmlFactory.orderDetails(OrderAttributeType.DZHNN, orderType);
         }
 
         return EbicsXmlFactory.request(
