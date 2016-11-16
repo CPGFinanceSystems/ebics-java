@@ -119,7 +119,20 @@ public class EbicsClientImpl implements EbicsClient {
                 throw new EbicsException(e);
             }
         }
-        return session.withBank(bankWithKeys);
+
+        try {
+            final EbicsBank bankWithInfos = KeyManagement.sendHPD(session.withBank(bankWithKeys));
+            if (!bankWithInfos.equals(bankWithKeys)) {
+                try {
+                    session.getSerializationManager().serialize(bankWithInfos);
+                } catch (final IOException e) {
+                    throw new EbicsException(e);
+                }
+            }
+            return session.withBank(bankWithInfos);
+        } catch (final IOException e) {
+            throw new EbicsException(e);
+        }
     }
 
     /**

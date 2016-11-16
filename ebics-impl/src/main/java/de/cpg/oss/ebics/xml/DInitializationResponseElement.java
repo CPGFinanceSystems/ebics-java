@@ -32,8 +32,4 @@ public class DInitializationResponseElement extends EbicsResponseElement {
                 .transactionId(getTransactionId())
                 .build();
     }
-
-    public byte[] getTransactionKey() {
-        return getBody().getDataTransfer().getDataEncryptionInfo().getTransactionKey();
-    }
 }

@@ -49,6 +49,10 @@ public class EbicsResponseElement {
         return getBody().getDataTransfer().getOrderData().getValue();
     }
 
+    public byte[] getTransactionKey() {
+        return getBody().getDataTransfer().getDataEncryptionInfo().getTransactionKey();
+    }
+
     public ReturnCode getReturnCode() {
         return ReturnCode.toReturnCode(
                 getHeader().getMutable().getReturnCode(),

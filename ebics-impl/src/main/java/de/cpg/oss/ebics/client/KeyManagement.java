@@ -133,6 +133,27 @@ abstract class KeyManagement {
                 .withEncryptionKey(orderData.getBankEncryptionKey());
     }
 
+    static EbicsBank sendHPD(final EbicsSession session) throws EbicsException, IOException {
+        final EbicsRequest ebicsRequest = new HPDRequestElement().create(session);
+        final byte[] xml = XmlUtil.prettyPrint(EbicsRequest.class, ebicsRequest);
+        session.getTraceManager().trace(EbicsRequest.class, ebicsRequest, session.getUser());
+        XmlUtil.validate(xml);
+        final HttpEntity httpEntity = HttpUtil.sendAndReceive(
+                session.getBank(),
+                new ByteArrayContentFactory(xml),
+                session.getMessageProvider());
+        final EbicsResponseElement responseElement = EbicsResponseElement.parse(InputStreamContentFactory.of(httpEntity));
+        session.getTraceManager().trace(XmlUtil.prettyPrint(EbicsResponse.class, responseElement.getResponse()), "HBDResponse", session.getUser());
+        responseElement.report(session.getMessageProvider());
+        final ContentFactory factory = new ByteArrayContentFactory(ZipUtil.uncompress(CryptoUtil.decrypt(
+                responseElement.getOrderData(),
+                responseElement.getTransactionKey(),
+                session.getUser().getEncryptionKey().getPrivateKey())));
+        final HPDResponseOrderDataElement orderData = HPDResponseOrderDataElement.parse(factory);
+        session.getTraceManager().trace(IOUtil.read(factory.getContent()), "HPDResponseOrderData", session.getUser());
+        return session.getBank().withName(orderData.getBankName());
+    }
+
     /**
      * Sends the SPR order to the bank.
      * After that you have to start over with sending INI and HIA.
