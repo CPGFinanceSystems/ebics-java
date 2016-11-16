@@ -1,5 +1,6 @@
 package de.cpg.oss.ebics.api;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
@@ -10,7 +11,7 @@ import java.security.PublicKey;
 import java.time.LocalDateTime;
 
 @Getter
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class EbicsRsaKey<T extends Enum> implements Serializable {
 
     private static final long serialVersionUID = 1L;

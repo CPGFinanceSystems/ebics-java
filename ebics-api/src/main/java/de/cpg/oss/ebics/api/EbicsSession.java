@@ -25,7 +25,6 @@ public class EbicsSession {
     private final Product product;
     private final SerializationManager serializationManager;
     private final TraceManager traceManager;
-    private final LetterManager letterManager;
     private final Map<String, String> parameters = new HashMap<>();
 
     public RSAPublicKey getBankEncryptionKey() {

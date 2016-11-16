@@ -2,7 +2,6 @@ package de.cpg.oss.ebics.client;
 
 import de.cpg.oss.ebics.api.*;
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.letter.DefaultLetterManager;
 import de.cpg.oss.ebics.session.BinarySerializaionManager;
 import de.cpg.oss.ebics.session.DefaultPasswordCallback;
 import de.cpg.oss.ebics.session.DefaultTraceManager;
@@ -12,7 +11,9 @@ import de.cpg.oss.ebics.utils.KeyUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
@@ -62,8 +63,6 @@ public class EbicsClientImpl implements EbicsClient {
         }
 
         return ebicsSession
-                .withLetterManager(Optional.ofNullable(sessionParameter.getLetterManager())
-                        .orElseGet(DefaultLetterManager::new))
                 .withTraceManager(Optional.ofNullable(sessionParameter.getTraceManager())
                         .orElseGet(() -> new DefaultTraceManager(configuration)))
                 .withUser(ebicsSession.getUser()
@@ -78,7 +77,7 @@ public class EbicsClientImpl implements EbicsClient {
         if (!session.getUser().isInitializedINI()) {
             createUserDirectories(session.getConfiguration(), session.getUser());
             final EbicsUser userWithKeys = createUserKeys(session);
-            createInitLetters(session.withUser(userWithKeys));
+            InitLetter.createINI(session.withUser(userWithKeys));
             final EbicsUser userInitSent = sendINIRequest(session.withUser(userWithKeys));
             sessionWithUserWithKeys = session.withUser(userInitSent);
         } else {
@@ -87,7 +86,7 @@ public class EbicsClientImpl implements EbicsClient {
 
         final EbicsSession sessionWithUserWithInitialized;
         if (!sessionWithUserWithKeys.getUser().isInitializedHIA()) {
-            createInitLetters(sessionWithUserWithKeys);
+            InitLetter.createHIA(sessionWithUserWithKeys);
             final EbicsUser initializedUser = sendHIARequest(sessionWithUserWithKeys);
             sessionWithUserWithInitialized = sessionWithUserWithKeys.withUser(initializedUser);
         } else {
@@ -359,18 +358,6 @@ public class EbicsClientImpl implements EbicsClient {
                             Constants.APPLICATION_BUNDLE_NAME,
                             session.getUser().getId()),
                     e);
-        }
-    }
-
-    private void createInitLetters(final EbicsSession session) throws EbicsException {
-        final InitLetter iniLetter = session.getLetterManager().createINILetter(session);
-        final InitLetter hiaLetter = session.getLetterManager().createHIALetter(session);
-
-        try {
-            iniLetter.create(session).close();
-            hiaLetter.create(session).close();
-        } catch (final IOException e) {
-            throw new EbicsException(e);
         }
     }
 

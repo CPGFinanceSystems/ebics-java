@@ -50,7 +50,7 @@ import java.security.GeneralSecurityException;
 abstract class KeyManagement {
 
     /**
-     * Sends the user's signature key (A005) to the bank.
+     * Sends the user's signature key to the bank.
      * After successful operation the user is in state "initialized".
      *
      * @throws EbicsException server generated error message

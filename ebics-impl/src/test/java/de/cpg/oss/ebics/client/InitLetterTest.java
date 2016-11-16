@@ -1,9 +1,9 @@
-package de.cpg.oss.ebics.letter;
+package de.cpg.oss.ebics.client;
 
 import de.cpg.oss.ebics.api.*;
-import de.cpg.oss.ebics.client.EbicsClientImpl;
 import de.cpg.oss.ebics.session.BinarySerializaionManager;
 import de.cpg.oss.ebics.utils.KeyUtil;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
@@ -11,25 +11,30 @@ import java.net.URI;
 import java.security.KeyPair;
 import java.time.LocalDateTime;
 
-public class INILetterTest {
+public class InitLetterTest {
+
+    private static EbicsSession session;
 
     @Test
-    public void testCreate() throws Exception {
-        final EbicsSession session = createEbicsSession();
-        final INILetter iniLetter = new INILetter();
-        iniLetter.create(session).close();
+    public void testCreateINI() throws Exception {
+        InitLetter.createINI(session).close();
     }
 
-    static EbicsSession createEbicsSession() throws Exception {
+    @Test
+    public void testCreateHIA() throws Exception {
+        InitLetter.createHIA(session).close();
+    }
+
+    @BeforeClass
+    public static void createEbicsSession() throws Exception {
         final EbicsConfiguration configuration = new EbicsConfiguration(new File("target/test"));
         final KeyPair signatureKey = KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE);
         final KeyPair authenticationKey = KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE);
         final KeyPair encryptionKey = KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE);
 
-        final EbicsSession session = EbicsSession.builder()
+        session = EbicsSession.builder()
                 .configuration(configuration)
                 .serializationManager(new BinarySerializaionManager(new File("serialized")))
-                .letterManager(new DefaultLetterManager())
                 .bank(EbicsBank.builder()
                         .hostId("HOSTID")
                         .name("Test Bank Name")
@@ -63,7 +68,5 @@ public class INILetterTest {
                 .build();
         EbicsClientImpl.init(session.getConfiguration());
         EbicsClientImpl.createUserDirectories(session.getConfiguration(), session.getUser());
-
-        return session;
     }
 }
