@@ -20,14 +20,12 @@ import java.util.Map;
 public abstract class TemplateUtil {
 
     public static void createPdfFromOdt(
-            final String templateResourceLocation,
+            final InputStream template,
             final Map<String, Object> templateParameters,
             final OutputStream pdfOutputStream) throws IOException, XDocReportException {
-        final InputStream in = TemplateUtil.class.getResourceAsStream(templateResourceLocation);
-
         // Prepare the IXDocReport instance based on the template, using
         // Freemarker template engine
-        final IXDocReport report = XDocReportRegistry.getRegistry().loadReport(in, TemplateEngineKind.Freemarker);
+        final IXDocReport report = XDocReportRegistry.getRegistry().loadReport(template, TemplateEngineKind.Freemarker);
 
         // Define what we want to do (PDF file from ODF template)
         final Options options = Options.getTo(ConverterTypeTo.PDF).via(ConverterTypeVia.ODFDOM);

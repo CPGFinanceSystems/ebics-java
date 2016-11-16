@@ -5,15 +5,14 @@ import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.TemplateUtil;
 import fr.opensagres.xdocreport.core.XDocReportException;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 abstract class InitLetter {
 
@@ -23,7 +22,10 @@ abstract class InitLetter {
                     session.getConfiguration().getLettersDirectory(session.getUser()),
                     "INILetter.pdf"));
 
-            TemplateUtil.createPdfFromOdt("/iniletter.odt", templateParameters(session), pdfOutputStream);
+            TemplateUtil.createPdfFromOdt(
+                    template("iniletter", session.getMessageProvider().getLocale()),
+                    templateParameters(session),
+                    pdfOutputStream);
 
             return pdfOutputStream;
         } catch (XDocReportException | IOException e) {
@@ -37,12 +39,24 @@ abstract class InitLetter {
                     session.getConfiguration().getLettersDirectory(session.getUser()),
                     "HIALetter.pdf"));
 
-            TemplateUtil.createPdfFromOdt("/hialetter.odt", templateParameters(session), pdfOutputStream);
+            TemplateUtil.createPdfFromOdt(
+                    template("hialetter", session.getMessageProvider().getLocale()),
+                    templateParameters(session),
+                    pdfOutputStream);
 
             return pdfOutputStream;
         } catch (XDocReportException | IOException e) {
             throw new EbicsException(e);
         }
+    }
+
+    private static InputStream template(final String name, final Locale locale) {
+        return Optional.ofNullable(InitLetter.class.getResourceAsStream(templateResourceLocation(name, locale)))
+                .orElseGet(() -> InitLetter.class.getResourceAsStream(templateResourceLocation(name, Locale.US)));
+    }
+
+    private static String templateResourceLocation(final String name, final Locale locale) {
+        return "/".concat(name).concat("_").concat(locale.getLanguage()).concat(".odt");
     }
 
     private static Map<String, Object> templateParameters(final EbicsSession session) {
