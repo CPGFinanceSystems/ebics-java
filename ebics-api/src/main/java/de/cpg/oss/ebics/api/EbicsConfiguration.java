@@ -23,6 +23,10 @@ public class EbicsConfiguration {
     private final int revision = 1;
     private final EbicsVersion version = EbicsVersion.H004;
 
+    public EbicsConfiguration(final File rootDirectory) {
+        this(rootDirectory, Locale.getDefault());
+    }
+
     public EbicsConfiguration(final File rootDirectory, final Locale locale) {
         this(rootDirectory, new MessageProvider() {
             @Override

@@ -37,7 +37,7 @@ public interface LetterManager {
      *
      * @return the INI letter.
      */
-    InitLetter createA005Letter(EbicsSession session) throws EbicsException;
+    InitLetter createINILetter(EbicsSession session) throws EbicsException;
 
     /**
      * Creates the initialization letter for the HIA request.
@@ -46,14 +46,5 @@ public interface LetterManager {
      *
      * @return the HIA letter
      */
-    InitLetter createE002Letter(EbicsSession session) throws EbicsException;
-
-    /**
-     * Creates the initialization letter for the HIA request.
-     * This letter contains information about the authentication
-     * certificates of the given user.
-     *
-     * @return the HIA letter
-     */
-    InitLetter createX002Letter(EbicsSession session) throws EbicsException;
+    InitLetter createHIALetter(EbicsSession session) throws EbicsException;
 }

@@ -12,10 +12,7 @@ import de.cpg.oss.ebics.utils.KeyUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
@@ -43,7 +40,7 @@ public class EbicsClientImpl implements EbicsClient {
      */
     public EbicsClientImpl(final EbicsConfiguration configuration) {
         this.configuration = configuration;
-        init();
+        init(configuration);
     }
 
     @Override
@@ -66,7 +63,7 @@ public class EbicsClientImpl implements EbicsClient {
 
         return ebicsSession
                 .withLetterManager(Optional.ofNullable(sessionParameter.getLetterManager())
-                        .orElseGet(() -> new DefaultLetterManager(configuration.getMessageProvider())))
+                        .orElseGet(DefaultLetterManager::new))
                 .withTraceManager(Optional.ofNullable(sessionParameter.getTraceManager())
                         .orElseGet(() -> new DefaultTraceManager(configuration)))
                 .withUser(ebicsSession.getUser()
@@ -79,8 +76,9 @@ public class EbicsClientImpl implements EbicsClient {
 
         final EbicsSession sessionWithUserWithKeys;
         if (!session.getUser().isInitializedINI()) {
-            createUserDirectories(session.getUser());
+            createUserDirectories(session.getConfiguration(), session.getUser());
             final EbicsUser userWithKeys = createUserKeys(session);
+            createInitLetters(session.withUser(userWithKeys));
             final EbicsUser userInitSent = sendINIRequest(session.withUser(userWithKeys));
             sessionWithUserWithKeys = session.withUser(userInitSent);
         } else {
@@ -214,7 +212,7 @@ public class EbicsClientImpl implements EbicsClient {
         session.getSerializationManager().serialize(session.getBank());
     }
 
-    private void init() {
+    public static void init(final EbicsConfiguration configuration) {
         log.info(configuration.getMessageProvider().getString(
                 "init.configuration",
                 Constants.APPLICATION_BUNDLE_NAME));
@@ -295,7 +293,7 @@ public class EbicsClientImpl implements EbicsClient {
         }
     }
 
-    private void createUserDirectories(final EbicsUser user) {
+    public static void createUserDirectories(final EbicsConfiguration configuration, final EbicsUser user) {
         log.info(configuration.getMessageProvider().getString(
                 "user.create.directories",
                 Constants.APPLICATION_BUNDLE_NAME,
@@ -365,18 +363,12 @@ public class EbicsClientImpl implements EbicsClient {
     }
 
     private void createInitLetters(final EbicsSession session) throws EbicsException {
+        final InitLetter iniLetter = session.getLetterManager().createINILetter(session);
+        final InitLetter hiaLetter = session.getLetterManager().createHIALetter(session);
+
         try {
-            final InitLetter a005Letter = session.getLetterManager().createA005Letter(session);
-            a005Letter.save(new FileOutputStream(
-                    new File(configuration.getLettersDirectory(session.getUser()), a005Letter.getName())));
-
-            final InitLetter x002Letter = session.getLetterManager().createE002Letter(session);
-            x002Letter.save(new FileOutputStream(
-                    new File(configuration.getLettersDirectory(session.getUser()), x002Letter.getName())));
-
-            final InitLetter e002Letter = session.getLetterManager().createX002Letter(session);
-            e002Letter.save(new FileOutputStream(
-                    new File(configuration.getLettersDirectory(session.getUser()), e002Letter.getName())));
+            iniLetter.create(session).close();
+            hiaLetter.create(session).close();
         } catch (final IOException e) {
             throw new EbicsException(e);
         }

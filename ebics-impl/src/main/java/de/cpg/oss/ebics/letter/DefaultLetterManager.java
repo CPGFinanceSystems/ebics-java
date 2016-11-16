@@ -22,7 +22,6 @@ package de.cpg.oss.ebics.letter;
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.InitLetter;
 import de.cpg.oss.ebics.api.LetterManager;
-import de.cpg.oss.ebics.api.MessageProvider;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 
 
@@ -34,39 +33,13 @@ import de.cpg.oss.ebics.api.exception.EbicsException;
  */
 public class DefaultLetterManager implements LetterManager {
 
-    private final MessageProvider messageProvider;
-
-    /**
-     * Constructs a new <code>LetterManager</code>
-     */
-    public DefaultLetterManager(final MessageProvider messageProvider) {
-        this.messageProvider = messageProvider;
+    @Override
+    public InitLetter createINILetter(final EbicsSession session) throws EbicsException {
+        return new INILetter();
     }
 
     @Override
-    public InitLetter createA005Letter(final EbicsSession session) throws EbicsException {
-        final A005Letter letter;
-
-        letter = new A005Letter(messageProvider);
-        letter.create(session);
-        return letter;
-    }
-
-    @Override
-    public InitLetter createE002Letter(final EbicsSession session) throws EbicsException {
-        final E002Letter letter;
-
-        letter = new E002Letter(messageProvider);
-        letter.create(session);
-        return letter;
-    }
-
-    @Override
-    public InitLetter createX002Letter(final EbicsSession session) throws EbicsException {
-        final X002Letter letter;
-
-        letter = new X002Letter(messageProvider);
-        letter.create(session);
-        return letter;
+    public InitLetter createHIALetter(final EbicsSession session) throws EbicsException {
+        return new HIALetter();
     }
 }
