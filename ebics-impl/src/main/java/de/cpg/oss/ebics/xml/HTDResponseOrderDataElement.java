@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class HTDResponseOrderDataElement {
+public class HTDResponseOrderDataElement implements ResponseOrderDataElement {
 
     private final HTDReponseOrderDataType responseOrderData;
 

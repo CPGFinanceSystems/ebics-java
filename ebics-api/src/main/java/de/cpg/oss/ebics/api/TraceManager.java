@@ -30,5 +30,5 @@ public interface TraceManager {
 
     void trace(byte[] xml, String elementName, final EbicsUser user);
 
-    <T> void trace(Class<T> clazz, T object, final EbicsUser user);
+    <T> void trace(Class<T> clazz, T object, final String elementName, final EbicsUser user);
 }

@@ -6,7 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 @AllArgsConstructor
-public class ByteArrayContentFactory implements ContentFactory {
+class ByteArrayContentFactory implements ContentFactory {
 
     private static final long serialVersionUID = 1L;
 

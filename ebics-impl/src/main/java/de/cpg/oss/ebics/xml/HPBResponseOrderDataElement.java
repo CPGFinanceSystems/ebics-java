@@ -5,7 +5,6 @@ import de.cpg.oss.ebics.api.EbicsAuthenticationKey;
 import de.cpg.oss.ebics.api.EbicsEncryptionKey;
 import de.cpg.oss.ebics.api.EncryptionVersion;
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.io.ContentFactory;
 import de.cpg.oss.ebics.utils.KeyUtil;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import lombok.AccessLevel;
@@ -13,15 +12,16 @@ import lombok.AllArgsConstructor;
 import org.ebics.h004.HPBResponseOrderDataType;
 import org.w3.xmldsig.RSAKeyValue;
 
+import java.io.InputStream;
 import java.security.interfaces.RSAPublicKey;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class HPBResponseOrderDataElement {
+public class HPBResponseOrderDataElement implements ResponseOrderDataElement {
 
     private final HPBResponseOrderDataType responseOrderData;
 
-    public static HPBResponseOrderDataElement parse(final ContentFactory contentFactory) throws EbicsException {
-        return new HPBResponseOrderDataElement(XmlUtil.parse(HPBResponseOrderDataType.class, contentFactory.getContent()));
+    public static HPBResponseOrderDataElement parse(final InputStream orderData) throws EbicsException {
+        return new HPBResponseOrderDataElement(XmlUtil.parse(HPBResponseOrderDataType.class, orderData));
     }
 
     public EbicsAuthenticationKey getBankAuthenticationKey() throws EbicsException {

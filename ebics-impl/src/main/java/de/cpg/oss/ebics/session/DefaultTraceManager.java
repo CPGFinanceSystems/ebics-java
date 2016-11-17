@@ -43,7 +43,7 @@ import java.time.format.DateTimeFormatter;
  * @author hachani
  */
 @Slf4j
-public class DefaultTraceManager implements TraceManager {
+public final class DefaultTraceManager implements TraceManager {
 
     private final EbicsConfiguration ebicsConfiguration;
 
@@ -62,12 +62,12 @@ public class DefaultTraceManager implements TraceManager {
         try (final FileOutputStream out = new FileOutputStream(file)) {
             out.write(xml);
         } catch (final IOException e) {
-            throw new RuntimeException(e);
+            log.error("Exception from " + DefaultTraceManager.class.getSimpleName(), e);
         }
     }
 
     @Override
-    public <T> void trace(final Class<T> clazz, final T object, final EbicsUser user) {
-        trace(XmlUtil.prettyPrint(clazz, object), XmlUtil.elementNameFrom(clazz), user);
+    public <T> void trace(final Class<T> clazz, final T object, final String elementName, final EbicsUser user) {
+        trace(XmlUtil.prettyPrint(clazz, object), elementName, user);
     }
 }

@@ -1,6 +1,5 @@
 package de.cpg.oss.ebics.xml;
 
-import de.cpg.oss.ebics.api.MessageProvider;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.exception.ReturnCode;
 import de.cpg.oss.ebics.io.ContentFactory;
@@ -13,7 +12,7 @@ import org.ebics.h004.EbicsResponse;
 import java.io.InputStream;
 
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class EbicsResponseElement {
+public class EbicsResponseElement implements ResponseElement<EbicsResponse> {
 
     @Getter
     private final EbicsResponse response;
@@ -26,11 +25,9 @@ public class EbicsResponseElement {
         return new EbicsResponseElement(parse(contentFactory.getContent()));
     }
 
-    public void report(final MessageProvider messageProvider) throws EbicsException {
-        final ReturnCode returnCode = getReturnCode();
-        if (!returnCode.isOk()) {
-            returnCode.throwException(messageProvider);
-        }
+    @Override
+    public Class<EbicsResponse> getResponseClass() {
+        return EbicsResponse.class;
     }
 
     public EbicsResponse.Header getHeader() {
@@ -45,14 +42,17 @@ public class EbicsResponseElement {
         return getHeader().getStatic().getTransactionID();
     }
 
+    @Override
     public byte[] getOrderData() {
         return getBody().getDataTransfer().getOrderData().getValue();
     }
 
+    @Override
     public byte[] getTransactionKey() {
         return getBody().getDataTransfer().getDataEncryptionInfo().getTransactionKey();
     }
 
+    @Override
     public ReturnCode getReturnCode() {
         return ReturnCode.toReturnCode(
                 getHeader().getMutable().getReturnCode(),

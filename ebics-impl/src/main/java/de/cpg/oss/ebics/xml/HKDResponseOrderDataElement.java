@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class HKDResponseOrderDataElement {
+public class HKDResponseOrderDataElement implements ResponseOrderDataElement {
 
     private final HKDResponseOrderDataType responseOrderData;
 

@@ -1,6 +1,5 @@
 package de.cpg.oss.ebics.xml;
 
-import de.cpg.oss.ebics.api.MessageProvider;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.exception.ReturnCode;
 import de.cpg.oss.ebics.io.ContentFactory;
@@ -17,7 +16,7 @@ import org.ebics.h004.EbicsKeyManagementResponse;
  * not an EBICS_OK code.
  */
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class KeyManagementResponseElement {
+public class KeyManagementResponseElement implements ResponseElement<EbicsKeyManagementResponse> {
 
     @Getter
     private EbicsKeyManagementResponse response;
@@ -26,30 +25,25 @@ public class KeyManagementResponseElement {
         return new KeyManagementResponseElement(XmlUtil.parse(EbicsKeyManagementResponse.class, contentFactory.getContent()));
     }
 
-    /**
-     * Returns the transaction key of the response.
-     */
+    @Override
     public byte[] getTransactionKey() {
         return response.getBody().getDataTransfer().getDataEncryptionInfo().getTransactionKey();
     }
 
-    /**
-     * Returns the order data of the response.
-     */
+    @Override
     public byte[] getOrderData() {
         return response.getBody().getDataTransfer().getOrderData().getValue();
     }
 
+    @Override
+    public Class<EbicsKeyManagementResponse> getResponseClass() {
+        return EbicsKeyManagementResponse.class;
+    }
+
+    @Override
     public ReturnCode getReturnCode() {
         return ReturnCode.toReturnCode(
                 response.getHeader().getMutable().getReturnCode(),
                 response.getHeader().getMutable().getReportText());
-    }
-
-    public void report(final MessageProvider messageProvider) throws EbicsException {
-        final ReturnCode returnCode = getReturnCode();
-        if (!returnCode.isOk()) {
-            returnCode.throwException(messageProvider);
-        }
     }
 }

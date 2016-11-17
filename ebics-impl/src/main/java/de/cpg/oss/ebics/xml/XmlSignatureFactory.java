@@ -6,7 +6,7 @@ import org.w3.xmldsig.*;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 
-public abstract class XmlSignatureFactory {
+abstract class XmlSignatureFactory {
 
     private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
 

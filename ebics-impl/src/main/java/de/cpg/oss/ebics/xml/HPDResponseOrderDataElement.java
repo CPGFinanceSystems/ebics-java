@@ -1,22 +1,22 @@
 package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.io.ContentFactory;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import org.ebics.h004.HPDProtocolParamsType;
 import org.ebics.h004.HPDResponseOrderDataType;
 
+import java.io.InputStream;
 import java.util.Optional;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class HPDResponseOrderDataElement {
+public class HPDResponseOrderDataElement implements ResponseOrderDataElement {
 
     private final HPDResponseOrderDataType responseOrderData;
 
-    public static HPDResponseOrderDataElement parse(final ContentFactory contentFactory) throws EbicsException {
-        return new HPDResponseOrderDataElement(XmlUtil.parse(HPDResponseOrderDataType.class, contentFactory.getContent()));
+    public static HPDResponseOrderDataElement parse(final InputStream orderDataXml) throws EbicsException {
+        return new HPDResponseOrderDataElement(XmlUtil.parse(HPDResponseOrderDataType.class, orderDataXml));
     }
 
     public String getBankName() {

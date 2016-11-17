@@ -6,7 +6,7 @@ import lombok.Value;
 
 @Value
 @Builder
-public class KeyInfo {
+public class KeyInfo { // Must be public to be accessible from template engine
     @NonNull
     private final String version;
     private final int exponentBits;

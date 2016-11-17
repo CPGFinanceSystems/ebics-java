@@ -10,6 +10,8 @@ import org.ebics.h004.EbicsRequest;
 import org.ebics.h004.OrderAttributeType;
 import org.ebics.h004.TransactionPhaseType;
 
+import java.util.function.Supplier;
+
 import static de.cpg.oss.ebics.xml.EbicsXmlFactory.*;
 
 public interface EbicsRequestElement {
@@ -18,6 +20,12 @@ public interface EbicsRequestElement {
 
     default EbicsRequest create(final EbicsSession session) throws EbicsException {
         return sign(createForSigning(session), session.getUser());
+    }
+
+    static <R extends EbicsRequestElement> EbicsRequest create(
+            final EbicsSession session,
+            final Supplier<R> ebicsRequestElementSupplier) throws EbicsException {
+        return ebicsRequestElementSupplier.get().create(session);
     }
 
     static EbicsRequest sign(final EbicsRequest requestToSign, final EbicsUser user) throws EbicsException {

@@ -38,7 +38,26 @@ public abstract class TemplateUtil {
         report.convert(ctx, options, pdfOutputStream);
     }
 
-    public static String multiline(final String line, final int maxLineLength) {
+    public static <T extends Enum> KeyInfo keyInfo(final EbicsRsaKey<T> ebicsRsaKey) {
+        return KeyInfo.builder()
+                .digestHex(hexBlock(ebicsRsaKey.getDigest()))
+                .exponentBits(publicKey(ebicsRsaKey).getPublicExponent().bitLength())
+                .exponentHex(encodeHexString(publicKey(ebicsRsaKey).getPublicExponent().toByteArray()))
+                .modulusBits(publicKey(ebicsRsaKey).getModulus().bitLength())
+                .modulusHex(hexBlock(publicKey(ebicsRsaKey).getModulus().toByteArray()))
+                .version(ebicsRsaKey.getVersion().name())
+                .build();
+    }
+
+    private static <T extends Enum> RSAPublicKey publicKey(final EbicsRsaKey<T> ebicsRsaKey) {
+        return (RSAPublicKey) ebicsRsaKey.getPublicKey();
+    }
+
+    private static String hexBlock(final byte[] bytes) {
+        return multiline(encodeHexString(bytes).replaceFirst("^00 ", ""), 16 * 3);
+    }
+
+    private static String multiline(final String line, final int maxLineLength) {
         final StringBuilder builder = new StringBuilder(line.length() + line.length() / maxLineLength);
         int totalLines = line.length() / maxLineLength;
         if (line.length() % maxLineLength != 0) {
@@ -55,22 +74,7 @@ public abstract class TemplateUtil {
         return builder.toString().trim();
     }
 
-    public static <T extends Enum> KeyInfo keyInfo(final EbicsRsaKey<T> ebicsRsaKey) {
-        return KeyInfo.builder()
-                .digestHex(hexBlock(ebicsRsaKey.getDigest()))
-                .exponentBits(publicKey(ebicsRsaKey).getPublicExponent().bitLength())
-                .exponentHex(encodeHexString(publicKey(ebicsRsaKey).getPublicExponent().toByteArray()))
-                .modulusBits(publicKey(ebicsRsaKey).getModulus().bitLength())
-                .modulusHex(hexBlock(publicKey(ebicsRsaKey).getModulus().toByteArray()))
-                .version(ebicsRsaKey.getVersion().name())
-                .build();
-    }
-
-    static <T extends Enum> RSAPublicKey publicKey(final EbicsRsaKey<T> ebicsRsaKey) {
-        return (RSAPublicKey) ebicsRsaKey.getPublicKey();
-    }
-
-    static String encodeHexString(final byte[] bytes) {
+    private static String encodeHexString(final byte[] bytes) {
         final String hex = Hex.encodeHexString(bytes).toUpperCase();
         final StringBuilder builder = new StringBuilder(hex.length() * 3);
         for (int i = 0; i < bytes.length; i++) {
@@ -78,9 +82,5 @@ public abstract class TemplateUtil {
             builder.append(' ');
         }
         return builder.toString().trim();
-    }
-
-    static String hexBlock(final byte[] bytes) {
-        return multiline(encodeHexString(bytes).replaceFirst("^00 ", ""), 16 * 3);
     }
 }

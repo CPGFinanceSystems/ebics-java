@@ -1,22 +1,3 @@
-/*
- * Copyright (c) 1990-2012 kopiLeft Development SARL, Bizerte, Tunisia
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License version 2.1 as published by the Free Software Foundation.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- *
- * $Id$
- */
-
 package de.cpg.oss.ebics.client;
 
 import de.cpg.oss.ebics.api.EbicsBank;
@@ -24,27 +5,27 @@ import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.EbicsUser;
 import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.io.ByteArrayContentFactory;
-import de.cpg.oss.ebics.io.ContentFactory;
-import de.cpg.oss.ebics.io.InputStreamContentFactory;
-import de.cpg.oss.ebics.utils.*;
+import de.cpg.oss.ebics.utils.XmlUtil;
+import de.cpg.oss.ebics.utils.ZipUtil;
 import de.cpg.oss.ebics.xml.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpEntity;
-import org.ebics.h004.*;
+import org.ebics.h004.EbicsNoPubKeyDigestsRequest;
+import org.ebics.h004.EbicsRequest;
+import org.ebics.h004.EbicsUnsecuredRequest;
+import org.ebics.h004.HIARequestOrderDataType;
 import org.ebics.s001.SignaturePubKeyOrderData;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
+import static de.cpg.oss.ebics.xml.EbicsXmlFactory.ebicsUnsecuredRequest;
+import static de.cpg.oss.ebics.xml.EbicsXmlFactory.hiaRequestOrderData;
 
 /**
  * Everything that has to do with key handling.
  * If you have a totally new account use <code>sendINI()</code> and <code>sendHIA()</code> to send you newly created keys to the bank.
  * Then wait until the bank activated your keys.
  * If you are migrating from FTAM. Just send HPB, your EBICS account should be usable without delay.
- *
- * @author Hachani
  */
 @Slf4j
 abstract class KeyManagement {
@@ -57,18 +38,16 @@ abstract class KeyManagement {
      * @throws IOException    communication error
      */
     static EbicsUser sendINI(final EbicsSession session) throws EbicsException, IOException {
+        final OrderType orderType = OrderType.INI;
+        final EbicsUnsecuredRequest unsecuredRequest = ebicsUnsecuredRequest(
+                session,
+                orderType,
+                ZipUtil.compress(XmlUtil.prettyPrint(
+                        SignaturePubKeyOrderData.class,
+                        EbicsSignatureXmlFactory.signaturePubKeyOrderData(session))));
 
-        final EbicsUnsecuredRequest unsecuredRequest = iniRequest(session);
-        final byte[] xml = XmlUtil.prettyPrint(EbicsUnsecuredRequest.class, unsecuredRequest);
-        session.getTraceManager().trace(EbicsUnsecuredRequest.class, unsecuredRequest, session.getUser());
-        XmlUtil.validate(xml);
-        final HttpEntity httpEntity = HttpUtil.sendAndReceive(
-                session.getBank(),
-                new ByteArrayContentFactory(xml),
-                session.getMessageProvider());
-        final KeyManagementResponseElement response = KeyManagementResponseElement.parse(InputStreamContentFactory.of(httpEntity));
-        session.getTraceManager().trace(XmlUtil.prettyPrint(EbicsKeyManagementResponse.class, response.getResponse()), "INIResponse", session.getUser());
-        response.report(session.getMessageProvider());
+        ClientUtil.requestExchange(session, EbicsUnsecuredRequest.class, unsecuredRequest,
+                KeyManagementResponseElement::parse, orderType.name());
 
         return session.getUser().withInitializedINI(true);
     }
@@ -80,17 +59,16 @@ abstract class KeyManagement {
      * @throws EbicsException server generated error message
      */
     static EbicsUser sendHIA(final EbicsSession session) throws IOException, EbicsException {
-        final EbicsUnsecuredRequest unsecuredRequest = hiaRequest(session);
-        final byte[] xml = XmlUtil.prettyPrint(EbicsUnsecuredRequest.class, unsecuredRequest);
-        session.getTraceManager().trace(EbicsUnsecuredRequest.class, unsecuredRequest, session.getUser());
-        XmlUtil.validate(xml);
-        final HttpEntity httpEntity = HttpUtil.sendAndReceive(
-                session.getBank(),
-                new ByteArrayContentFactory(xml),
-                session.getMessageProvider());
-        final KeyManagementResponseElement response = KeyManagementResponseElement.parse(InputStreamContentFactory.of(httpEntity));
-        session.getTraceManager().trace(XmlUtil.prettyPrint(EbicsKeyManagementResponse.class, response.getResponse()), "HIAResponse", session.getUser());
-        response.report(session.getMessageProvider());
+        final OrderType orderType = OrderType.HIA;
+        final EbicsUnsecuredRequest unsecuredRequest = ebicsUnsecuredRequest(
+                session,
+                orderType,
+                ZipUtil.compress(XmlUtil.prettyPrint(
+                        HIARequestOrderDataType.class,
+                        hiaRequestOrderData(session))));
+
+        ClientUtil.requestExchange(session, EbicsUnsecuredRequest.class, unsecuredRequest,
+                KeyManagementResponseElement::parse, orderType.name());
 
         return session.getUser().withInitializedHIA(true);
     }
@@ -106,45 +84,24 @@ abstract class KeyManagement {
      */
     static EbicsBank sendHPB(final EbicsSession session) throws IOException, GeneralSecurityException, EbicsException {
         final EbicsNoPubKeyDigestsRequest ebicsNoPubKeyDigestsRequest = HPBRequestElement.create(session);
-        final byte[] xml = XmlUtil.prettyPrint(EbicsNoPubKeyDigestsRequest.class, ebicsNoPubKeyDigestsRequest);
-        session.getTraceManager().trace(EbicsNoPubKeyDigestsRequest.class, ebicsNoPubKeyDigestsRequest, session.getUser());
-        XmlUtil.validate(xml);
-        final HttpEntity httpEntity = HttpUtil.sendAndReceive(
-                session.getBank(),
-                new ByteArrayContentFactory(xml),
-                session.getMessageProvider());
-        final KeyManagementResponseElement response = KeyManagementResponseElement.parse(InputStreamContentFactory.of(httpEntity));
-        session.getTraceManager().trace(XmlUtil.prettyPrint(EbicsKeyManagementResponse.class, response.getResponse()), "HBPResponse", session.getUser());
-        response.report(session.getMessageProvider());
-        final ContentFactory factory = new ByteArrayContentFactory(ZipUtil.uncompress(CryptoUtil.decrypt(
-                response.getOrderData(),
-                response.getTransactionKey(),
-                session.getUser().getEncryptionKey().getPrivateKey())));
-        final HPBResponseOrderDataElement orderData = HPBResponseOrderDataElement.parse(factory);
-        session.getTraceManager().trace(IOUtil.read(factory.getContent()), "HPBResponseOrderData", session.getUser());
+        final String baseElementName = ebicsNoPubKeyDigestsRequest.getHeader().getStatic().getOrderDetails().getOrderType();
+        final KeyManagementResponseElement response = ClientUtil.requestExchange(session,
+                EbicsNoPubKeyDigestsRequest.class, ebicsNoPubKeyDigestsRequest, KeyManagementResponseElement::parse,
+                baseElementName);
+        final HPBResponseOrderDataElement orderData = ClientUtil.orderDataElement(session,
+                response, HPBResponseOrderDataElement::parse, baseElementName);
+
         return session.getBank()
                 .withAuthenticationKey(orderData.getBankAuthenticationKey())
                 .withEncryptionKey(orderData.getBankEncryptionKey());
     }
 
     static EbicsBank sendHPD(final EbicsSession session) throws EbicsException, IOException {
-        final EbicsRequest ebicsRequest = EbicsRequestElement.createSigned(session, OrderType.HPD);
-        final byte[] xml = XmlUtil.prettyPrint(EbicsRequest.class, ebicsRequest);
-        session.getTraceManager().trace(EbicsRequest.class, ebicsRequest, session.getUser());
-        XmlUtil.validate(xml);
-        final HttpEntity httpEntity = HttpUtil.sendAndReceive(
-                session.getBank(),
-                new ByteArrayContentFactory(xml),
-                session.getMessageProvider());
-        final EbicsResponseElement responseElement = EbicsResponseElement.parse(InputStreamContentFactory.of(httpEntity));
-        session.getTraceManager().trace(XmlUtil.prettyPrint(EbicsResponse.class, responseElement.getResponse()), "HBDResponse", session.getUser());
-        responseElement.report(session.getMessageProvider());
-        final ContentFactory factory = new ByteArrayContentFactory(ZipUtil.uncompress(CryptoUtil.decrypt(
-                responseElement.getOrderData(),
-                responseElement.getTransactionKey(),
-                session.getUser().getEncryptionKey().getPrivateKey())));
-        final HPDResponseOrderDataElement orderData = HPDResponseOrderDataElement.parse(factory);
-        session.getTraceManager().trace(IOUtil.read(factory.getContent()), "HPDResponseOrderData", session.getUser());
+        final OrderType orderType = OrderType.HPD;
+        final EbicsRequest ebicsRequest = EbicsRequestElement.createSigned(session, orderType);
+        final EbicsResponseElement responseElement = ClientUtil.requestExchange(session, ebicsRequest);
+        final HPDResponseOrderDataElement orderData = ClientUtil.orderDataElement(session, responseElement,
+                HPDResponseOrderDataElement::parse, orderType.name());
 
         if (orderData.isDownloadableOrderDataSupported()) {
             return sendHAA(session.withBank(session.getBank().withName(orderData.getBankName())));
@@ -154,23 +111,11 @@ abstract class KeyManagement {
     }
 
     private static EbicsBank sendHAA(final EbicsSession session) throws EbicsException, IOException {
-        final EbicsRequest ebicsRequest = EbicsRequestElement.createSigned(session, OrderType.HAA);
-        final byte[] xml = XmlUtil.prettyPrint(EbicsRequest.class, ebicsRequest);
-        session.getTraceManager().trace(EbicsRequest.class, ebicsRequest, session.getUser());
-        XmlUtil.validate(xml);
-        final HttpEntity httpEntity = HttpUtil.sendAndReceive(
-                session.getBank(),
-                new ByteArrayContentFactory(xml),
-                session.getMessageProvider());
-        final EbicsResponseElement responseElement = EbicsResponseElement.parse(InputStreamContentFactory.of(httpEntity));
-        session.getTraceManager().trace(XmlUtil.prettyPrint(EbicsResponse.class, responseElement.getResponse()), "HAAResponse", session.getUser());
-        responseElement.report(session.getMessageProvider());
-        final ContentFactory factory = new ByteArrayContentFactory(ZipUtil.uncompress(CryptoUtil.decrypt(
-                responseElement.getOrderData(),
-                responseElement.getTransactionKey(),
-                session.getUser().getEncryptionKey().getPrivateKey())));
-        final HAAResponseOrderDataElement orderData = HAAResponseOrderDataElement.parse(factory);
-        session.getTraceManager().trace(IOUtil.read(factory.getContent()), "HAAResponseOrderData", session.getUser());
+        final OrderType orderType = OrderType.HAA;
+        final EbicsRequest ebicsRequest = EbicsRequestElement.createSigned(session, orderType);
+        final EbicsResponseElement responseElement = ClientUtil.requestExchange(session, ebicsRequest);
+        final HAAResponseOrderDataElement orderData = ClientUtil.orderDataElement(session, responseElement,
+                HAAResponseOrderDataElement::parse, orderType.name());
 
         return session.getBank().withSupportedOrderTypes(orderData.getSupportedOrderTypes());
     }
@@ -183,36 +128,10 @@ abstract class KeyManagement {
      * @throws EbicsException Error message generated by the bank.
      */
     static EbicsUser lockAccess(final EbicsSession session) throws IOException, EbicsException {
-        final EbicsRequest ebicsRequest = new SPRRequestElement().create(session);
-        final byte[] requestXml = XmlUtil.prettyPrint(EbicsRequest.class, ebicsRequest);
-        session.getTraceManager().trace(EbicsRequest.class, ebicsRequest, session.getUser());
-        XmlUtil.validate(requestXml);
-        final HttpEntity httpEntity = HttpUtil.sendAndReceive(
-                session.getBank(),
-                new ByteArrayContentFactory(requestXml),
-                session.getMessageProvider());
-        final EbicsResponseElement responseElement = EbicsResponseElement.parse(new InputStreamContentFactory(httpEntity.getContent()));
-        final EbicsResponse ebicsResponse = responseElement.getResponse();
-        session.getTraceManager().trace(EbicsResponse.class, ebicsResponse, session.getUser());
-        responseElement.report(session.getMessageProvider());
+        final EbicsRequest ebicsRequest = EbicsRequestElement.create(session, SPRRequestElement::new);
+
+        ClientUtil.requestExchange(session, ebicsRequest);
+
         return session.getUser();
-    }
-
-    private static EbicsUnsecuredRequest iniRequest(final EbicsSession session) throws EbicsException {
-        return EbicsXmlFactory.ebicsUnsecuredRequest(
-                session,
-                OrderType.INI,
-                ZipUtil.compress(XmlUtil.prettyPrint(
-                        SignaturePubKeyOrderData.class,
-                        EbicsSignatureXmlFactory.signaturePubKeyOrderData(session))));
-    }
-
-    private static EbicsUnsecuredRequest hiaRequest(final EbicsSession session) throws EbicsException {
-        return EbicsXmlFactory.ebicsUnsecuredRequest(
-                session,
-                OrderType.HIA,
-                ZipUtil.compress(XmlUtil.prettyPrint(
-                        HIARequestOrderDataType.class,
-                        EbicsXmlFactory.hiaRequestOrderData(session))));
     }
 }
