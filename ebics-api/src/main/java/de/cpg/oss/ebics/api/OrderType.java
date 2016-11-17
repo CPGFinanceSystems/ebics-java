@@ -31,7 +31,9 @@ public enum OrderType {
     HIA(Transmission.UPLOAD, "Transmission of the subscriber key for identification and authentication and encryption within the framework of subscriber initialisation", Presence.MANDATORY),
     HPB(Transmission.DOWNLOAD, "Transfer the public bank key", Presence.MANDATORY),
     HPD(Transmission.DOWNLOAD, "Return bank parameters", Presence.MANDATORY),
-    // HTD, // Fetch user information
+    HAA(Transmission.DOWNLOAD, "Download retrievable order types", Presence.OPTIONAL),
+    HKD(Transmission.DOWNLOAD, "Download customer’s customer and subscriber data", Presence.OPTIONAL),
+    HTD(Transmission.DOWNLOAD, "Download subscriber’s customer and subscriber data", Presence.OPTIONAL),
     FUL(Transmission.UPLOAD, "Upload file with any format"),
     FDL(Transmission.DOWNLOAD, "Download file with any format"),
     SPR(Transmission.UPLOAD, "Suspension of access authorisation", Presence.MANDATORY),

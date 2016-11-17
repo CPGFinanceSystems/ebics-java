@@ -5,9 +5,10 @@ import de.cpg.oss.ebics.io.ContentFactory;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import org.ebics.h004.HPDProtocolParamsType;
 import org.ebics.h004.HPDResponseOrderDataType;
 
-import java.util.List;
+import java.util.Optional;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class HPDResponseOrderDataElement {
@@ -18,12 +19,27 @@ public class HPDResponseOrderDataElement {
         return new HPDResponseOrderDataElement(XmlUtil.parse(HPDResponseOrderDataType.class, contentFactory.getContent()));
     }
 
-    public String getBankName() throws EbicsException {
+    public String getBankName() {
         return responseOrderData.getAccessParams().getInstitute();
     }
 
-    public String[] getSupportedSignatureVersions() throws EbicsException {
-        final List<String> versions = responseOrderData.getProtocolParams().getVersion().getSignature();
-        return versions.toArray(new String[versions.size()]);
+    /**
+     * @return <code>true</code> if HKD and HTD order types are supported
+     * @see de.cpg.oss.ebics.api.OrderType
+     */
+    public boolean isClientDataDownloadSupported() {
+        return Optional.ofNullable(responseOrderData.getProtocolParams().getClientDataDownload())
+                .map(HPDProtocolParamsType.ClientDataDownload::isSupported)
+                .orElse(false);
+    }
+
+    /**
+     * @return <code>true</code> if HAA order type is supported
+     * @see de.cpg.oss.ebics.api.OrderType
+     */
+    public boolean isDownloadableOrderDataSupported() {
+        return Optional.ofNullable(responseOrderData.getProtocolParams().getDownloadableOrderData())
+                .map(HPDProtocolParamsType.DownloadableOrderData::isSupported)
+                .orElse(false);
     }
 }
