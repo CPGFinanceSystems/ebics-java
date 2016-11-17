@@ -11,7 +11,7 @@ import org.ebics.h004.NoPubKeyDigestsRequestStaticHeaderType;
 import org.ebics.h004.OrderAttributeType;
 import org.ebics.h004.OrderDetailsType;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 import static de.cpg.oss.ebics.xml.EbicsXmlFactory.OBJECT_FACTORY;
 
@@ -57,7 +57,7 @@ public abstract class HPBRequestElement {
         final NoPubKeyDigestsRequestStaticHeaderType staticHeader = OBJECT_FACTORY.createNoPubKeyDigestsRequestStaticHeaderType();
         staticHeader.setHostID(session.getHostId());
         staticHeader.setNonce(CryptoUtil.generateNonce());
-        staticHeader.setTimestamp(LocalDateTime.now());
+        staticHeader.setTimestamp(OffsetDateTime.now());
         staticHeader.setPartnerID(session.getPartner().getPartnerId());
         staticHeader.setUserID(session.getUser().getUserId());
         staticHeader.setProduct(EbicsXmlFactory.unsecuredProduct(session.getProduct()));

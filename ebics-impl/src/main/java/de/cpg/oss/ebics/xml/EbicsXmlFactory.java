@@ -10,7 +10,7 @@ import org.ebics.h004.*;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.JAXBElement;
 import java.math.BigInteger;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 
 public abstract class EbicsXmlFactory {
@@ -52,7 +52,7 @@ public abstract class EbicsXmlFactory {
         staticHeader.setProduct(product(session.getProduct()));
         staticHeader.setSecurityMedium(session.getUser().getSecurityMedium());
         staticHeader.setUserID(session.getUser().getUserId());
-        staticHeader.setTimestamp(LocalDateTime.now());
+        staticHeader.setTimestamp(OffsetDateTime.now());
         staticHeader.setOrderDetails(orderDetails);
         staticHeader.setBankPubKeyDigests(bankPubKeyDigests(session.getBank()));
         return staticHeader;

@@ -4,13 +4,13 @@ import lombok.Builder;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 public final class EbicsSignatureKey extends EbicsRsaKey<SignatureVersion> {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     @Builder
-    EbicsSignatureKey(final PublicKey publicKey, final SignatureVersion version, final byte[] digest, final LocalDateTime creationTime, final PrivateKey privateKey) {
+    EbicsSignatureKey(final PublicKey publicKey, final SignatureVersion version, final byte[] digest, final OffsetDateTime creationTime, final PrivateKey privateKey) {
         super(publicKey, version, digest, creationTime, privateKey);
     }
 }

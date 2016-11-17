@@ -18,7 +18,8 @@ import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -78,7 +79,7 @@ public class EbicsClientImpl implements EbicsClient {
             createUserDirectories(session.getConfiguration(), session.getUser());
             final EbicsUser userWithKeys = createUserKeys(session);
             InitLetter.createINI(session.withUser(userWithKeys));
-            final EbicsUser userInitSent = sendINIRequest(session.withUser(userWithKeys));
+            final EbicsUser userInitSent = KeyManagement.sendINI(session.withUser(userWithKeys));
             sessionWithUserWithKeys = session.withUser(userInitSent);
         } else {
             sessionWithUserWithKeys = session;
@@ -87,7 +88,7 @@ public class EbicsClientImpl implements EbicsClient {
         final EbicsSession sessionWithUserWithInitialized;
         if (!sessionWithUserWithKeys.getUser().isInitializedHIA()) {
             InitLetter.createHIA(sessionWithUserWithKeys);
-            final EbicsUser initializedUser = sendHIARequest(sessionWithUserWithKeys);
+            final EbicsUser initializedUser = KeyManagement.sendHIA(sessionWithUserWithKeys);
             sessionWithUserWithInitialized = sessionWithUserWithKeys.withUser(initializedUser);
         } else {
             sessionWithUserWithInitialized = sessionWithUserWithKeys;
@@ -107,7 +108,7 @@ public class EbicsClientImpl implements EbicsClient {
     public EbicsSession getBankInformation(final EbicsSession session) throws EbicsException {
         final EbicsBank bankWithKeys;
         if (null == session.getBank().getEncryptionKey() || null == session.getBank().getAuthenticationKey()) {
-            bankWithKeys = sendHPBRequest(session);
+            bankWithKeys = KeyManagement.sendHPB(session);
         } else {
             bankWithKeys = session.getBank();
         }
@@ -120,19 +121,15 @@ public class EbicsClientImpl implements EbicsClient {
             }
         }
 
-        try {
-            final EbicsBank bankWithInfos = KeyManagement.sendHPD(session.withBank(bankWithKeys));
-            if (!bankWithInfos.equals(bankWithKeys)) {
-                try {
-                    session.getSerializationManager().serialize(bankWithInfos);
-                } catch (final IOException e) {
-                    throw new EbicsException(e);
-                }
+        final EbicsBank bankWithInfos = KeyManagement.sendHPD(session.withBank(bankWithKeys));
+        if (!bankWithInfos.equals(bankWithKeys)) {
+            try {
+                session.getSerializationManager().serialize(bankWithInfos);
+            } catch (final IOException e) {
+                throw new EbicsException(e);
             }
-            return session.withBank(bankWithInfos);
-        } catch (final IOException e) {
-            throw new EbicsException(e);
         }
+        return session.withBank(bankWithInfos);
     }
 
     /**
@@ -160,6 +157,10 @@ public class EbicsClientImpl implements EbicsClient {
                     e);
         }
 
+    }
+
+    public Collection<VEUOrderDetails> getOrdersForVEU(final EbicsSession session) throws EbicsException {
+        return DistributedElectronicSignature.getOrdersForVEU(session);
     }
 
     /**
@@ -224,7 +225,7 @@ public class EbicsClientImpl implements EbicsClient {
         session.getSerializationManager().serialize(session.getBank());
     }
 
-    public static void init(final EbicsConfiguration configuration) {
+    static void init(final EbicsConfiguration configuration) {
         log.info(configuration.getMessageProvider().getString(
                 "init.configuration",
                 Constants.APPLICATION_BUNDLE_NAME));
@@ -305,7 +306,7 @@ public class EbicsClientImpl implements EbicsClient {
         }
     }
 
-    public static void createUserDirectories(final EbicsConfiguration configuration, final EbicsUser user) {
+    static void createUserDirectories(final EbicsConfiguration configuration, final EbicsUser user) {
         log.info(configuration.getMessageProvider().getString(
                 "user.create.directories",
                 Constants.APPLICATION_BUNDLE_NAME,
@@ -313,65 +314,6 @@ public class EbicsClientImpl implements EbicsClient {
         IOUtil.createDirectories(configuration.getUserDirectory(user));
         IOUtil.createDirectories(configuration.getTransferTraceDirectory(user));
         IOUtil.createDirectories(configuration.getLettersDirectory(user));
-    }
-
-    private EbicsUser sendINIRequest(final EbicsSession session) throws EbicsException {
-        log.info(configuration.getMessageProvider().getString(
-                "ini.request.send",
-                Constants.APPLICATION_BUNDLE_NAME,
-                session.getUser().getId()));
-
-        if (session.getUser().isInitializedINI()) {
-            log.info(configuration.getMessageProvider().getString(
-                    "user.already.initialized",
-                    Constants.APPLICATION_BUNDLE_NAME,
-                    session.getUser().getId()));
-            return session.getUser();
-        }
-
-        try {
-            log.info(configuration.getMessageProvider().getString(
-                    "ini.send.success",
-                    Constants.APPLICATION_BUNDLE_NAME,
-                    session.getUser().getId()));
-            return KeyManagement.sendINI(session);
-        } catch (final IOException e) {
-            throw new EbicsException(
-                    configuration.getMessageProvider().getString(
-                            "ini.send.error",
-                            Constants.APPLICATION_BUNDLE_NAME,
-                            session.getUser().getId()),
-                    e);
-        }
-    }
-
-    private EbicsUser sendHIARequest(final EbicsSession session) throws EbicsException {
-        log.info(configuration.getMessageProvider().getString(
-                "hia.request.send",
-                Constants.APPLICATION_BUNDLE_NAME,
-                session.getUser().getId()));
-        if (session.getUser().isInitializedHIA()) {
-            log.info(configuration.getMessageProvider().getString(
-                    "user.already.hia.initialized",
-                    Constants.APPLICATION_BUNDLE_NAME,
-                    session.getUser().getId()));
-            return session.getUser();
-        }
-
-        try {
-            log.info(configuration.getMessageProvider().getString(
-                    "hia.send.success",
-                    Constants.APPLICATION_BUNDLE_NAME,
-                    session.getUser().getId()));
-            return KeyManagement.sendHIA(session);
-        } catch (final IOException e) {
-            throw new EbicsException(
-                    configuration.getMessageProvider().getString(
-                            "hia.send.error",
-                            Constants.APPLICATION_BUNDLE_NAME,
-                            session.getUser().getId()),
-                    e);
-        }
     }
 
     private EbicsUser createUserKeys(final EbicsSession session) throws EbicsException {
@@ -387,7 +329,7 @@ public class EbicsClientImpl implements EbicsClient {
             return EbicsSignatureKey.builder()
                     .privateKey(keyPair.getPrivate())
                     .publicKey(keyPair.getPublic())
-                    .creationTime(LocalDateTime.now())
+                    .creationTime(OffsetDateTime.now())
                     .digest(KeyUtil.getKeyDigest(keyPair.getPublic()))
                     .version(version)
                     .build();
@@ -402,7 +344,7 @@ public class EbicsClientImpl implements EbicsClient {
             return EbicsEncryptionKey.builder()
                     .privateKey(keyPair.getPrivate())
                     .publicKey(keyPair.getPublic())
-                    .creationTime(LocalDateTime.now())
+                    .creationTime(OffsetDateTime.now())
                     .digest(KeyUtil.getKeyDigest(keyPair.getPublic()))
                     .version(version)
                     .build();
@@ -417,34 +359,12 @@ public class EbicsClientImpl implements EbicsClient {
             return EbicsAuthenticationKey.builder()
                     .privateKey(keyPair.getPrivate())
                     .publicKey(keyPair.getPublic())
-                    .creationTime(LocalDateTime.now())
+                    .creationTime(OffsetDateTime.now())
                     .digest(KeyUtil.getKeyDigest(keyPair.getPublic()))
                     .version(version)
                     .build();
         } catch (final NoSuchAlgorithmException e) {
             throw new EbicsException(e);
-        }
-    }
-
-    private EbicsBank sendHPBRequest(final EbicsSession session) throws EbicsException {
-        log.info(configuration.getMessageProvider().getString(
-                "hpb.request.send",
-                Constants.APPLICATION_BUNDLE_NAME,
-                session.getUser().getId()));
-
-        try {
-            log.info(configuration.getMessageProvider().getString(
-                    "hpb.send.success",
-                    Constants.APPLICATION_BUNDLE_NAME,
-                    session.getUser().getId()));
-            return KeyManagement.sendHPB(session);
-        } catch (final Exception e) {
-            throw new EbicsException(
-                    configuration.getMessageProvider().getString(
-                            "hpb.send.error",
-                            Constants.APPLICATION_BUNDLE_NAME,
-                            session.getUser().getId()),
-                    e);
         }
     }
 }

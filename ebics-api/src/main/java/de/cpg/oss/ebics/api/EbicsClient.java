@@ -4,6 +4,7 @@ import de.cpg.oss.ebics.api.exception.EbicsException;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Collection;
 
 public interface EbicsClient {
     EbicsSession loadOrCreateSession(EbicsSessionParameter sessionParameter) throws EbicsException;
@@ -13,6 +14,8 @@ public interface EbicsClient {
     EbicsSession getBankInformation(EbicsSession session) throws EbicsException;
 
     EbicsSession revokeSubscriber(EbicsSession session) throws EbicsException;
+
+    Collection<VEUOrderDetails> getOrdersForVEU(final EbicsSession session) throws EbicsException;
 
     void uploadSepaDirectDebit(String path, EbicsSession session) throws EbicsException;
 

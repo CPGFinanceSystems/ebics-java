@@ -41,7 +41,19 @@ public interface EbicsRequestElement {
                 header(mutableHeader(TransactionPhaseType.INITIALISATION),
                         staticHeader(session,
                                 CryptoUtil.generateNonce(),
-                                orderDetails(OrderAttributeType.DZHNN, orderType)))),
+                                orderDetails(orderAttribute(orderType), orderType)))),
                 session.getUser());
+    }
+
+    static OrderAttributeType orderAttribute(final OrderType orderType) {
+        if (OrderType.Transmission.DOWNLOAD.equals(orderType.getTransmission())) {
+            return OrderAttributeType.DZHNN;
+        } else {
+            return OrderAttributeType.UZHNN;
+        }
+    }
+
+    static OrderType orderType(final EbicsRequest ebicsRequest) {
+        return OrderType.valueOf(ebicsRequest.getHeader().getStatic().getOrderDetails().getOrderType().getValue());
     }
 }

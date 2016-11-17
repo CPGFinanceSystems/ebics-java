@@ -10,8 +10,8 @@
         <xjc:simple/>
         <xjc:javaType adapter="com.migesok.jaxb.adapter.javatime.LocalDateXmlAdapter"
                       name="java.time.LocalDate" xmlType="xs:date"/>
-        <xjc:javaType adapter="com.migesok.jaxb.adapter.javatime.LocalDateTimeXmlAdapter"
-                      name="java.time.LocalDateTime" xmlType="xs:dateTime"/>
+        <xjc:javaType adapter="com.migesok.jaxb.adapter.javatime.OffsetDateTimeXmlAdapter"
+                      name="java.time.OffsetDateTime" xmlType="xs:dateTime"/>
     </jaxb:globalBindings>
 
     <jaxb:bindings schemaLocation="xmldsig-core-schema.xsd" node="/xs:schema">

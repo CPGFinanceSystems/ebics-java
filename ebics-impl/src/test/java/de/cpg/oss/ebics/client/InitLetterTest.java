@@ -9,7 +9,7 @@ import org.junit.Test;
 import java.io.File;
 import java.net.URI;
 import java.security.KeyPair;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 public class InitLetterTest {
 
@@ -49,19 +49,19 @@ public class InitLetterTest {
                         .signatureKey(EbicsSignatureKey.builder()
                                 .digest(KeyUtil.getKeyDigest(signatureKey.getPublic()))
                                 .publicKey(signatureKey.getPublic())
-                                .creationTime(LocalDateTime.now())
+                                .creationTime(OffsetDateTime.now())
                                 .version(configuration.getSignatureVersion())
                                 .build())
                         .authenticationKey(EbicsAuthenticationKey.builder()
                                 .digest(KeyUtil.getKeyDigest(authenticationKey.getPublic()))
                                 .publicKey(authenticationKey.getPublic())
-                                .creationTime(LocalDateTime.now())
+                                .creationTime(OffsetDateTime.now())
                                 .version(configuration.getAuthenticationVersion())
                                 .build())
                         .encryptionKey(EbicsEncryptionKey.builder()
                                 .digest(KeyUtil.getKeyDigest(encryptionKey.getPublic()))
                                 .publicKey(encryptionKey.getPublic())
-                                .creationTime(LocalDateTime.now())
+                                .creationTime(OffsetDateTime.now())
                                 .version(configuration.getEncryptionVersion())
                                 .build())
                         .build())

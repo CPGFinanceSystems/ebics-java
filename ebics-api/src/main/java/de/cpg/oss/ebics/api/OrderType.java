@@ -1,41 +1,28 @@
-/*
- * Copyright (c) 1990-2012 kopiLeft Development SARL, Bizerte, Tunisia
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License version 2.1 as published by the Free Software Foundation.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- *
- * $Id$
- */
-
 package de.cpg.oss.ebics.api;
 
 import lombok.Getter;
 
-/**
- * A BCS order type.
- *
- * @author Hachani
- */
 public enum OrderType {
     INI(Transmission.UPLOAD, "Send password initialisation", Presence.MANDATORY),
     HIA(Transmission.UPLOAD, "Transmission of the subscriber key for identification and authentication and encryption within the framework of subscriber initialisation", Presence.MANDATORY),
     HPB(Transmission.DOWNLOAD, "Transfer the public bank key", Presence.MANDATORY),
     HPD(Transmission.DOWNLOAD, "Return bank parameters", Presence.MANDATORY),
-    HAA(Transmission.DOWNLOAD, "Download retrievable order types", Presence.OPTIONAL),
-    HKD(Transmission.DOWNLOAD, "Download customer’s customer and subscriber data", Presence.OPTIONAL),
-    HTD(Transmission.DOWNLOAD, "Download subscriber’s customer and subscriber data", Presence.OPTIONAL),
+    HSA(Transmission.UPLOAD, "Transmission of the subscriber key for identification and authentication and encryption within the framework of subscriber initialisation for subscribers that have remote access data transmission via FTAM"),
+    HAA(Transmission.DOWNLOAD, "Download retrievable order types"),
+    HKD(Transmission.DOWNLOAD, "Download customer’s customer and subscriber data"),
+    HTD(Transmission.DOWNLOAD, "Download subscriber’s customer and subscriber data"),
+    HAC(Transmission.DOWNLOAD, "Download customer acknowledgement (XML-format)", Presence.MANDATORY),
+    HCA(Transmission.UPLOAD, "Send amendment of the subscriber key for identification and authentication and encryption", Presence.MANDATORY),
+    HCS(Transmission.UPLOAD, "Transmission of the subscriber key for ES, identification and authentication and encryption", Presence.MANDATORY),
+    HEV(Transmission.DOWNLOAD, "Download supported EBICS versions", Presence.MANDATORY),
     FUL(Transmission.UPLOAD, "Upload file with any format"),
     FDL(Transmission.DOWNLOAD, "Download file with any format"),
+    HVU(Transmission.DOWNLOAD, "Download VEU overview", Presence.CONDITIONAL),
+    HVZ(Transmission.DOWNLOAD, "Download VEU overview with additional information", Presence.CONDITIONAL),
+    HVD(Transmission.DOWNLOAD, "Retrieve VEU state", Presence.CONDITIONAL),
+    HVT(Transmission.DOWNLOAD, "Retrieve VEU transaction details", Presence.CONDITIONAL),
+    HVE(Transmission.UPLOAD, "Add VEU signature", Presence.CONDITIONAL),
+    HVS(Transmission.UPLOAD, "VEU cancellation", Presence.CONDITIONAL),
     SPR(Transmission.UPLOAD, "Suspension of access authorisation", Presence.MANDATORY),
 
     CDD(Transmission.UPLOAD, "Upload direct debit initiation (SEPA core direct debit)");
