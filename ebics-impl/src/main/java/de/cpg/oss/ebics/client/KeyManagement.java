@@ -66,11 +66,9 @@ abstract class KeyManagement {
                 session.getBank(),
                 new ByteArrayContentFactory(xml),
                 session.getMessageProvider());
-        final KeyManagementResponseElement response = new KeyManagementResponseElement(
-                httpEntity,
-                session.getMessageProvider());
-        final EbicsKeyManagementResponse keyManagementResponse = response.build();
-        session.getTraceManager().trace(XmlUtil.prettyPrint(EbicsKeyManagementResponse.class, keyManagementResponse), "INIResponse", session.getUser());
+        final KeyManagementResponseElement response = KeyManagementResponseElement.parse(InputStreamContentFactory.of(httpEntity));
+        session.getTraceManager().trace(XmlUtil.prettyPrint(EbicsKeyManagementResponse.class, response.getResponse()), "INIResponse", session.getUser());
+        response.report(session.getMessageProvider());
 
         return session.getUser().withInitializedINI(true);
     }
@@ -90,11 +88,9 @@ abstract class KeyManagement {
                 session.getBank(),
                 new ByteArrayContentFactory(xml),
                 session.getMessageProvider());
-        final KeyManagementResponseElement response = new KeyManagementResponseElement(
-                httpEntity,
-                session.getMessageProvider());
-        final EbicsKeyManagementResponse keyManagementResponse = response.build();
-        session.getTraceManager().trace(XmlUtil.prettyPrint(EbicsKeyManagementResponse.class, keyManagementResponse), "HIAResponse", session.getUser());
+        final KeyManagementResponseElement response = KeyManagementResponseElement.parse(InputStreamContentFactory.of(httpEntity));
+        session.getTraceManager().trace(XmlUtil.prettyPrint(EbicsKeyManagementResponse.class, response.getResponse()), "HIAResponse", session.getUser());
+        response.report(session.getMessageProvider());
 
         return session.getUser().withInitializedHIA(true);
     }
@@ -117,11 +113,9 @@ abstract class KeyManagement {
                 session.getBank(),
                 new ByteArrayContentFactory(xml),
                 session.getMessageProvider());
-        final KeyManagementResponseElement response = new KeyManagementResponseElement(
-                httpEntity,
-                session.getMessageProvider());
-        final EbicsKeyManagementResponse keyManagementResponse = response.build();
-        session.getTraceManager().trace(XmlUtil.prettyPrint(EbicsKeyManagementResponse.class, keyManagementResponse), "HBPResponse", session.getUser());
+        final KeyManagementResponseElement response = KeyManagementResponseElement.parse(InputStreamContentFactory.of(httpEntity));
+        session.getTraceManager().trace(XmlUtil.prettyPrint(EbicsKeyManagementResponse.class, response.getResponse()), "HBPResponse", session.getUser());
+        response.report(session.getMessageProvider());
         final ContentFactory factory = new ByteArrayContentFactory(ZipUtil.uncompress(CryptoUtil.decrypt(
                 response.getOrderData(),
                 response.getTransactionKey(),
@@ -134,7 +128,7 @@ abstract class KeyManagement {
     }
 
     static EbicsBank sendHPD(final EbicsSession session) throws EbicsException, IOException {
-        final EbicsRequest ebicsRequest = new HPDRequestElement().create(session);
+        final EbicsRequest ebicsRequest = EbicsRequestElement.createSigned(session, OrderType.HPD);
         final byte[] xml = XmlUtil.prettyPrint(EbicsRequest.class, ebicsRequest);
         session.getTraceManager().trace(EbicsRequest.class, ebicsRequest, session.getUser());
         XmlUtil.validate(xml);
@@ -160,7 +154,7 @@ abstract class KeyManagement {
     }
 
     private static EbicsBank sendHAA(final EbicsSession session) throws EbicsException, IOException {
-        final EbicsRequest ebicsRequest = new HAARequestElement().create(session);
+        final EbicsRequest ebicsRequest = EbicsRequestElement.createSigned(session, OrderType.HAA);
         final byte[] xml = XmlUtil.prettyPrint(EbicsRequest.class, ebicsRequest);
         session.getTraceManager().trace(EbicsRequest.class, ebicsRequest, session.getUser());
         XmlUtil.validate(xml);
