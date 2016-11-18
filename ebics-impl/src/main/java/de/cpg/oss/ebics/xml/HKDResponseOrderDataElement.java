@@ -2,25 +2,27 @@ package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.UserStatus;
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.io.ContentFactory;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.ebics.h004.HKDResponseOrderDataType;
 import org.ebics.h004.UserInfoType;
 
+import java.io.InputStream;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class HKDResponseOrderDataElement implements ResponseOrderDataElement {
+public class HKDResponseOrderDataElement implements ResponseOrderDataElement<HKDResponseOrderDataType> {
 
+    @Getter
     private final HKDResponseOrderDataType responseOrderData;
 
-    public static HKDResponseOrderDataElement parse(final ContentFactory contentFactory) throws EbicsException {
-        return new HKDResponseOrderDataElement(XmlUtil.parse(HKDResponseOrderDataType.class, contentFactory.getContent()));
+    public static HKDResponseOrderDataElement parse(final InputStream orderDataXml) throws EbicsException {
+        return new HKDResponseOrderDataElement(XmlUtil.parse(HKDResponseOrderDataType.class, orderDataXml));
     }
 
     /**
@@ -43,5 +45,10 @@ public class HKDResponseOrderDataElement implements ResponseOrderDataElement {
                         userInfo.getPermissions().stream().flatMap(permission -> permission.getOrderTypes().stream())
                                 .collect(Collectors.toList())))
                 .collect(Collectors.toMap(SimpleImmutableEntry::getKey, SimpleImmutableEntry::getValue));
+    }
+
+    @Override
+    public Class<HKDResponseOrderDataType> getResponseOrderDataClass() {
+        return HKDResponseOrderDataType.class;
     }
 }

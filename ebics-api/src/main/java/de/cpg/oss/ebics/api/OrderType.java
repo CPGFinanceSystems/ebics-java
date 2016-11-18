@@ -1,5 +1,7 @@
 package de.cpg.oss.ebics.api;
 
+import javaslang.collection.Stream;
+import javaslang.control.Either;
 import lombok.Getter;
 
 public enum OrderType {
@@ -44,6 +46,12 @@ public enum OrderType {
 
     public boolean isMandatory(final boolean germanBank) {
         return Presence.MANDATORY.equals(presence) || (Presence.CONDITIONAL.equals(presence) && germanBank);
+    }
+
+    public static Either<OrderType, String> ofRaw(final String rawValue) {
+        return Stream.of(values()).find(orderType -> orderType.name().equals(rawValue))
+                .map(Either::<OrderType, String>left)
+                .getOrElse(Either.right(rawValue));
     }
 
     @Getter

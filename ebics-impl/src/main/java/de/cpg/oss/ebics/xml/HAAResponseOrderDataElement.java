@@ -4,6 +4,7 @@ import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.ebics.h004.HAAResponseOrderDataType;
 
 import java.io.InputStream;
@@ -11,8 +12,9 @@ import java.util.Collection;
 import java.util.Collections;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class HAAResponseOrderDataElement implements ResponseOrderDataElement {
+public class HAAResponseOrderDataElement implements ResponseOrderDataElement<HAAResponseOrderDataType> {
 
+    @Getter
     private final HAAResponseOrderDataType responseOrderData;
 
     public static HAAResponseOrderDataElement parse(final InputStream orderDataXml) throws EbicsException {
@@ -21,5 +23,10 @@ public class HAAResponseOrderDataElement implements ResponseOrderDataElement {
 
     public Collection<String> getSupportedOrderTypes() {
         return Collections.unmodifiableCollection(responseOrderData.getOrderTypes());
+    }
+
+    @Override
+    public Class<HAAResponseOrderDataType> getResponseOrderDataClass() {
+        return HAAResponseOrderDataType.class;
     }
 }

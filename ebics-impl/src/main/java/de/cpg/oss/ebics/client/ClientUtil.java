@@ -25,7 +25,7 @@ abstract class ClientUtil {
         T parse(ContentFactory contentFactory) throws EbicsException;
     }
 
-    interface ResponseOrderDataElementParser<T extends ResponseOrderDataElement> {
+    interface ResponseOrderDataElementParser<T extends ResponseOrderDataElement<?>> {
         T parse(InputStream orderDataXml) throws EbicsException;
     }
 
@@ -68,7 +68,7 @@ abstract class ClientUtil {
         return response;
     }
 
-    static <O extends ResponseOrderDataElement, I extends ResponseElement> O orderDataElement(
+    static <T, O extends ResponseOrderDataElement<T>, I extends ResponseElement> O orderDataElement(
             final EbicsSession session,
             final I responseElement,
             final ResponseOrderDataElementParser<O> responseOrderDataElementParser,
@@ -77,7 +77,15 @@ abstract class ClientUtil {
                 responseElement.getOrderData(),
                 responseElement.getTransactionKey(),
                 session.getUser().getEncryptionKey().getPrivateKey()));
-        session.getTraceManager().trace(orderDataXml, baseElementName.concat("ResponseOrderData"), session.getUser());
-        return responseOrderDataElementParser.parse(new ByteArrayInputStream(orderDataXml));
+        try {
+            final O responseOrderDataElement = responseOrderDataElementParser.parse(new ByteArrayInputStream(orderDataXml));
+            session.getTraceManager().trace(responseOrderDataElement.getResponseOrderDataClass(),
+                    responseOrderDataElement.getResponseOrderData(), baseElementName.concat("ResponseOrderData"),
+                    session.getUser());
+            return responseOrderDataElement;
+        } catch (final EbicsException e) {
+            session.getTraceManager().trace(orderDataXml, baseElementName.concat("ResponseOrderData"), session.getUser());
+            throw e;
+        }
     }
 }

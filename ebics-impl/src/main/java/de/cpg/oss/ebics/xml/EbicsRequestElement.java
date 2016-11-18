@@ -53,7 +53,7 @@ public interface EbicsRequestElement {
         }
     }
 
-    static OrderType orderType(final EbicsRequest ebicsRequest) {
-        return OrderType.valueOf(ebicsRequest.getHeader().getStatic().getOrderDetails().getOrderType().getValue());
+    static String orderType(final EbicsRequest ebicsRequest) {
+        return ebicsRequest.getHeader().getStatic().getOrderDetails().getOrderType().getValue();
     }
 }

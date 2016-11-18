@@ -1,5 +1,6 @@
 package de.cpg.oss.ebics.api;
 
+import javaslang.control.Either;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
@@ -7,6 +8,7 @@ import lombok.experimental.Wither;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Value
 @Wither
@@ -30,5 +32,11 @@ public class EbicsBank implements Identifiable {
     @Override
     public String getId() {
         return getHostId();
+    }
+
+    public Collection<Either<OrderType, String>> getSupportedOrderTypes() {
+        return supportedOrderTypes.stream()
+                .map(OrderType::ofRaw)
+                .collect(Collectors.toList());
     }
 }

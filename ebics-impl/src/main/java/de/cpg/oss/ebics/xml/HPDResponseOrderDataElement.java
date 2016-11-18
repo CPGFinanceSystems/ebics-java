@@ -4,6 +4,8 @@ import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.ebics.h004.HPBResponseOrderDataType;
 import org.ebics.h004.HPDProtocolParamsType;
 import org.ebics.h004.HPDResponseOrderDataType;
 
@@ -11,8 +13,9 @@ import java.io.InputStream;
 import java.util.Optional;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class HPDResponseOrderDataElement implements ResponseOrderDataElement {
+public class HPDResponseOrderDataElement implements ResponseOrderDataElement<HPDResponseOrderDataType> {
 
+    @Getter
     private final HPDResponseOrderDataType responseOrderData;
 
     public static HPDResponseOrderDataElement parse(final InputStream orderDataXml) throws EbicsException {
@@ -41,5 +44,10 @@ public class HPDResponseOrderDataElement implements ResponseOrderDataElement {
         return Optional.ofNullable(responseOrderData.getProtocolParams().getDownloadableOrderData())
                 .map(HPDProtocolParamsType.DownloadableOrderData::isSupported)
                 .orElse(false);
+    }
+
+    @Override
+    public Class<HPDResponseOrderDataType> getResponseOrderDataClass() {
+        return HPDResponseOrderDataType.class;
     }
 }

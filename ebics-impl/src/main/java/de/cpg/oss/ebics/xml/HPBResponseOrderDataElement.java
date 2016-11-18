@@ -9,6 +9,7 @@ import de.cpg.oss.ebics.utils.KeyUtil;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.ebics.h004.HPBResponseOrderDataType;
 import org.w3.xmldsig.RSAKeyValue;
 
@@ -16,8 +17,9 @@ import java.io.InputStream;
 import java.security.interfaces.RSAPublicKey;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class HPBResponseOrderDataElement implements ResponseOrderDataElement {
+public class HPBResponseOrderDataElement implements ResponseOrderDataElement<HPBResponseOrderDataType> {
 
+    @Getter
     private final HPBResponseOrderDataType responseOrderData;
 
     public static HPBResponseOrderDataElement parse(final InputStream orderData) throws EbicsException {
@@ -44,5 +46,10 @@ public class HPBResponseOrderDataElement implements ResponseOrderDataElement {
                 .creationTime(responseOrderData.getEncryptionPubKeyInfo().getPubKeyValue().getTimeStamp())
                 .version(EncryptionVersion.valueOf(responseOrderData.getEncryptionPubKeyInfo().getEncryptionVersion()))
                 .build();
+    }
+
+    @Override
+    public Class<HPBResponseOrderDataType> getResponseOrderDataClass() {
+        return HPBResponseOrderDataType.class;
     }
 }

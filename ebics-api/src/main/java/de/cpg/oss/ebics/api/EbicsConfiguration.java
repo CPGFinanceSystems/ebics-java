@@ -4,6 +4,7 @@ import lombok.Value;
 import lombok.experimental.Wither;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -22,6 +23,7 @@ public class EbicsConfiguration {
     private final boolean compressionEnabled = true;
     private final int revision = 1;
     private final EbicsVersion version = EbicsVersion.H004;
+    private final Charset veuDisplayFileCharset = Charset.forName("ISO-8859-1");
 
     public EbicsConfiguration(final File rootDirectory) {
         this(rootDirectory, Locale.getDefault());
