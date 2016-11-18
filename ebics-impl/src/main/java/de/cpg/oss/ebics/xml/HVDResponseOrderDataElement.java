@@ -1,8 +1,9 @@
 package de.cpg.oss.ebics.xml;
 
+import de.cpg.oss.ebics.api.DetailedVEUOrder;
 import de.cpg.oss.ebics.api.EbicsConfiguration;
 import de.cpg.oss.ebics.api.SignatureVersion;
-import de.cpg.oss.ebics.api.VEUOrderDetails;
+import de.cpg.oss.ebics.api.VEUOrder;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import lombok.AccessLevel;
@@ -22,11 +23,14 @@ public class HVDResponseOrderDataElement implements ResponseOrderDataElement<HVD
         return new HVDResponseOrderDataElement(XmlUtil.parse(HVDResponseOrderDataType.class, orderDataXml));
     }
 
-    public VEUOrderDetails enrichVEUOrderDetails(final EbicsConfiguration configuration,
-                                                 final VEUOrderDetails orderDetails) {
-        return orderDetails.withDataDigest(responseOrderData.getDataDigest().getValue())
-                .withDataSignatureVersion(SignatureVersion.ofRaw(responseOrderData.getDataDigest().getSignatureVersion()))
-                .withSummary(new String(responseOrderData.getDisplayFile(), configuration.getVeuDisplayFileCharset()));
+    public DetailedVEUOrder detailedVEUOrder(final EbicsConfiguration configuration,
+                                             final VEUOrder veuOrder) {
+        return DetailedVEUOrder.builder()
+                .order(veuOrder)
+                .dataDigest(responseOrderData.getDataDigest().getValue())
+                .dataSignatureVersion(SignatureVersion.ofRaw(responseOrderData.getDataDigest().getSignatureVersion()))
+                .summary(new String(responseOrderData.getDisplayFile(), configuration.getVeuDisplayFileCharset()))
+                .build();
     }
 
     public boolean isOrderDetailsAvailable() {

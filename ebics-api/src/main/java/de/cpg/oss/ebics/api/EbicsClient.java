@@ -15,11 +15,11 @@ public interface EbicsClient {
 
     EbicsSession revokeSubscriber(EbicsSession session) throws EbicsException;
 
-    Collection<VEUOrderDetails> getOrdersForVEU(EbicsSession session) throws EbicsException;
+    Collection<VEUOrder> getOrdersForVEU(EbicsSession session) throws EbicsException;
 
-    Collection<VEUOrderDetails> getDetailedOrdersForVEU(EbicsSession session) throws EbicsException;
+    Collection<DetailedVEUOrder> getDetailedOrdersForVEU(EbicsSession session) throws EbicsException;
 
-    VEUOrderDetails enrichVEUOrderDetails(EbicsSession session, VEUOrderDetails orderDetails) throws Exception;
+    DetailedVEUOrder detailedVEUOrderFor(EbicsSession session, VEUOrder orderDetails) throws Exception;
 
     void uploadSepaDirectDebit(String path, EbicsSession session) throws EbicsException;
 

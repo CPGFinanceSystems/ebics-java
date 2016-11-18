@@ -159,16 +159,16 @@ public class EbicsClientImpl implements EbicsClient {
 
     }
 
-    public Collection<VEUOrderDetails> getOrdersForVEU(final EbicsSession session) throws EbicsException {
+    public Collection<VEUOrder> getOrdersForVEU(final EbicsSession session) throws EbicsException {
         return DistributedElectronicSignature.getOrdersForVEU(session);
     }
 
-    public Collection<VEUOrderDetails> getDetailedOrdersForVEU(final EbicsSession session) throws EbicsException {
+    public Collection<DetailedVEUOrder> getDetailedOrdersForVEU(final EbicsSession session) throws EbicsException {
         return DistributedElectronicSignature.getDetailedOrdersForVEU(session);
     }
 
-    public VEUOrderDetails enrichVEUOrderDetails(final EbicsSession session,
-                                                 final VEUOrderDetails orderDetails) throws Exception {
+    public DetailedVEUOrder detailedVEUOrderFor(final EbicsSession session,
+                                                final VEUOrder orderDetails) throws Exception {
         return DistributedElectronicSignature.getOrderDetails(session, orderDetails);
     }
 

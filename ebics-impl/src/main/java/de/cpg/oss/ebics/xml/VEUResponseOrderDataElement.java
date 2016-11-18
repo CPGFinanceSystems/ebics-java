@@ -1,20 +1,21 @@
 package de.cpg.oss.ebics.xml;
 
+import de.cpg.oss.ebics.api.DetailedVEUOrder;
 import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.SignatureVersion;
-import de.cpg.oss.ebics.api.VEUOrderDetails;
-import de.cpg.oss.ebics.api.VEUOrderDetails.VEUOrderDetailsBuilder;
+import de.cpg.oss.ebics.api.VEUOrder;
+import de.cpg.oss.ebics.api.VEUOrder.VEUOrderBuilder;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.XmlUtil;
+import javaslang.control.Option;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.ebics.h004.HVUOriginatorInfoType;
-import org.ebics.h004.HVUResponseOrderDataType;
-import org.ebics.h004.HVUSigningInfoType;
-import org.ebics.h004.HVZResponseOrderDataType;
+import org.ebics.h004.*;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -35,10 +36,9 @@ public abstract class VEUResponseOrderDataElement<T> implements ResponseOrderDat
             return HVUResponseOrderDataType.class;
         }
 
-        @Override
-        public Collection<VEUOrderDetails> getVEUOrderDetailsList() {
+        public Collection<VEUOrder> getVEUOrders() {
             return responseOrderData.getOrderDetails().stream()
-                    .map(orderDetails -> withSigningInfo(withOriginatorInfo(VEUOrderDetails.builder(),
+                    .map(orderDetails -> withSigningInfo(withOriginatorInfo(VEUOrder.builder(),
                             orderDetails.getOriginatorInfo()),
                             orderDetails.getSigningInfo())
                             .type(OrderType.ofRaw(orderDetails.getOrderType()))
@@ -64,34 +64,41 @@ public abstract class VEUResponseOrderDataElement<T> implements ResponseOrderDat
             return HVZResponseOrderDataType.class;
         }
 
-        @Override
-        public Collection<VEUOrderDetails> getVEUOrderDetailsList() {
+        public Collection<DetailedVEUOrder> getDetailedVEUOrders() {
             return responseOrderData.getOrderDetails().stream()
-                    .map(orderDetails -> withSigningInfo(withOriginatorInfo(VEUOrderDetails.builder(),
-                            orderDetails.getOriginatorInfo()),
-                            orderDetails.getSigningInfo())
-                            .type(OrderType.ofRaw(orderDetails.getOrderType()))
-                            .id(orderDetails.getOrderID())
-                            .dataSize(orderDetails.getOrderDataSize().intValue())
+                    .map(orderDetails -> DetailedVEUOrder.builder()
+                            .order(withSigningInfo(
+                                    withOriginatorInfo(VEUOrder.builder(),
+                                            orderDetails.getOriginatorInfo()),
+                                    orderDetails.getSigningInfo())
+                                    .type(OrderType.ofRaw(orderDetails.getOrderType()))
+                                    .id(orderDetails.getOrderID())
+                                    .dataSize(orderDetails.getOrderDataSize().intValue())
+                                    .build())
                             .dataDigest(orderDetails.getDataDigest().getValue())
                             .dataSignatureVersion(SignatureVersion.ofRaw(orderDetails.getDataDigest().getSignatureVersion()))
+                            .orderCount(Option.of(orderDetails.getTotalOrders())
+                                    .map(BigInteger::intValue).getOrElse(0))
+                            .orderSumAmount(Option.of(orderDetails.getTotalAmount())
+                                    .map(HVZOrderDetailsType.TotalAmount::getValue).getOrElse(BigDecimal.ZERO))
+                            .fileFormat(Option.of(orderDetails.getFileFormat())
+                                    .map(FileFormatType::getValue).getOrElse(""))
+                            .currency(Option.of(orderDetails.getCurrency()).getOrElse(""))
                             .build())
                     .collect(Collectors.toList());
         }
     }
 
-    public abstract Collection<VEUOrderDetails> getVEUOrderDetailsList();
-
-    private static VEUOrderDetailsBuilder withSigningInfo(final VEUOrderDetailsBuilder orderDetailsBuilder,
-                                                          final HVUSigningInfoType signingInfo) {
-        return orderDetailsBuilder.readyToBeSigned(signingInfo.isReadyToBeSigned())
+    private static VEUOrderBuilder withSigningInfo(final VEUOrderBuilder orderBuilder,
+                                                   final HVUSigningInfoType signingInfo) {
+        return orderBuilder.readyToBeSigned(signingInfo.isReadyToBeSigned())
                 .requiredNumberOfSignatures(signingInfo.getNumSigRequired().intValue())
                 .doneNumberOfSignatures(signingInfo.getNumSigDone().intValue());
     }
 
-    private static VEUOrderDetailsBuilder withOriginatorInfo(final VEUOrderDetailsBuilder orderDetailsBuilder,
-                                                             final HVUOriginatorInfoType originatorInfo) {
-        return orderDetailsBuilder.partnerId(originatorInfo.getPartnerID())
+    private static VEUOrderBuilder withOriginatorInfo(final VEUOrderBuilder orderBuilder,
+                                                      final HVUOriginatorInfoType originatorInfo) {
+        return orderBuilder.partnerId(originatorInfo.getPartnerID())
                 .userId(originatorInfo.getUserID())
                 .timestamp(originatorInfo.getTimestamp());
     }

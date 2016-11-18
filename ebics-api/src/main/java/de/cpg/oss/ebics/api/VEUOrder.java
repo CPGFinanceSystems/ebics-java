@@ -4,15 +4,12 @@ import javaslang.control.Either;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
-import lombok.experimental.Wither;
 
-import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 @Value
-@Wither
 @Builder
-public class VEUOrderDetails {
+public class VEUOrder {
 
     @NonNull
     private final Either<OrderType, String> type;
@@ -28,13 +25,4 @@ public class VEUOrderDetails {
     private final String userId;
     @NonNull
     private final OffsetDateTime timestamp;
-
-    // optional information
-    private final byte[] dataDigest;
-    private final Either<SignatureVersion, String> dataSignatureVersion;
-    private final Integer orderCount;
-    private final BigDecimal orderSumAmount;
-    private final String firstOrderAccountNumber;
-    private final String firstOrderCurrency;
-    private final String summary;
 }
