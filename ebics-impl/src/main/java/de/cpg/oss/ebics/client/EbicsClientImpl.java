@@ -163,6 +163,10 @@ public class EbicsClientImpl implements EbicsClient {
         return DistributedElectronicSignature.getOrdersForVEU(session);
     }
 
+    public Collection<VEUOrderDetails> getDetailedOrdersForVEU(final EbicsSession session) throws EbicsException {
+        return DistributedElectronicSignature.getDetailedOrdersForVEU(session);
+    }
+
     /**
      * Sends a file to the ebics bank sever
      *

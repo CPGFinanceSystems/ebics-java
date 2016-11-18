@@ -24,4 +24,8 @@ public class VEUOrderDetails {
     private final String userId;
     @NonNull
     private final OffsetDateTime timestamp;
+
+    // optional information
+    private final byte[] dataDigest;
+    private final SignatureVersion dataSignatureVersion;
 }

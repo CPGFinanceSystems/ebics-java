@@ -15,7 +15,9 @@ public interface EbicsClient {
 
     EbicsSession revokeSubscriber(EbicsSession session) throws EbicsException;
 
-    Collection<VEUOrderDetails> getOrdersForVEU(final EbicsSession session) throws EbicsException;
+    Collection<VEUOrderDetails> getOrdersForVEU(EbicsSession session) throws EbicsException;
+
+    Collection<VEUOrderDetails> getDetailedOrdersForVEU(EbicsSession session) throws EbicsException;
 
     void uploadSepaDirectDebit(String path, EbicsSession session) throws EbicsException;
 
