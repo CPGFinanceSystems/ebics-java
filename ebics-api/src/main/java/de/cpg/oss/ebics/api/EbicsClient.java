@@ -19,7 +19,9 @@ public interface EbicsClient {
 
     Collection<DetailedVEUOrder> getDetailedOrdersForVEU(EbicsSession session) throws EbicsException;
 
-    DetailedVEUOrder detailedVEUOrderFor(EbicsSession session, VEUOrder orderDetails) throws Exception;
+    DetailedVEUOrder detailedVEUOrderFor(EbicsSession session, VEUOrder orderDetails) throws EbicsException;
+
+    void signDetailedOrder(EbicsSession session, DetailedVEUOrder detailedVEUOrder) throws EbicsException;
 
     void uploadSepaDirectDebit(String path, EbicsSession session) throws EbicsException;
 

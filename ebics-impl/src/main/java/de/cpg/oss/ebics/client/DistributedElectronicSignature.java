@@ -49,4 +49,16 @@ abstract class DistributedElectronicSignature {
 
         return hvdResponseOrderData.detailedVEUOrder(session.getConfiguration(), veuOrder);
     }
+
+    static void signDetailedOrder(final EbicsSession session, final DetailedVEUOrder detailedVEUOrder)
+            throws EbicsException {
+        final EbicsRequest ebicsRequest = HVxRequestElement.HVE.builder()
+                .dataDigest(detailedVEUOrder.getDataDigest())
+                .orderId(detailedVEUOrder.getOrder().getId())
+                .orderType(detailedVEUOrder.getOrder().getType().getOrElseGet(OrderType::name))
+                .partner(session.getPartner())
+                .build().create(session);
+
+        ClientUtil.requestExchange(session, ebicsRequest);
+    }
 }

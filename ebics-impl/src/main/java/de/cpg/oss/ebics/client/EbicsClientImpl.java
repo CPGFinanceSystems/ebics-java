@@ -168,8 +168,13 @@ public class EbicsClientImpl implements EbicsClient {
     }
 
     public DetailedVEUOrder detailedVEUOrderFor(final EbicsSession session,
-                                                final VEUOrder orderDetails) throws Exception {
+                                                final VEUOrder orderDetails) throws EbicsException {
         return DistributedElectronicSignature.getOrderDetails(session, orderDetails);
+    }
+
+    public void signDetailedOrder(final EbicsSession session, final DetailedVEUOrder detailedVEUOrder)
+            throws EbicsException {
+        DistributedElectronicSignature.signDetailedOrder(session, detailedVEUOrder);
     }
 
     /**

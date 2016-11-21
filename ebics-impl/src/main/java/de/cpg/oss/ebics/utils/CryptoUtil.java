@@ -10,7 +10,6 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.security.*;
 import java.security.interfaces.RSAPublicKey;
@@ -214,21 +213,23 @@ public abstract class CryptoUtil {
      * {@link Signature} that will be instantiated with the <b>SHA-256</b>
      * algorithm. This signature is then put in a UserSignature XML object that will be sent to the EBICS server.
      */
-    public static byte[] sign(final byte[] digest, final EbicsSignatureKey signatureKey) throws IOException, GeneralSecurityException {
-        final Signature signature;
+    public static byte[] sign(final byte[] message, final EbicsSignatureKey signatureKey) throws GeneralSecurityException {
+        final MessageDigest digester = MessageDigest.getInstance("SHA-256");
+        return signHash(digester.digest(removeOSSpecificChars(message)), signatureKey);
+    }
+
+    public static byte[] signHash(final byte[] hash, final EbicsSignatureKey signatureKey) throws GeneralSecurityException {
         switch (signatureKey.getVersion()) {
             case A005:
-                signature = Signature.getInstance("SHA256withRSA");
-                signature.initSign(signatureKey.getPrivateKey());
-                signature.update(removeOSSpecificChars(digest));
-                return signature.sign();
+                final Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+                cipher.init(Cipher.ENCRYPT_MODE, signatureKey.getPrivateKey());
+                return cipher.doFinal(hash);
 
             default:
             case A006:
-                signature = Signature.getInstance("SHA256withRSAandMGF1", BouncyCastleProvider.PROVIDER_NAME);
+                final Signature signature = Signature.getInstance("SHA256withRSAandMGF1", BouncyCastleProvider.PROVIDER_NAME);
                 signature.initSign(signatureKey.getPrivateKey());
-                final MessageDigest digester = MessageDigest.getInstance("SHA-256");
-                signature.update(digester.digest(removeOSSpecificChars(digest)));
+                signature.update(hash);
                 return signature.sign();
         }
     }
@@ -277,10 +278,10 @@ public abstract class CryptoUtil {
      * key DEK is obtained from the lowest-value 128 bits of PDEK, this is split into the individual
      * keys DEK<SUB>left</SUB> and DEK<SUB>right</SUB>.
      */
-    public static byte[] decrypt(final byte[] encryptedData, final byte[] transactionKey, final PrivateKey e002Key) {
+    public static byte[] decrypt(final byte[] encryptedData, final byte[] transactionKey, final PrivateKey encryptionKey) {
         try {
             final Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-            cipher.init(Cipher.DECRYPT_MODE, e002Key);
+            cipher.init(Cipher.DECRYPT_MODE, encryptionKey);
             return decryptData(encryptedData, cipher.doFinal(transactionKey));
         } catch (final Exception e) {
             throw new RuntimeException(e);

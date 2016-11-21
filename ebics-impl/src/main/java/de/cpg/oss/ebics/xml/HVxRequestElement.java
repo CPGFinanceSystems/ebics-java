@@ -9,13 +9,12 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NonNull;
-import org.ebics.h004.EbicsRequest;
-import org.ebics.h004.HVDOrderParamsType;
-import org.ebics.h004.HVTOrderParamsType;
-import org.ebics.h004.TransactionPhaseType;
+import org.ebics.h004.*;
 
+import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.JAXBElement;
 import java.math.BigInteger;
+import java.security.GeneralSecurityException;
 
 import static de.cpg.oss.ebics.xml.EbicsXmlFactory.*;
 
@@ -76,6 +75,55 @@ public abstract class HVxRequestElement implements EbicsRequestElement {
             orderParams.setOrderFlags(orderFlags);
 
             return OBJECT_FACTORY.createHVTOrderParams(orderParams);
+        }
+    }
+
+    public static class HVE extends HVxRequestElement {
+
+        private final byte[] dataDigest;
+
+        @Builder
+        private HVE(final String orderType, final EbicsPartner partner, final String orderId, final byte[] dataDigest) {
+            super(orderType, partner, orderId);
+            this.dataDigest = dataDigest;
+        }
+
+        @Override
+        protected OrderType requestOrderType() {
+            return OrderType.HVE;
+        }
+
+        @Override
+        protected JAXBElement<?> orderParams() {
+            final HVEOrderParamsType orderParams = OBJECT_FACTORY.createHVEOrderParamsType();
+            orderParams.setOrderType(orderType);
+            orderParams.setPartnerID(partner.getId());
+            orderParams.setOrderID(orderId);
+
+            return OBJECT_FACTORY.createHVEOrderParams(orderParams);
+        }
+
+
+        @Override
+        public EbicsRequest createForSigning(final EbicsSession session) throws EbicsException {
+            final EbicsRequest ebicsRequest = super.createForSigning(session);
+
+            ebicsRequest.getHeader().getStatic().setNumSegments(BigInteger.ZERO);
+
+            final byte[] nonce = ebicsRequest.getHeader().getStatic().getNonce();
+
+            ebicsRequest.setBody(body(dataTransferRequest(
+                    session,
+                    () -> {
+                        try {
+                            return CryptoUtil.signHash(dataDigest, session.getUser().getSignatureKey());
+                        } catch (final GeneralSecurityException e) {
+                            throw new RuntimeException(e);
+                        }
+                    },
+                    new SecretKeySpec(nonce, "AES"),
+                    CryptoUtil.generateTransactionKey(nonce, session.getBankEncryptionKey()))));
+            return ebicsRequest;
         }
     }
 

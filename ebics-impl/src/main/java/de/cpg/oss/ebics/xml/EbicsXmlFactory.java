@@ -10,8 +10,10 @@ import org.ebics.h004.*;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.JAXBElement;
 import java.math.BigInteger;
+import java.security.GeneralSecurityException;
 import java.time.OffsetDateTime;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public abstract class EbicsXmlFactory {
 
@@ -118,14 +120,14 @@ public abstract class EbicsXmlFactory {
     private static DataTransferRequestType.SignatureData signatureData(
             final EbicsUser user,
             final String partnerId,
-            final byte[] toSign,
+            final Supplier<byte[]> signatureSupplier,
             final SecretKeySpec keySpec) {
         final DataTransferRequestType.SignatureData signatureData = OBJECT_FACTORY.createDataTransferRequestTypeSignatureData();
         signatureData.setAuthenticate(true);
         signatureData.setValue(CryptoUtil.encrypt(
                 ZipUtil.compress(
                         XmlUtil.prettyPrint(
-                                EbicsSignatureXmlFactory.userSignature(user, partnerId, toSign))),
+                                EbicsSignatureXmlFactory.userSignature(user, partnerId, signatureSupplier))),
                 keySpec));
         return signatureData;
     }
@@ -150,7 +152,21 @@ public abstract class EbicsXmlFactory {
 
     static DataTransferRequestType dataTransferRequest(
             final EbicsSession session,
-            final byte[] toSign,
+            final byte[] message,
+            final SecretKeySpec keySpec,
+            final byte[] transactionKey) {
+        return dataTransferRequest(session, () -> {
+            try {
+                return CryptoUtil.sign(message, session.getUser().getSignatureKey());
+            } catch (final GeneralSecurityException e) {
+                throw new RuntimeException(e);
+            }
+        }, keySpec, transactionKey);
+    }
+
+    static DataTransferRequestType dataTransferRequest(
+            final EbicsSession session,
+            final Supplier<byte[]> signatureSupplier,
             final SecretKeySpec keySpec,
             final byte[] transactionKey) {
         final DataTransferRequestType dataTransfer = OBJECT_FACTORY.createDataTransferRequestType();
@@ -158,7 +174,7 @@ public abstract class EbicsXmlFactory {
         dataTransfer.setSignatureData(EbicsXmlFactory.signatureData(
                 session.getUser(),
                 session.getPartner().getId(),
-                toSign,
+                signatureSupplier,
                 keySpec));
         return dataTransfer;
     }

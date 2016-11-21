@@ -15,7 +15,9 @@ public class DetailedVEUOrder {
 
     @NonNull
     private final VEUOrder order;
+    @NonNull
     private final byte[] dataDigest;
+    @NonNull
     private final Either<SignatureVersion, String> dataSignatureVersion;
     private final int orderCount;
     private final BigDecimal orderSumAmount;
