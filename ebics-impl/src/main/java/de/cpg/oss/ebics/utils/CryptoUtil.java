@@ -4,12 +4,16 @@ import de.cpg.oss.ebics.api.EbicsSignatureKey;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
+import org.bouncycastle.asn1.nist.NISTObjectIdentifiers;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.asn1.x509.DigestInfo;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.*;
 import java.security.interfaces.RSAPublicKey;
@@ -213,23 +217,35 @@ public abstract class CryptoUtil {
      * {@link Signature} that will be instantiated with the <b>SHA-256</b>
      * algorithm. This signature is then put in a UserSignature XML object that will be sent to the EBICS server.
      */
-    public static byte[] sign(final byte[] message, final EbicsSignatureKey signatureKey) throws GeneralSecurityException {
+    public static byte[] signMessage(final byte[] message, final EbicsSignatureKey signatureKey) throws GeneralSecurityException, IOException {
         final MessageDigest digester = MessageDigest.getInstance("SHA-256");
         return signHash(digester.digest(removeOSSpecificChars(message)), signatureKey);
     }
 
-    public static byte[] signHash(final byte[] hash, final EbicsSignatureKey signatureKey) throws GeneralSecurityException {
+    public static byte[] signHash(final byte[] sha256Hash, final EbicsSignatureKey signatureKey) throws GeneralSecurityException, IOException {
+        final Signature signature;
         switch (signatureKey.getVersion()) {
             case A005:
-                final Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-                cipher.init(Cipher.ENCRYPT_MODE, signatureKey.getPrivateKey());
-                return cipher.doFinal(hash);
+                /* Signature.getInstance("SHA256withRSA") also encapsulates message into an ASN.1 object in advance.
+                 * Signature.getInstance("RSA") does this not, so it has to be done manually here.
+                 * Background: We need to be able to do the SHA-256 calculation and signature creation in two steps
+                 * for VEU
+                 */
+                final AlgorithmIdentifier sha256Aid = new AlgorithmIdentifier(NISTObjectIdentifiers.id_sha256, null);
+                final DigestInfo digestInfo = new DigestInfo(sha256Aid, sha256Hash);
+                signature = Signature.getInstance("RSA");
+                signature.initSign(signatureKey.getPrivateKey());
+                signature.update(digestInfo.toASN1Primitive().getEncoded());
+                return signature.sign();
 
             default:
             case A006:
-                final Signature signature = Signature.getInstance("SHA256withRSAandMGF1", BouncyCastleProvider.PROVIDER_NAME);
+                /* According to EBICS V2.5 spec the SHA-256 hash is hashed via SHA-256 again if signature version A006
+                 * is used
+                 */
+                signature = Signature.getInstance("SHA256withRSAandMGF1", BouncyCastleProvider.PROVIDER_NAME);
                 signature.initSign(signatureKey.getPrivateKey());
-                signature.update(hash);
+                signature.update(sha256Hash);
                 return signature.sign();
         }
     }
@@ -245,7 +261,7 @@ public abstract class CryptoUtil {
      * @param buf the given byte buffer
      * @return The byte buffer portion corresponding to the given length and offset
      */
-    private static byte[] removeOSSpecificChars(final byte[] buf) {
+    static byte[] removeOSSpecificChars(final byte[] buf) {
         final ByteArrayOutputStream output;
 
         output = new ByteArrayOutputStream();

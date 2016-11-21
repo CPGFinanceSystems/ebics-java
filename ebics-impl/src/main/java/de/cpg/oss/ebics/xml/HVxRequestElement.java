@@ -13,6 +13,7 @@ import org.ebics.h004.*;
 
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.JAXBElement;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 
@@ -117,7 +118,7 @@ public abstract class HVxRequestElement implements EbicsRequestElement {
                     () -> {
                         try {
                             return CryptoUtil.signHash(dataDigest, session.getUser().getSignatureKey());
-                        } catch (final GeneralSecurityException e) {
+                        } catch (final IOException | GeneralSecurityException e) {
                             throw new RuntimeException(e);
                         }
                     },

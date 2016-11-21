@@ -9,6 +9,7 @@ import org.ebics.h004.*;
 
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.JAXBElement;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.time.OffsetDateTime;
@@ -157,8 +158,8 @@ public abstract class EbicsXmlFactory {
             final byte[] transactionKey) {
         return dataTransferRequest(session, () -> {
             try {
-                return CryptoUtil.sign(message, session.getUser().getSignatureKey());
-            } catch (final GeneralSecurityException e) {
+                return CryptoUtil.signMessage(message, session.getUser().getSignatureKey());
+            } catch (final IOException | GeneralSecurityException e) {
                 throw new RuntimeException(e);
             }
         }, keySpec, transactionKey);
