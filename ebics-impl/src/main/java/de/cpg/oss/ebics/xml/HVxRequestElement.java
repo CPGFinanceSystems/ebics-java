@@ -79,38 +79,19 @@ public abstract class HVxRequestElement implements EbicsRequestElement {
         }
     }
 
-    public static class HVE extends HVxRequestElement {
-
+    abstract static class SignRequestElement extends HVxRequestElement {
+        @NonNull
         private final byte[] dataDigest;
 
-        @Builder
-        private HVE(final String orderType, final EbicsPartner partner, final String orderId, final byte[] dataDigest) {
+        SignRequestElement(final String orderType, final EbicsPartner partner, final String orderId, final byte[] dataDigest) {
             super(orderType, partner, orderId);
             this.dataDigest = dataDigest;
         }
 
         @Override
-        protected OrderType requestOrderType() {
-            return OrderType.HVE;
-        }
-
-        @Override
-        protected JAXBElement<?> orderParams() {
-            final HVEOrderParamsType orderParams = OBJECT_FACTORY.createHVEOrderParamsType();
-            orderParams.setOrderType(orderType);
-            orderParams.setPartnerID(partner.getId());
-            orderParams.setOrderID(orderId);
-
-            return OBJECT_FACTORY.createHVEOrderParams(orderParams);
-        }
-
-
-        @Override
         public EbicsRequest createForSigning(final EbicsSession session) throws EbicsException {
             final EbicsRequest ebicsRequest = super.createForSigning(session);
-
             ebicsRequest.getHeader().getStatic().setNumSegments(BigInteger.ZERO);
-
             final byte[] nonce = ebicsRequest.getHeader().getStatic().getNonce();
 
             ebicsRequest.setBody(body(dataTransferRequest(
@@ -125,6 +106,51 @@ public abstract class HVxRequestElement implements EbicsRequestElement {
                     new SecretKeySpec(nonce, "AES"),
                     CryptoUtil.generateTransactionKey(nonce, session.getBankEncryptionKey()))));
             return ebicsRequest;
+        }
+    }
+
+    public static class HVE extends SignRequestElement {
+        @Builder
+        private HVE(final String orderType, final EbicsPartner partner, final String orderId, final byte[] dataDigest) {
+            super(orderType, partner, orderId, dataDigest);
+        }
+
+        @Override
+        protected OrderType requestOrderType() {
+            return OrderType.HVE;
+        }
+
+
+        @Override
+        protected JAXBElement<?> orderParams() {
+            final HVEOrderParamsType orderParams = OBJECT_FACTORY.createHVEOrderParamsType();
+            orderParams.setOrderType(orderType);
+            orderParams.setPartnerID(partner.getId());
+            orderParams.setOrderID(orderId);
+
+            return OBJECT_FACTORY.createHVEOrderParams(orderParams);
+        }
+    }
+
+    public static class HVS extends SignRequestElement {
+        @Builder
+        private HVS(final String orderType, final EbicsPartner partner, final String orderId, final byte[] dataDigest) {
+            super(orderType, partner, orderId, dataDigest);
+        }
+
+        @Override
+        protected OrderType requestOrderType() {
+            return OrderType.HVS;
+        }
+
+        @Override
+        protected JAXBElement<?> orderParams() {
+            final HVSOrderParamsType orderParams = OBJECT_FACTORY.createHVSOrderParamsType();
+            orderParams.setOrderType(orderType);
+            orderParams.setPartnerID(partner.getId());
+            orderParams.setOrderID(orderId);
+
+            return OBJECT_FACTORY.createHVSOrderParams(orderParams);
         }
     }
 

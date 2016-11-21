@@ -23,6 +23,8 @@ public interface EbicsClient {
 
     void signDetailedOrder(EbicsSession session, DetailedVEUOrder detailedVEUOrder) throws EbicsException;
 
+    void cancelSignature(final EbicsSession session, final DetailedVEUOrder detailedVEUOrder) throws EbicsException;
+
     void uploadSepaDirectDebit(String path, EbicsSession session) throws EbicsException;
 
     void fetchFile(String path,

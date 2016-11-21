@@ -61,4 +61,15 @@ abstract class DistributedElectronicSignature {
 
         ClientUtil.requestExchange(session, ebicsRequest);
     }
+
+    static void cancelSignature(final EbicsSession session, final DetailedVEUOrder detailedVEUOrder) throws EbicsException {
+        final EbicsRequest ebicsRequest = HVxRequestElement.HVS.builder()
+                .dataDigest(detailedVEUOrder.getDataDigest())
+                .orderId(detailedVEUOrder.getOrder().getId())
+                .orderType(detailedVEUOrder.getOrder().getType().getOrElseGet(OrderType::name))
+                .partner(session.getPartner())
+                .build().create(session);
+
+        ClientUtil.requestExchange(session, ebicsRequest);
+    }
 }

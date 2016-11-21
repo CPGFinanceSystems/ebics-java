@@ -159,22 +159,31 @@ public class EbicsClientImpl implements EbicsClient {
 
     }
 
+    @Override
     public Collection<VEUOrder> getOrdersForVEU(final EbicsSession session) throws EbicsException {
         return DistributedElectronicSignature.getOrdersForVEU(session);
     }
 
+    @Override
     public Collection<DetailedVEUOrder> getDetailedOrdersForVEU(final EbicsSession session) throws EbicsException {
         return DistributedElectronicSignature.getDetailedOrdersForVEU(session);
     }
 
+    @Override
     public DetailedVEUOrder detailedVEUOrderFor(final EbicsSession session,
                                                 final VEUOrder orderDetails) throws EbicsException {
         return DistributedElectronicSignature.getOrderDetails(session, orderDetails);
     }
 
+    @Override
     public void signDetailedOrder(final EbicsSession session, final DetailedVEUOrder detailedVEUOrder)
             throws EbicsException {
         DistributedElectronicSignature.signDetailedOrder(session, detailedVEUOrder);
+    }
+
+    @Override
+    public void cancelSignature(final EbicsSession session, final DetailedVEUOrder detailedVEUOrder) throws EbicsException {
+        DistributedElectronicSignature.cancelSignature(session, detailedVEUOrder);
     }
 
     /**
