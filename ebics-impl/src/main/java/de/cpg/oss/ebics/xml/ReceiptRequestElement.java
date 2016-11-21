@@ -19,19 +19,17 @@ public class ReceiptRequestElement {
     private final byte[] transactionId;
 
     public EbicsRequest create(final EbicsSession session) throws EbicsException {
-        final EbicsRequest.Body.TransferReceipt transferReceipt = OBJECT_FACTORY.createEbicsRequestBodyTransferReceipt();
-        transferReceipt.setAuthenticate(true);
-        transferReceipt.setReceiptCode(0);
-
-        final EbicsRequest.Body body = OBJECT_FACTORY.createEbicsRequestBody();
-        body.setTransferReceipt(transferReceipt);
-
         final EbicsRequest request = request(
                 session.getConfiguration(),
                 header(
                         mutableHeader(TransactionPhaseType.RECEIPT),
                         staticHeader(session.getHostId(), transactionId)),
-                body);
+                EbicsRequest.Body.builder()
+                        .withTransferReceipt(EbicsRequest.Body.TransferReceipt.builder()
+                                .withAuthenticate(true)
+                                .withReceiptCode(0)
+                                .build())
+                        .build());
 
         request.setAuthSignature(XmlSignatureFactory.signatureType(XmlUtil.digest(EbicsRequest.class, request)));
 

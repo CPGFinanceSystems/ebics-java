@@ -27,7 +27,8 @@ public class VEUOrderDetailsRequestElement implements EbicsRequestElement {
     private final boolean details;
 
     public VEUOrderDetailsRequestElement() {
-        this(Collections.emptyList(), false);
+        this.orderTypes = Collections.emptyList();
+        this.details = false;
     }
 
     @Override
@@ -36,14 +37,14 @@ public class VEUOrderDetailsRequestElement implements EbicsRequestElement {
         final JAXBElement<?> orderParams;
         final OrderType orderType;
         if (details) {
-            final HVZOrderParamsType orderParamsType = OBJECT_FACTORY.createHVZOrderParamsType();
-            orderParamsType.getOrderTypes().addAll(orderTypeStrings);
-            orderParams = OBJECT_FACTORY.createHVZOrderParams(orderParamsType);
+            orderParams = OBJECT_FACTORY.createHVZOrderParams(HVZOrderParamsType.builder()
+                    .withOrderTypes(orderTypeStrings)
+                    .build());
             orderType = OrderType.HVZ;
         } else {
-            final HVUOrderParamsType orderParamsType = OBJECT_FACTORY.createHVUOrderParamsType();
-            orderParamsType.getOrderTypes().addAll(orderTypeStrings);
-            orderParams = OBJECT_FACTORY.createHVUOrderParams(orderParamsType);
+            orderParams = OBJECT_FACTORY.createHVUOrderParams(HVUOrderParamsType.builder()
+                    .withOrderTypes(orderTypeStrings)
+                    .build());
             orderType = OrderType.HVU;
         }
 

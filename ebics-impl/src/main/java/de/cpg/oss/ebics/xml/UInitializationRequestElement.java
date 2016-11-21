@@ -11,8 +11,6 @@ import lombok.NonNull;
 import org.ebics.h004.*;
 
 import javax.crypto.spec.SecretKeySpec;
-import java.util.ArrayList;
-import java.util.List;
 
 import static de.cpg.oss.ebics.xml.EbicsXmlFactory.*;
 
@@ -33,46 +31,24 @@ public class UInitializationRequestElement implements EbicsRequestElement {
 
         splitter.readInput(session.getConfiguration().isCompressionEnabled(), keySpec);
 
-        final List<Parameter> parameters = new ArrayList<>();
-        if (Boolean.valueOf(session.getSessionParam("TEST"))) {
-            final Parameter.Value value = OBJECT_FACTORY.createParameterValue();
-            value.setType("String");
-            value.setValue("TRUE");
-
-            final Parameter parameter = OBJECT_FACTORY.createParameter();
-            parameter.setName("TEST");
-            parameter.setValue(value);
-
-            parameters.add(parameter);
-        }
-        if (Boolean.valueOf(session.getSessionParam("EBCDIC"))) {
-            final Parameter.Value value = OBJECT_FACTORY.createParameterValue();
-            value.setType("String");
-            value.setValue("TRUE");
-
-            final Parameter parameter = OBJECT_FACTORY.createParameter();
-            parameter.setName("EBCDIC");
-            parameter.setValue(value);
-
-            parameters.add(parameter);
-        }
-
         final StaticHeaderOrderDetailsType orderDetails;
         if (orderType.equals(OrderType.FUL)) {
-            final FileFormatType fileFormat = OBJECT_FACTORY.createFileFormatType();
-            fileFormat.setCountryCode(session.getConfiguration().getLocale().getCountry().toUpperCase());
-            fileFormat.setValue(session.getSessionParam("FORMAT"));
-
-            final FULOrderParamsType fULOrderParams = OBJECT_FACTORY.createFULOrderParamsType();
-            fULOrderParams.setFileFormat(fileFormat);
-            if (parameters.size() > 0) {
-                fULOrderParams.getParameters().addAll(parameters);
+            FULOrderParamsType.Builder<Void> fULOrderParamsBuilder = FULOrderParamsType.builder()
+                    .withFileFormat(FileFormatType.builder()
+                            .withCountryCode(session.getConfiguration().getLocale().getCountry().toUpperCase())
+                            .withValue(session.getSessionParam("FORMAT"))
+                            .build());
+            if (Boolean.valueOf(session.getSessionParam("TEST"))) {
+                fULOrderParamsBuilder = fULOrderParamsBuilder.addParameters(stringParameter("TEST", "TRUE"));
             }
+            if (Boolean.valueOf(session.getSessionParam("EBCDIC"))) {
+                fULOrderParamsBuilder = fULOrderParamsBuilder.addParameters(stringParameter("EBCDIC", "TRUE"));
 
+            }
             orderDetails = orderDetails(
                     OrderAttributeType.DZHNN,
                     orderType,
-                    OBJECT_FACTORY.createFULOrderParams(fULOrderParams));
+                    OBJECT_FACTORY.createFULOrderParams(fULOrderParamsBuilder.build()));
         } else {
             orderDetails = orderDetails(OrderAttributeType.OZHNN, orderType);
         }

@@ -6,14 +6,9 @@ import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.CryptoUtil;
 import de.cpg.oss.ebics.utils.XmlUtil;
-import org.ebics.h004.EbicsNoPubKeyDigestsRequest;
-import org.ebics.h004.NoPubKeyDigestsRequestStaticHeaderType;
-import org.ebics.h004.OrderAttributeType;
-import org.ebics.h004.OrderDetailsType;
+import org.ebics.h004.*;
 
 import java.time.OffsetDateTime;
-
-import static de.cpg.oss.ebics.xml.EbicsXmlFactory.OBJECT_FACTORY;
 
 public abstract class HPBRequestElement {
 
@@ -36,40 +31,40 @@ public abstract class HPBRequestElement {
 
     private static EbicsNoPubKeyDigestsRequest request(final EbicsConfiguration configuration,
                                                        final EbicsNoPubKeyDigestsRequest.Header header) {
-        final EbicsNoPubKeyDigestsRequest request = OBJECT_FACTORY.createEbicsNoPubKeyDigestsRequest();
-        request.setRevision(configuration.getRevision());
-        request.setVersion(configuration.getVersion().name());
-        request.setHeader(header);
-        request.setBody(OBJECT_FACTORY.createEbicsNoPubKeyDigestsRequestBody());
-        return request;
+        return EbicsNoPubKeyDigestsRequest.builder()
+                .withRevision(configuration.getRevision())
+                .withVersion(configuration.getVersion().name())
+                .withHeader(header)
+                .withBody(EbicsNoPubKeyDigestsRequest.Body.builder().build())
+                .build();
     }
 
     private static EbicsNoPubKeyDigestsRequest.Header header(final NoPubKeyDigestsRequestStaticHeaderType staticHeader) {
-        final EbicsNoPubKeyDigestsRequest.Header header = OBJECT_FACTORY.createEbicsNoPubKeyDigestsRequestHeader();
-        header.setAuthenticate(true);
-        header.setMutable(OBJECT_FACTORY.createEmptyMutableHeaderType());
-        header.setStatic(staticHeader);
-        return header;
+        return EbicsNoPubKeyDigestsRequest.Header.builder()
+                .withAuthenticate(true)
+                .withMutable(EmptyMutableHeaderType.builder().build())
+                .withStatic(staticHeader)
+                .build();
     }
 
     private static NoPubKeyDigestsRequestStaticHeaderType staticHeader(final EbicsSession session,
                                                                        final OrderDetailsType orderDetails) {
-        final NoPubKeyDigestsRequestStaticHeaderType staticHeader = OBJECT_FACTORY.createNoPubKeyDigestsRequestStaticHeaderType();
-        staticHeader.setHostID(session.getHostId());
-        staticHeader.setNonce(CryptoUtil.generateNonce());
-        staticHeader.setTimestamp(OffsetDateTime.now());
-        staticHeader.setPartnerID(session.getPartner().getPartnerId());
-        staticHeader.setUserID(session.getUser().getUserId());
-        staticHeader.setProduct(EbicsXmlFactory.unsecuredProduct(session.getProduct()));
-        staticHeader.setOrderDetails(orderDetails);
-        staticHeader.setSecurityMedium(session.getUser().getSecurityMedium());
-        return staticHeader;
+        return NoPubKeyDigestsRequestStaticHeaderType.builder()
+                .withHostID(session.getHostId())
+                .withNonce(CryptoUtil.generateNonce())
+                .withTimestamp(OffsetDateTime.now())
+                .withPartnerID(session.getPartner().getPartnerId())
+                .withUserID(session.getUser().getUserId())
+                .withProduct(EbicsXmlFactory.unsecuredProduct(session.getProduct()))
+                .withOrderDetails(orderDetails)
+                .withSecurityMedium(session.getUser().getSecurityMedium())
+                .build();
     }
 
     private static OrderDetailsType orderDetails() {
-        final OrderDetailsType orderDetails = OBJECT_FACTORY.createNoPubKeyDigestsReqOrderDetailsType();
-        orderDetails.setOrderAttribute(OrderAttributeType.DZHNN.name());
-        orderDetails.setOrderType(OrderType.HPB.name());
-        return orderDetails;
+        return NoPubKeyDigestsReqOrderDetailsType.builder()
+                .withOrderAttribute(OrderAttributeType.DZHNN.name())
+                .withOrderType(OrderType.HPB.name())
+                .build();
     }
 }

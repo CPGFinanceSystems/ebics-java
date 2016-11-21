@@ -35,11 +35,11 @@ public abstract class HVxRequestElement implements EbicsRequestElement {
 
         @Override
         protected JAXBElement<?> orderParams() {
-            final HVDOrderParamsType orderParams = OBJECT_FACTORY.createHVDOrderParamsType();
-            orderParams.setOrderType(orderType);
-            orderParams.setPartnerID(partner.getId());
-            orderParams.setOrderID(orderId);
-            return OBJECT_FACTORY.createHVDOrderParams(orderParams);
+            return OBJECT_FACTORY.createHVDOrderParams(HVDOrderParamsType.builder()
+                    .withOrderType(orderType)
+                    .withPartnerID(partner.getId())
+                    .withOrderID(orderId)
+                    .build());
         }
     }
 
@@ -64,18 +64,16 @@ public abstract class HVxRequestElement implements EbicsRequestElement {
 
         @Override
         protected JAXBElement<?> orderParams() {
-            final HVTOrderParamsType.OrderFlags orderFlags = OBJECT_FACTORY.createHVTOrderParamsTypeOrderFlags();
-            orderFlags.setCompleteOrderData(completeOrderData);
-            orderFlags.setFetchOffset(BigInteger.valueOf(fetchOffset));
-            orderFlags.setFetchLimit(BigInteger.valueOf(fetchLimit));
-
-            final HVTOrderParamsType orderParams = OBJECT_FACTORY.createHVTOrderParamsType();
-            orderParams.setOrderType(orderType);
-            orderParams.setPartnerID(partner.getId());
-            orderParams.setOrderID(orderId);
-            orderParams.setOrderFlags(orderFlags);
-
-            return OBJECT_FACTORY.createHVTOrderParams(orderParams);
+            return OBJECT_FACTORY.createHVTOrderParams(HVTOrderParamsType.builder()
+                    .withOrderType(orderType)
+                    .withPartnerID(partner.getId())
+                    .withOrderID(orderId)
+                    .withOrderFlags(HVTOrderParamsType.OrderFlags.builder()
+                            .withCompleteOrderData(completeOrderData)
+                            .withFetchOffset(BigInteger.valueOf(fetchOffset))
+                            .withFetchLimit(BigInteger.valueOf(fetchLimit))
+                            .build())
+                    .build());
         }
     }
 
@@ -123,12 +121,11 @@ public abstract class HVxRequestElement implements EbicsRequestElement {
 
         @Override
         protected JAXBElement<?> orderParams() {
-            final HVEOrderParamsType orderParams = OBJECT_FACTORY.createHVEOrderParamsType();
-            orderParams.setOrderType(orderType);
-            orderParams.setPartnerID(partner.getId());
-            orderParams.setOrderID(orderId);
-
-            return OBJECT_FACTORY.createHVEOrderParams(orderParams);
+            return OBJECT_FACTORY.createHVEOrderParams(HVEOrderParamsType.builder()
+                    .withOrderType(orderType)
+                    .withPartnerID(partner.getId())
+                    .withOrderID(orderId)
+                    .build());
         }
     }
 
@@ -145,12 +142,11 @@ public abstract class HVxRequestElement implements EbicsRequestElement {
 
         @Override
         protected JAXBElement<?> orderParams() {
-            final HVSOrderParamsType orderParams = OBJECT_FACTORY.createHVSOrderParamsType();
-            orderParams.setOrderType(orderType);
-            orderParams.setPartnerID(partner.getId());
-            orderParams.setOrderID(orderId);
-
-            return OBJECT_FACTORY.createHVSOrderParams(orderParams);
+            return OBJECT_FACTORY.createHVSOrderParams(HVSOrderParamsType.builder()
+                    .withOrderType(orderType)
+                    .withPartnerID(partner.getId())
+                    .withOrderID(orderId)
+                    .build());
         }
     }
 

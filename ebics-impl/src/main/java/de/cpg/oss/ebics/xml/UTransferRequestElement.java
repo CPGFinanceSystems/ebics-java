@@ -25,21 +25,19 @@ public class UTransferRequestElement implements EbicsRequestElement {
 
     @Override
     public EbicsRequest createForSigning(final EbicsSession session) throws EbicsException {
-        final DataTransferRequestType.OrderData orderData = OBJECT_FACTORY.createDataTransferRequestTypeOrderData();
         try {
-            orderData.setValue(IOUtil.read(contentFactory.getContent()));
+            return request(
+                    session.getConfiguration(),
+                    header(
+                            mutableHeader(TransactionPhaseType.TRANSFER, segmentNumber, lastSegment),
+                            staticHeader(session.getHostId(), transactionId)),
+                    body(DataTransferRequestType.builder()
+                            .withOrderData(DataTransferRequestType.OrderData.builder()
+                                    .withValue(IOUtil.read(contentFactory.getContent()))
+                                    .build())
+                            .build()));
         } catch (final IOException e) {
             throw new EbicsException(e);
         }
-
-        final DataTransferRequestType dataTransfer = OBJECT_FACTORY.createDataTransferRequestType();
-        dataTransfer.setOrderData(orderData);
-
-        return request(
-                session.getConfiguration(),
-                header(
-                        mutableHeader(TransactionPhaseType.TRANSFER, segmentNumber, lastSegment),
-                        staticHeader(session.getHostId(), transactionId)),
-                body(dataTransfer));
     }
 }

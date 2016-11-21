@@ -8,10 +8,9 @@ import lombok.Builder;
 import lombok.NonNull;
 import org.ebics.h004.*;
 
-import javax.xml.bind.JAXBElement;
 import java.time.LocalDate;
 
-import static de.cpg.oss.ebics.xml.EbicsXmlFactory.OBJECT_FACTORY;
+import static de.cpg.oss.ebics.xml.EbicsXmlFactory.*;
 
 @Builder
 public class DInitializationRequestElement implements EbicsRequestElement {
@@ -28,43 +27,28 @@ public class DInitializationRequestElement implements EbicsRequestElement {
         final StaticHeaderOrderDetailsType orderDetails;
 
         if (orderType.equals(OrderType.FDL)) {
-            final FileFormatType fileFormat = OBJECT_FACTORY.createFileFormatType();
-            fileFormat.setCountryCode(session.getConfiguration().getLocale().getCountry().toUpperCase());
-            fileFormat.setValue(session.getSessionParam("FORMAT"));
-
-            final FDLOrderParamsType fDLOrderParamsType = OBJECT_FACTORY.createFDLOrderParamsType();
-            fDLOrderParamsType.setFileFormat(fileFormat);
-
-            if (startRange != null && endRange != null) {
-                final FDLOrderParamsType.DateRange range = OBJECT_FACTORY.createFDLOrderParamsTypeDateRange();
-                range.setStart(startRange);
-                range.setEnd(endRange);
-
-                fDLOrderParamsType.setDateRange(range);
-            }
-
+            FDLOrderParamsType.Builder<Void> fDLOrderParamsBuilder = FDLOrderParamsType.builder()
+                    .withFileFormat(FileFormatType.builder()
+                            .withCountryCode(session.getConfiguration().getLocale().getCountry().toUpperCase())
+                            .withValue(session.getSessionParam("FORMAT"))
+                            .build())
+                    .withDateRange(FDLOrderParamsType.DateRange.builder()
+                            .withStart(startRange)
+                            .withEnd(endRange)
+                            .build());
             if (Boolean.getBoolean(session.getSessionParam("TEST"))) {
-                final Parameter.Value value = OBJECT_FACTORY.createParameterValue();
-                value.setType("String");
-                value.setValue("TRUE");
-
-                final Parameter parameter = OBJECT_FACTORY.createParameter();
-                parameter.setName("TEST");
-                parameter.setValue(value);
-
-                fDLOrderParamsType.getParameters().add(parameter);
+                fDLOrderParamsBuilder = fDLOrderParamsBuilder.addParameters(stringParameter("TEST", "TRUE"));
             }
-
-            final JAXBElement<FDLOrderParamsType> orderParams = OBJECT_FACTORY.createFDLOrderParams(fDLOrderParamsType);
-            orderDetails = EbicsXmlFactory.orderDetails(OrderAttributeType.DZHNN, orderType, orderParams);
+            orderDetails = orderDetails(OrderAttributeType.DZHNN, orderType,
+                    OBJECT_FACTORY.createFDLOrderParams(fDLOrderParamsBuilder.build()));
         } else {
-            orderDetails = EbicsXmlFactory.orderDetails(OrderAttributeType.DZHNN, orderType);
+            orderDetails = orderDetails(OrderAttributeType.DZHNN, orderType);
         }
 
-        return EbicsXmlFactory.request(
+        return request(
                 session.getConfiguration(),
-                EbicsXmlFactory.header(
-                        EbicsXmlFactory.mutableHeader(TransactionPhaseType.INITIALISATION),
-                        EbicsXmlFactory.staticHeader(session, CryptoUtil.generateNonce(), orderDetails)));
+                header(
+                        mutableHeader(TransactionPhaseType.INITIALISATION),
+                        staticHeader(session, CryptoUtil.generateNonce(), orderDetails)));
     }
 }
