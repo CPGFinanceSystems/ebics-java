@@ -38,7 +38,7 @@ public class EbicsConfiguration {
         });
     }
 
-    public EbicsConfiguration(final File rootDirectory, final MessageProvider messageProvider) {
+    private EbicsConfiguration(final File rootDirectory, final MessageProvider messageProvider) {
         this.rootDirectory = rootDirectory;
         this.messageProvider = messageProvider;
     }
@@ -53,6 +53,10 @@ public class EbicsConfiguration {
 
     public File getTransferTraceDirectory(final EbicsUser user) {
         return new File(getUserDirectory(user), getProperty("traces.dir.name", "traces"));
+    }
+
+    public File getTransferFilesDirectory(final EbicsUser user) {
+        return new File(getUserDirectory(user), getProperty("files.dir.name", "files"));
     }
 
     public File getLettersDirectory(final EbicsUser user) {

@@ -7,10 +7,13 @@ import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.io.Joiner;
 import de.cpg.oss.ebics.io.Splitter;
 import de.cpg.oss.ebics.utils.Constants;
+import de.cpg.oss.ebics.utils.IOUtil;
 import de.cpg.oss.ebics.xml.*;
 import lombok.extern.slf4j.Slf4j;
 import org.ebics.h004.EbicsRequest;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.time.LocalDate;
 
@@ -53,13 +56,18 @@ abstract class FileTransfer {
      * @param content   The bytes you want to send.
      * @param orderType As which order type
      */
-    static void sendFile(final EbicsSession session, final byte[] content, final OrderType orderType) throws EbicsException {
+    static void sendFile(final EbicsSession session, final InputStream content, final OrderType orderType) throws EbicsException {
         final Splitter splitter = new Splitter(content);
-        final EbicsRequest request = UInitializationRequestElement.builder()
-                .orderType(orderType)
-                .userData(content)
-                .splitter(splitter)
-                .build().create(session);
+        final EbicsRequest request;
+        try {
+            request = UInitializationRequestElement.builder()
+                    .orderType(orderType)
+                    .userData(IOUtil.read(content))
+                    .splitter(splitter)
+                    .build().create(session);
+        } catch (final IOException e) {
+            throw new EbicsException(e);
+        }
 
         final EbicsResponseElement responseElement = ClientUtil.requestExchange(session, request);
         FileTransferState state = FileTransferState.builder()

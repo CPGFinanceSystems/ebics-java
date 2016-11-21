@@ -2,9 +2,11 @@ package de.cpg.oss.ebics.io;
 
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.CryptoUtil;
+import de.cpg.oss.ebics.utils.IOUtil;
 import de.cpg.oss.ebics.utils.ZipUtil;
 
 import javax.crypto.spec.SecretKeySpec;
+import java.io.InputStream;
 
 /**
  * A mean to split a given input file to
@@ -15,12 +17,17 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class Splitter {
 
+    private final InputStream input;
+    private byte[] content;
+    private int segmentSize;
+    private int numSegments;
+
     /**
      * Constructs a new <code>FileSplitter</code> with a given file.
      *
      * @param input the input byte array
      */
-    public Splitter(final byte[] input) {
+    public Splitter(final InputStream input) {
         this.input = input;
     }
 
@@ -50,9 +57,10 @@ public class Splitter {
             throws EbicsException {
         try {
             if (isCompressionEnabled) {
-                input = ZipUtil.compress(input);
+                content = IOUtil.read(CryptoUtil.encrypt(ZipUtil.compress(input), keySpec));
+            } else {
+                content = IOUtil.read(CryptoUtil.encrypt(input, keySpec));
             }
-            content = CryptoUtil.encrypt(input, keySpec);
             segmentation();
         } catch (final Exception e) {
             throw new EbicsException(e);
@@ -117,13 +125,4 @@ public class Splitter {
     public int getNumSegments() {
         return numSegments;
     }
-
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
-
-    private byte[] input;
-    private byte[] content;
-    private int segmentSize;
-    private int numSegments;
 }

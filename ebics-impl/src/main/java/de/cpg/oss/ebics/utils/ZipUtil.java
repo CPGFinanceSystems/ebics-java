@@ -2,8 +2,10 @@ package de.cpg.oss.ebics.utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
+import java.util.zip.DeflaterInputStream;
 import java.util.zip.Inflater;
 
 public abstract class ZipUtil {
@@ -46,6 +48,10 @@ public abstract class ZipUtil {
         compressor.end();
 
         return output.toByteArray();
+    }
+
+    public static InputStream compress(final InputStream inputStream) {
+        return new DeflaterInputStream(inputStream, new Deflater(Deflater.BEST_COMPRESSION));
     }
 
     /**

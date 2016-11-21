@@ -11,9 +11,7 @@ import de.cpg.oss.ebics.utils.KeyUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
@@ -195,8 +193,7 @@ public class EbicsClientImpl implements EbicsClient {
     public void uploadSepaDirectDebit(final String path, final EbicsSession session) throws EbicsException {
         try {
             session.addSessionParam("FORMAT", "pain.008.001.02");
-            //TODO: send file via streaming
-            FileTransfer.sendFile(session, IOUtil.getFileContent(path), OrderType.CDD);
+            FileTransfer.sendFile(session, new FileInputStream(new File(path)), OrderType.CDD);
         } catch (final IOException e) {
             throw new EbicsException(e);
         }
@@ -337,6 +334,7 @@ public class EbicsClientImpl implements EbicsClient {
         IOUtil.createDirectories(configuration.getUserDirectory(user));
         IOUtil.createDirectories(configuration.getTransferTraceDirectory(user));
         IOUtil.createDirectories(configuration.getLettersDirectory(user));
+        IOUtil.createDirectories(configuration.getTransferFilesDirectory(user));
     }
 
     private EbicsUser createUserKeys(final EbicsSession session) throws EbicsException {

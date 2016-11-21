@@ -10,10 +10,12 @@ import org.bouncycastle.asn1.x509.DigestInfo;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.*;
 import java.security.interfaces.RSAPublicKey;
@@ -80,6 +82,13 @@ public abstract class CryptoUtil {
      */
     public static byte[] encrypt(final byte[] input, final SecretKeySpec keySpec) {
         return encryptOrDecrypt(Cipher.ENCRYPT_MODE, input, keySpec);
+    }
+
+    public static InputStream encrypt(final InputStream inputStream, final SecretKeySpec keySpec) throws GeneralSecurityException {
+        final IvParameterSpec ivParameterSpec = new IvParameterSpec(new byte[16]);
+        final Cipher cipher = Cipher.getInstance("AES/CBC/ISO10126Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivParameterSpec);
+        return new CipherInputStream(inputStream, cipher);
     }
 
     /**
