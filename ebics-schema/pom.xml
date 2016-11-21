@@ -35,10 +35,19 @@
                 </executions>
                 <configuration>
                     <schemaDirectory>src/main/resources/xsd</schemaDirectory>
+                    <extension>true</extension>
                     <args>
                         <arg>-extension</arg>
                         <arg>-Xnamespace-prefix</arg>
+                        <arg>-Xfluent-builder</arg>
                     </args>
+                    <plugins>
+                        <plugin>
+                            <groupId>net.codesup.util</groupId>
+                            <artifactId>jaxb2-rich-contract-plugin</artifactId>
+                            <version>1.17.0</version>
+                        </plugin>
+                    </plugins>
                 </configuration>
                 <dependencies>
                     <dependency>

@@ -8,49 +8,37 @@ import java.security.interfaces.RSAPublicKey;
 
 abstract class XmlSignatureFactory {
 
-    private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
-
     static RSAKeyValue rsaPublicKey(final PublicKey publicKey) {
         final RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
-        final RSAKeyValue rsaKeyValue = OBJECT_FACTORY.createRSAKeyValue();
-
-        rsaKeyValue.setExponent(rsaPublicKey.getPublicExponent().toByteArray());
-        rsaKeyValue.setModulus(rsaPublicKey.getModulus().toByteArray());
-
-        return rsaKeyValue;
+        return RSAKeyValue.builder()
+                .withExponent(rsaPublicKey.getPublicExponent().toByteArray())
+                .withModulus(rsaPublicKey.getModulus().toByteArray())
+                .build();
     }
 
     static SignatureType signatureType(final byte[] digest) {
-        final Transform transform = OBJECT_FACTORY.createTransform();
-        transform.setAlgorithm(XmlUtil.CANONICALIZAION_METHOD);
-
-        final DigestMethod digestMethod = OBJECT_FACTORY.createDigestMethod();
-        digestMethod.setAlgorithm(XmlUtil.DIGEST_METHOD);
-
-        final Transforms transforms = OBJECT_FACTORY.createTransforms();
-        transforms.getTransforms().add(transform);
-
-        final Reference reference = OBJECT_FACTORY.createReference();
-        reference.setURI("#xpointer(" + XmlUtil.XPATH_SELECTOR + ")");
-        reference.setTransforms(transforms);
-        reference.setDigestMethod(digestMethod);
-        reference.setDigestValue(digest);
-
-        final SignatureMethod signatureMethod = OBJECT_FACTORY.createSignatureMethod();
-        signatureMethod.setAlgorithm(XmlUtil.SIGNATURE_METHOD);
-
-        final CanonicalizationMethod canonicalizationMethod = OBJECT_FACTORY.createCanonicalizationMethod();
-        canonicalizationMethod.setAlgorithm(XmlUtil.CANONICALIZAION_METHOD);
-
-        final SignedInfo signedInfo = OBJECT_FACTORY.createSignedInfo();
-        signedInfo.setCanonicalizationMethod(canonicalizationMethod);
-        signedInfo.setSignatureMethod(signatureMethod);
-        signedInfo.getReferences().add(reference);
-
-        final SignatureType signatureType = OBJECT_FACTORY.createSignatureType();
-        signatureType.setSignedInfo(signedInfo);
-        signatureType.setSignatureValue(OBJECT_FACTORY.createSignatureValue());
-
-        return signatureType;
+        return SignatureType.builder()
+                .withSignedInfo(SignedInfo.builder()
+                        .withCanonicalizationMethod(CanonicalizationMethod.builder()
+                                .withAlgorithm(XmlUtil.CANONICALIZAION_METHOD)
+                                .build())
+                        .withSignatureMethod(SignatureMethod.builder()
+                                .withAlgorithm(XmlUtil.SIGNATURE_METHOD)
+                                .build())
+                        .addReferences(Reference.builder()
+                                .withURI("#xpointer(" + XmlUtil.XPATH_SELECTOR + ")")
+                                .withTransforms(Transforms.builder()
+                                        .withTransforms(Transform.builder()
+                                                .withAlgorithm(XmlUtil.CANONICALIZAION_METHOD)
+                                                .build())
+                                        .build())
+                                .withDigestMethod(DigestMethod.builder()
+                                        .withAlgorithm(XmlUtil.DIGEST_METHOD)
+                                        .build())
+                                .withDigestValue(digest)
+                                .build())
+                        .build())
+                .withSignatureValue(SignatureValue.builder().build())
+                .build();
     }
 }
