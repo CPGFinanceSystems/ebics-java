@@ -76,7 +76,7 @@ abstract class ClientUtil {
         final byte[] orderDataXml = ZipUtil.uncompress(CryptoUtil.decrypt(
                 responseElement.getOrderData(),
                 responseElement.getTransactionKey(),
-                session.getUser().getEncryptionKey().getPrivateKey()));
+                session.getUserEncryptionKey()));
         try {
             final O responseOrderDataElement = responseOrderDataElementParser.parse(new ByteArrayInputStream(orderDataXml));
             session.getTraceManager().trace(responseOrderDataElement.getResponseOrderDataClass(),

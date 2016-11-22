@@ -57,7 +57,7 @@ public class CryptoUtilsTest {
             case A006:
                 signer = Signature.getInstance("SHA256withRSAandMGF1", BouncyCastleProvider.PROVIDER_NAME);
                 signer.initVerify(signatureKey.getPublicKey());
-                final MessageDigest digester = MessageDigest.getInstance("SHA-256");
+                final MessageDigest digester = MessageDigest.getInstance(CryptoUtil.DIGEST_ALGORITHM);
                 signer.update(digester.digest(CryptoUtil.removeOSSpecificChars(message)));
                 return signer.verify(signature);
 

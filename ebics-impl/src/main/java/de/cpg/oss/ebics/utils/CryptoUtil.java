@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.*;
+import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
 
@@ -28,6 +29,9 @@ import java.security.interfaces.RSAPublicKey;
  */
 @Slf4j
 public abstract class CryptoUtil {
+
+    private static final String TRANSACTION_KEY_ALGORITHM = "RSA/ECB/PKCS1Padding";
+    public static final String DIGEST_ALGORITHM = "SHA-256";
 
     /**
      * Generates a random nonce.
@@ -101,6 +105,13 @@ public abstract class CryptoUtil {
     public static byte[] decrypt(final byte[] input, final SecretKeySpec keySpec)
             throws EbicsException {
         return encryptOrDecrypt(Cipher.DECRYPT_MODE, input, keySpec);
+    }
+
+    public static InputStream decrypt(final InputStream inputStream, final SecretKeySpec keySpec) throws GeneralSecurityException {
+        final IvParameterSpec ivParameterSpec = new IvParameterSpec(new byte[16]);
+        final Cipher cipher = Cipher.getInstance("AES/CBC/ISO10126Padding");
+        cipher.init(Cipher.DECRYPT_MODE, keySpec, ivParameterSpec);
+        return new CipherInputStream(inputStream, cipher);
     }
 
     /**
@@ -227,7 +238,7 @@ public abstract class CryptoUtil {
      * algorithm. This signature is then put in a UserSignature XML object that will be sent to the EBICS server.
      */
     public static byte[] signMessage(final byte[] message, final EbicsSignatureKey signatureKey) throws GeneralSecurityException, IOException {
-        final MessageDigest digester = MessageDigest.getInstance("SHA-256");
+        final MessageDigest digester = MessageDigest.getInstance(DIGEST_ALGORITHM);
         return signHash(digester.digest(removeOSSpecificChars(message)), signatureKey);
     }
 
@@ -303,11 +314,9 @@ public abstract class CryptoUtil {
      * key DEK is obtained from the lowest-value 128 bits of PDEK, this is split into the individual
      * keys DEK<SUB>left</SUB> and DEK<SUB>right</SUB>.
      */
-    public static byte[] decrypt(final byte[] encryptedData, final byte[] transactionKey, final PrivateKey encryptionKey) {
+    public static byte[] decrypt(final byte[] encryptedData, final byte[] transactionKey, final RSAPrivateKey encryptionKey) {
         try {
-            final Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-            cipher.init(Cipher.DECRYPT_MODE, encryptionKey);
-            return decryptData(encryptedData, cipher.doFinal(transactionKey));
+            return decryptData(encryptedData, recoverNonce(transactionKey, encryptionKey));
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
@@ -339,14 +348,25 @@ public abstract class CryptoUtil {
 
     public static byte[] generateTransactionKey(final byte[] nonce, final RSAPublicKey encryptionKey) throws EbicsException {
         try {
-            final Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            final Cipher cipher = Cipher.getInstance(TRANSACTION_KEY_ALGORITHM);
             cipher.init(Cipher.ENCRYPT_MODE, encryptionKey);
             final BigInteger data = new BigInteger(nonce);
             log.debug("Data bits: {}", data.bitLength());
             log.debug("Modulus bits: {}", encryptionKey.getModulus().bitLength());
             log.debug("Compare: {}", data.compareTo(encryptionKey.getModulus()));
             return cipher.doFinal(nonce);
-        } catch (final Exception e) {
+        } catch (final GeneralSecurityException e) {
+            throw new EbicsException(e);
+        }
+    }
+
+    public static byte[] recoverNonce(final byte[] transactionKey, final RSAPrivateKey privateKey) throws EbicsException {
+        final Cipher cipher;
+        try {
+            cipher = Cipher.getInstance(TRANSACTION_KEY_ALGORITHM);
+            cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            return cipher.doFinal(transactionKey);
+        } catch (final GeneralSecurityException e) {
             throw new EbicsException(e);
         }
     }

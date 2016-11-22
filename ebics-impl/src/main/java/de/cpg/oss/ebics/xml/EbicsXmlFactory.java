@@ -163,6 +163,19 @@ public abstract class EbicsXmlFactory {
         }, keySpec, transactionKey);
     }
 
+    static DataTransferRequestType dataTransferRequestWithDigest(
+            final EbicsSession session,
+            final byte[] digest,
+            final byte[] nonce) throws EbicsException {
+        return dataTransferRequest(session, () -> {
+            try {
+                return CryptoUtil.signHash(digest, session.getUser().getSignatureKey());
+            } catch (GeneralSecurityException | IOException e) {
+                throw new RuntimeException(e);
+            }
+        }, new SecretKeySpec(nonce, "AES"), CryptoUtil.generateTransactionKey(nonce, session.getBankEncryptionKey()));
+    }
+
     static DataTransferRequestType dataTransferRequest(
             final EbicsSession session,
             final Supplier<byte[]> signatureSupplier,

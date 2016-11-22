@@ -2,6 +2,8 @@ package de.cpg.oss.ebics.api;
 
 import de.cpg.oss.ebics.api.exception.EbicsException;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Collection;
@@ -24,6 +26,12 @@ public interface EbicsClient {
     void signDetailedOrder(EbicsSession session, DetailedVEUOrder detailedVEUOrder) throws EbicsException;
 
     void cancelSignature(final EbicsSession session, final DetailedVEUOrder detailedVEUOrder) throws EbicsException;
+
+    FileTransaction createFileUploadTransaction(final EbicsSession session,
+                                                final File fileLocation,
+                                                final OrderType orderType) throws FileNotFoundException, EbicsException;
+
+    FileTransaction uploadFile(final EbicsSession session, final FileTransaction fileTransaction) throws EbicsException;
 
     void uploadSepaDirectDebit(String path, EbicsSession session) throws EbicsException;
 

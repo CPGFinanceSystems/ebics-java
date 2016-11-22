@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.Value;
 import lombok.experimental.Wither;
 
+import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,6 +30,10 @@ public class EbicsSession {
 
     public RSAPublicKey getBankEncryptionKey() {
         return (RSAPublicKey) getBank().getEncryptionKey().getPublicKey();
+    }
+
+    public RSAPrivateKey getUserEncryptionKey() {
+        return (RSAPrivateKey) getUser().getEncryptionKey().getPrivateKey();
     }
 
     public String getHostId() {

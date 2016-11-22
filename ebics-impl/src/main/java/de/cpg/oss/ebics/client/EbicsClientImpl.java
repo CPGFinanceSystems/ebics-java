@@ -11,7 +11,9 @@ import de.cpg.oss.ebics.utils.KeyUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
@@ -184,6 +186,20 @@ public class EbicsClientImpl implements EbicsClient {
         DistributedElectronicSignature.cancelSignature(session, detailedVEUOrder);
     }
 
+    @Override
+    public FileTransaction createFileUploadTransaction(
+            final EbicsSession session,
+            final File inputFile,
+            final OrderType orderType) throws FileNotFoundException, EbicsException {
+        return FileTransfer.createFileUploadTransaction(session, inputFile, orderType);
+    }
+
+    @Override
+    public FileTransaction uploadFile(final EbicsSession session,
+                                      final FileTransaction transaction) throws EbicsException {
+        return FileTransfer.uploadFile(session, transaction);
+    }
+
     /**
      * Sends a file to the ebics bank sever
      *
@@ -193,8 +209,9 @@ public class EbicsClientImpl implements EbicsClient {
     public void uploadSepaDirectDebit(final String path, final EbicsSession session) throws EbicsException {
         try {
             session.addSessionParam("FORMAT", "pain.008.001.02");
-            FileTransfer.sendFile(session, new FileInputStream(new File(path)), OrderType.CDD);
-        } catch (final IOException e) {
+            final FileTransaction fileTransaction = createFileUploadTransaction(session, new File(path), OrderType.CDD);
+            uploadFile(session, fileTransaction);
+        } catch (final FileNotFoundException e) {
             throw new EbicsException(e);
         }
     }
@@ -206,12 +223,12 @@ public class EbicsClientImpl implements EbicsClient {
                           final boolean isTest,
                           final LocalDate start,
                           final LocalDate end) {
-        session.addSessionParam("FORMAT", "pain.xxx.cfonb160.dct");
         if (isTest) {
             session.addSessionParam("TEST", "true");
         }
         try {
-            FileTransfer.fetchFile(session, orderType, start, end, new FileOutputStream(path));
+            final FileTransaction transaction = FileTransfer.createFileDownloadTransaction(session, orderType, start, end);
+            FileTransfer.downloadFile(session, transaction, new File(path));
         } catch (final IOException | EbicsException e) {
             log.error(
                     configuration.getMessageProvider().getString(

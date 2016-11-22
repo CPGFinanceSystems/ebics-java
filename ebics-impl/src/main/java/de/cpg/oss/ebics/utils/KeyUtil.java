@@ -58,7 +58,7 @@ public abstract class KeyUtil {
         final String hash = exponent.concat(" ").concat(modulus).toLowerCase();
 
         try {
-            return MessageDigest.getInstance("SHA-256").digest(hash.getBytes("US-ASCII"));
+            return MessageDigest.getInstance(CryptoUtil.DIGEST_ALGORITHM).digest(hash.getBytes("US-ASCII"));
         } catch (final GeneralSecurityException | UnsupportedEncodingException e) {
             throw new EbicsException(e.getMessage(), e);
         }

@@ -7,27 +7,33 @@ import lombok.experimental.Wither;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.util.UUID;
 
 @Value
 @Wither
 @Builder
-public class FileTransferState implements Serializable {
+public class FileTransaction implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     @NonNull
-    private final byte[] transactionId;
+    private final UUID id;
+    private final byte[] remoteTransactionId;
+    @NonNull
+    private final OrderType orderType;
+    private final byte[] nonce;
+    private final byte[] digest;
     private final int segmentNumber;
     private final int numSegments;
 
     /**
      * Returns the next segment number to be transferred.
      */
-    public FileTransferState next() {
+    public FileTransaction next() {
         if (!hasNext()) {
             throw new IllegalStateException(MessageFormat.format(
                     "All segments ({0} in total) already processed for transaction {1}",
-                    getNumSegments(), getTransactionId()));
+                    getNumSegments(), this.getId()));
         }
         return withSegmentNumber(getSegmentNumber() + 1);
     }

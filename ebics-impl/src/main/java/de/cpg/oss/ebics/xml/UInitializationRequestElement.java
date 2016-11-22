@@ -3,14 +3,9 @@ package de.cpg.oss.ebics.xml;
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.io.Splitter;
-import de.cpg.oss.ebics.utils.CryptoUtil;
 import lombok.Builder;
-import lombok.Getter;
 import lombok.NonNull;
 import org.ebics.h004.*;
-
-import javax.crypto.spec.SecretKeySpec;
 
 import static de.cpg.oss.ebics.xml.EbicsXmlFactory.*;
 
@@ -19,18 +14,15 @@ public class UInitializationRequestElement implements EbicsRequestElement {
 
     @NonNull
     private final OrderType orderType;
-    private final byte[] userData;
-    @Getter
     @NonNull
-    private final Splitter splitter;
+    private final byte[] digest;
+    @NonNull
+    private final byte[] nonce;
+    @NonNull
+    private final int numSegments;
 
     @Override
     public EbicsRequest createForSigning(final EbicsSession session) throws EbicsException {
-        final byte[] nonce = CryptoUtil.generateNonce();
-        final SecretKeySpec keySpec = new SecretKeySpec(nonce, "AES");
-
-        splitter.readInput(session.getConfiguration().isCompressionEnabled(), keySpec);
-
         final StaticHeaderOrderDetailsType orderDetails;
         if (orderType.equals(OrderType.FUL)) {
             FULOrderParamsType.Builder<Void> fULOrderParamsBuilder = FULOrderParamsType.builder()
@@ -57,12 +49,7 @@ public class UInitializationRequestElement implements EbicsRequestElement {
                 session.getConfiguration(),
                 header(
                         mutableHeader(TransactionPhaseType.INITIALISATION),
-                        staticHeader(session, nonce, splitter.getNumSegments(), orderDetails)),
-                body(
-                        dataTransferRequest(
-                                session,
-                                userData,
-                                keySpec,
-                                CryptoUtil.generateTransactionKey(nonce, session.getBankEncryptionKey()))));
+                        staticHeader(session, nonce, numSegments, orderDetails)),
+                body(dataTransferRequestWithDigest(session, digest, nonce)));
     }
 }

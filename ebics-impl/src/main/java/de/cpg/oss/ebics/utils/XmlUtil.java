@@ -132,7 +132,7 @@ public abstract class XmlUtil {
             final XPath xPath = X_PATH_FACTORY.newXPath();
             final NodeList nodes = (NodeList) xPath.evaluate(XPATH_SELECTOR, document.getDocumentElement(), XPathConstants.NODESET);
 
-            final MessageDigest digester = MessageDigest.getInstance("SHA-256");
+            final MessageDigest digester = MessageDigest.getInstance(CryptoUtil.DIGEST_ALGORITHM);
             for (int i = 0; i < nodes.getLength(); ++i) {
                 final Node node = nodes.item(i);
                 final byte[] canonized = canonize(node);
