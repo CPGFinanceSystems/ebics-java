@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Value
 @Wither
-@Builder
+@Builder(builderClassName = "Builder")
 public class FileTransaction implements Serializable {
 
     private static final long serialVersionUID = 2L;

@@ -5,10 +5,10 @@ import de.cpg.oss.ebics.utils.CryptoUtil;
 import de.cpg.oss.ebics.utils.ZipUtil;
 
 import javax.crypto.spec.SecretKeySpec;
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.DigestInputStream;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.UUID;
@@ -18,67 +18,50 @@ public interface FileTransferManager {
     String CRYPTO_ALGORITHM = "AES";
     int BLOCK_SIZE = 1024 * 1024;
 
-    default FileTransaction createUploadTransaction(final InputStream inputStream) throws EbicsException {
+    default FileTransaction.Builder createUploadTransaction(final InputStream inputStream,
+                                                            final UUID transactionId,
+                                                            final byte[] nonce) throws EbicsException {
         try {
             final MessageDigest digester = MessageDigest.getInstance(CryptoUtil.DIGEST_ALGORITHM);
-            final InputStream inputStreamListenerForDigest = new FilterInputStream(inputStream) {
-                @Override
-                public int read() throws IOException {
-                    final int read = inputStream.read();
-                    digester.update((byte) read);
-                    return read;
-                }
-
-                @Override
-                public int read(final byte[] b) throws IOException {
-                    final int count = super.read(b);
-                    digester.update(b);
-                    return count;
-                }
-
-                @Override
-                public int read(final byte[] b, final int off, final int len) throws IOException {
-                    final int count = super.read(b, off, len);
-                    digester.update(b, off, len);
-                    return count;
-                }
-            };
-
-            final byte[] nonce = CryptoUtil.generateNonce();
+            final DigestInputStream digestInputStream = new DigestInputStream(inputStream, digester);
             final InputStream compressedAndEncrypted = CryptoUtil.encrypt(
-                    ZipUtil.compress(inputStreamListenerForDigest),
+                    ZipUtil.compress(digestInputStream),
                     new SecretKeySpec(nonce, CRYPTO_ALGORITHM));
 
             final byte[] block = new byte[BLOCK_SIZE];
-            int segmentIndex = 0;
-            int bytesRead;
+            int segmentNumber = 0;
+            int bytesRead = 0;
+            do {
+                int blockBytesRead = 0;
+                while (blockBytesRead < block.length) {
+                    bytesRead = compressedAndEncrypted.read(block, blockBytesRead, block.length - blockBytesRead);
+                    if (bytesRead == -1) {
+                        break;
+                    }
+                    blockBytesRead += bytesRead;
+                }
+                writeSegment(++segmentNumber, block, blockBytesRead);
+            } while (bytesRead != -1);
 
-            while ((bytesRead = compressedAndEncrypted.read(block, segmentIndex * BLOCK_SIZE, BLOCK_SIZE)) != -1) {
-                writeSegment(segmentIndex + 1, block, bytesRead);
-                segmentIndex++;
-            }
             return FileTransaction.builder()
-                    .segmentNumber(1)
-                    .numSegments(segmentIndex + 1)
+                    .numSegments(segmentNumber)
                     .digest(digester.digest())
                     .nonce(nonce)
-                    .id(UUID.randomUUID())
-                    .build();
+                    .id(transactionId);
         } catch (GeneralSecurityException | IOException e) {
             throw new EbicsException(e);
         }
     }
 
-    default FileTransaction createDownloadTransaction(final int numSegments,
-                                                      final byte[] nonce,
-                                                      final byte[] transactionId) throws EbicsException {
+    default FileTransaction.Builder createDownloadTransaction(final int numSegments,
+                                                              final UUID transactionId,
+                                                              final byte[] nonce,
+                                                              final byte[] remoteTransactionId) throws EbicsException {
         return FileTransaction.builder()
-                .segmentNumber(1)
                 .numSegments(numSegments)
                 .nonce(nonce)
-                .id(UUID.randomUUID())
-                .remoteTransactionId(transactionId)
-                .build();
+                .id(transactionId)
+                .remoteTransactionId(remoteTransactionId);
     }
 
     /**

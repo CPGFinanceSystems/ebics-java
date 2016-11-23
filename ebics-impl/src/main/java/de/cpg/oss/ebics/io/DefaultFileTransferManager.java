@@ -8,12 +8,14 @@ import de.cpg.oss.ebics.utils.CryptoUtil;
 import de.cpg.oss.ebics.utils.IOUtil;
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+@Slf4j
 public final class DefaultFileTransferManager implements FileTransferManager {
 
     @NonNull
@@ -46,22 +48,21 @@ public final class DefaultFileTransferManager implements FileTransferManager {
                 .build();
     }
 
-    @Override
-    public FileTransaction createUploadTransaction(final InputStream inputStream) throws EbicsException {
+    public FileTransaction.Builder createUploadTransaction(final InputStream inputStream) throws EbicsException {
         IOUtil.createDirectories(transactionDir());
-        return FileTransferManager.super.createUploadTransaction(inputStream);
+        return createUploadTransaction(inputStream, transactionId, nonce);
     }
 
-    @Override
-    public FileTransaction createDownloadTransaction(final int numSegments,
-                                                     final byte[] nonce,
-                                                     final byte[] transactionId) throws EbicsException {
+    public FileTransaction.Builder createDownloadTransaction(final int numSegments,
+                                                             final byte[] nonce,
+                                                             final byte[] transactionId) throws EbicsException {
         IOUtil.createDirectories(transactionDir());
-        return FileTransferManager.super.createDownloadTransaction(numSegments, nonce, transactionId);
+        return createDownloadTransaction(numSegments, this.transactionId, nonce, transactionId);
     }
 
     @Override
     public byte[] readSegment(final int segmentNumber) throws IOException {
+        log.debug("Read segment {}", segmentNumber);
         try (final InputStream inputStream = new FileInputStream(segmentFile(segmentNumber))) {
             return IOUtil.read(inputStream);
         }
@@ -69,6 +70,7 @@ public final class DefaultFileTransferManager implements FileTransferManager {
 
     @Override
     public void writeSegment(final int segmentNumber, final byte[] orderData, final int orderDataLen) throws IOException {
+        log.debug("Write segment {}", segmentNumber);
         try (final OutputStream outputStream = new FileOutputStream(segmentFile(segmentNumber))) {
             outputStream.write(orderData, 0, orderDataLen);
         }

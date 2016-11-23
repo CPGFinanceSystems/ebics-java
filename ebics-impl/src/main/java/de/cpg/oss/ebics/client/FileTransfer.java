@@ -6,7 +6,7 @@ import de.cpg.oss.ebics.api.FileTransferManager;
 import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.io.DefaultFileTransferManager;
-import de.cpg.oss.ebics.utils.Constants;
+import de.cpg.oss.ebics.utils.CryptoUtil;
 import de.cpg.oss.ebics.xml.*;
 import lombok.extern.slf4j.Slf4j;
 import org.ebics.h004.EbicsRequest;
@@ -54,7 +54,8 @@ abstract class FileTransfer {
         try {
             return DefaultFileTransferManager.create(session)
                     .createUploadTransaction(new FileInputStream(inputFile))
-                    .withOrderType(orderType);
+                    .orderType(orderType)
+                    .build();
         } catch (final IOException e) {
             throw new EbicsException(e);
         }
@@ -65,7 +66,7 @@ abstract class FileTransfer {
         final FileTransferManager transferManager = DefaultFileTransferManager.of(session, transaction);
 
         FileTransaction current;
-        if (null == transaction.getRemoteTransactionId() || 1 == transaction.getSegmentNumber()) {
+        if (null == transaction.getRemoteTransactionId() || 0 == transaction.getSegmentNumber()) {
             current = uploadInitRequest(session, transaction);
         } else {
             current = transaction;
@@ -94,11 +95,13 @@ abstract class FileTransfer {
         final DInitializationResponseElement responseElement = ClientUtil.requestExchange(session, request,
                 DInitializationResponseElement::parse);
 
-        final FileTransferManager transferManager = DefaultFileTransferManager.create(session);
+        final DefaultFileTransferManager transferManager = DefaultFileTransferManager.create(session);
         final FileTransaction fileTransaction = transferManager.createDownloadTransaction(
                 responseElement.getNumSegments(),
-                responseElement.getTransactionKey(),
-                responseElement.getTransactionId());
+                CryptoUtil.recoverNonce(responseElement.getTransactionKey(), session.getUserEncryptionKey()),
+                responseElement.getTransactionId())
+                .orderType(orderType)
+                .build();
 
         try {
             transferManager.writeSegment(fileTransaction.getSegmentNumber(), responseElement.getOrderData());
@@ -106,7 +109,7 @@ abstract class FileTransfer {
             throw new EbicsException(e);
         }
 
-        return fileTransaction.withOrderType(orderType);
+        return fileTransaction;
     }
 
     static FileTransaction downloadFile(final EbicsSession session,
@@ -137,6 +140,7 @@ abstract class FileTransfer {
                 .orderType(transaction.getOrderType())
                 .digest(transaction.getDigest())
                 .numSegments(transaction.getNumSegments())
+                .nonce(transaction.getNonce())
                 .build().create(session);
 
         final EbicsResponseElement responseElement = ClientUtil.requestExchange(session, request);
@@ -146,10 +150,8 @@ abstract class FileTransfer {
     private static FileTransaction uploadSegment(final EbicsSession session,
                                                  final FileTransaction fileTransaction,
                                                  final FileTransferManager transferManager) throws EbicsException {
-        log.info(session.getMessageProvider().getString(
-                "upload.segment",
-                Constants.APPLICATION_BUNDLE_NAME,
-                fileTransaction.getSegmentNumber()));
+        log.debug("Upload segment number {} of {}", fileTransaction.getSegmentNumber(), fileTransaction.getNumSegments());
+
         final EbicsRequest ebicsRequest;
         try {
             ebicsRequest = UTransferRequestElement.builder()
@@ -170,6 +172,8 @@ abstract class FileTransfer {
     private static FileTransaction downloadSegment(final EbicsSession session,
                                                    final FileTransaction fileTransaction,
                                                    final FileTransferManager transferManager) throws EbicsException {
+        log.debug("Download segment number {} of {}", fileTransaction.getSegmentNumber(), fileTransaction.getNumSegments());
+
         final EbicsRequest ebicsRequest = DTransferRequestElement.builder()
                 .segmentNumber(fileTransaction.getSegmentNumber())
                 .lastSegment(fileTransaction.isLastSegment())

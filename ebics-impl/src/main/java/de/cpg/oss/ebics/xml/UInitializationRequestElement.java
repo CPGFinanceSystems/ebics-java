@@ -18,7 +18,6 @@ public class UInitializationRequestElement implements EbicsRequestElement {
     private final byte[] digest;
     @NonNull
     private final byte[] nonce;
-    @NonNull
     private final int numSegments;
 
     @Override
