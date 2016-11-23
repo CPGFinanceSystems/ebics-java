@@ -20,6 +20,7 @@ public abstract class KeyUtil {
      * EBICS key size
      */
     public static final int EBICS_KEY_SIZE = 2048;
+    public static final String EBICS_ENCRYPTION_KEY_ALGORITHM = "RSA";
 
     /**
      * Generates a <code>KeyPair</code> in RSA format.
@@ -30,7 +31,7 @@ public abstract class KeyUtil {
     public static KeyPair createRsaKeyPair(final int keyLen) throws NoSuchAlgorithmException {
         final KeyPairGenerator keyGen;
 
-        keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen = KeyPairGenerator.getInstance(EBICS_ENCRYPTION_KEY_ALGORITHM);
         keyGen.initialize(keyLen, new SecureRandom());
 
         return keyGen.generateKeyPair();
@@ -58,7 +59,7 @@ public abstract class KeyUtil {
         final String hash = exponent.concat(" ").concat(modulus).toLowerCase();
 
         try {
-            return MessageDigest.getInstance(CryptoUtil.DIGEST_ALGORITHM).digest(hash.getBytes("US-ASCII"));
+            return MessageDigest.getInstance(CryptoUtil.EBICS_DIGEST_ALGORITHM).digest(hash.getBytes("US-ASCII"));
         } catch (final GeneralSecurityException | UnsupportedEncodingException e) {
             throw new EbicsException(e.getMessage(), e);
         }
@@ -67,7 +68,7 @@ public abstract class KeyUtil {
     public static RSAPublicKey getPublicKey(final byte[] modulus, final byte[] exponent) {
         final RSAPublicKeySpec spec = new RSAPublicKeySpec(new BigInteger(modulus), new BigInteger(exponent));
         try {
-            final KeyFactory factory = KeyFactory.getInstance("RSA");
+            final KeyFactory factory = KeyFactory.getInstance(EBICS_ENCRYPTION_KEY_ALGORITHM);
             return (RSAPublicKey) factory.generatePublic(spec);
         } catch (final Exception e) {
             throw new RuntimeException(e);

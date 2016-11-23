@@ -13,13 +13,9 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigInteger;
 import java.security.*;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
 
 
 /**
@@ -30,8 +26,9 @@ import java.security.interfaces.RSAPublicKey;
 @Slf4j
 public abstract class CryptoUtil {
 
-    private static final String TRANSACTION_KEY_ALGORITHM = "RSA/ECB/PKCS1Padding";
-    public static final String DIGEST_ALGORITHM = "SHA-256";
+    private static final String EBICS_RSA_ALGORITHM = "RSA/ECB/PKCS1Padding";
+    private static final String EBICS_AES_ALGORITHM = "AES/CBC/ISO10126Padding";
+    public static final String EBICS_DIGEST_ALGORITHM = "SHA-256";
 
     /**
      * Generates a random nonce.
@@ -80,57 +77,51 @@ public abstract class CryptoUtil {
      * DEK according to the 2-key triple DES process as specified in ANSI X3.92-1981.
      * <p>In doing this, the following initialization value “ICV” is used: X ‘00 00 00 00 00 00 00 00’.
      *
-     * @param input   the input to encrypt
-     * @param keySpec the key spec
+     * @param input  the input to encrypt
+     * @param aesKey the AES symmetric key
      * @return the encrypted input
      */
-    public static byte[] encrypt(final byte[] input, final SecretKeySpec keySpec) {
-        return encryptOrDecrypt(Cipher.ENCRYPT_MODE, input, keySpec);
-    }
-
-    public static InputStream encrypt(final InputStream inputStream, final SecretKeySpec keySpec) throws GeneralSecurityException {
-        final IvParameterSpec ivParameterSpec = new IvParameterSpec(new byte[16]);
-        final Cipher cipher = Cipher.getInstance("AES/CBC/ISO10126Padding");
-        cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivParameterSpec);
-        return new CipherInputStream(inputStream, cipher);
+    public static InputStream encryptAES(final InputStream inputStream, final byte[] aesKey) {
+        return encryptOrDecryptAES(Cipher.ENCRYPT_MODE, inputStream, aesKey);
     }
 
     /**
-     * Decrypts the given input according to key spec.
+     * Decrypts the <code>encryptedData</code> using the decoded transaction key.
+     * <p>
+     * <p>EBICS Specification 2.4.2 - 15.2 Workflows at the recipient’s end:
+     * <p>
+     * <p><b>Decryption of the message</b>
+     * <p>The encrypted original message is decrypted in CBC mode in accordance with the 2-key
+     * triple DES process via the secret DES key (comprising DEK<SUB>left</SUB> and DEK<SUP>right<SUB>).
+     * In doing this, the following initialization value ICV is again used.
+     * <p>
+     * <p><b>Removal of the padding information</b>
+     * <p>The method “Padding with Octets” according to ANSI X9.23 is used to remove the padding
+     * information from the decrypted message. The original message is then available in decrypted
+     * form.
      *
-     * @param input   the input to decrypt
-     * @param keySpec the key spec
-     * @return the decrypted input
+     * @param inputStream The encrypted data
+     * @param aesKey      The secret key.
+     * @return The decrypted data sent from the EBICS bank.
      */
-    public static byte[] decrypt(final byte[] input, final SecretKeySpec keySpec)
-            throws EbicsException {
-        return encryptOrDecrypt(Cipher.DECRYPT_MODE, input, keySpec);
-    }
-
-    public static InputStream decrypt(final InputStream inputStream, final SecretKeySpec keySpec) throws GeneralSecurityException {
-        final IvParameterSpec ivParameterSpec = new IvParameterSpec(new byte[16]);
-        final Cipher cipher = Cipher.getInstance("AES/CBC/ISO10126Padding");
-        cipher.init(Cipher.DECRYPT_MODE, keySpec, ivParameterSpec);
-        return new CipherInputStream(inputStream, cipher);
+    public static InputStream decryptAES(final InputStream inputStream, final byte[] aesKey) {
+        return encryptOrDecryptAES(Cipher.DECRYPT_MODE, inputStream, aesKey);
     }
 
     /**
      * Encrypts or decrypts the given input according to key spec.
      *
-     * @param mode    the encryption-decryption mode.
-     * @param input   the input to encrypt or decrypt.
-     * @param keySpec the key spec.
+     * @param mode        the encryption-decryption mode.
+     * @param inputStream the input to encrypt or decrypt.
+     * @param aesKey      the AES symmetric key
      * @return the encrypted or decrypted data.
      */
-    private static byte[] encryptOrDecrypt(final int mode, final byte[] input, final SecretKeySpec keySpec) {
-        final IvParameterSpec iv;
-        final Cipher cipher;
-
-        iv = new IvParameterSpec(new byte[16]);
+    private static InputStream encryptOrDecryptAES(final int mode, final InputStream inputStream, final byte[] aesKey) {
         try {
-            cipher = Cipher.getInstance("AES/CBC/ISO10126Padding");
-            cipher.init(mode, keySpec, iv);
-            return cipher.doFinal(input);
+            final IvParameterSpec ivParameterSpec = new IvParameterSpec(new byte[16]);
+            final Cipher cipher = Cipher.getInstance(EBICS_AES_ALGORITHM);
+            cipher.init(mode, new SecretKeySpec(aesKey, "AES"), ivParameterSpec);
+            return new CipherInputStream(inputStream, cipher);
         } catch (final GeneralSecurityException e) {
             throw new RuntimeException(e);
         }
@@ -186,10 +177,10 @@ public abstract class CryptoUtil {
      * <li> The digest must be already canonized
      * </ol>
      */
-    public static byte[] authenticate(final byte[] digest, final PrivateKey x002Key) throws GeneralSecurityException {
-        final Signature signature = Signature.getInstance("SHA256WithRSA");
-        signature.initSign(x002Key);
-        signature.update(digest);
+    static byte[] authenticate(final byte[] message, final PrivateKey authenticationKey) throws GeneralSecurityException {
+        final Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(authenticationKey);
+        signature.update(message);
         return signature.sign();
     }
 
@@ -237,9 +228,10 @@ public abstract class CryptoUtil {
      * {@link Signature} that will be instantiated with the <b>SHA-256</b>
      * algorithm. This signature is then put in a UserSignature XML object that will be sent to the EBICS server.
      */
-    public static byte[] signMessage(final byte[] message, final EbicsSignatureKey signatureKey) throws GeneralSecurityException, IOException {
-        final MessageDigest digester = MessageDigest.getInstance(DIGEST_ALGORITHM);
-        return signHash(digester.digest(removeOSSpecificChars(message)), signatureKey);
+    public static byte[] signMessage(final InputStream message, final EbicsSignatureKey signatureKey) throws GeneralSecurityException, IOException {
+        final MessageDigest digester = MessageDigest.getInstance(EBICS_DIGEST_ALGORITHM);
+        IOUtil.read(digest(message, digester));
+        return signHash(digester.digest(), signatureKey);
     }
 
     public static InputStream digest(final InputStream inputStream, final MessageDigest digester) {
@@ -275,34 +267,24 @@ public abstract class CryptoUtil {
     }
 
     /**
-     * EBICS Specification 2.4.2 - 7.1 Process description:
-     * <p>
-     * <p>In particular, so-called “white-space characters” such as spaces, tabs, carriage
-     * returns and line feeds (“CR/LF”) are not permitted.
-     * <p>
-     * <p> All white-space characters should be removed from entry buffer {@code buf}.
+     * EBICS Specification 14 Appendix: Signature process for the electronic signature:
+     * <p></p>
+     * <p>The characters restricted to the operating system (CR, LF and Ctrl-Z) are not included in the calculation
+     * of hash values of the A005/A006 ES (analogous to A004 ES).</p>
      *
-     * @param buf the given byte buffer
-     * @return The byte buffer portion corresponding to the given length and offset
+     * @param octet the byte
+     * @return <code>true</code> if the octet reflects an OS specific character
      */
-    static byte[] removeOSSpecificChars(final byte[] buf) {
-        final ByteArrayOutputStream output;
+    static boolean isOsSpecificChar(final byte octet) {
+        switch (octet) {
+            case '\r': // CR
+            case '\n': // LF
+            case 0x1A: // CTRL-Z / EOF
+                return true;
 
-        output = new ByteArrayOutputStream();
-        for (final byte aBuf : buf) {
-            switch (aBuf) {
-                case '\r':
-                case '\n':
-                case 0x1A: // CTRL-Z / EOF
-                    // ignore this character
-                    break;
-
-                default:
-                    output.write(aBuf);
-            }
+            default:
+                return false;
         }
-
-        return output.toByteArray();
     }
 
     private static InputStream removeOSSpecificChars(final InputStream inputStream) {
@@ -311,86 +293,29 @@ public abstract class CryptoUtil {
             public int read() throws IOException {
                 do {
                     final byte next = (byte) inputStream.read();
-                    switch (next) {
-                        case '\r':
-                        case '\n':
-                        case 0x1A: // CTRL-Z / EOF
-                            // ignore these characters
-                            break;
-
-                        default:
-                            return next;
+                    if (!isOsSpecificChar(next)) {
+                        return next;
                     }
                 } while (true);
             }
         };
     }
 
-    /**
-     * EBICS IG CFONB VF 2.1.4 2012 02 24 - 2.1.3.2 Calcul de la signature:
-     * <p>
-     * <p>Il convient d’utiliser PKCS1 V1.5 pour chiffrer la clé de chiffrement.
-     * <p>
-     * <p>EBICS Specification 2.4.2 - 15.2 Workflows at the recipient’s end:
-     * <p>
-     * <p><b>Decryption of the DES key</b>
-     * <p>The leading 256 null bits of the EDEK are removed and the remaining 768 bits are decrypted
-     * with the recipient’s secret key of the RSA key system. PDEK is then present. The secret DES
-     * key DEK is obtained from the lowest-value 128 bits of PDEK, this is split into the individual
-     * keys DEK<SUB>left</SUB> and DEK<SUB>right</SUB>.
-     */
-    public static byte[] decrypt(final byte[] encryptedData, final byte[] transactionKey, final RSAPrivateKey encryptionKey) {
+    public static byte[] encryptRSA(final byte[] input, final PublicKey encryptionKey) throws EbicsException {
         try {
-            return decryptData(encryptedData, recoverNonce(transactionKey, encryptionKey));
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Decrypts the <code>encryptedData</code> using the decoded transaction key.
-     * <p>
-     * <p>EBICS Specification 2.4.2 - 15.2 Workflows at the recipient’s end:
-     * <p>
-     * <p><b>Decryption of the message</b>
-     * <p>The encrypted original message is decrypted in CBC mode in accordance with the 2-key
-     * triple DES process via the secret DES key (comprising DEK<SUB>left</SUB> and DEK<SUP>right<SUB>).
-     * In doing this, the following initialization value ICV is again used.
-     * <p>
-     * <p><b>Removal of the padding information</b>
-     * <p>The method “Padding with Octets” according to ANSI X9.23 is used to remove the padding
-     * information from the decrypted message. The original message is then available in decrypted
-     * form.
-     *
-     * @param input The encrypted data
-     * @param key   The secret key.
-     * @return The decrypted data sent from the EBICS bank.
-     */
-    private static byte[] decryptData(final byte[] input, final byte[] key)
-            throws EbicsException {
-        return decrypt(input, new SecretKeySpec(key, "AES"));
-    }
-
-    public static byte[] generateTransactionKey(final byte[] nonce, final RSAPublicKey encryptionKey) throws EbicsException {
-        try {
-            final Cipher cipher = Cipher.getInstance(TRANSACTION_KEY_ALGORITHM);
+            final Cipher cipher = Cipher.getInstance(EBICS_RSA_ALGORITHM);
             cipher.init(Cipher.ENCRYPT_MODE, encryptionKey);
-            final BigInteger data = new BigInteger(nonce);
-            log.debug("Data bits: {}", data.bitLength());
-            log.debug("Modulus bits: {}", encryptionKey.getModulus().bitLength());
-            log.debug("Compare: {}", data.compareTo(encryptionKey.getModulus()));
-            return cipher.doFinal(nonce);
+            return cipher.doFinal(input);
         } catch (final GeneralSecurityException e) {
             throw new EbicsException(e);
         }
     }
 
-    public static byte[] recoverNonce(final byte[] transactionKey, final RSAPrivateKey privateKey) throws EbicsException {
-        final Cipher cipher;
+    public static byte[] decryptRSA(final byte[] input, final PrivateKey privateKey) throws EbicsException {
         try {
-            cipher = Cipher.getInstance(TRANSACTION_KEY_ALGORITHM);
+            final Cipher cipher = Cipher.getInstance(EBICS_RSA_ALGORITHM);
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
-            return cipher.doFinal(transactionKey);
+            return cipher.doFinal(input);
         } catch (final GeneralSecurityException e) {
             throw new EbicsException(e);
         }

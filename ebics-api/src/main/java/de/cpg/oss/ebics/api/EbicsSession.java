@@ -5,8 +5,8 @@ import lombok.NonNull;
 import lombok.Value;
 import lombok.experimental.Wither;
 
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,12 +28,12 @@ public class EbicsSession {
     private final TraceManager traceManager;
     private final Map<String, String> parameters = new HashMap<>();
 
-    public RSAPublicKey getBankEncryptionKey() {
-        return (RSAPublicKey) getBank().getEncryptionKey().getPublicKey();
+    public PublicKey getBankEncryptionKey() {
+        return getBank().getEncryptionKey().getPublicKey();
     }
 
-    public RSAPrivateKey getUserEncryptionKey() {
-        return (RSAPrivateKey) getUser().getEncryptionKey().getPrivateKey();
+    public PrivateKey getUserEncryptionKey() {
+        return getUser().getEncryptionKey().getPrivateKey();
     }
 
     public String getHostId() {

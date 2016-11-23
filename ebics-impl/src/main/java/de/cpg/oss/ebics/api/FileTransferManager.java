@@ -2,30 +2,28 @@ package de.cpg.oss.ebics.api;
 
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.CryptoUtil;
+import de.cpg.oss.ebics.utils.IOUtil;
 import de.cpg.oss.ebics.utils.ZipUtil;
 
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.DigestInputStream;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.UUID;
 
 public interface FileTransferManager {
 
-    String CRYPTO_ALGORITHM = "AES";
     int BLOCK_SIZE = 1024 * 1024;
 
     default FileTransaction.Builder createUploadTransaction(final InputStream inputStream,
                                                             final UUID transactionId,
                                                             final byte[] nonce) throws EbicsException {
         try {
-            final MessageDigest digester = MessageDigest.getInstance(CryptoUtil.DIGEST_ALGORITHM);
-            final InputStream compressedAndEncrypted = CryptoUtil.encrypt(
+            final MessageDigest digester = MessageDigest.getInstance(CryptoUtil.EBICS_DIGEST_ALGORITHM);
+            final InputStream compressedAndEncrypted = CryptoUtil.encryptAES(
                     ZipUtil.compress(CryptoUtil.digest(inputStream, digester)),
-                    new SecretKeySpec(nonce, CRYPTO_ALGORITHM));
+                    nonce);
 
             final byte[] block = new byte[BLOCK_SIZE];
             int segmentNumber = 0;
@@ -67,7 +65,7 @@ public interface FileTransferManager {
      * @param segmentNumber segment number starting at <code>1</code>
      * @return compressed and encrypted segment
      */
-    byte[] readSegment(int segmentNumber) throws IOException;
+    InputStream readSegment(int segmentNumber) throws IOException;
 
     /**
      * @param segmentNumber segment number starting at <code>1</code>
@@ -88,9 +86,9 @@ public interface FileTransferManager {
     default void writeOutput(final FileTransaction fileTransaction,
                              final OutputStream outputStream) throws EbicsException, IOException {
         for (int i = 0; i < fileTransaction.getNumSegments(); i++) {
-            outputStream.write(ZipUtil.uncompress(CryptoUtil.decrypt(
+            outputStream.write(IOUtil.read(ZipUtil.uncompress(CryptoUtil.decryptAES(
                     readSegment(i + 1),
-                    new SecretKeySpec(fileTransaction.getNonce(), CRYPTO_ALGORITHM))));
+                    fileTransaction.getNonce()))));
         }
     }
 }

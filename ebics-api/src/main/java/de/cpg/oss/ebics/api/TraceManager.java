@@ -19,6 +19,8 @@
 
 package de.cpg.oss.ebics.api;
 
+import java.io.InputStream;
+
 /**
  * A mean to make EBICS transfer logged by saving
  * requests and responses from the EBICS bank server.
@@ -28,7 +30,7 @@ package de.cpg.oss.ebics.api;
  */
 public interface TraceManager {
 
-    void trace(byte[] xml, String elementName, final EbicsUser user);
+    void trace(InputStream xml, String elementName, final EbicsUser user);
 
     <T> void trace(Class<T> clazz, T object, final String elementName, final EbicsUser user);
 }

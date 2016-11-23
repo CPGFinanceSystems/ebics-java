@@ -61,11 +61,9 @@ public final class DefaultFileTransferManager implements FileTransferManager {
     }
 
     @Override
-    public byte[] readSegment(final int segmentNumber) throws IOException {
+    public InputStream readSegment(final int segmentNumber) throws IOException {
         log.debug("Read segment {}", segmentNumber);
-        try (final InputStream inputStream = new FileInputStream(segmentFile(segmentNumber))) {
-            return IOUtil.read(inputStream);
-        }
+        return new FileInputStream(segmentFile(segmentNumber));
     }
 
     @Override

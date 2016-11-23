@@ -4,17 +4,13 @@ import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.io.ContentFactory;
 import de.cpg.oss.ebics.io.InputStreamContentFactory;
-import de.cpg.oss.ebics.utils.CryptoUtil;
-import de.cpg.oss.ebics.utils.HttpUtil;
-import de.cpg.oss.ebics.utils.XmlUtil;
-import de.cpg.oss.ebics.utils.ZipUtil;
+import de.cpg.oss.ebics.utils.*;
 import de.cpg.oss.ebics.xml.EbicsResponseElement;
 import de.cpg.oss.ebics.xml.ResponseElement;
 import de.cpg.oss.ebics.xml.ResponseOrderDataElement;
 import org.apache.http.HttpEntity;
 import org.ebics.h004.EbicsRequest;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
@@ -49,11 +45,12 @@ abstract class ClientUtil {
             final Class<I> requestClass, final I request,
             final ResponseElementParser<O> responseElementParser,
             final String baseElementName) throws EbicsException {
-        final byte[] xml = XmlUtil.prettyPrint(requestClass, request);
-        session.getTraceManager().trace(xml, baseElementName.concat("Request"), session.getUser());
-        XmlUtil.validate(xml);
+        final byte[] xml = IOUtil.read(XmlUtil.prettyPrint(requestClass, request));
+        session.getTraceManager().trace(IOUtil.wrap(xml), baseElementName.concat("Request"), session.getUser());
 
-        final HttpEntity httpEntity = HttpUtil.sendAndReceive(session.getBank(), new ByteArrayInputStream(xml),
+        final HttpEntity httpEntity = HttpUtil.sendAndReceive(
+                session.getBank(),
+                IOUtil.wrap(XmlUtil.validate(xml)),
                 session.getMessageProvider());
         final O response;
         try {
@@ -73,18 +70,19 @@ abstract class ClientUtil {
             final I responseElement,
             final ResponseOrderDataElementParser<O> responseOrderDataElementParser,
             final String baseElementName) throws EbicsException {
-        final byte[] orderDataXml = ZipUtil.uncompress(CryptoUtil.decrypt(
-                responseElement.getOrderData(),
-                responseElement.getTransactionKey(),
-                session.getUserEncryptionKey()));
+        final byte[] orderDataXml = IOUtil.read(ZipUtil.uncompress(CryptoUtil.decryptAES(
+                IOUtil.wrap(responseElement.getOrderData()),
+                CryptoUtil.decryptRSA(responseElement.getTransactionKey(), session.getUserEncryptionKey()))));
         try {
-            final O responseOrderDataElement = responseOrderDataElementParser.parse(new ByteArrayInputStream(orderDataXml));
+            final O responseOrderDataElement = responseOrderDataElementParser.parse(IOUtil.wrap(orderDataXml));
             session.getTraceManager().trace(responseOrderDataElement.getResponseOrderDataClass(),
                     responseOrderDataElement.getResponseOrderData(), baseElementName.concat("ResponseOrderData"),
                     session.getUser());
             return responseOrderDataElement;
         } catch (final EbicsException e) {
-            session.getTraceManager().trace(orderDataXml, baseElementName.concat("ResponseOrderData"), session.getUser());
+            session.getTraceManager().trace(
+                    IOUtil.wrap(orderDataXml),
+                    baseElementName.concat("ResponseOrderData"), session.getUser());
             throw e;
         }
     }

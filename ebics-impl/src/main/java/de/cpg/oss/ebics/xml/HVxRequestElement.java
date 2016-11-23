@@ -11,7 +11,6 @@ import lombok.Builder;
 import lombok.NonNull;
 import org.ebics.h004.*;
 
-import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.JAXBElement;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -101,8 +100,7 @@ public abstract class HVxRequestElement implements EbicsRequestElement {
                             throw new RuntimeException(e);
                         }
                     },
-                    new SecretKeySpec(nonce, "AES"),
-                    CryptoUtil.generateTransactionKey(nonce, session.getBankEncryptionKey()))));
+                    nonce)));
             return ebicsRequest;
         }
     }

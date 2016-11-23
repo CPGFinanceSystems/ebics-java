@@ -4,11 +4,10 @@ import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.CryptoUtil;
+import de.cpg.oss.ebics.utils.IOUtil;
 import org.ebics.h004.EbicsRequest;
 import org.ebics.h004.OrderAttributeType;
 import org.ebics.h004.TransactionPhaseType;
-
-import javax.crypto.spec.SecretKeySpec;
 
 import static de.cpg.oss.ebics.xml.EbicsXmlFactory.*;
 
@@ -31,8 +30,7 @@ public class SPRRequestElement implements EbicsRequestElement {
                                         OrderType.SPR))),
                 body(dataTransferRequest(
                         session,
-                        " ".getBytes(),
-                        new SecretKeySpec(nonce, "AES"),
-                        CryptoUtil.generateTransactionKey(nonce, session.getBankEncryptionKey()))));
+                        IOUtil.wrap(" ".getBytes()),
+                        nonce)));
     }
 }

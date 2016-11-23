@@ -7,6 +7,7 @@ import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.io.DefaultFileTransferManager;
 import de.cpg.oss.ebics.utils.CryptoUtil;
+import de.cpg.oss.ebics.utils.IOUtil;
 import de.cpg.oss.ebics.xml.*;
 import lombok.extern.slf4j.Slf4j;
 import org.ebics.h004.EbicsRequest;
@@ -98,7 +99,7 @@ abstract class FileTransfer {
         final DefaultFileTransferManager transferManager = DefaultFileTransferManager.create(session);
         final FileTransaction fileTransaction = transferManager.createDownloadTransaction(
                 responseElement.getNumSegments(),
-                CryptoUtil.recoverNonce(responseElement.getTransactionKey(), session.getUserEncryptionKey()),
+                CryptoUtil.decryptRSA(responseElement.getTransactionKey(), session.getUserEncryptionKey()),
                 responseElement.getTransactionId())
                 .orderType(orderType)
                 .build();
@@ -158,7 +159,7 @@ abstract class FileTransfer {
                     .segmentNumber(fileTransaction.getSegmentNumber())
                     .lastSegment(fileTransaction.isLastSegment())
                     .transactionId(fileTransaction.getRemoteTransactionId())
-                    .content(transferManager.readSegment(fileTransaction.getSegmentNumber()))
+                    .content(IOUtil.read(transferManager.readSegment(fileTransaction.getSegmentNumber())))
                     .build().create(session);
         } catch (final IOException e) {
             throw new EbicsException(e);

@@ -32,7 +32,10 @@ import javax.xml.validation.Validator;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.util.Optional;
 
@@ -68,23 +71,23 @@ public abstract class XmlUtil {
         }
     }
 
-    public static <T> byte[] prettyPrint(final Class<T> clazz, final T object) {
+    public static <T> InputStream prettyPrint(final Class<T> clazz, final T object) {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         prettyPrint(clazz, object, elementNameFrom(clazz), outputStream);
-        return outputStream.toByteArray();
+        return IOUtil.wrap(outputStream.toByteArray());
     }
 
-    public static <T> byte[] prettyPrint(final JAXBElement<T> element) {
+    public static <T> InputStream prettyPrint(final JAXBElement<T> element) {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         prettyPrint(element, outputStream);
-        return outputStream.toByteArray();
+        return IOUtil.wrap(outputStream.toByteArray());
     }
 
     public static byte[] validate(final byte[] xml) throws EbicsException {
         try {
             final Validator validator = XML_SCHEMAS.newValidator();
             validator.setErrorHandler(LoggingErrorHandler.INSTANCE);
-            validator.validate(new StreamSource(new ByteArrayInputStream(xml)));
+            validator.validate(new StreamSource(IOUtil.wrap(xml)));
             return xml;
         } catch (IOException | SAXException e) {
             throw new EbicsException(e.getMessage(), e);
@@ -110,7 +113,7 @@ public abstract class XmlUtil {
     public static <T> byte[] sign(final Class<T> clazz, final T object, final EbicsUser user) {
         try {
             final DocumentBuilder builder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
-            final Document document = builder.parse(new ByteArrayInputStream(prettyPrint(clazz, object)));
+            final Document document = builder.parse(prettyPrint(clazz, object));
 
             final XPath xPath = X_PATH_FACTORY.newXPath();
             final Node node = (Node) xPath.evaluate("//*[local-name()='SignedInfo']", document.getDocumentElement(), XPathConstants.NODE);
@@ -127,12 +130,12 @@ public abstract class XmlUtil {
     public static <T> byte[] digest(final Class<T> clazz, final T object) {
         try {
             final DocumentBuilder builder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
-            final Document document = builder.parse(new ByteArrayInputStream(prettyPrint(clazz, object)));
+            final Document document = builder.parse(prettyPrint(clazz, object));
 
             final XPath xPath = X_PATH_FACTORY.newXPath();
             final NodeList nodes = (NodeList) xPath.evaluate(XPATH_SELECTOR, document.getDocumentElement(), XPathConstants.NODESET);
 
-            final MessageDigest digester = MessageDigest.getInstance(CryptoUtil.DIGEST_ALGORITHM);
+            final MessageDigest digester = MessageDigest.getInstance(CryptoUtil.EBICS_DIGEST_ALGORITHM);
             for (int i = 0; i < nodes.getLength(); ++i) {
                 final Node node = nodes.item(i);
                 final byte[] canonized = canonize(node);
@@ -157,7 +160,7 @@ public abstract class XmlUtil {
 
     }
 
-    public static <T> String elementNameFrom(final Class<T> clazz) {
+    private static <T> String elementNameFrom(final Class<T> clazz) {
         return Optional.ofNullable(clazz.getAnnotation(XmlRootElement.class))
                 .map(XmlRootElement::name)
                 .orElseGet(() -> elementNameFrom(clazz.getSimpleName()));

@@ -22,12 +22,14 @@ package de.cpg.oss.ebics.session;
 import de.cpg.oss.ebics.api.EbicsConfiguration;
 import de.cpg.oss.ebics.api.EbicsUser;
 import de.cpg.oss.ebics.api.TraceManager;
+import de.cpg.oss.ebics.utils.IOUtil;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -52,7 +54,7 @@ public final class DefaultTraceManager implements TraceManager {
     }
 
     @Override
-    public void trace(final byte[] xml, final String elementName, final EbicsUser user) {
+    public void trace(final InputStream xml, final String elementName, final EbicsUser user) {
         final File file = new File(
                 ebicsConfiguration.getTransferTraceDirectory(user),
                 MessageFormat.format(
@@ -60,7 +62,7 @@ public final class DefaultTraceManager implements TraceManager {
                         LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                         elementName));
         try (final FileOutputStream out = new FileOutputStream(file)) {
-            out.write(xml);
+            out.write(IOUtil.read(xml));
         } catch (final IOException e) {
             log.error("Exception from " + DefaultTraceManager.class.getSimpleName(), e);
         }

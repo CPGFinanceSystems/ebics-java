@@ -17,26 +17,22 @@ public abstract class IOUtil {
         return directory;
     }
 
-    /**
-     * Returns the content of a file as byte array.
-     *
-     * @param path the file path
-     * @return the byte array content of the file
-     */
-    public static byte[] getFileContent(final String path) throws IOException {
-        try (final InputStream inputStream = new FileInputStream(path)) {
-            return read(inputStream);
+    public static byte[] read(final InputStream is) {
+        try {
+            try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+                final byte[] b = new byte[4096];
+                int n;
+                while ((n = is.read(b)) != -1) {
+                    output.write(b, 0, n);
+                }
+                return output.toByteArray();
+            }
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public static byte[] read(final InputStream is) throws IOException {
-        try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-            final byte[] b = new byte[4096];
-            int n;
-            while ((n = is.read(b)) != -1) {
-                output.write(b, 0, n);
-            }
-            return output.toByteArray();
-        }
+    public static InputStream wrap(final byte[] data) {
+        return new ByteArrayInputStream(data);
     }
 }

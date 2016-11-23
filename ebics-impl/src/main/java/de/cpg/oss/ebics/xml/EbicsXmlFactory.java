@@ -3,14 +3,15 @@ package de.cpg.oss.ebics.xml;
 import de.cpg.oss.ebics.api.*;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.CryptoUtil;
+import de.cpg.oss.ebics.utils.IOUtil;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import de.cpg.oss.ebics.utils.ZipUtil;
 import javaslang.control.Option;
 import org.ebics.h004.*;
 
-import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.JAXBElement;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.time.OffsetDateTime;
@@ -120,14 +121,13 @@ public abstract class EbicsXmlFactory {
             final EbicsUser user,
             final String partnerId,
             final Supplier<byte[]> signatureSupplier,
-            final SecretKeySpec keySpec) {
+            final byte[] nonce) {
         return DataTransferRequestType.SignatureData.builder()
                 .withAuthenticate(true)
-                .withValue(CryptoUtil.encrypt(
-                        ZipUtil.compress(
-                                XmlUtil.prettyPrint(
-                                        EbicsSignatureXmlFactory.userSignature(user, partnerId, signatureSupplier))),
-                        keySpec))
+                .withValue(IOUtil.read(CryptoUtil.encryptAES(
+                        ZipUtil.compress(XmlUtil.prettyPrint(
+                                EbicsSignatureXmlFactory.userSignature(user, partnerId, signatureSupplier))),
+                        nonce)))
                 .build();
     }
 
@@ -149,45 +149,42 @@ public abstract class EbicsXmlFactory {
                 .build();
     }
 
-    static DataTransferRequestType dataTransferRequest(
-            final EbicsSession session,
-            final byte[] message,
-            final SecretKeySpec keySpec,
-            final byte[] transactionKey) {
+    static DataTransferRequestType dataTransferRequest(final EbicsSession session,
+                                                       final InputStream message,
+                                                       final byte[] nonce) throws EbicsException {
         return dataTransferRequest(session, () -> {
             try {
                 return CryptoUtil.signMessage(message, session.getUser().getSignatureKey());
             } catch (final IOException | GeneralSecurityException e) {
                 throw new RuntimeException(e);
             }
-        }, keySpec, transactionKey);
+        }, nonce);
     }
 
-    static DataTransferRequestType dataTransferRequestWithDigest(
-            final EbicsSession session,
-            final byte[] digest,
-            final byte[] nonce) throws EbicsException {
+    static DataTransferRequestType dataTransferRequestWithDigest(final EbicsSession session,
+                                                                 final byte[] digest,
+                                                                 final byte[] nonce) throws EbicsException {
         return dataTransferRequest(session, () -> {
             try {
                 return CryptoUtil.signHash(digest, session.getUser().getSignatureKey());
             } catch (GeneralSecurityException | IOException e) {
                 throw new RuntimeException(e);
             }
-        }, new SecretKeySpec(nonce, "AES"), CryptoUtil.generateTransactionKey(nonce, session.getBankEncryptionKey()));
+        }, nonce);
     }
 
-    static DataTransferRequestType dataTransferRequest(
-            final EbicsSession session,
-            final Supplier<byte[]> signatureSupplier,
-            final SecretKeySpec keySpec,
-            final byte[] transactionKey) {
+    static DataTransferRequestType dataTransferRequest(final EbicsSession session,
+                                                       final Supplier<byte[]> signatureSupplier,
+                                                       final byte[] nonce) throws EbicsException {
         return DataTransferRequestType.builder()
-                .withDataEncryptionInfo(dataEncryptionInfo(session.getBank().getEncryptionKey(), transactionKey))
+                .withDataEncryptionInfo(dataEncryptionInfo(
+                        session.getBank().getEncryptionKey(),
+                        CryptoUtil.encryptRSA(nonce, session.getBankEncryptionKey())))
                 .withSignatureData(EbicsXmlFactory.signatureData(
                         session.getUser(),
                         session.getPartner().getId(),
                         signatureSupplier,
-                        keySpec))
+                        nonce))
                 .build();
     }
 
@@ -219,7 +216,7 @@ public abstract class EbicsXmlFactory {
     public static EbicsUnsecuredRequest ebicsUnsecuredRequest(
             final EbicsSession session,
             final OrderType orderType,
-            final byte[] orderData) {
+            final InputStream orderData) {
         return EbicsUnsecuredRequest.builder()
                 .withHeader(EbicsUnsecuredRequest.Header.builder()
                         .withAuthenticate(true)
@@ -313,9 +310,9 @@ public abstract class EbicsXmlFactory {
                 .build();
     }
 
-    private static EbicsUnsecuredRequest.Body.DataTransfer.OrderData orderData(final byte[] orderData) {
+    private static EbicsUnsecuredRequest.Body.DataTransfer.OrderData orderData(final InputStream orderData) {
         return EbicsUnsecuredRequest.Body.DataTransfer.OrderData.builder()
-                .withValue(orderData)
+                .withValue(IOUtil.read(orderData))
                 .build();
     }
 }

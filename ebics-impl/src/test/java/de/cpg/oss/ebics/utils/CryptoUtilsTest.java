@@ -7,6 +7,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.Security;
@@ -30,7 +31,10 @@ public class CryptoUtilsTest {
         for (final SignatureVersion signatureVersion : SignatureVersion.values()) {
             log.info("Test signature Version {}", signatureVersion);
             final EbicsSignatureKey signatureKey = createSignatureKey(signatureVersion);
-            assertThat(verifySignature(signatureKey, CryptoUtil.signMessage(message, signatureKey), message)).isTrue();
+            assertThat(verifySignature(
+                    signatureKey,
+                    CryptoUtil.signMessage(IOUtil.wrap(message), signatureKey),
+                    message)).isTrue();
         }
     }
 
@@ -51,18 +55,32 @@ public class CryptoUtilsTest {
             case A005:
                 signer = Signature.getInstance("SHA256withRSA");
                 signer.initVerify(signatureKey.getPublicKey());
-                signer.update(CryptoUtil.removeOSSpecificChars(message));
+                signer.update(removeOSSpecificChars(message));
                 return signer.verify(signature);
 
             case A006:
                 signer = Signature.getInstance("SHA256withRSAandMGF1", BouncyCastleProvider.PROVIDER_NAME);
                 signer.initVerify(signatureKey.getPublicKey());
-                final MessageDigest digester = MessageDigest.getInstance(CryptoUtil.DIGEST_ALGORITHM);
-                signer.update(digester.digest(CryptoUtil.removeOSSpecificChars(message)));
+                final MessageDigest digester = MessageDigest.getInstance(CryptoUtil.EBICS_DIGEST_ALGORITHM);
+                signer.update(digester.digest(removeOSSpecificChars(message)));
                 return signer.verify(signature);
 
             default:
                 throw new IllegalArgumentException("Unsupported signature version");
         }
+    }
+
+    private static byte[] removeOSSpecificChars(final byte[] buf) {
+        final ByteArrayOutputStream output;
+
+        output = new ByteArrayOutputStream();
+        for (final byte aBuf : buf) {
+            if (CryptoUtil.isOsSpecificChar(aBuf)) {
+                continue;
+            }
+            output.write(aBuf);
+        }
+
+        return output.toByteArray();
     }
 }
