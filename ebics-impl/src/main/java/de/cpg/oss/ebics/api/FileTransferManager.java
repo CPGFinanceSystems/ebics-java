@@ -23,9 +23,8 @@ public interface FileTransferManager {
                                                             final byte[] nonce) throws EbicsException {
         try {
             final MessageDigest digester = MessageDigest.getInstance(CryptoUtil.DIGEST_ALGORITHM);
-            final DigestInputStream digestInputStream = new DigestInputStream(inputStream, digester);
             final InputStream compressedAndEncrypted = CryptoUtil.encrypt(
-                    ZipUtil.compress(digestInputStream),
+                    ZipUtil.compress(CryptoUtil.digest(inputStream, digester)),
                     new SecretKeySpec(nonce, CRYPTO_ALGORITHM));
 
             final byte[] block = new byte[BLOCK_SIZE];

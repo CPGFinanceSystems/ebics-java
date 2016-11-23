@@ -242,6 +242,10 @@ public abstract class CryptoUtil {
         return signHash(digester.digest(removeOSSpecificChars(message)), signatureKey);
     }
 
+    public static InputStream digest(final InputStream inputStream, final MessageDigest digester) {
+        return new DigestInputStream(removeOSSpecificChars(inputStream), digester);
+    }
+
     public static byte[] signHash(final byte[] sha256Hash, final EbicsSignatureKey signatureKey) throws GeneralSecurityException, IOException {
         final Signature signature;
         switch (signatureKey.getVersion()) {
@@ -299,6 +303,27 @@ public abstract class CryptoUtil {
         }
 
         return output.toByteArray();
+    }
+
+    private static InputStream removeOSSpecificChars(final InputStream inputStream) {
+        return new InputStream() {
+            @Override
+            public int read() throws IOException {
+                do {
+                    final byte next = (byte) inputStream.read();
+                    switch (next) {
+                        case '\r':
+                        case '\n':
+                        case 0x1A: // CTRL-Z / EOF
+                            // ignore these characters
+                            break;
+
+                        default:
+                            return next;
+                    }
+                } while (true);
+            }
+        };
     }
 
     /**
