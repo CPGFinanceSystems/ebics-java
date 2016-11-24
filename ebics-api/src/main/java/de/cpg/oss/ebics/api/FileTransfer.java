@@ -5,20 +5,19 @@ import lombok.NonNull;
 import lombok.Value;
 import lombok.experimental.Wither;
 
-import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.UUID;
 
 @Value
 @Wither
 @Builder(builderClassName = "Builder")
-public class FileTransaction implements Serializable {
+public class FileTransfer implements Identifiable {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
     @NonNull
-    private final UUID id;
-    private final byte[] remoteTransactionId;
+    private final UUID transferId;
+    private final byte[] transactionId;
     @NonNull
     private final OrderType orderType;
     private final byte[] nonce;
@@ -26,10 +25,15 @@ public class FileTransaction implements Serializable {
     private final int segmentNumber;
     private final int numSegments;
 
+    @Override
+    public String getId() {
+        return transferId.toString();
+    }
+
     /**
      * Returns the next segment number to be transferred.
      */
-    public FileTransaction next() {
+    public FileTransfer next() {
         if (!hasNext()) {
             throw new IllegalStateException(MessageFormat.format(
                     "All segments ({0} in total) already processed for transaction {1}",

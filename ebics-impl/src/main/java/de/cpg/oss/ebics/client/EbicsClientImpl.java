@@ -3,6 +3,7 @@ package de.cpg.oss.ebics.client;
 import de.cpg.oss.ebics.api.*;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.session.BinarySerializaionManager;
+import de.cpg.oss.ebics.session.DefaultFileTransferManager;
 import de.cpg.oss.ebics.session.DefaultPasswordCallback;
 import de.cpg.oss.ebics.session.DefaultTraceManager;
 import de.cpg.oss.ebics.utils.Constants;
@@ -66,6 +67,8 @@ public class EbicsClientImpl implements EbicsClient {
         return ebicsSession
                 .withTraceManager(Optional.ofNullable(sessionParameter.getTraceManager())
                         .orElseGet(() -> new DefaultTraceManager(configuration)))
+                .withFileTransferManager(Optional.ofNullable(sessionParameter.getFileTransferManager())
+                        .orElseGet(() -> new DefaultFileTransferManager(configuration, parameter.getSerializationManager())))
                 .withUser(ebicsSession.getUser()
                         .withPasswordCallback(Optional.ofNullable(sessionParameter.getPasswordCallback())
                                 .orElseGet(() -> new DefaultPasswordCallback(sessionParameter.getUserId(), ""))));
@@ -187,17 +190,17 @@ public class EbicsClientImpl implements EbicsClient {
     }
 
     @Override
-    public FileTransaction createFileUploadTransaction(
+    public de.cpg.oss.ebics.api.FileTransfer createFileUploadTransaction(
             final EbicsSession session,
             final File inputFile,
             final OrderType orderType) throws FileNotFoundException, EbicsException {
-        return FileTransfer.createFileUploadTransaction(session, inputFile, orderType);
+        return FileTransaction.createFileUploadTransaction(session, inputFile, orderType);
     }
 
     @Override
-    public FileTransaction uploadFile(final EbicsSession session,
-                                      final FileTransaction transaction) throws EbicsException {
-        return FileTransfer.uploadFile(session, transaction);
+    public de.cpg.oss.ebics.api.FileTransfer uploadFile(final EbicsSession session,
+                                                        final de.cpg.oss.ebics.api.FileTransfer transaction) throws EbicsException {
+        return FileTransaction.uploadFile(session, transaction);
     }
 
     /**
@@ -209,8 +212,8 @@ public class EbicsClientImpl implements EbicsClient {
     public void uploadSepaDirectDebit(final String path, final EbicsSession session) throws EbicsException {
         try {
             session.addSessionParam("FORMAT", "pain.008.001.02");
-            final FileTransaction fileTransaction = createFileUploadTransaction(session, new File(path), OrderType.CDD);
-            uploadFile(session, fileTransaction);
+            final de.cpg.oss.ebics.api.FileTransfer fileTransfer = createFileUploadTransaction(session, new File(path), OrderType.CDD);
+            uploadFile(session, fileTransfer);
         } catch (final FileNotFoundException e) {
             throw new EbicsException(e);
         }
@@ -227,8 +230,8 @@ public class EbicsClientImpl implements EbicsClient {
             session.addSessionParam("TEST", "true");
         }
         try {
-            final FileTransaction transaction = FileTransfer.createFileDownloadTransaction(session, orderType, start, end);
-            FileTransfer.downloadFile(session, transaction, new File(path));
+            final de.cpg.oss.ebics.api.FileTransfer transaction = FileTransaction.createFileDownloadTransaction(session, orderType, start, end);
+            FileTransaction.downloadFile(session, transaction, new File(path));
         } catch (final IOException | EbicsException e) {
             log.error(
                     configuration.getMessageProvider().getString(

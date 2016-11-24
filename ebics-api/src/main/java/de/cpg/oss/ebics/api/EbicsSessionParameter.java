@@ -26,4 +26,5 @@ public class EbicsSessionParameter {
     private final PasswordCallback passwordCallback;
     private final SerializationManager serializationManager;
     private final TraceManager traceManager;
+    private final FileTransferManager fileTransferManager;
 }

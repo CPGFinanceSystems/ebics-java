@@ -1,14 +1,10 @@
 package de.cpg.oss.ebics.session;
 
-import de.cpg.oss.ebics.api.EbicsSession;
-import de.cpg.oss.ebics.api.FileTransaction;
-import de.cpg.oss.ebics.api.OrderType;
+import de.cpg.oss.ebics.api.*;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.CryptoUtil;
 import de.cpg.oss.ebics.utils.IOUtil;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,95 +14,109 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 @Slf4j
-@Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public final class DefaultFileTransferManager extends AbstractFileTransferManager {
 
     @NonNull
-    private final EbicsSession session;
+    private final EbicsConfiguration configuration;
     @NonNull
-    private final UUID transactionId;
-    @NonNull
-    private final byte[] nonce;
+    private final SerializationManager serializationManager;
 
-    public static DefaultFileTransferManager create(final EbicsSession session) {
-        return DefaultFileTransferManager.builder()
-                .session(session)
-                .transactionId(UUID.randomUUID())
-                .nonce(CryptoUtil.generateNonce())
-                .build();
-    }
-
-    public static DefaultFileTransferManager of(final EbicsSession session, final FileTransaction fileTransaction) {
-        return DefaultFileTransferManager.builder()
-                .session(session)
-                .transactionId(fileTransaction.getId())
-                .nonce(fileTransaction.getNonce())
-                .build();
+    @Override
+    public FileTransfer createUploadTransaction(final EbicsUser user,
+                                                final OrderType orderType,
+                                                final InputStream inputStream) throws EbicsException {
+        final UUID transferId = UUID.randomUUID();
+        IOUtil.createDirectories(transactionDir(user, transferId));
+        return save(createUploadTransfer(user, orderType, inputStream, transferId, CryptoUtil.generateNonce()));
     }
 
     @Override
-    public FileTransaction createUploadTransaction(final OrderType orderType,
-                                                   final InputStream inputStream) throws EbicsException {
-        IOUtil.createDirectories(transactionDir());
-        return createUploadTransaction(orderType, inputStream, transactionId, nonce);
+    public FileTransfer createDownloadTransaction(final EbicsUser user,
+                                                  final OrderType orderType,
+                                                  final int numSegments,
+                                                  final byte[] nonce,
+                                                  final byte[] transactionId) throws EbicsException {
+        final UUID transferId = UUID.randomUUID();
+        IOUtil.createDirectories(transactionDir(user, transferId));
+        return save(FileTransfer.builder()
+                .orderType(orderType)
+                .numSegments(numSegments)
+                .nonce(nonce)
+                .transferId(transferId)
+                .transactionId(transactionId)
+                .build());
     }
 
     @Override
-    public FileTransaction createDownloadTransaction(final OrderType orderType,
-                                                     final int numSegments,
-                                                     final byte[] nonce,
-                                                     final byte[] transactionId) throws EbicsException {
-        IOUtil.createDirectories(transactionDir());
-        return createDownloadTransaction(orderType, numSegments, nonce, this.transactionId, transactionId);
-    }
-
-    @Override
-    public InputStream readSegment(final int segmentNumber) throws IOException {
+    public InputStream readSegment(final EbicsUser user,
+                                   final UUID transferId,
+                                   final int segmentNumber) throws IOException {
         log.debug("Read segment {}", segmentNumber);
-        return new FileInputStream(segmentFile(segmentNumber));
+        return new FileInputStream(segmentFile(user, transferId, segmentNumber));
     }
 
     @Override
-    public void writeSegment(final int segmentNumber, final byte[] orderData, final int orderDataLen) throws IOException {
+    public void writeSegment(final EbicsUser user,
+                             final UUID transferId,
+                             final int segmentNumber,
+                             final byte[] orderData,
+                             final int orderDataLen) throws IOException {
         log.debug("Write segment {}", segmentNumber);
-        try (final OutputStream outputStream = new FileOutputStream(segmentFile(segmentNumber))) {
+        try (final OutputStream outputStream = new FileOutputStream(segmentFile(user, transferId, segmentNumber))) {
             outputStream.write(orderData, 0, orderDataLen);
         }
     }
 
     @Override
-    public boolean finalizeUploadTransaction(final FileTransaction fileTransaction) {
-        return cleanupTransactionDir();
-    }
-
-    @Override
-    public boolean finalizeDownloadTransaction(final FileTransaction fileTransaction,
-                                               final OutputStream outputStream) throws EbicsException {
+    public boolean finalizeUploadTransaction(final EbicsUser user,
+                                             final FileTransfer fileTransfer) throws EbicsException {
         try {
-            writeOutput(fileTransaction, outputStream);
-            return cleanupTransactionDir();
+            serializationManager.delete(fileTransfer);
+            return cleanupTransactionDir(user, fileTransfer.getTransferId());
         } catch (final IOException e) {
             throw new EbicsException(e);
         }
+    }
+
+    @Override
+    public boolean finalizeDownloadTransaction(final EbicsUser user,
+                                               final FileTransfer fileTransfer,
+                                               final OutputStream outputStream) throws EbicsException {
+        try {
+            writeOutput(user, fileTransfer, outputStream);
+            serializationManager.delete(fileTransfer);
+            return cleanupTransactionDir(user, fileTransfer.getTransferId());
+        } catch (final IOException e) {
+            throw new EbicsException(e);
+        }
+    }
+
+    @Override
+    public FileTransfer save(final FileTransfer fileTransfer) throws EbicsException {
+        try {
+            serializationManager.serialize(fileTransfer);
+        } catch (final IOException e) {
+            throw new EbicsException(e);
+        }
+        return fileTransfer;
     }
 
     /**
      * @param segmentNumber segment number starting at <code>1</code>
      * @return file location of segment file
      */
-    private File segmentFile(final int segmentNumber) {
-        return new File(transactionDir(), String.format("%04d.bin", segmentNumber - 1));
+    private File segmentFile(final EbicsUser user, final UUID transferId, final int segmentNumber) {
+        return new File(transactionDir(user, transferId), String.format("%04d.bin", segmentNumber - 1));
     }
 
-    private File transactionDir() {
-        return new File(session.getConfiguration().getTransferFilesDirectory(session.getUser()),
-                transactionId.toString());
+    private File transactionDir(final EbicsUser user, final UUID transferId) {
+        return new File(configuration.getTransferFilesDirectory(user), transferId.toString());
     }
 
-    private boolean cleanupTransactionDir() {
-        Optional.ofNullable(transactionDir().listFiles())
+    private boolean cleanupTransactionDir(final EbicsUser user, final UUID transferId) {
+        Optional.ofNullable(transactionDir(user, transferId).listFiles())
                 .ifPresent(files -> Stream.of(files).forEach(File::delete));
-        return transactionDir().delete();
+        return transactionDir(user, transferId).delete();
     }
 }

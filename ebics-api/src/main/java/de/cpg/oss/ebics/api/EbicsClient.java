@@ -27,11 +27,11 @@ public interface EbicsClient {
 
     void cancelSignature(final EbicsSession session, final DetailedVEUOrder detailedVEUOrder) throws EbicsException;
 
-    FileTransaction createFileUploadTransaction(final EbicsSession session,
-                                                final File fileLocation,
-                                                final OrderType orderType) throws FileNotFoundException, EbicsException;
+    FileTransfer createFileUploadTransaction(final EbicsSession session,
+                                             final File fileLocation,
+                                             final OrderType orderType) throws FileNotFoundException, EbicsException;
 
-    FileTransaction uploadFile(final EbicsSession session, final FileTransaction fileTransaction) throws EbicsException;
+    FileTransfer uploadFile(final EbicsSession session, final FileTransfer fileTransfer) throws EbicsException;
 
     void uploadSepaDirectDebit(String path, EbicsSession session) throws EbicsException;
 

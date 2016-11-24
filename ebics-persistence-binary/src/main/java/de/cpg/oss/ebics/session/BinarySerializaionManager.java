@@ -40,6 +40,11 @@ public class BinarySerializaionManager implements SerializationManager {
         }
     }
 
+    @Override
+    public boolean delete(final Identifiable identifiable) throws IOException {
+        return new File(serializationDir, filenameFor(identifiable)).delete();
+    }
+
     private static String filenameFor(final Identifiable identifiable) {
         return filenameFor(identifiable.getClass(), identifiable.getId());
     }

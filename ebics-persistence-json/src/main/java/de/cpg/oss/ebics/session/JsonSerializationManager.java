@@ -40,6 +40,11 @@ public class JsonSerializationManager implements SerializationManager {
         return objectMapper.readerFor(clazz).readValue(new FileInputStream(file));
     }
 
+    @Override
+    public boolean delete(final Identifiable identifiable) throws IOException {
+        return new File(serializationDirectory, filenameFrom(identifiable)).delete();
+    }
+
     private static <T extends Identifiable> String filenameFrom(final Class<T> clazz, final String id) {
         return clazz.getSimpleName().concat("_").concat(id).concat(".json");
     }

@@ -26,6 +26,7 @@ public class EbicsSession {
     private final Product product;
     private final SerializationManager serializationManager;
     private final TraceManager traceManager;
+    private final FileTransferManager fileTransferManager;
     private final Map<String, String> parameters = new HashMap<>();
 
     public PublicKey getBankEncryptionKey() {

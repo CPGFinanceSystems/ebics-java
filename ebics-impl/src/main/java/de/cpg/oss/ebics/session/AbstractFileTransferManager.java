@@ -1,6 +1,7 @@
 package de.cpg.oss.ebics.session;
 
-import de.cpg.oss.ebics.api.FileTransaction;
+import de.cpg.oss.ebics.api.EbicsUser;
+import de.cpg.oss.ebics.api.FileTransfer;
 import de.cpg.oss.ebics.api.FileTransferManager;
 import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
@@ -17,10 +18,11 @@ import java.util.UUID;
 
 abstract class AbstractFileTransferManager implements FileTransferManager {
 
-    FileTransaction createUploadTransaction(final OrderType orderType,
-                                            final InputStream inputStream,
-                                            final UUID transactionId,
-                                            final byte[] nonce) throws EbicsException {
+    FileTransfer createUploadTransfer(final EbicsUser user,
+                                      final OrderType orderType,
+                                      final InputStream inputStream,
+                                      final UUID transferId,
+                                      final byte[] nonce) throws EbicsException {
         try {
             final MessageDigest digester = MessageDigest.getInstance(CryptoUtil.EBICS_DIGEST_ALGORITHM);
             final InputStream compressedAndEncrypted = CryptoUtil.encryptAES(
@@ -39,41 +41,31 @@ abstract class AbstractFileTransferManager implements FileTransferManager {
                     }
                     blockBytesRead += bytesRead;
                 }
-                writeSegment(++segmentNumber, block, blockBytesRead);
+                writeSegment(user, transferId, ++segmentNumber, block, blockBytesRead);
             } while (bytesRead != -1);
 
-            return FileTransaction.builder()
+            return FileTransfer.builder()
                     .orderType(orderType)
                     .numSegments(segmentNumber)
                     .digest(digester.digest())
                     .nonce(nonce)
-                    .id(transactionId)
+                    .transferId(transferId)
                     .build();
         } catch (GeneralSecurityException | IOException e) {
             throw new EbicsException(e);
         }
     }
 
-    FileTransaction createDownloadTransaction(final OrderType orderType,
-                                              final int numSegments,
-                                              final byte[] nonce,
-                                              final UUID transactionId,
-                                              final byte[] remoteTransactionId) {
-        return FileTransaction.builder()
-                .orderType(orderType)
-                .numSegments(numSegments)
-                .nonce(nonce)
-                .id(transactionId)
-                .remoteTransactionId(remoteTransactionId)
-                .build();
-    }
-
-    void writeOutput(final FileTransaction fileTransaction,
+    void writeOutput(final EbicsUser user,
+                     final FileTransfer fileTransfer,
                      final OutputStream outputStream) throws EbicsException, IOException {
-        for (int i = 0; i < fileTransaction.getNumSegments(); i++) {
+        for (int i = 0; i < fileTransfer.getNumSegments(); i++) {
             outputStream.write(IOUtil.read(ZipUtil.uncompress(CryptoUtil.decryptAES(
-                    readSegment(i + 1),
-                    fileTransaction.getNonce()))));
+                    readSegment(
+                            user,
+                            fileTransfer.getTransferId(),
+                            i + 1),
+                    fileTransfer.getNonce()))));
         }
     }
 }

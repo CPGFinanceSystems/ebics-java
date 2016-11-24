@@ -34,4 +34,6 @@ public interface SerializationManager {
     void serialize(Identifiable object) throws IOException;
 
     <T extends Identifiable> T deserialize(Class<T> clazz, final String id) throws IOException;
+
+    boolean delete(Identifiable identifiable) throws IOException;
 }
