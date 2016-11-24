@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.ebics.h004.EbicsRequest;
 
 import java.io.*;
+import java.text.MessageFormat;
 import java.time.LocalDate;
 
 
@@ -62,15 +63,22 @@ abstract class FileTransaction {
 
     static FileTransfer uploadFile(final EbicsSession session,
                                    final FileTransfer transaction) throws EbicsException {
-        FileTransfer current;
-        if (null == transaction.getTransactionId() || 0 == transaction.getSegmentNumber()) {
-            current = uploadInitRequest(session, transaction);
-        } else {
-            current = transaction;
-        }
-
-        while (current.hasNext()) {
-            current = uploadSegment(session, current.next());
+        FileTransfer current = transaction;
+        try {
+            if (null == transaction.getTransactionId() || 0 == transaction.getSegmentNumber()) {
+                current = uploadInitRequest(session, transaction);
+            }
+            while (current.hasNext()) {
+                current = uploadSegment(session, current.next());
+            }
+        } catch (final Exception e) {
+            log.error(
+                    MessageFormat.format("Error uploading segment {} of {} for file transfer with ID {}",
+                            current.getSegmentNumber(),
+                            current.getNumSegments(),
+                            current.getTransferId()),
+                    e);
+            return current;
         }
 
         session.getFileTransferManager().finalizeUploadTransaction(session.getUser(), current);
@@ -116,8 +124,18 @@ abstract class FileTransaction {
                                      final FileTransfer transaction,
                                      final File outputFile) throws EbicsException, FileNotFoundException {
         FileTransfer current = transaction;
-        while (current.hasNext()) {
-            current = downloadSegment(session, current.next());
+        try {
+            while (current.hasNext()) {
+                current = downloadSegment(session, current.next());
+            }
+        } catch (final Exception e) {
+            log.error(
+                    MessageFormat.format("Error downloading segment {} of {} for file transfer with ID {}",
+                            current.getSegmentNumber(),
+                            current.getNumSegments(),
+                            current.getTransferId()),
+                    e);
+            return current;
         }
 
         final EbicsRequest ebicsRequest = new ReceiptRequestElement(current.getTransactionId())

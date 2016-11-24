@@ -190,7 +190,7 @@ public class EbicsClientImpl implements EbicsClient {
     }
 
     @Override
-    public de.cpg.oss.ebics.api.FileTransfer createFileUploadTransaction(
+    public FileTransfer createFileUploadTransaction(
             final EbicsSession session,
             final File inputFile,
             final OrderType orderType) throws FileNotFoundException, EbicsException {
@@ -198,8 +198,8 @@ public class EbicsClientImpl implements EbicsClient {
     }
 
     @Override
-    public de.cpg.oss.ebics.api.FileTransfer uploadFile(final EbicsSession session,
-                                                        final de.cpg.oss.ebics.api.FileTransfer transaction) throws EbicsException {
+    public FileTransfer uploadFile(final EbicsSession session,
+                                   final FileTransfer transaction) throws EbicsException {
         return FileTransaction.uploadFile(session, transaction);
     }
 
@@ -212,7 +212,7 @@ public class EbicsClientImpl implements EbicsClient {
     public void uploadSepaDirectDebit(final String path, final EbicsSession session) throws EbicsException {
         try {
             session.addSessionParam("FORMAT", "pain.008.001.02");
-            final de.cpg.oss.ebics.api.FileTransfer fileTransfer = createFileUploadTransaction(session, new File(path), OrderType.CDD);
+            final FileTransfer fileTransfer = createFileUploadTransaction(session, new File(path), OrderType.CDD);
             uploadFile(session, fileTransfer);
         } catch (final FileNotFoundException e) {
             throw new EbicsException(e);
@@ -230,7 +230,7 @@ public class EbicsClientImpl implements EbicsClient {
             session.addSessionParam("TEST", "true");
         }
         try {
-            final de.cpg.oss.ebics.api.FileTransfer transaction = FileTransaction.createFileDownloadTransaction(session, orderType, start, end);
+            final FileTransfer transaction = FileTransaction.createFileDownloadTransaction(session, orderType, start, end);
             FileTransaction.downloadFile(session, transaction, new File(path));
         } catch (final IOException | EbicsException e) {
             log.error(
