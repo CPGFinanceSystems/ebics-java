@@ -25,6 +25,7 @@ import javax.xml.crypto.dsig.DigestMethod;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -65,7 +66,10 @@ public abstract class XmlUtil {
                     return new CustomLSInput(publicId, systemId, resourceAsStream);
                 }
             });
-            XML_SCHEMAS = factory.newSchema(new StreamSource(XmlUtil.class.getResourceAsStream("/xsd/ebics_H004.xsd")));
+            XML_SCHEMAS = factory.newSchema(new Source[]{
+                    new StreamSource(XmlUtil.class.getResourceAsStream("/xsd/ebics_H004.xsd")),
+                    new StreamSource(XmlUtil.class.getResourceAsStream("/xsd/ebics_hev.xsd"))
+            });
         } catch (final SAXException e) {
             throw new RuntimeException(e);
         }

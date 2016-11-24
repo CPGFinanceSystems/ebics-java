@@ -19,10 +19,14 @@
 
 package de.cpg.oss.ebics.api;
 
+import javaslang.control.Either;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.experimental.Wither;
+
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 
 /**
@@ -35,7 +39,7 @@ import lombok.experimental.Wither;
 @Wither
 public class EbicsUser implements Identifiable {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
     private final EbicsSignatureKey signatureKey;
     private final EbicsEncryptionKey encryptionKey;
@@ -50,10 +54,19 @@ public class EbicsUser implements Identifiable {
     private final boolean initializedINI;
     private final boolean initializedHIA;
 
+    private final UserStatus status;
+    private final Collection<String> permittedOrderTypes;
+
     private final transient PasswordCallback passwordCallback;
 
     @Override
     public String getId() {
         return getUserId();
+    }
+
+    public Collection<Either<OrderType, String>> getPermittedOrderTypes() {
+        return permittedOrderTypes.stream()
+                .map(OrderType::ofRaw)
+                .collect(Collectors.toList());
     }
 }

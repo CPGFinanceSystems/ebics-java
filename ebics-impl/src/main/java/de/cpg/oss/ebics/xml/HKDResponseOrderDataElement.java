@@ -1,19 +1,20 @@
 package de.cpg.oss.ebics.xml;
 
-import de.cpg.oss.ebics.api.UserStatus;
+import de.cpg.oss.ebics.api.BankAccountInformation;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.ebics.h004.AccountType;
 import org.ebics.h004.HKDResponseOrderDataType;
-import org.ebics.h004.UserInfoType;
 
 import java.io.InputStream;
-import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Collection;
-import java.util.Map;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class HKDResponseOrderDataElement implements ResponseOrderDataElement<HKDResponseOrderDataType> {
@@ -25,30 +26,65 @@ public class HKDResponseOrderDataElement implements ResponseOrderDataElement<HKD
         return new HKDResponseOrderDataElement(XmlUtil.parse(HKDResponseOrderDataType.class, orderDataXml));
     }
 
-    /**
-     * @return a map with user IDs as key and the user status as value
-     */
-    public Map<String, UserStatus> getUserStatus() {
-        return responseOrderData.getUserInfos().stream()
-                .map(UserInfoType::getUserID)
-                .map(userId -> new SimpleImmutableEntry<>(userId.getValue(), UserStatus.fromEbicsStatus(userId.getStatus())))
-                .collect(Collectors.toMap(SimpleImmutableEntry::getKey, SimpleImmutableEntry::getValue));
-    }
-
-    /**
-     * @return a map with user IDs as key and a list of order types as value
-     */
-    public Map<String, Collection<String>> getPermittedUserOrderTypes() {
-        return responseOrderData.getUserInfos().stream()
-                .map(userInfo -> new SimpleImmutableEntry<String, Collection<String>>(
-                        userInfo.getUserID().getValue(),
-                        userInfo.getPermissions().stream().flatMap(permission -> permission.getOrderTypes().stream())
-                                .collect(Collectors.toList())))
-                .collect(Collectors.toMap(SimpleImmutableEntry::getKey, SimpleImmutableEntry::getValue));
-    }
-
     @Override
     public Class<HKDResponseOrderDataType> getResponseOrderDataClass() {
         return HKDResponseOrderDataType.class;
+    }
+
+    public Collection<BankAccountInformation> getBankAccounts() {
+        return Optional.ofNullable(responseOrderData.getPartnerInfo().getAccountInfos())
+                .map(infos -> infos.stream()
+                        .map(info -> BankAccountInformation.builder()
+                                .id(info.getID())
+                                .accountHolder(info.getAccountHolder())
+                                .currency(info.getCurrency())
+                                .description(info.getDescription())
+                                .accountNmber(accountNumber(info.getAccountNumbersAndNationalAccountNumbers()))
+                                .bankCode(bankCode(info.getBankCodesAndNationalBankCodes()))
+                                .iban(iban(info.getAccountNumbersAndNationalAccountNumbers()))
+                                .bic(bic(info.getBankCodesAndNationalBankCodes()))
+                                .build()))
+                .orElse(Stream.empty())
+                .collect(Collectors.toList());
+    }
+
+    private static String accountNumber(final List<?> accountNumbers) {
+        return accountNumbers.stream()
+                .filter(AccountType.NationalAccountNumber.class::isInstance)
+                .findFirst()
+                .map(accountNumber -> ((AccountType.NationalAccountNumber) accountNumber).getValue())
+                .orElse(null);
+    }
+
+    private static String bankCode(final List<?> bankCodes) {
+        return bankCodes.stream()
+                .filter(AccountType.NationalBankCode.class::isInstance)
+                .findFirst()
+                .map(bankCode -> ((AccountType.NationalBankCode) bankCode).getValue())
+                .orElse(null);
+    }
+
+    private static String iban(final List<?> accountNumbers) {
+        return accountNumbers.stream()
+                .filter(AccountType.AccountNumber.class::isInstance)
+                .map(AccountType.AccountNumber.class::cast)
+                .filter(AccountType.AccountNumber::isInternational)
+                .findFirst()
+                .map(AccountType.AccountNumber::getValue)
+                .orElse(null);
+    }
+
+    private static String bic(final List<?> bankCodes) {
+        return bankCodes.stream()
+                .filter(AccountType.BankCode.class::isInstance)
+                .map(AccountType.BankCode.class::cast)
+                .filter(AccountType.BankCode::isInternational)
+                .findFirst()
+                .map(AccountType.BankCode::getValue)
+                .orElse(null);
+    }
+
+    private static boolean isListOf(final List<?> list, final Class<?> clazz) {
+        return list.stream().findFirst().map(clazz::isInstance).orElse(false);
     }
 }

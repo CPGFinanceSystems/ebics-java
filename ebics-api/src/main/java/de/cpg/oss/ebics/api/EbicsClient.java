@@ -9,11 +9,12 @@ import java.time.LocalDate;
 import java.util.Collection;
 
 public interface EbicsClient {
+
     EbicsSession loadOrCreateSession(EbicsSessionParameter sessionParameter) throws EbicsException;
 
     EbicsSession initializeUser(EbicsSession session) throws EbicsException;
 
-    EbicsSession getBankInformation(EbicsSession session) throws EbicsException;
+    EbicsSession collectInformation(EbicsSession session) throws EbicsException;
 
     EbicsSession revokeSubscriber(EbicsSession session) throws EbicsException;
 
@@ -33,8 +34,6 @@ public interface EbicsClient {
 
     FileTransfer uploadFile(final EbicsSession session, final FileTransfer fileTransfer) throws EbicsException;
 
-    void uploadSepaDirectDebit(String path, EbicsSession session) throws EbicsException;
-
     void fetchFile(String path,
                    EbicsSession session,
                    OrderType orderType,
@@ -42,5 +41,5 @@ public interface EbicsClient {
                    LocalDate start,
                    LocalDate end);
 
-    void save(EbicsSession session) throws IOException;
+    EbicsSession save(EbicsSession session) throws IOException;
 }

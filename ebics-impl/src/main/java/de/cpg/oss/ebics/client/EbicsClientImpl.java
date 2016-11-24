@@ -108,10 +108,10 @@ public class EbicsClientImpl implements EbicsClient {
     }
 
     @Override
-    public EbicsSession getBankInformation(final EbicsSession session) throws EbicsException {
+    public EbicsSession collectInformation(final EbicsSession session) throws EbicsException {
         final EbicsBank bankWithKeys;
         if (null == session.getBank().getEncryptionKey() || null == session.getBank().getAuthenticationKey()) {
-            bankWithKeys = KeyManagement.sendHPB(session);
+            bankWithKeys = KeyManagement.getBankPublicKeys(session);
         } else {
             bankWithKeys = session.getBank();
         }
@@ -124,15 +124,11 @@ public class EbicsClientImpl implements EbicsClient {
             }
         }
 
-        final EbicsBank bankWithInfos = KeyManagement.sendHPD(session.withBank(bankWithKeys));
-        if (!bankWithInfos.equals(bankWithKeys)) {
-            try {
-                session.getSerializationManager().serialize(bankWithInfos);
-            } catch (final IOException e) {
-                throw new EbicsException(e);
-            }
+        try {
+            return save(KeyManagement.collectInformation(session.withBank(bankWithKeys)));
+        } catch (final IOException e) {
+            throw new EbicsException(e);
         }
-        return session.withBank(bankWithInfos);
     }
 
     /**
@@ -203,22 +199,6 @@ public class EbicsClientImpl implements EbicsClient {
         return FileTransaction.uploadFile(session, transaction);
     }
 
-    /**
-     * Sends a file to the ebics bank sever
-     *
-     * @param path the file path to send
-     */
-    @Override
-    public void uploadSepaDirectDebit(final String path, final EbicsSession session) throws EbicsException {
-        try {
-            session.addSessionParam("FORMAT", "pain.008.001.02");
-            final FileTransfer fileTransfer = createFileUploadTransaction(session, new File(path), OrderType.CDD);
-            uploadFile(session, fileTransfer);
-        } catch (final FileNotFoundException e) {
-            throw new EbicsException(e);
-        }
-    }
-
     @Override
     public void fetchFile(final String path,
                           final EbicsSession session,
@@ -245,7 +225,7 @@ public class EbicsClientImpl implements EbicsClient {
      * Performs buffers save before quitting the client application.
      */
     @Override
-    public void save(final EbicsSession session) throws IOException {
+    public EbicsSession save(final EbicsSession session) throws IOException {
         log.info(configuration.getMessageProvider().getString(
                 "app.quit.users",
                 Constants.APPLICATION_BUNDLE_NAME,
@@ -263,6 +243,8 @@ public class EbicsClientImpl implements EbicsClient {
                 Constants.APPLICATION_BUNDLE_NAME,
                 session.getBank().getId()));
         session.getSerializationManager().serialize(session.getBank());
+
+        return session;
     }
 
     static void init(final EbicsConfiguration configuration) {

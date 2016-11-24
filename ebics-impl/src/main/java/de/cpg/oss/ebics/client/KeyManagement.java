@@ -1,14 +1,12 @@
 package de.cpg.oss.ebics.client;
 
-import de.cpg.oss.ebics.api.EbicsBank;
-import de.cpg.oss.ebics.api.EbicsSession;
-import de.cpg.oss.ebics.api.EbicsUser;
-import de.cpg.oss.ebics.api.OrderType;
+import de.cpg.oss.ebics.api.*;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import de.cpg.oss.ebics.utils.ZipUtil;
 import de.cpg.oss.ebics.xml.*;
 import lombok.extern.slf4j.Slf4j;
+import org.ebics.h000.EbicsHEVRequest;
 import org.ebics.h004.EbicsNoPubKeyDigestsRequest;
 import org.ebics.h004.EbicsRequest;
 import org.ebics.h004.EbicsUnsecuredRequest;
@@ -77,7 +75,7 @@ abstract class KeyManagement {
      *
      * @throws EbicsException server generated error message
      */
-    static EbicsBank sendHPB(final EbicsSession session) throws EbicsException {
+    static EbicsBank getBankPublicKeys(final EbicsSession session) throws EbicsException {
         final EbicsNoPubKeyDigestsRequest ebicsNoPubKeyDigestsRequest = HPBRequestElement.create(session);
         final String baseElementName = ebicsNoPubKeyDigestsRequest.getHeader().getStatic().getOrderDetails().getOrderType();
         final KeyManagementResponseElement response = ClientUtil.requestExchange(session,
@@ -91,18 +89,42 @@ abstract class KeyManagement {
                 .withEncryptionKey(orderData.getBankEncryptionKey());
     }
 
-    static EbicsBank sendHPD(final EbicsSession session) throws EbicsException {
+    static EbicsSession collectInformation(final EbicsSession session) throws EbicsException {
+        EbicsBank updatedBank = sendHEV(session);
+
         final OrderType orderType = OrderType.HPD;
         final EbicsRequest ebicsRequest = EbicsRequestElement.createSigned(session, orderType);
+
         final EbicsResponseElement responseElement = ClientUtil.requestExchange(session, ebicsRequest);
         final HPDResponseOrderDataElement orderData = ClientUtil.orderDataElement(session, responseElement,
                 HPDResponseOrderDataElement::parse, orderType.name());
+        updatedBank = updatedBank.withName(orderData.getBankName());
 
         if (orderData.isDownloadableOrderDataSupported()) {
-            return sendHAA(session.withBank(session.getBank().withName(orderData.getBankName())));
+            updatedBank = sendHAA(session.withBank(updatedBank));
         }
 
-        return session.getBank().withName(orderData.getBankName());
+        EbicsPartner updatedPartner = session.getPartner();
+        EbicsUser updatedUser = session.getUser();
+        if (orderData.isClientDataDownloadSupported()) {
+            updatedPartner = sendHKD(session.withBank(updatedBank));
+            updatedUser = sendHTD(session.withBank(updatedBank).withPartner(updatedPartner));
+        }
+
+        return session.withBank(updatedBank)
+                .withPartner(updatedPartner)
+                .withUser(updatedUser);
+    }
+
+    private static EbicsBank sendHEV(final EbicsSession session) throws EbicsException {
+        final EbicsHEVRequest hevRequest = EbicsHEVRequest.builder()
+                .withHostID(session.getHostId())
+                .build();
+
+        final HEVResponseElement responseElement = ClientUtil.requestExchange(session, EbicsHEVRequest.class,
+                hevRequest, HEVResponseElement::parse, OrderType.HEV.name());
+
+        return session.getBank().withSupportedEbicsVersions(responseElement.getSupportedEbicsVersions());
     }
 
     private static EbicsBank sendHAA(final EbicsSession session) throws EbicsException {
@@ -113,6 +135,30 @@ abstract class KeyManagement {
                 HAAResponseOrderDataElement::parse, orderType.name());
 
         return session.getBank().withSupportedOrderTypes(orderData.getSupportedOrderTypes());
+    }
+
+    private static EbicsPartner sendHKD(final EbicsSession session) throws EbicsException {
+        final OrderType orderType = OrderType.HKD;
+        final EbicsRequest ebicsRequest = EbicsRequestElement.createSigned(session, orderType);
+
+        final EbicsResponseElement responseElement = ClientUtil.requestExchange(session, ebicsRequest);
+        final HKDResponseOrderDataElement orderData = ClientUtil.orderDataElement(session, responseElement,
+                HKDResponseOrderDataElement::parse, orderType.name());
+
+        return session.getPartner().withBankAccounts(orderData.getBankAccounts());
+    }
+
+    private static EbicsUser sendHTD(final EbicsSession session) throws EbicsException {
+        final OrderType orderType = OrderType.HTD;
+        final EbicsRequest ebicsRequest = EbicsRequestElement.createSigned(session, orderType);
+
+        final EbicsResponseElement responseElement = ClientUtil.requestExchange(session, ebicsRequest);
+        final HTDResponseOrderDataElement orderData = ClientUtil.orderDataElement(session, responseElement,
+                HTDResponseOrderDataElement::parse, orderType.name());
+
+        return session.getUser()
+                .withStatus(orderData.getUserStatus())
+                .withPermittedOrderTypes(orderData.getPermittedUserOrderTypes());
     }
 
     /**
@@ -127,6 +173,6 @@ abstract class KeyManagement {
 
         ClientUtil.requestExchange(session, ebicsRequest);
 
-        return session.getUser();
+        return session.getUser().withStatus(UserStatus.SUSPENDED_BY_CUSTOMER);
     }
 }

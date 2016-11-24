@@ -5,7 +5,7 @@ import javaslang.control.Either;
 import lombok.Getter;
 
 public enum OrderType {
-    // EBICS protocol messages
+    // User key management
     INI(Transmission.UPLOAD, "Send password initialisation", Presence.MANDATORY),
     HIA(Transmission.UPLOAD, "Transmission of the subscriber key for identification and authentication and encryption within the framework of subscriber initialisation", Presence.MANDATORY),
     HPB(Transmission.DOWNLOAD, "Transfer the public bank key", Presence.MANDATORY),
@@ -19,8 +19,11 @@ public enum OrderType {
     HCS(Transmission.UPLOAD, "Transmission of the subscriber key for ES, identification and authentication and encryption", Presence.MANDATORY),
     HEV(Transmission.DOWNLOAD, "Download supported EBICS versions", Presence.MANDATORY),
     SPR(Transmission.UPLOAD, "Suspension of access authorisation", Presence.MANDATORY),
+
     FUL(Transmission.UPLOAD, "Upload file with any format"),
     FDL(Transmission.DOWNLOAD, "Download file with any format"),
+
+    // distributed electronic signature
     HVU(Transmission.DOWNLOAD, "Download VEU overview", Presence.CONDITIONAL),
     HVZ(Transmission.DOWNLOAD, "Download VEU overview with additional information", Presence.CONDITIONAL),
     HVD(Transmission.DOWNLOAD, "Retrieve VEU state", Presence.CONDITIONAL),

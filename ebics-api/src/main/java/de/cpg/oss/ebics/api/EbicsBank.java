@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @Builder
 public class EbicsBank implements Identifiable {
 
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 4L;
 
     @NonNull
     private final URI uri;
@@ -27,11 +27,18 @@ public class EbicsBank implements Identifiable {
     private final String hostId;
     private final String name;
 
+    private final Collection<String> supportedEbicsVersions;
     private final Collection<String> supportedOrderTypes;
 
     @Override
     public String getId() {
         return getHostId();
+    }
+
+    public Collection<Either<EbicsVersion, String>> getSupportedEbicsVersions() {
+        return supportedEbicsVersions.stream()
+                .map(EbicsVersion::ofRaw)
+                .collect(Collectors.toList());
     }
 
     public Collection<Either<OrderType, String>> getSupportedOrderTypes() {
