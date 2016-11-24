@@ -1,11 +1,13 @@
-package de.cpg.oss.ebics.io;
+package de.cpg.oss.ebics.session;
 
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.FileTransaction;
-import de.cpg.oss.ebics.api.FileTransferManager;
+import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.CryptoUtil;
 import de.cpg.oss.ebics.utils.IOUtil;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +18,9 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 @Slf4j
-public final class DefaultFileTransferManager implements FileTransferManager {
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public final class DefaultFileTransferManager extends AbstractFileTransferManager {
 
     @NonNull
     private final EbicsSession session;
@@ -24,13 +28,6 @@ public final class DefaultFileTransferManager implements FileTransferManager {
     private final UUID transactionId;
     @NonNull
     private final byte[] nonce;
-
-    @Builder
-    private DefaultFileTransferManager(final EbicsSession session, final UUID transactionId, final byte[] nonce) {
-        this.session = session;
-        this.transactionId = transactionId;
-        this.nonce = nonce;
-    }
 
     public static DefaultFileTransferManager create(final EbicsSession session) {
         return DefaultFileTransferManager.builder()
@@ -48,16 +45,20 @@ public final class DefaultFileTransferManager implements FileTransferManager {
                 .build();
     }
 
-    public FileTransaction.Builder createUploadTransaction(final InputStream inputStream) throws EbicsException {
+    @Override
+    public FileTransaction createUploadTransaction(final OrderType orderType,
+                                                   final InputStream inputStream) throws EbicsException {
         IOUtil.createDirectories(transactionDir());
-        return createUploadTransaction(inputStream, transactionId, nonce);
+        return createUploadTransaction(orderType, inputStream, transactionId, nonce);
     }
 
-    public FileTransaction.Builder createDownloadTransaction(final int numSegments,
-                                                             final byte[] nonce,
-                                                             final byte[] transactionId) throws EbicsException {
+    @Override
+    public FileTransaction createDownloadTransaction(final OrderType orderType,
+                                                     final int numSegments,
+                                                     final byte[] nonce,
+                                                     final byte[] transactionId) throws EbicsException {
         IOUtil.createDirectories(transactionDir());
-        return createDownloadTransaction(numSegments, this.transactionId, nonce, transactionId);
+        return createDownloadTransaction(orderType, numSegments, nonce, this.transactionId, transactionId);
     }
 
     @Override
@@ -75,7 +76,7 @@ public final class DefaultFileTransferManager implements FileTransferManager {
     }
 
     @Override
-    public boolean finalizeUploadTransaction() {
+    public boolean finalizeUploadTransaction(final FileTransaction fileTransaction) {
         return cleanupTransactionDir();
     }
 

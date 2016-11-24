@@ -1,5 +1,8 @@
-package de.cpg.oss.ebics.api;
+package de.cpg.oss.ebics.session;
 
+import de.cpg.oss.ebics.api.FileTransaction;
+import de.cpg.oss.ebics.api.FileTransferManager;
+import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.CryptoUtil;
 import de.cpg.oss.ebics.utils.IOUtil;
@@ -12,13 +15,12 @@ import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.UUID;
 
-public interface FileTransferManager {
+abstract class AbstractFileTransferManager implements FileTransferManager {
 
-    int BLOCK_SIZE = 1024 * 1024;
-
-    default FileTransaction.Builder createUploadTransaction(final InputStream inputStream,
-                                                            final UUID transactionId,
-                                                            final byte[] nonce) throws EbicsException {
+    FileTransaction createUploadTransaction(final OrderType orderType,
+                                            final InputStream inputStream,
+                                            final UUID transactionId,
+                                            final byte[] nonce) throws EbicsException {
         try {
             final MessageDigest digester = MessageDigest.getInstance(CryptoUtil.EBICS_DIGEST_ALGORITHM);
             final InputStream compressedAndEncrypted = CryptoUtil.encryptAES(
@@ -41,50 +43,33 @@ public interface FileTransferManager {
             } while (bytesRead != -1);
 
             return FileTransaction.builder()
+                    .orderType(orderType)
                     .numSegments(segmentNumber)
                     .digest(digester.digest())
                     .nonce(nonce)
-                    .id(transactionId);
+                    .id(transactionId)
+                    .build();
         } catch (GeneralSecurityException | IOException e) {
             throw new EbicsException(e);
         }
     }
 
-    default FileTransaction.Builder createDownloadTransaction(final int numSegments,
-                                                              final UUID transactionId,
-                                                              final byte[] nonce,
-                                                              final byte[] remoteTransactionId) throws EbicsException {
+    FileTransaction createDownloadTransaction(final OrderType orderType,
+                                              final int numSegments,
+                                              final byte[] nonce,
+                                              final UUID transactionId,
+                                              final byte[] remoteTransactionId) {
         return FileTransaction.builder()
+                .orderType(orderType)
                 .numSegments(numSegments)
                 .nonce(nonce)
                 .id(transactionId)
-                .remoteTransactionId(remoteTransactionId);
+                .remoteTransactionId(remoteTransactionId)
+                .build();
     }
 
-    /**
-     * @param segmentNumber segment number starting at <code>1</code>
-     * @return compressed and encrypted segment
-     */
-    InputStream readSegment(int segmentNumber) throws IOException;
-
-    /**
-     * @param segmentNumber segment number starting at <code>1</code>
-     * @param orderData     compressed and encrypted segment
-     * @param orderDataLen  length of segment
-     */
-    void writeSegment(int segmentNumber, byte[] orderData, int orderDataLen) throws IOException;
-
-    default void writeSegment(final int segmentNumber, final byte[] orderData) throws IOException {
-        writeSegment(segmentNumber, orderData, orderData.length);
-    }
-
-    boolean finalizeUploadTransaction();
-
-    boolean finalizeDownloadTransaction(FileTransaction fileTransaction,
-                                        OutputStream outputStream) throws EbicsException;
-
-    default void writeOutput(final FileTransaction fileTransaction,
-                             final OutputStream outputStream) throws EbicsException, IOException {
+    void writeOutput(final FileTransaction fileTransaction,
+                     final OutputStream outputStream) throws EbicsException, IOException {
         for (int i = 0; i < fileTransaction.getNumSegments(); i++) {
             outputStream.write(IOUtil.read(ZipUtil.uncompress(CryptoUtil.decryptAES(
                     readSegment(i + 1),

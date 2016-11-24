@@ -2,12 +2,13 @@ package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.exception.ReturnCode;
-import de.cpg.oss.ebics.io.ContentFactory;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.ebics.h004.EbicsKeyManagementResponse;
+
+import java.io.InputStream;
 
 /**
  * The <code>KeyManagementResponseElement</code> is the common element
@@ -21,8 +22,8 @@ public class KeyManagementResponseElement implements ResponseElement<EbicsKeyMan
     @Getter
     private EbicsKeyManagementResponse response;
 
-    public static KeyManagementResponseElement parse(final ContentFactory contentFactory) throws EbicsException {
-        return new KeyManagementResponseElement(XmlUtil.parse(EbicsKeyManagementResponse.class, contentFactory.getContent()));
+    public static KeyManagementResponseElement parse(final InputStream inputStream) throws EbicsException {
+        return new KeyManagementResponseElement(XmlUtil.parse(EbicsKeyManagementResponse.class, inputStream));
     }
 
     @Override

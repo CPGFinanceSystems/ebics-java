@@ -5,7 +5,7 @@ import de.cpg.oss.ebics.api.FileTransaction;
 import de.cpg.oss.ebics.api.FileTransferManager;
 import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.io.DefaultFileTransferManager;
+import de.cpg.oss.ebics.session.DefaultFileTransferManager;
 import de.cpg.oss.ebics.utils.CryptoUtil;
 import de.cpg.oss.ebics.utils.IOUtil;
 import de.cpg.oss.ebics.xml.*;
@@ -53,10 +53,9 @@ abstract class FileTransfer {
             final File inputFile,
             final OrderType orderType) throws FileNotFoundException, EbicsException {
         try {
-            return DefaultFileTransferManager.create(session)
-                    .createUploadTransaction(new FileInputStream(inputFile))
-                    .orderType(orderType)
-                    .build();
+            return DefaultFileTransferManager
+                    .create(session)
+                    .createUploadTransaction(orderType, new FileInputStream(inputFile));
         } catch (final IOException e) {
             throw new EbicsException(e);
         }
@@ -77,7 +76,7 @@ abstract class FileTransfer {
             current = uploadSegment(session, current.next(), transferManager);
         }
 
-        transferManager.finalizeUploadTransaction();
+        transferManager.finalizeUploadTransaction(current);
 
         return current;
     }
@@ -96,13 +95,12 @@ abstract class FileTransfer {
         final DInitializationResponseElement responseElement = ClientUtil.requestExchange(session, request,
                 DInitializationResponseElement::parse);
 
-        final DefaultFileTransferManager transferManager = DefaultFileTransferManager.create(session);
+        final FileTransferManager transferManager = DefaultFileTransferManager.create(session);
         final FileTransaction fileTransaction = transferManager.createDownloadTransaction(
+                orderType,
                 responseElement.getNumSegments(),
                 CryptoUtil.decryptRSA(responseElement.getTransactionKey(), session.getUserEncryptionKey()),
-                responseElement.getTransactionId())
-                .orderType(orderType)
-                .build();
+                responseElement.getTransactionId());
 
         try {
             transferManager.writeSegment(fileTransaction.getSegmentNumber(), responseElement.getOrderData());

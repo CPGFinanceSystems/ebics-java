@@ -4,8 +4,9 @@ import de.cpg.oss.ebics.api.MessageProvider;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.exception.NoDownloadDataAvailableException;
 import de.cpg.oss.ebics.api.exception.ReturnCode;
-import de.cpg.oss.ebics.io.ContentFactory;
 import org.ebics.h004.EbicsResponse;
+
+import java.io.InputStream;
 
 public class DInitializationResponseElement extends EbicsResponseElement {
 
@@ -13,8 +14,8 @@ public class DInitializationResponseElement extends EbicsResponseElement {
         super(ebicsResponse);
     }
 
-    public static DInitializationResponseElement parse(final ContentFactory contentFactory) throws EbicsException {
-        return new DInitializationResponseElement(parse(contentFactory.getContent()));
+    public static DInitializationResponseElement parse(final InputStream inputStream) throws EbicsException {
+        return new DInitializationResponseElement(parseXml(inputStream));
     }
 
     @Override

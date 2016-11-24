@@ -2,8 +2,6 @@ package de.cpg.oss.ebics.client;
 
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.io.ContentFactory;
-import de.cpg.oss.ebics.io.InputStreamContentFactory;
 import de.cpg.oss.ebics.utils.*;
 import de.cpg.oss.ebics.xml.EbicsResponseElement;
 import de.cpg.oss.ebics.xml.ResponseElement;
@@ -18,7 +16,7 @@ import java.util.Optional;
 abstract class ClientUtil {
 
     interface ResponseElementParser<T extends ResponseElement<?>> {
-        T parse(ContentFactory contentFactory) throws EbicsException;
+        T parse(InputStream responseDataXml) throws EbicsException;
     }
 
     interface ResponseOrderDataElementParser<T extends ResponseOrderDataElement<?>> {
@@ -54,7 +52,7 @@ abstract class ClientUtil {
                 session.getMessageProvider());
         final O response;
         try {
-            response = responseElementParser.parse(InputStreamContentFactory.of(httpEntity));
+            response = responseElementParser.parse(httpEntity.getContent());
         } catch (final IOException e) {
             throw new EbicsException(e);
         }

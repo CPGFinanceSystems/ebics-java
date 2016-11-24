@@ -3,8 +3,9 @@ package de.cpg.oss.ebics.xml;
 import de.cpg.oss.ebics.api.MessageProvider;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.exception.ReturnCode;
-import de.cpg.oss.ebics.io.ContentFactory;
 import org.ebics.h004.EbicsResponse;
+
+import java.io.InputStream;
 
 public class ReceiptResponseElement extends EbicsResponseElement {
 
@@ -12,8 +13,8 @@ public class ReceiptResponseElement extends EbicsResponseElement {
         super(ebicsResponse);
     }
 
-    public static ReceiptResponseElement parse(final ContentFactory contentFactory) throws EbicsException {
-        return new ReceiptResponseElement(parse(contentFactory.getContent()));
+    public static ReceiptResponseElement parse(final InputStream inputStream) throws EbicsException {
+        return new ReceiptResponseElement(parseXml(inputStream));
     }
 
     @Override
