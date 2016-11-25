@@ -27,10 +27,11 @@ public class JsonSerializationManager implements SerializationManager {
     }
 
     @Override
-    public void serialize(final Identifiable identifiable) throws IOException {
-        final File file = new File(serializationDirectory, filenameFrom(identifiable));
-        log.debug("Serialize {} into {}", identifiable.getId(), file.getAbsolutePath());
-        objectMapper.writer().writeValue(file, identifiable);
+    public <T extends Identifiable> T serialize(final Class<T> clazz, final T object) throws IOException {
+        final File file = new File(serializationDirectory, filenameFrom(clazz, object.getId()));
+        log.debug("Serialize {} into {}", object.getId(), file.getAbsolutePath());
+        objectMapper.writer().writeValue(file, object);
+        return object;
     }
 
     @Override

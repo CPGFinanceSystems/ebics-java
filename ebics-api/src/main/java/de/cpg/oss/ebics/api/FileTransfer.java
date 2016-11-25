@@ -1,8 +1,6 @@
 package de.cpg.oss.ebics.api;
 
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.Value;
+import lombok.*;
 import lombok.experimental.Wither;
 
 import java.text.MessageFormat;
@@ -10,7 +8,8 @@ import java.util.UUID;
 
 @Value
 @Wither
-@Builder(builderClassName = "Builder")
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class FileTransfer implements Identifiable {
 
     private static final long serialVersionUID = 3L;
@@ -51,5 +50,10 @@ public class FileTransfer implements Identifiable {
      */
     public boolean isLastSegment() {
         return getSegmentNumber() == getNumSegments();
+    }
+
+    // We all love JPA, don't we?
+    private FileTransfer() {
+        this(UUID.randomUUID(), null, OrderType.INI, null, null, 0, 0);
     }
 }

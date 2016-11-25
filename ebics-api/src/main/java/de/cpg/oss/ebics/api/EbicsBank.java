@@ -1,9 +1,7 @@
 package de.cpg.oss.ebics.api;
 
 import javaslang.control.Either;
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.Value;
+import lombok.*;
 import lombok.experimental.Wither;
 
 import java.net.URI;
@@ -13,6 +11,7 @@ import java.util.stream.Collectors;
 @Value
 @Wither
 @Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class EbicsBank implements Identifiable {
 
     private static final long serialVersionUID = 4L;
@@ -45,5 +44,10 @@ public class EbicsBank implements Identifiable {
         return supportedOrderTypes.stream()
                 .map(OrderType::ofRaw)
                 .collect(Collectors.toList());
+    }
+
+    // We all love JPA, don't we?
+    private EbicsBank() {
+        this(URI.create(""), null, null, "", null, null, null);
     }
 }

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm
+        http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd" version="2.1">
+
+    <package>de.cpg.oss.ebics.api</package>
+    <access>FIELD</access>
+
+    <!--
+    <entity class="EbicsRsaKey">
+        <attributes>
+            <id name="digest"/>
+            <basic name="version">
+                <enumerated>STRING</enumerated>
+            </basic>
+        </attributes>
+    </entity>
+    -->
+
+    <entity class="EbicsBank">
+        <attributes>
+            <id name="hostId"/>
+            <element-collection name="supportedEbicsVersions"/>
+            <element-collection name="supportedOrderTypes"/>
+        </attributes>
+    </entity>
+
+    <entity class="EbicsUser">
+        <attributes>
+            <id name="userId"/>
+            <element-collection name="permittedOrderTypes"/>
+        </attributes>
+    </entity>
+
+    <entity class="EbicsPartner">
+        <attributes>
+            <id name="partnerId"/>
+            <element-collection name="bankAccounts"/>
+        </attributes>
+    </entity>
+
+    <entity class="FileTransfer">
+        <attributes>
+            <id name="transferId"/>
+        </attributes>
+    </entity>
+
+</entity-mappings>

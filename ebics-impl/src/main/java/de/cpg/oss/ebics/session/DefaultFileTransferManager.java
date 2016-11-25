@@ -95,7 +95,7 @@ public final class DefaultFileTransferManager extends AbstractFileTransferManage
     @Override
     public FileTransfer save(final FileTransfer fileTransfer) throws EbicsException {
         try {
-            serializationManager.serialize(fileTransfer);
+            serializationManager.serialize(FileTransfer.class, fileTransfer);
         } catch (final IOException e) {
             throw new EbicsException(e);
         }

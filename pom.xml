@@ -24,6 +24,7 @@
         <module>ebics-schema</module>
         <module>ebics-persistence-binary</module>
         <module>ebics-persistence-json</module>
+        <module>ebics-persistence-jpa</module>
         <module>ebics-impl</module>
     </modules>
 

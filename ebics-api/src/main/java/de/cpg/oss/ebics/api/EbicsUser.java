@@ -20,23 +20,16 @@
 package de.cpg.oss.ebics.api;
 
 import javaslang.control.Either;
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.Value;
+import lombok.*;
 import lombok.experimental.Wither;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-
-/**
- * Things an EBICS user must be able to perform.
- *
- * @author Hachani
- */
 @Value
 @Builder
 @Wither
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class EbicsUser implements Identifiable {
 
     private static final long serialVersionUID = 3L;
@@ -68,5 +61,10 @@ public class EbicsUser implements Identifiable {
         return permittedOrderTypes.stream()
                 .map(OrderType::ofRaw)
                 .collect(Collectors.toList());
+    }
+
+    // We all love JPA, don't we?
+    private EbicsUser() {
+        this(null, null, null, null, "", null, false, false, null, null, null);
     }
 }

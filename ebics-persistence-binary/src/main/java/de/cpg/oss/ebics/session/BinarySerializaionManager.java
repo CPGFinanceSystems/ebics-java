@@ -16,10 +16,11 @@ public class BinarySerializaionManager implements SerializationManager {
     }
 
     @Override
-    public void serialize(final Identifiable object) throws IOException {
+    public <T extends Identifiable> T serialize(final Class<T> clazz, final T object) throws IOException {
         try (final ObjectOutputStream out = new ObjectOutputStream(
                 new FileOutputStream(new File(serializationDir, filenameFor(object))))) {
             out.writeObject(object);
+            return object;
         }
     }
 
