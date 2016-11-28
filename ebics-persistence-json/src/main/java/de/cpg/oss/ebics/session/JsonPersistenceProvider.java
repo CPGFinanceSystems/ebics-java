@@ -16,34 +16,34 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 
 @Slf4j
-public class JsonSerializationManager implements SerializationManager {
+public class JsonPersistenceProvider implements PersistenceProvider {
 
     private final ObjectMapper objectMapper;
-    private final File serializationDirectory;
+    private final File storageDirectory;
 
-    public JsonSerializationManager(final File serializationDirectory) {
+    public JsonPersistenceProvider(final File storageDirectory) {
         this.objectMapper = objectMapper();
-        this.serializationDirectory = serializationDirectory;
+        this.storageDirectory = storageDirectory;
     }
 
     @Override
-    public <T extends Identifiable> T serialize(final Class<T> clazz, final T object) throws IOException {
-        final File file = new File(serializationDirectory, filenameFrom(clazz, object.getId()));
+    public <T extends Identifiable> T save(final Class<T> clazz, final T object) throws IOException {
+        final File file = new File(storageDirectory, filenameFrom(clazz, object.getId()));
         log.debug("Serialize {} into {}", object.getId(), file.getAbsolutePath());
         objectMapper.writer().writeValue(file, object);
         return object;
     }
 
     @Override
-    public <T extends Identifiable> T deserialize(final Class<T> clazz, final String id) throws IOException {
-        final File file = new File(serializationDirectory, filenameFrom(clazz, id));
+    public <T extends Identifiable> T load(final Class<T> clazz, final String id) throws IOException {
+        final File file = new File(storageDirectory, filenameFrom(clazz, id));
         log.debug("Deserialize {} from {}", id, file.getAbsolutePath());
         return objectMapper.readerFor(clazz).readValue(new FileInputStream(file));
     }
 
     @Override
     public boolean delete(final Identifiable identifiable) throws IOException {
-        return new File(serializationDirectory, filenameFrom(identifiable)).delete();
+        return new File(storageDirectory, filenameFrom(identifiable)).delete();
     }
 
     private static <T extends Identifiable> String filenameFrom(final Class<T> clazz, final String id) {

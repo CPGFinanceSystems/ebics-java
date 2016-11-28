@@ -1,7 +1,7 @@
 package de.cpg.oss.ebics.session;
 
 import de.cpg.oss.ebics.api.Identifiable;
-import de.cpg.oss.ebics.api.SerializationManager;
+import de.cpg.oss.ebics.api.PersistenceProvider;
 import javaslang.collection.Stream;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,17 +10,17 @@ import java.io.IOException;
 
 @Component
 @Transactional
-public class JpaSerializationManager implements SerializationManager {
+public class JpaPersistenceProvider implements PersistenceProvider {
 
     private final EbicsBankRepository bankRepository;
     private final EbicsPartnerRepository partnerRepository;
     private final EbicsUserRepository userRepository;
     private final FileTransferRepository fileTransferRepository;
 
-    public JpaSerializationManager(final EbicsBankRepository bankRepository,
-                                   final EbicsPartnerRepository partnerRepository,
-                                   final EbicsUserRepository userRepository,
-                                   final FileTransferRepository fileTransferRepository) {
+    public JpaPersistenceProvider(final EbicsBankRepository bankRepository,
+                                  final EbicsPartnerRepository partnerRepository,
+                                  final EbicsUserRepository userRepository,
+                                  final FileTransferRepository fileTransferRepository) {
         this.bankRepository = bankRepository;
         this.partnerRepository = partnerRepository;
         this.userRepository = userRepository;
@@ -29,13 +29,13 @@ public class JpaSerializationManager implements SerializationManager {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends Identifiable> T serialize(final Class<T> clazz, final T object) throws IOException {
+    public <T extends Identifiable> T save(final Class<T> clazz, final T object) throws IOException {
         return ((EbicsRepository<T>) findRepositoryFor(clazz)).save(object);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends Identifiable> T deserialize(final Class<T> clazz, final String id) throws IOException {
+    public <T extends Identifiable> T load(final Class<T> clazz, final String id) throws IOException {
         return (T) findRepositoryFor(clazz).findOne(id);
     }
 

@@ -21,14 +21,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @SpringBootTest
-public class JpaSerializationManagerTest extends AbstractTransactionalJUnit4SpringContextTests {
+public class JpaPersistenceProviderTest extends AbstractTransactionalJUnit4SpringContextTests {
 
     @SpringBootApplication
     static class TestConfig {
     }
 
     @Autowired
-    private SerializationManager serializationManager;
+    private PersistenceProvider persistenceProvider;
 
     private static KeyPair KEY_PAIR;
     private static byte[] DIGEST;
@@ -62,8 +62,8 @@ public class JpaSerializationManagerTest extends AbstractTransactionalJUnit4Spri
                         .build())
                 .build();
 
-        log.info("Saved {}", serializationManager.serialize(EbicsBank.class, bank));
-        final EbicsBank saved = serializationManager.deserialize(EbicsBank.class, bank.getId());
+        log.info("Saved {}", persistenceProvider.save(EbicsBank.class, bank));
+        final EbicsBank saved = persistenceProvider.load(EbicsBank.class, bank.getId());
         assertThat(saved).isNotSameAs(bank);
         assertThat(saved).isEqualTo(bank);
     }
@@ -79,8 +79,8 @@ public class JpaSerializationManagerTest extends AbstractTransactionalJUnit4Spri
                         .build()))
                 .build();
 
-        log.info("Saved {}", serializationManager.serialize(EbicsPartner.class, partner));
-        final EbicsPartner saved = serializationManager.deserialize(EbicsPartner.class, partner.getId());
+        log.info("Saved {}", persistenceProvider.save(EbicsPartner.class, partner));
+        final EbicsPartner saved = persistenceProvider.load(EbicsPartner.class, partner.getId());
         assertThat(saved).isNotSameAs(partner);
         assertThat(saved).isEqualTo(partner);
     }
@@ -116,8 +116,8 @@ public class JpaSerializationManagerTest extends AbstractTransactionalJUnit4Spri
                 .permittedOrderTypes(Collections.singletonList(OrderType.AEA.name()))
                 .build();
 
-        log.info("Saved {}", serializationManager.serialize(EbicsUser.class, user));
-        final EbicsUser saved = serializationManager.deserialize(EbicsUser.class, user.getId());
+        log.info("Saved {}", persistenceProvider.save(EbicsUser.class, user));
+        final EbicsUser saved = persistenceProvider.load(EbicsUser.class, user.getId());
         assertThat(saved).isNotSameAs(user);
         assertThat(saved).isEqualTo(user);
     }
@@ -134,8 +134,8 @@ public class JpaSerializationManagerTest extends AbstractTransactionalJUnit4Spri
                 .transferId(UUID.randomUUID())
                 .build();
 
-        log.info("Saved {}", serializationManager.serialize(FileTransfer.class, fileTransfer));
-        final FileTransfer saved = serializationManager.deserialize(FileTransfer.class, fileTransfer.getId());
+        log.info("Saved {}", persistenceProvider.save(FileTransfer.class, fileTransfer));
+        final FileTransfer saved = persistenceProvider.load(FileTransfer.class, fileTransfer.getId());
         assertThat(saved).isNotSameAs(fileTransfer);
         assertThat(saved).isEqualTo(fileTransfer);
     }

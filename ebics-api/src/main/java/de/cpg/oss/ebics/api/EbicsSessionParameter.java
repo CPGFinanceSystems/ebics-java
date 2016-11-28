@@ -24,7 +24,7 @@ public class EbicsSessionParameter {
     private final String userName;
     private final String bankName;
     private final PasswordCallback passwordCallback;
-    private final SerializationManager serializationManager;
+    private final PersistenceProvider persistenceProvider;
     private final TraceManager traceManager;
     private final FileTransferManager fileTransferManager;
 }

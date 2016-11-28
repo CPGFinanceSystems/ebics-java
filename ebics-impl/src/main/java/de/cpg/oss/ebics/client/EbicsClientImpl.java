@@ -2,7 +2,7 @@ package de.cpg.oss.ebics.client;
 
 import de.cpg.oss.ebics.api.*;
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.session.BinarySerializaionManager;
+import de.cpg.oss.ebics.session.BinaryPersistenceProvider;
 import de.cpg.oss.ebics.session.DefaultFileTransferManager;
 import de.cpg.oss.ebics.session.DefaultPasswordCallback;
 import de.cpg.oss.ebics.session.DefaultTraceManager;
@@ -49,14 +49,14 @@ public class EbicsClientImpl implements EbicsClient {
     @Override
     public EbicsSession loadOrCreateSession(final EbicsSessionParameter sessionParameter) throws EbicsException {
         final EbicsSessionParameter parameter = sessionParameter
-                .withSerializationManager(Optional.ofNullable(sessionParameter.getSerializationManager())
-                        .orElseGet(() -> new BinarySerializaionManager(configuration.getSerializationDirectory())));
+                .withPersistenceProvider(Optional.ofNullable(sessionParameter.getPersistenceProvider())
+                        .orElseGet(() -> new BinaryPersistenceProvider(configuration.getSerializationDirectory())));
         EbicsSession ebicsSession;
         try {
             ebicsSession = loadSession(parameter.getHostId(),
                     parameter.getPartnerId(),
                     parameter.getUserId(),
-                    parameter.getSerializationManager());
+                    parameter.getPersistenceProvider());
         } catch (final FileNotFoundException e) {
             log.info("No previous session data found. Creating a new session");
             ebicsSession = createSession(parameter);
@@ -68,7 +68,7 @@ public class EbicsClientImpl implements EbicsClient {
                 .withTraceManager(Optional.ofNullable(sessionParameter.getTraceManager())
                         .orElseGet(() -> new DefaultTraceManager(configuration)))
                 .withFileTransferManager(Optional.ofNullable(sessionParameter.getFileTransferManager())
-                        .orElseGet(() -> new DefaultFileTransferManager(configuration, parameter.getSerializationManager())))
+                        .orElseGet(() -> new DefaultFileTransferManager(configuration, parameter.getPersistenceProvider())))
                 .withUser(ebicsSession.getUser()
                         .withPasswordCallback(Optional.ofNullable(sessionParameter.getPasswordCallback())
                                 .orElseGet(() -> new DefaultPasswordCallback(sessionParameter.getUserId(), ""))));
@@ -99,7 +99,7 @@ public class EbicsClientImpl implements EbicsClient {
 
         if (!sessionWithUserWithInitialized.getUser().equals(session.getUser())) {
             try {
-                session.getSerializationManager().serialize(EbicsUser.class, sessionWithUserWithInitialized.getUser());
+                session.getPersistenceProvider().save(EbicsUser.class, sessionWithUserWithInitialized.getUser());
             } catch (final IOException e) {
                 throw new EbicsException(e);
             }
@@ -118,7 +118,7 @@ public class EbicsClientImpl implements EbicsClient {
 
         if (!bankWithKeys.equals(session.getBank())) {
             try {
-                session.getSerializationManager().serialize(EbicsBank.class, bankWithKeys);
+                session.getPersistenceProvider().save(EbicsBank.class, bankWithKeys);
             } catch (final IOException e) {
                 throw new EbicsException(e);
             }
@@ -230,19 +230,19 @@ public class EbicsClientImpl implements EbicsClient {
                 "app.quit.users",
                 Constants.APPLICATION_BUNDLE_NAME,
                 session.getUser().getId()));
-        session.getSerializationManager().serialize(EbicsUser.class, session.getUser());
+        session.getPersistenceProvider().save(EbicsUser.class, session.getUser());
 
         log.info(configuration.getMessageProvider().getString(
                 "app.quit.partners",
                 Constants.APPLICATION_BUNDLE_NAME,
                 session.getPartner().getId()));
-        session.getSerializationManager().serialize(EbicsPartner.class, session.getPartner());
+        session.getPersistenceProvider().save(EbicsPartner.class, session.getPartner());
 
         log.info(configuration.getMessageProvider().getString(
                 "app.quit.banks",
                 Constants.APPLICATION_BUNDLE_NAME,
                 session.getBank().getId()));
-        session.getSerializationManager().serialize(EbicsBank.class, session.getBank());
+        session.getPersistenceProvider().save(EbicsBank.class, session.getBank());
 
         return session;
     }
@@ -261,15 +261,15 @@ public class EbicsClientImpl implements EbicsClient {
     private EbicsSession loadSession(final String hostId,
                                      final String partnerId,
                                      final String userId,
-                                     final SerializationManager serializationManager) throws IOException {
+                                     final PersistenceProvider persistenceProvider) throws IOException {
         log.info(configuration.getMessageProvider().getString(
                 "user.load.info",
                 Constants.APPLICATION_BUNDLE_NAME,
                 userId));
 
-        final EbicsBank bank = serializationManager.deserialize(EbicsBank.class, hostId);
-        final EbicsPartner partner = serializationManager.deserialize(EbicsPartner.class, partnerId);
-        final EbicsUser user = serializationManager.deserialize(EbicsUser.class, userId);
+        final EbicsBank bank = persistenceProvider.load(EbicsBank.class, hostId);
+        final EbicsPartner partner = persistenceProvider.load(EbicsPartner.class, partnerId);
+        final EbicsUser user = persistenceProvider.load(EbicsUser.class, userId);
 
         log.info(configuration.getMessageProvider().getString(
                 "user.load.success",
@@ -280,7 +280,7 @@ public class EbicsClientImpl implements EbicsClient {
                 .partner(partner)
                 .user(user)
                 .configuration(configuration)
-                .serializationManager(serializationManager)
+                .persistenceProvider(persistenceProvider)
                 .build();
     }
 
@@ -296,19 +296,19 @@ public class EbicsClientImpl implements EbicsClient {
                     .name(sessionParameter.getBankName())
                     .hostId(sessionParameter.getHostId())
                     .build();
-            sessionParameter.getSerializationManager().serialize(EbicsBank.class, bank);
+            sessionParameter.getPersistenceProvider().save(EbicsBank.class, bank);
 
             final EbicsPartner partner = EbicsPartner.builder()
                     .partnerId(sessionParameter.getPartnerId())
                     .build();
-            sessionParameter.getSerializationManager().serialize(EbicsPartner.class, partner);
+            sessionParameter.getPersistenceProvider().save(EbicsPartner.class, partner);
 
             final EbicsUser user = EbicsUser.builder()
                     .userId(sessionParameter.getUserId())
                     .name(sessionParameter.getUserName())
                     .securityMedium("0100")
                     .build();
-            sessionParameter.getSerializationManager().serialize(EbicsUser.class, user);
+            sessionParameter.getPersistenceProvider().save(EbicsUser.class, user);
 
             log.info(configuration.getMessageProvider().getString(
                     "user.create.success",
@@ -319,7 +319,7 @@ public class EbicsClientImpl implements EbicsClient {
                     .partner(partner)
                     .bank(bank)
                     .configuration(configuration)
-                    .serializationManager(sessionParameter.getSerializationManager())
+                    .persistenceProvider(sessionParameter.getPersistenceProvider())
                     .build();
         } catch (final IOException e) {
             throw new EbicsException(configuration.getMessageProvider().getString(

@@ -1,7 +1,7 @@
 package de.cpg.oss.ebics.client;
 
 import de.cpg.oss.ebics.api.*;
-import de.cpg.oss.ebics.session.BinarySerializaionManager;
+import de.cpg.oss.ebics.session.BinaryPersistenceProvider;
 import de.cpg.oss.ebics.utils.KeyUtil;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class InitLetterTest {
 
         session = EbicsSession.builder()
                 .configuration(configuration)
-                .serializationManager(new BinarySerializaionManager(new File("serialized")))
+                .persistenceProvider(new BinaryPersistenceProvider(new File("serialized")))
                 .bank(EbicsBank.builder()
                         .hostId("HOSTID")
                         .name("Test Bank Name")

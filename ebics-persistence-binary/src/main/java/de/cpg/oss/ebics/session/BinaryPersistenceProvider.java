@@ -1,33 +1,33 @@
 package de.cpg.oss.ebics.session;
 
 import de.cpg.oss.ebics.api.Identifiable;
-import de.cpg.oss.ebics.api.SerializationManager;
+import de.cpg.oss.ebics.api.PersistenceProvider;
 
 import java.io.*;
 import java.text.MessageFormat;
 
 
-public class BinarySerializaionManager implements SerializationManager {
+public class BinaryPersistenceProvider implements PersistenceProvider {
 
-    private final File serializationDir;
+    private final File storageDirectory;
 
-    public BinarySerializaionManager(final File serializationDir) {
-        this.serializationDir = serializationDir;
+    public BinaryPersistenceProvider(final File storageDirectory) {
+        this.storageDirectory = storageDirectory;
     }
 
     @Override
-    public <T extends Identifiable> T serialize(final Class<T> clazz, final T object) throws IOException {
+    public <T extends Identifiable> T save(final Class<T> clazz, final T object) throws IOException {
         try (final ObjectOutputStream out = new ObjectOutputStream(
-                new FileOutputStream(new File(serializationDir, filenameFor(object))))) {
+                new FileOutputStream(new File(storageDirectory, filenameFor(object))))) {
             out.writeObject(object);
             return object;
         }
     }
 
     @Override
-    public <T extends Identifiable> T deserialize(final Class<T> clazz, final String id) throws IOException {
+    public <T extends Identifiable> T load(final Class<T> clazz, final String id) throws IOException {
         try (final ObjectInputStream objectInputStream = new ObjectInputStream(
-                new FileInputStream(new File(serializationDir, filenameFor(clazz, id))))) {
+                new FileInputStream(new File(storageDirectory, filenameFor(clazz, id))))) {
             final Object object = objectInputStream.readObject();
             if (clazz.isAssignableFrom(object.getClass())) {
                 return clazz.cast(object);
@@ -43,7 +43,7 @@ public class BinarySerializaionManager implements SerializationManager {
 
     @Override
     public boolean delete(final Identifiable identifiable) throws IOException {
-        return new File(serializationDir, filenameFor(identifiable)).delete();
+        return new File(storageDirectory, filenameFor(identifiable)).delete();
     }
 
     private static String filenameFor(final Identifiable identifiable) {

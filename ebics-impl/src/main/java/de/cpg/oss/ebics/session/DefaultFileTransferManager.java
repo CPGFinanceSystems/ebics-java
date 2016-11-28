@@ -20,7 +20,7 @@ public final class DefaultFileTransferManager extends AbstractFileTransferManage
     @NonNull
     private final EbicsConfiguration configuration;
     @NonNull
-    private final SerializationManager serializationManager;
+    private final PersistenceProvider persistenceProvider;
 
     @Override
     public FileTransfer createUploadTransaction(final EbicsUser user,
@@ -72,7 +72,7 @@ public final class DefaultFileTransferManager extends AbstractFileTransferManage
     public boolean finalizeUploadTransaction(final EbicsUser user,
                                              final FileTransfer fileTransfer) throws EbicsException {
         try {
-            serializationManager.delete(fileTransfer);
+            persistenceProvider.delete(fileTransfer);
             return cleanupTransactionDir(user, fileTransfer.getTransferId());
         } catch (final IOException e) {
             throw new EbicsException(e);
@@ -85,7 +85,7 @@ public final class DefaultFileTransferManager extends AbstractFileTransferManage
                                                final OutputStream outputStream) throws EbicsException {
         try {
             writeOutput(user, fileTransfer, outputStream);
-            serializationManager.delete(fileTransfer);
+            persistenceProvider.delete(fileTransfer);
             return cleanupTransactionDir(user, fileTransfer.getTransferId());
         } catch (final IOException e) {
             throw new EbicsException(e);
@@ -95,7 +95,7 @@ public final class DefaultFileTransferManager extends AbstractFileTransferManage
     @Override
     public FileTransfer save(final FileTransfer fileTransfer) throws EbicsException {
         try {
-            serializationManager.serialize(FileTransfer.class, fileTransfer);
+            persistenceProvider.save(FileTransfer.class, fileTransfer);
         } catch (final IOException e) {
             throw new EbicsException(e);
         }
