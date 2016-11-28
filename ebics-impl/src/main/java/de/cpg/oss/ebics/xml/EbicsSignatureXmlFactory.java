@@ -19,7 +19,7 @@ public abstract class EbicsSignatureXmlFactory {
 
         final SignaturePubKeyInfo signaturePubKeyInfo = OBJECT_FACTORY.createSignaturePubKeyInfo();
         signaturePubKeyInfo.setPubKeyValue(pubKeyValue);
-        signaturePubKeyInfo.setSignatureVersion(session.getUser().getSignatureKey().getVersion().name());
+        signaturePubKeyInfo.setSignatureVersion(session.getUser().getSignatureKey().getVersion());
 
         final SignaturePubKeyOrderData signaturePubKeyOrderData = OBJECT_FACTORY.createSignaturePubKeyOrderData();
         signaturePubKeyOrderData.setSignaturePubKeyInfo(signaturePubKeyInfo);
@@ -34,7 +34,7 @@ public abstract class EbicsSignatureXmlFactory {
             final String partnerId,
             final Supplier<byte[]> signatureSupplier) {
         final OrderSignatureData orderSignatureData = OBJECT_FACTORY.createOrderSignatureData();
-        orderSignatureData.setSignatureVersion(user.getSignatureKey().getVersion().name());
+        orderSignatureData.setSignatureVersion(user.getSignatureKey().getVersion());
         orderSignatureData.setPartnerID(partnerId);
         orderSignatureData.setUserID(user.getId());
         orderSignatureData.setSignatureValue(signatureSupplier.get());

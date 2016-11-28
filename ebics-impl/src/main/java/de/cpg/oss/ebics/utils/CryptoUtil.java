@@ -77,8 +77,8 @@ public abstract class CryptoUtil {
      * DEK according to the 2-key triple DES process as specified in ANSI X3.92-1981.
      * <p>In doing this, the following initialization value “ICV” is used: X ‘00 00 00 00 00 00 00 00’.
      *
-     * @param input  the input to encrypt
-     * @param aesKey the AES symmetric key
+     * @param inputStream the input to encrypt
+     * @param aesKey      the AES symmetric key
      * @return the encrypted input
      */
     public static InputStream encryptAES(final InputStream inputStream, final byte[] aesKey) {
@@ -240,7 +240,7 @@ public abstract class CryptoUtil {
 
     public static byte[] signHash(final byte[] sha256Hash, final EbicsSignatureKey signatureKey) throws GeneralSecurityException, IOException {
         final Signature signature;
-        switch (signatureKey.getVersion()) {
+        switch (signatureKey.getSignatureVersion()) {
             case A005:
                 /* Signature.getInstance("SHA256withRSA") also encapsulates message into an ASN.1 object in advance.
                  * Signature.getInstance("RSA") does this not, so it has to be done manually here.

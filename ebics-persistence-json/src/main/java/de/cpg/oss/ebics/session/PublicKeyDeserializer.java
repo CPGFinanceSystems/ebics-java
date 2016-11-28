@@ -34,7 +34,7 @@ class PublicKeyDeserializer extends StdDeserializer<PublicKey> {
         return KeyFactory.getInstance("RSA");
     }
 
-    static PublicKey publicKey(final KeyFactory keyFactory, final byte[] encoded) throws InvalidKeySpecException {
+    private static PublicKey publicKey(final KeyFactory keyFactory, final byte[] encoded) throws InvalidKeySpecException {
         return keyFactory.generatePublic(new X509EncodedKeySpec(encoded));
     }
 }

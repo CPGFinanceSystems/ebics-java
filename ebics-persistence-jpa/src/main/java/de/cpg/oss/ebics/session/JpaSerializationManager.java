@@ -3,10 +3,12 @@ package de.cpg.oss.ebics.session;
 import de.cpg.oss.ebics.api.Identifiable;
 import de.cpg.oss.ebics.api.SerializationManager;
 import javaslang.collection.Stream;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 
+@Component
 @Transactional
 public class JpaSerializationManager implements SerializationManager {
 

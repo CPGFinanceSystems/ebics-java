@@ -111,7 +111,7 @@ public abstract class EbicsXmlFactory {
 
     private static DataEncryptionInfoType.EncryptionPubKeyDigest encryptionPubKeyDigest(final EbicsEncryptionKey encryptionKey) {
         return DataEncryptionInfoType.EncryptionPubKeyDigest.builder()
-                .withVersion(encryptionKey.getVersion().name())
+                .withVersion(encryptionKey.getEncryptionVersion().name())
                 .withAlgorithm(XmlUtil.SIGNATURE_METHOD)
                 .withValue(encryptionKey.getDigest())
                 .build();
@@ -201,11 +201,11 @@ public abstract class EbicsXmlFactory {
     public static HIARequestOrderDataType hiaRequestOrderData(final EbicsSession session) throws EbicsException {
         return HIARequestOrderDataType.builder()
                 .withAuthenticationPubKeyInfo(AuthenticationPubKeyInfoType.builder()
-                        .withAuthenticationVersion(session.getUser().getAuthenticationKey().getVersion().name())
+                        .withAuthenticationVersion(session.getUser().getAuthenticationKey().getAuthenticationVersion().name())
                         .withPubKeyValue(pubKeyValue(session.getUser().getAuthenticationKey()))
                         .build())
                 .withEncryptionPubKeyInfo(EncryptionPubKeyInfoType.builder()
-                        .withEncryptionVersion(session.getUser().getEncryptionKey().getVersion().name())
+                        .withEncryptionVersion(session.getUser().getEncryptionKey().getEncryptionVersion().name())
                         .withPubKeyValue(pubKeyValue(session.getUser().getEncryptionKey()))
                         .build())
                 .withPartnerID(session.getPartner().getId())
@@ -259,7 +259,7 @@ public abstract class EbicsXmlFactory {
                 .build();
     }
 
-    private static <T extends Enum> PubKeyValueType pubKeyValue(final EbicsRsaKey<T> ebicsRsaKey) {
+    private static <T extends Enum> PubKeyValueType pubKeyValue(final EbicsRsaKey ebicsRsaKey) {
         return PubKeyValueType.builder()
                 .withRSAKeyValue(XmlSignatureFactory.rsaPublicKey(ebicsRsaKey.getPublicKey()))
                 .withTimeStamp(ebicsRsaKey.getCreationTime())
@@ -269,7 +269,7 @@ public abstract class EbicsXmlFactory {
     private static StaticHeaderType.BankPubKeyDigests.Authentication authentication(
             final EbicsAuthenticationKey authenticationKey) {
         return StaticHeaderType.BankPubKeyDigests.Authentication.builder()
-                .withVersion(authenticationKey.getVersion().name())
+                .withVersion(authenticationKey.getAuthenticationVersion().name())
                 .withAlgorithm(XmlUtil.SIGNATURE_METHOD)
                 .withValue(authenticationKey.getDigest())
                 .build();
@@ -277,7 +277,7 @@ public abstract class EbicsXmlFactory {
 
     private static StaticHeaderType.BankPubKeyDigests.Encryption encryption(final EbicsEncryptionKey encryptionKey) {
         return StaticHeaderType.BankPubKeyDigests.Encryption.builder()
-                .withVersion(encryptionKey.getVersion().name())
+                .withVersion(encryptionKey.getEncryptionVersion().name())
                 .withAlgorithm(XmlUtil.SIGNATURE_METHOD)
                 .withValue(encryptionKey.getDigest())
                 .build();

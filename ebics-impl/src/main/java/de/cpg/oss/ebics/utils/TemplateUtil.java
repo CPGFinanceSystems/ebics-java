@@ -38,18 +38,18 @@ public abstract class TemplateUtil {
         report.convert(ctx, options, pdfOutputStream);
     }
 
-    public static <T extends Enum> KeyInfo keyInfo(final EbicsRsaKey<T> ebicsRsaKey) {
+    public static <T extends EbicsRsaKey> KeyInfo keyInfo(final T ebicsRsaKey) {
         return KeyInfo.builder()
                 .digestHex(hexBlock(ebicsRsaKey.getDigest()))
                 .exponentBits(publicKey(ebicsRsaKey).getPublicExponent().bitLength())
                 .exponentHex(encodeHexString(publicKey(ebicsRsaKey).getPublicExponent().toByteArray()))
                 .modulusBits(publicKey(ebicsRsaKey).getModulus().bitLength())
                 .modulusHex(hexBlock(publicKey(ebicsRsaKey).getModulus().toByteArray()))
-                .version(ebicsRsaKey.getVersion().name())
+                .version(ebicsRsaKey.getVersion())
                 .build();
     }
 
-    private static <T extends Enum> RSAPublicKey publicKey(final EbicsRsaKey<T> ebicsRsaKey) {
+    private static RSAPublicKey publicKey(final EbicsRsaKey ebicsRsaKey) {
         return (RSAPublicKey) ebicsRsaKey.getPublicKey();
     }
 

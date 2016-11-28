@@ -51,7 +51,7 @@ public class CryptoUtilsTest {
 
     private static boolean verifySignature(final EbicsSignatureKey signatureKey, final byte[] signature, final byte[] message) throws Exception {
         final Signature signer;
-        switch (signatureKey.getVersion()) {
+        switch (signatureKey.getSignatureVersion()) {
             case A005:
                 signer = Signature.getInstance("SHA256withRSA");
                 signer.initVerify(signatureKey.getPublicKey());

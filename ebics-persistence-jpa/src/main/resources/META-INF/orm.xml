@@ -7,22 +7,59 @@
     <package>de.cpg.oss.ebics.api</package>
     <access>FIELD</access>
 
-    <!--
-    <entity class="EbicsRsaKey">
+    <mapped-superclass class="EbicsRsaKey">
         <attributes>
-            <id name="digest"/>
-            <basic name="version">
-                <enumerated>STRING</enumerated>
+            <basic name="publicKey">
+                <convert converter="de.cpg.oss.ebics.session.PublicKeyConverter"/>
+            </basic>
+            <basic name="privateKey">
+                <convert converter="de.cpg.oss.ebics.session.PrivateKeyConverter"/>
             </basic>
         </attributes>
-    </entity>
-    -->
+    </mapped-superclass>
+    <embeddable class="EbicsAuthenticationKey"/>
+    <embeddable class="EbicsEncryptionKey"/>
+    <embeddable class="EbicsSignatureKey"/>
 
     <entity class="EbicsBank">
         <attributes>
             <id name="hostId"/>
             <element-collection name="supportedEbicsVersions"/>
             <element-collection name="supportedOrderTypes"/>
+            <embedded name="authenticationKey">
+                <attribute-override name="publicKey">
+                    <column name="authentication_key_public_key"/>
+                </attribute-override>
+                <attribute-override name="version">
+                    <column name="authentication_key_version"/>
+                </attribute-override>
+                <attribute-override name="digest">
+                    <column name="authentication_key_digest"/>
+                </attribute-override>
+                <attribute-override name="creationTime">
+                    <column name="authentication_key_creation_time"/>
+                </attribute-override>
+                <attribute-override name="privateKey">
+                    <column name="authentication_private_key"/>
+                </attribute-override>
+            </embedded>
+            <embedded name="encryptionKey">
+                <attribute-override name="publicKey">
+                    <column name="encryption_key_public_key"/>
+                </attribute-override>
+                <attribute-override name="version">
+                    <column name="encryption_key_version"/>
+                </attribute-override>
+                <attribute-override name="digest">
+                    <column name="encryption_key_digest"/>
+                </attribute-override>
+                <attribute-override name="creationTime">
+                    <column name="encryption_key_creation_time"/>
+                </attribute-override>
+                <attribute-override name="privateKey">
+                    <column name="encryption_key_private_key"/>
+                </attribute-override>
+            </embedded>
         </attributes>
     </entity>
 
@@ -30,6 +67,57 @@
         <attributes>
             <id name="userId"/>
             <element-collection name="permittedOrderTypes"/>
+            <embedded name="authenticationKey">
+                <attribute-override name="publicKey">
+                    <column name="authentication_key_public_key"/>
+                </attribute-override>
+                <attribute-override name="version">
+                    <column name="authentication_key_version"/>
+                </attribute-override>
+                <attribute-override name="digest">
+                    <column name="authentication_key_digest"/>
+                </attribute-override>
+                <attribute-override name="creationTime">
+                    <column name="authentication_key_creation_time"/>
+                </attribute-override>
+                <attribute-override name="privateKey">
+                    <column name="authentication_private_key"/>
+                </attribute-override>
+            </embedded>
+            <embedded name="encryptionKey">
+                <attribute-override name="publicKey">
+                    <column name="encryption_key_public_key"/>
+                </attribute-override>
+                <attribute-override name="version">
+                    <column name="encryption_key_version"/>
+                </attribute-override>
+                <attribute-override name="digest">
+                    <column name="encryption_key_digest"/>
+                </attribute-override>
+                <attribute-override name="creationTime">
+                    <column name="encryption_key_creation_time"/>
+                </attribute-override>
+                <attribute-override name="privateKey">
+                    <column name="encryption_key_private_key"/>
+                </attribute-override>
+            </embedded>
+            <embedded name="signatureKey">
+                <attribute-override name="publicKey">
+                    <column name="signature_key_public_key"/>
+                </attribute-override>
+                <attribute-override name="version">
+                    <column name="signature_key_version"/>
+                </attribute-override>
+                <attribute-override name="digest">
+                    <column name="signature_key_digest"/>
+                </attribute-override>
+                <attribute-override name="creationTime">
+                    <column name="signature_key_creation_time"/>
+                </attribute-override>
+                <attribute-override name="privateKey">
+                    <column name="signature_key_private_key"/>
+                </attribute-override>
+            </embedded>
         </attributes>
     </entity>
 

@@ -2,13 +2,12 @@ package de.cpg.oss.ebics.session;
 
 import de.cpg.oss.ebics.api.*;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
 import java.net.URI;
 import java.security.KeyPair;
@@ -22,42 +21,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @SpringBootTest
-public class JpaSerializationManagerTest extends AbstractJUnit4SpringContextTests {
+public class JpaSerializationManagerTest extends AbstractTransactionalJUnit4SpringContextTests {
 
     @SpringBootApplication
     static class TestConfig {
     }
 
     @Autowired
-    private EbicsBankRepository ebicsBankRepository;
-
-    @Autowired
-    private EbicsPartnerRepository ebicsPartnerRepository;
-
-    @Autowired
-    private EbicsUserRepository ebicsUserRepository;
-
-    @Autowired
-    private FileTransferRepository fileTransferRepository;
+    private SerializationManager serializationManager;
 
     private static KeyPair KEY_PAIR;
     private static byte[] DIGEST;
-
-    private SerializationManager serializationManager;
 
     @BeforeClass
     public static void createTestData() throws Exception {
         KEY_PAIR = KeyPairGenerator.getInstance("RSA").generateKeyPair();
         DIGEST = MessageDigest.getInstance("SHA-256").digest(KEY_PAIR.getPublic().getEncoded());
-    }
-
-    @Before
-    public void createSerializationManager() {
-        serializationManager = new JpaSerializationManager(
-                ebicsBankRepository,
-                ebicsPartnerRepository,
-                ebicsUserRepository,
-                fileTransferRepository);
     }
 
     @Test
@@ -74,33 +53,41 @@ public class JpaSerializationManagerTest extends AbstractJUnit4SpringContextTest
                         .publicKey(KEY_PAIR.getPublic())
                         .digest(DIGEST)
                         .build())
+                .encryptionKey(EbicsEncryptionKey.builder()
+                        .digest(DIGEST)
+                        .publicKey(KEY_PAIR.getPublic())
+                        .privateKey(KEY_PAIR.getPrivate())
+                        .version(EncryptionVersion.E002)
+                        .creationTime(OffsetDateTime.now())
+                        .build())
                 .build();
-        serializationManager.serialize(EbicsBank.class, bank);
 
+        log.info("Saved {}", serializationManager.serialize(EbicsBank.class, bank));
         final EbicsBank saved = serializationManager.deserialize(EbicsBank.class, bank.getId());
-
+        assertThat(saved).isNotSameAs(bank);
         assertThat(saved).isEqualTo(bank);
-
-        log.info("Saved {}", saved);
     }
 
     @Test
     public void testEbicsPartnerPersistence() throws Exception {
-        final EbicsPartner partner = serializationManager.serialize(EbicsPartner.class, EbicsPartner.builder()
+        final EbicsPartner partner = EbicsPartner.builder()
                 .partnerId("PARTNERID")
                 .bankAccounts(Collections.singletonList(BankAccountInformation.builder()
                         .id("1")
                         .accountNmber("1234")
                         .bankCode("5678")
                         .build()))
-                .build());
+                .build();
 
-        log.info("Saved {}", partner);
+        log.info("Saved {}", serializationManager.serialize(EbicsPartner.class, partner));
+        final EbicsPartner saved = serializationManager.deserialize(EbicsPartner.class, partner.getId());
+        assertThat(saved).isNotSameAs(partner);
+        assertThat(saved).isEqualTo(partner);
     }
 
     @Test
     public void testEbicsUserPersistence() throws Exception {
-        final EbicsUser user = serializationManager.serialize(EbicsUser.class, EbicsUser.builder()
+        final EbicsUser user = EbicsUser.builder()
                 .userId("USERID")
                 .name("User Name")
                 .securityMedium("1234")
@@ -127,14 +114,17 @@ public class JpaSerializationManagerTest extends AbstractJUnit4SpringContextTest
                         .creationTime(OffsetDateTime.now())
                         .build())
                 .permittedOrderTypes(Collections.singletonList(OrderType.AEA.name()))
-                .build());
+                .build();
 
-        log.info("Saved {}", user);
+        log.info("Saved {}", serializationManager.serialize(EbicsUser.class, user));
+        final EbicsUser saved = serializationManager.deserialize(EbicsUser.class, user.getId());
+        assertThat(saved).isNotSameAs(user);
+        assertThat(saved).isEqualTo(user);
     }
 
     @Test
     public void testFileTransferPersistence() throws Exception {
-        final FileTransfer fileTransfer = serializationManager.serialize(FileTransfer.class, FileTransfer.builder()
+        final FileTransfer fileTransfer = FileTransfer.builder()
                 .digest(DIGEST)
                 .nonce(DIGEST)
                 .numSegments(10)
@@ -142,8 +132,11 @@ public class JpaSerializationManagerTest extends AbstractJUnit4SpringContextTest
                 .segmentNumber(5)
                 .transactionId(DIGEST)
                 .transferId(UUID.randomUUID())
-                .build());
+                .build();
 
-        log.info("Saved {}", fileTransfer);
+        log.info("Saved {}", serializationManager.serialize(FileTransfer.class, fileTransfer));
+        final FileTransfer saved = serializationManager.deserialize(FileTransfer.class, fileTransfer.getId());
+        assertThat(saved).isNotSameAs(fileTransfer);
+        assertThat(saved).isEqualTo(fileTransfer);
     }
 }

@@ -8,11 +8,20 @@ import java.security.PublicKey;
 import java.time.OffsetDateTime;
 
 @EqualsAndHashCode(callSuper = true)
-public final class EbicsSignatureKey extends EbicsRsaKey<SignatureVersion> {
-    private static final long serialVersionUID = 2L;
+public final class EbicsSignatureKey extends EbicsRsaKey {
+    private static final long serialVersionUID = 3L;
 
     @Builder
-    EbicsSignatureKey(final PublicKey publicKey, final SignatureVersion version, final byte[] digest, final OffsetDateTime creationTime, final PrivateKey privateKey) {
-        super(publicKey, version, digest, creationTime, privateKey);
+    private EbicsSignatureKey(final PublicKey publicKey, final SignatureVersion version, final byte[] digest, final OffsetDateTime creationTime, final PrivateKey privateKey) {
+        super(publicKey, version.name(), digest, creationTime, privateKey);
+    }
+
+    public SignatureVersion getSignatureVersion() {
+        return SignatureVersion.valueOf(getVersion());
+    }
+
+    // We all love JPA, don't we?
+    private EbicsSignatureKey() {
+        super();
     }
 }
