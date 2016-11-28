@@ -6,7 +6,7 @@ import java.net.URI;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,7 +15,7 @@ public class EbicsBankTest {
 
     @Test
     public void testEquals() throws Exception {
-        final OffsetDateTime creationDateTime = OffsetDateTime.now();
+        final Instant creationDateTime = Instant.now();
         final KeyPair keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
         final byte[] digest = MessageDigest.getInstance("SHA-256").digest(keyPair.getPublic().getEncoded());
 

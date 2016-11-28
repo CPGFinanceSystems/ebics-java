@@ -55,7 +55,7 @@ public class FileTransfer implements Identifiable {
     }
 
     /**
-     * Is the current segment is the last one?
+     * Is the current segment the last one?
      */
     public boolean isLastSegment() {
         return getSegmentNumber() == getNumSegments();

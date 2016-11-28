@@ -18,8 +18,8 @@ import java.io.IOException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -352,7 +352,7 @@ public class EbicsClientImpl implements EbicsClient {
             return EbicsSignatureKey.builder()
                     .privateKey(keyPair.getPrivate())
                     .publicKey(keyPair.getPublic())
-                    .creationTime(OffsetDateTime.now())
+                    .creationTime(Instant.now())
                     .digest(KeyUtil.getKeyDigest(keyPair.getPublic()))
                     .version(version)
                     .build();
@@ -367,7 +367,7 @@ public class EbicsClientImpl implements EbicsClient {
             return EbicsEncryptionKey.builder()
                     .privateKey(keyPair.getPrivate())
                     .publicKey(keyPair.getPublic())
-                    .creationTime(OffsetDateTime.now())
+                    .creationTime(Instant.now())
                     .digest(KeyUtil.getKeyDigest(keyPair.getPublic()))
                     .version(version)
                     .build();
@@ -382,7 +382,7 @@ public class EbicsClientImpl implements EbicsClient {
             return EbicsAuthenticationKey.builder()
                     .privateKey(keyPair.getPrivate())
                     .publicKey(keyPair.getPublic())
-                    .creationTime(OffsetDateTime.now())
+                    .creationTime(Instant.now())
                     .digest(KeyUtil.getKeyDigest(keyPair.getPublic()))
                     .version(version)
                     .build();

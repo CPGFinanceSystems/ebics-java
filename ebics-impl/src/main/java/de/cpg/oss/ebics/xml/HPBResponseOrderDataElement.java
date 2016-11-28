@@ -32,7 +32,7 @@ public class HPBResponseOrderDataElement implements ResponseOrderDataElement<HPB
         return EbicsAuthenticationKey.builder()
                 .publicKey(publicKey)
                 .digest(KeyUtil.getKeyDigest(publicKey))
-                .creationTime(responseOrderData.getAuthenticationPubKeyInfo().getPubKeyValue().getTimeStamp())
+                .creationTime(responseOrderData.getAuthenticationPubKeyInfo().getPubKeyValue().getTimeStamp().toInstant())
                 .version(AuthenticationVersion.valueOf(responseOrderData.getAuthenticationPubKeyInfo().getAuthenticationVersion()))
                 .build();
     }
@@ -43,7 +43,7 @@ public class HPBResponseOrderDataElement implements ResponseOrderDataElement<HPB
         return EbicsEncryptionKey.builder()
                 .publicKey(publicKey)
                 .digest(KeyUtil.getKeyDigest(publicKey))
-                .creationTime(responseOrderData.getEncryptionPubKeyInfo().getPubKeyValue().getTimeStamp())
+                .creationTime(responseOrderData.getEncryptionPubKeyInfo().getPubKeyValue().getTimeStamp().toInstant())
                 .version(EncryptionVersion.valueOf(responseOrderData.getEncryptionPubKeyInfo().getEncryptionVersion()))
                 .build();
     }

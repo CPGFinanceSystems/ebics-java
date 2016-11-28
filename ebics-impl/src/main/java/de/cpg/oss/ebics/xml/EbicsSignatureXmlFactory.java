@@ -6,6 +6,7 @@ import de.cpg.oss.ebics.api.exception.EbicsException;
 import org.ebics.s001.*;
 
 import javax.xml.bind.JAXBElement;
+import java.time.OffsetDateTime;
 import java.util.function.Supplier;
 
 public abstract class EbicsSignatureXmlFactory {
@@ -15,7 +16,7 @@ public abstract class EbicsSignatureXmlFactory {
     public static SignaturePubKeyOrderData signaturePubKeyOrderData(final EbicsSession session) throws EbicsException {
         final PubKeyValueType pubKeyValue = OBJECT_FACTORY.createPubKeyValueType();
         pubKeyValue.setRSAKeyValue(XmlSignatureFactory.rsaPublicKey(session.getUser().getSignatureKey().getPublicKey()));
-        pubKeyValue.setTimeStamp(session.getUser().getSignatureKey().getCreationTime());
+        pubKeyValue.setTimeStamp(OffsetDateTime.from(session.getUser().getSignatureKey().getCreationTime()));
 
         final SignaturePubKeyInfo signaturePubKeyInfo = OBJECT_FACTORY.createSignaturePubKeyInfo();
         signaturePubKeyInfo.setPubKeyValue(pubKeyValue);

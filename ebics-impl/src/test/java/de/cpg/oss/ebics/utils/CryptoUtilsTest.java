@@ -12,7 +12,7 @@ import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.Security;
 import java.security.Signature;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,7 +43,7 @@ public class CryptoUtilsTest {
         return EbicsSignatureKey.builder()
                 .privateKey(keyPair.getPrivate())
                 .publicKey(keyPair.getPublic())
-                .creationTime(OffsetDateTime.now())
+                .creationTime(Instant.now())
                 .digest(KeyUtil.getKeyDigest(keyPair.getPublic()))
                 .version(version)
                 .build();

@@ -262,7 +262,7 @@ public abstract class EbicsXmlFactory {
     private static <T extends Enum> PubKeyValueType pubKeyValue(final EbicsRsaKey ebicsRsaKey) {
         return PubKeyValueType.builder()
                 .withRSAKeyValue(XmlSignatureFactory.rsaPublicKey(ebicsRsaKey.getPublicKey()))
-                .withTimeStamp(ebicsRsaKey.getCreationTime())
+                .withTimeStamp(OffsetDateTime.from(ebicsRsaKey.getCreationTime()))
                 .build();
     }
 

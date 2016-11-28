@@ -5,7 +5,7 @@ import lombok.*;
 import java.io.Serializable;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 
 @Getter
 @ToString
@@ -22,7 +22,7 @@ public abstract class EbicsRsaKey implements Serializable {
     @NonNull
     private final byte[] digest;
 
-    private final OffsetDateTime creationTime;
+    private final Instant creationTime;
     private final PrivateKey privateKey;
 
     // We all love JPA, don't we?

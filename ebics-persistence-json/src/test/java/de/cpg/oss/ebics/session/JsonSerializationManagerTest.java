@@ -2,13 +2,11 @@ package de.cpg.oss.ebics.session;
 
 import de.cpg.oss.ebics.api.*;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
+import java.io.File;
 import java.net.URI;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -20,27 +18,29 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-@SpringBootTest
-public class JpaSerializationManagerTest extends AbstractTransactionalJUnit4SpringContextTests {
-
-    @SpringBootApplication
-    static class TestConfig {
-    }
-
-    @Autowired
-    private SerializationManager serializationManager;
+public class JsonSerializationManagerTest {
 
     private static KeyPair KEY_PAIR;
     private static byte[] DIGEST;
+
+    private static final File TEST_DATA_DIR = new File("target/test");
+
+    private SerializationManager serializationManager;
 
     @BeforeClass
     public static void createTestData() throws Exception {
         KEY_PAIR = KeyPairGenerator.getInstance("RSA").generateKeyPair();
         DIGEST = MessageDigest.getInstance("SHA-256").digest(KEY_PAIR.getPublic().getEncoded());
+        TEST_DATA_DIR.mkdirs();
+    }
+
+    @Before
+    public void createSerializationManager() {
+        serializationManager = new JsonSerializationManager(TEST_DATA_DIR);
     }
 
     @Test
-    public void testEbicsBankPersistence() throws Exception {
+    public void testBankSerialization() throws Exception {
         final EbicsBank bank = EbicsBank.builder()
                 .uri(URI.create("http://example.org"))
                 .hostId("HOSTID")
