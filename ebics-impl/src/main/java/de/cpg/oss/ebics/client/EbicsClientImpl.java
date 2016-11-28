@@ -5,7 +5,7 @@ import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.session.BinaryPersistenceProvider;
 import de.cpg.oss.ebics.session.DefaultFileTransferManager;
 import de.cpg.oss.ebics.session.DefaultPasswordCallback;
-import de.cpg.oss.ebics.session.DefaultTraceManager;
+import de.cpg.oss.ebics.session.DefaultXmlMessageTracer;
 import de.cpg.oss.ebics.utils.Constants;
 import de.cpg.oss.ebics.utils.IOUtil;
 import de.cpg.oss.ebics.utils.KeyUtil;
@@ -65,8 +65,8 @@ public class EbicsClientImpl implements EbicsClient {
         }
 
         return ebicsSession
-                .withTraceManager(Optional.ofNullable(sessionParameter.getTraceManager())
-                        .orElseGet(() -> new DefaultTraceManager(configuration)))
+                .withXmlMessageTracer(Optional.ofNullable(sessionParameter.getXmlMessageTracer())
+                        .orElseGet(() -> new DefaultXmlMessageTracer(configuration)))
                 .withFileTransferManager(Optional.ofNullable(sessionParameter.getFileTransferManager())
                         .orElseGet(() -> new DefaultFileTransferManager(configuration, parameter.getPersistenceProvider())))
                 .withUser(ebicsSession.getUser()

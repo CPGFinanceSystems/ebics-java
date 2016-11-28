@@ -44,7 +44,7 @@ abstract class ClientUtil {
             final ResponseElementParser<O> responseElementParser,
             final String baseElementName) throws EbicsException {
         final byte[] xml = IOUtil.read(XmlUtil.prettyPrint(requestClass, request));
-        session.getTraceManager().trace(IOUtil.wrap(xml), baseElementName.concat("Request"), session.getUser());
+        session.getXmlMessageTracer().trace(IOUtil.wrap(xml), baseElementName.concat("Request"), session.getUser());
 
         final HttpEntity httpEntity = HttpUtil.sendAndReceive(
                 session.getBank(),
@@ -57,7 +57,7 @@ abstract class ClientUtil {
             throw new EbicsException(e);
         }
 
-        session.getTraceManager().trace(response.getResponseClass(), response.getResponse(),
+        session.getXmlMessageTracer().trace(response.getResponseClass(), response.getResponse(),
                 baseElementName.concat("Response"), session.getUser());
         response.report(session.getMessageProvider());
         return response;
@@ -73,12 +73,12 @@ abstract class ClientUtil {
                 CryptoUtil.decryptRSA(responseElement.getTransactionKey(), session.getUserEncryptionKey()))));
         try {
             final O responseOrderDataElement = responseOrderDataElementParser.parse(IOUtil.wrap(orderDataXml));
-            session.getTraceManager().trace(responseOrderDataElement.getResponseOrderDataClass(),
+            session.getXmlMessageTracer().trace(responseOrderDataElement.getResponseOrderDataClass(),
                     responseOrderDataElement.getResponseOrderData(), baseElementName.concat("ResponseOrderData"),
                     session.getUser());
             return responseOrderDataElement;
         } catch (final EbicsException e) {
-            session.getTraceManager().trace(
+            session.getXmlMessageTracer().trace(
                     IOUtil.wrap(orderDataXml),
                     baseElementName.concat("ResponseOrderData"), session.getUser());
             throw e;

@@ -21,7 +21,7 @@ package de.cpg.oss.ebics.session;
 
 import de.cpg.oss.ebics.api.EbicsConfiguration;
 import de.cpg.oss.ebics.api.EbicsUser;
-import de.cpg.oss.ebics.api.TraceManager;
+import de.cpg.oss.ebics.api.XmlMessageTracer;
 import de.cpg.oss.ebics.utils.IOUtil;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -45,11 +45,11 @@ import java.time.format.DateTimeFormatter;
  * @author hachani
  */
 @Slf4j
-public final class DefaultTraceManager implements TraceManager {
+public final class DefaultXmlMessageTracer implements XmlMessageTracer {
 
     private final EbicsConfiguration ebicsConfiguration;
 
-    public DefaultTraceManager(final EbicsConfiguration configuration) {
+    public DefaultXmlMessageTracer(final EbicsConfiguration configuration) {
         this.ebicsConfiguration = configuration;
     }
 
@@ -64,7 +64,7 @@ public final class DefaultTraceManager implements TraceManager {
         try (final FileOutputStream out = new FileOutputStream(file)) {
             out.write(IOUtil.read(xml));
         } catch (final IOException e) {
-            log.error("Exception from " + DefaultTraceManager.class.getSimpleName(), e);
+            log.error("Exception from " + DefaultXmlMessageTracer.class.getSimpleName(), e);
         }
     }
 

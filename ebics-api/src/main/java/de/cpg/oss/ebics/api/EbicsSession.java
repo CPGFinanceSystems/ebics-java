@@ -25,7 +25,7 @@ public class EbicsSession {
     private final EbicsConfiguration configuration;
     private final Product product;
     private final PersistenceProvider persistenceProvider;
-    private final TraceManager traceManager;
+    private final XmlMessageTracer xmlMessageTracer;
     private final FileTransferManager fileTransferManager;
     private final Map<String, String> parameters = new HashMap<>();
 
