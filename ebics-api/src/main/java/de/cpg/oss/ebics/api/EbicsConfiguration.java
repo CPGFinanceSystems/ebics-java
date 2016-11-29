@@ -42,9 +42,4 @@ public class EbicsConfiguration {
     public Locale getLocale() {
         return getMessageProvider().getLocale();
     }
-
-    private static String getProperty(final String key, final String defaultValue) {
-        return Optional.ofNullable(System.getProperty(EBICS_PROPERTY_ROOT.concat(".").concat(key)))
-                .orElse(defaultValue);
-    }
 }

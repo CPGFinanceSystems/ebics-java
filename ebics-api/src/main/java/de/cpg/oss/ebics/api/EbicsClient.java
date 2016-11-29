@@ -44,7 +44,7 @@ public interface EbicsClient {
                    OrderType orderType,
                    boolean isTest,
                    LocalDate start,
-                   LocalDate end);
+                   LocalDate end) throws EbicsException;
 
     EbicsSession save(EbicsSession session) throws IOException;
 }

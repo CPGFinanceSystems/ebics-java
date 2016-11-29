@@ -5,7 +5,6 @@ import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.session.DefaultFileTransferManager;
 import de.cpg.oss.ebics.session.DefaultPasswordCallback;
 import de.cpg.oss.ebics.session.NoOpXmlMessageTracer;
-import de.cpg.oss.ebics.utils.Constants;
 import de.cpg.oss.ebics.utils.KeyUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -42,7 +41,8 @@ public class EbicsClientImpl implements EbicsClient {
      */
     public EbicsClientImpl(final EbicsConfiguration configuration) {
         this.configuration = configuration;
-        init(configuration);
+        org.apache.xml.security.Init.init();
+        Security.addProvider(new BouncyCastleProvider());
     }
 
     @Override
@@ -123,26 +123,11 @@ public class EbicsClientImpl implements EbicsClient {
      */
     @Override
     public EbicsSession revokeSubscriber(final EbicsSession session) throws EbicsException {
-        log.info(configuration.getMessageProvider().getString(
-                "spr.request.send",
-                Constants.APPLICATION_BUNDLE_NAME,
-                session.getUser().getId()));
-
         try {
-            log.info(configuration.getMessageProvider().getString(
-                    "spr.send.success",
-                    Constants.APPLICATION_BUNDLE_NAME,
-                    session.getUser().getId()));
             return session.withUser(KeyManagement.lockAccess(session));
-        } catch (final Exception e) {
-            throw new EbicsException(
-                    configuration.getMessageProvider().getString(
-                            "spr.send.error",
-                            Constants.APPLICATION_BUNDLE_NAME,
-                            session.getUser().getId()),
-                    e);
+        } catch (final IOException e) {
+            throw new EbicsException(e);
         }
-
     }
 
     @Override
@@ -192,19 +177,15 @@ public class EbicsClientImpl implements EbicsClient {
                           final OrderType orderType,
                           final boolean isTest,
                           final LocalDate start,
-                          final LocalDate end) {
+                          final LocalDate end) throws EbicsException {
         if (isTest) {
             session.addSessionParam("TEST", "true");
         }
         try {
             final FileTransfer transaction = FileTransaction.createFileDownloadTransaction(session, orderType, start, end);
             FileTransaction.downloadFile(session, transaction, new File(path));
-        } catch (final IOException | EbicsException e) {
-            log.error(
-                    configuration.getMessageProvider().getString(
-                            "download.file.error",
-                            Constants.APPLICATION_BUNDLE_NAME),
-                    e);
+        } catch (final IOException e) {
+            throw new EbicsException(e);
         }
     }
 
@@ -213,52 +194,20 @@ public class EbicsClientImpl implements EbicsClient {
      */
     @Override
     public EbicsSession save(final EbicsSession session) throws IOException {
-        log.info(configuration.getMessageProvider().getString(
-                "app.quit.users",
-                Constants.APPLICATION_BUNDLE_NAME,
-                session.getUser().getId()));
         session.getPersistenceProvider().save(EbicsUser.class, session.getUser());
-
-        log.info(configuration.getMessageProvider().getString(
-                "app.quit.partners",
-                Constants.APPLICATION_BUNDLE_NAME,
-                session.getPartner().getId()));
         session.getPersistenceProvider().save(EbicsPartner.class, session.getPartner());
-
-        log.info(configuration.getMessageProvider().getString(
-                "app.quit.banks",
-                Constants.APPLICATION_BUNDLE_NAME,
-                session.getBank().getId()));
         session.getPersistenceProvider().save(EbicsBank.class, session.getBank());
-
         return session;
-    }
-
-    static void init(final EbicsConfiguration configuration) {
-        log.info(configuration.getMessageProvider().getString(
-                "init.configuration",
-                Constants.APPLICATION_BUNDLE_NAME));
-        org.apache.xml.security.Init.init();
-        Security.addProvider(new BouncyCastleProvider());
     }
 
     private EbicsSession loadSession(final String hostId,
                                      final String partnerId,
                                      final String userId,
                                      final PersistenceProvider persistenceProvider) throws IOException {
-        log.info(configuration.getMessageProvider().getString(
-                "user.load.info",
-                Constants.APPLICATION_BUNDLE_NAME,
-                userId));
-
         final EbicsBank bank = persistenceProvider.load(EbicsBank.class, hostId);
         final EbicsPartner partner = persistenceProvider.load(EbicsPartner.class, partnerId);
         final EbicsUser user = persistenceProvider.load(EbicsUser.class, userId);
 
-        log.info(configuration.getMessageProvider().getString(
-                "user.load.success",
-                Constants.APPLICATION_BUNDLE_NAME,
-                userId));
         return EbicsSession.builder()
                 .bank(bank)
                 .partner(partner)
@@ -270,11 +219,6 @@ public class EbicsClientImpl implements EbicsClient {
 
     private EbicsSession createSession(final EbicsSessionParameter sessionParameter) throws EbicsException {
         try {
-            log.info(configuration.getMessageProvider().getString(
-                    "user.create.info",
-                    Constants.APPLICATION_BUNDLE_NAME,
-                    sessionParameter.getUserId()));
-
             final EbicsBank bank = EbicsBank.builder()
                     .uri(sessionParameter.getBankUri())
                     .name(sessionParameter.getBankName())
@@ -295,10 +239,6 @@ public class EbicsClientImpl implements EbicsClient {
                     .build();
             sessionParameter.getPersistenceProvider().save(EbicsUser.class, user);
 
-            log.info(configuration.getMessageProvider().getString(
-                    "user.create.success",
-                    Constants.APPLICATION_BUNDLE_NAME,
-                    sessionParameter.getUserId()));
             return EbicsSession.builder()
                     .user(user)
                     .partner(partner)
@@ -307,9 +247,7 @@ public class EbicsClientImpl implements EbicsClient {
                     .persistenceProvider(sessionParameter.getPersistenceProvider())
                     .build();
         } catch (final IOException e) {
-            throw new EbicsException(configuration.getMessageProvider().getString(
-                    "user.create.error",
-                    Constants.APPLICATION_BUNDLE_NAME), e);
+            throw new EbicsException(e);
         }
     }
 

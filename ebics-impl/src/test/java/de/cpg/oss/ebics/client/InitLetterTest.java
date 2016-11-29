@@ -68,6 +68,5 @@ public class InitLetterTest {
                                 .build())
                         .build())
                 .build();
-        EbicsClientImpl.init(session.getConfiguration());
     }
 }

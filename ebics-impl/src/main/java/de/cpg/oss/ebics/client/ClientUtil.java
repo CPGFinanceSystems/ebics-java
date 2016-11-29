@@ -46,10 +46,7 @@ abstract class ClientUtil {
         final byte[] xml = IOUtil.read(XmlUtil.prettyPrint(requestClass, request));
         session.getXmlMessageTracer().trace(IOUtil.wrap(xml), baseElementName.concat("Request"));
 
-        final HttpEntity httpEntity = HttpUtil.sendAndReceive(
-                session.getBank(),
-                IOUtil.wrap(XmlUtil.validate(xml)),
-                session.getMessageProvider());
+        final HttpEntity httpEntity = HttpUtil.sendAndReceive(session.getBank(), IOUtil.wrap(XmlUtil.validate(xml)));
         final O response;
         try {
             response = responseElementParser.parse(httpEntity.getContent());
