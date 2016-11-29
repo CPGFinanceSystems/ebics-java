@@ -90,7 +90,7 @@ public class CryptoUtilTest {
         assertThat(signature).hasSize(KeyUtil.EBICS_KEY_SIZE / 8);
     }
 
-    private static EbicsSignatureKey createSignatureKey(final SignatureVersion version) throws Exception {
+    static EbicsSignatureKey createSignatureKey(final SignatureVersion version) throws Exception {
         final KeyPair keyPair = KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE);
         return EbicsSignatureKey.builder()
                 .privateKey(keyPair.getPrivate())

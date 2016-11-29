@@ -68,7 +68,7 @@ public abstract class TemplateUtil {
             if (endIndex > line.length()) {
                 endIndex = line.length();
             }
-            builder.append(line.substring(i * maxLineLength, endIndex));
+            builder.append(line.substring(i * maxLineLength, endIndex).replaceAll(" $", ""));
             builder.append('\n');
         }
         return builder.toString().trim();
