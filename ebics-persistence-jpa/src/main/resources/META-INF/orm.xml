@@ -131,6 +131,7 @@
     <entity class="FileTransfer">
         <attributes>
             <id name="transferId"/>
+            <element-collection name="segmentIds"/>
         </attributes>
     </entity>
 

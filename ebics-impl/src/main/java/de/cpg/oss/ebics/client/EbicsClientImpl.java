@@ -68,7 +68,7 @@ public class EbicsClientImpl implements EbicsClient {
                 .withXmlMessageTracer(Optional.ofNullable(sessionParameter.getXmlMessageTracer())
                         .orElseGet(() -> new DefaultXmlMessageTracer(configuration)))
                 .withFileTransferManager(Optional.ofNullable(sessionParameter.getFileTransferManager())
-                        .orElseGet(() -> new DefaultFileTransferManager(configuration, parameter.getPersistenceProvider())))
+                        .orElseGet(() -> new DefaultFileTransferManager(parameter.getPersistenceProvider())))
                 .withUser(ebicsSession.getUser()
                         .withPasswordCallback(Optional.ofNullable(sessionParameter.getPasswordCallback())
                                 .orElseGet(() -> new DefaultPasswordCallback(sessionParameter.getUserId(), ""))));

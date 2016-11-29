@@ -9,4 +9,6 @@ public interface PersistenceProvider {
     <T extends Identifiable> T load(Class<T> clazz, String id) throws IOException;
 
     boolean delete(Identifiable identifiable) throws IOException;
+
+    <T extends Identifiable> boolean delete(Class<T> clazz, String id) throws IOException;
 }

@@ -46,6 +46,11 @@ public class BinaryPersistenceProvider implements PersistenceProvider {
         return new File(storageDirectory, filenameFor(identifiable)).delete();
     }
 
+    @Override
+    public <T extends Identifiable> boolean delete(final Class<T> clazz, final String id) throws IOException {
+        return new File(storageDirectory, filenameFor(clazz, id)).delete();
+    }
+
     private static String filenameFor(final Identifiable identifiable) {
         return filenameFor(identifiable.getClass(), identifiable.getId());
     }

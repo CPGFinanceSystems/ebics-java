@@ -127,9 +127,9 @@ public class JsonPersistenceProviderTest {
         final FileTransfer fileTransfer = FileTransfer.builder()
                 .digest(DIGEST)
                 .nonce(DIGEST)
-                .numSegments(10)
+                .segmentIds(Collections.singletonList(UUID.randomUUID()))
                 .orderType(OrderType.AIA)
-                .segmentNumber(5)
+                .segmentNumber(0)
                 .transactionId(DIGEST)
                 .transferId(UUID.randomUUID())
                 .build();

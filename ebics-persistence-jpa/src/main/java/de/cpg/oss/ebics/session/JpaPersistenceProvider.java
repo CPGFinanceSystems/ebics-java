@@ -41,11 +41,13 @@ public class JpaPersistenceProvider implements PersistenceProvider {
 
     @Override
     public boolean delete(final Identifiable identifiable) throws IOException {
-        if (bankRepository.canHandle(identifiable)) {
-            bankRepository.delete(identifiable.getId());
-            return true;
-        }
-        return false;
+        return delete(identifiable.getClass(), identifiable.getId());
+    }
+
+    @Override
+    public <T extends Identifiable> boolean delete(final Class<T> clazz, final String id) throws IOException {
+        findRepositoryFor(clazz).delete(id);
+        return true;
     }
 
     private <T extends Identifiable> EbicsRepository<? extends Identifiable> findRepositoryFor(final Class<T> clazz) {

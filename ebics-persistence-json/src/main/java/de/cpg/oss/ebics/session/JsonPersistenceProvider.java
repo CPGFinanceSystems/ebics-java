@@ -46,6 +46,11 @@ public class JsonPersistenceProvider implements PersistenceProvider {
         return new File(storageDirectory, filenameFrom(identifiable)).delete();
     }
 
+    @Override
+    public <T extends Identifiable> boolean delete(final Class<T> clazz, final String id) throws IOException {
+        return new File(storageDirectory, filenameFrom(clazz, id)).delete();
+    }
+
     private static <T extends Identifiable> String filenameFrom(final Class<T> clazz, final String id) {
         return clazz.getSimpleName().concat("_").concat(id).concat(".json");
     }

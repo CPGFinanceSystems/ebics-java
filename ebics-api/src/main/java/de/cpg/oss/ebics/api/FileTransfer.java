@@ -4,14 +4,19 @@ import lombok.*;
 import lombok.experimental.Wither;
 
 import java.text.MessageFormat;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Wither
 @ToString
 @EqualsAndHashCode
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class FileTransfer implements Identifiable {
 
-    private static final long serialVersionUID = 4L;
+    private static final long serialVersionUID = 5L;
 
     @NonNull
     private final String transferId;
@@ -26,8 +31,7 @@ public class FileTransfer implements Identifiable {
     private final byte[] digest;
     @Getter
     private final int segmentNumber;
-    @Getter
-    private final int numSegments;
+    private final Collection<String> segmentIds;
 
     @Override
     public String getId() {
@@ -61,24 +65,33 @@ public class FileTransfer implements Identifiable {
         return getSegmentNumber() == getNumSegments();
     }
 
+    public int getNumSegments() {
+        return segmentIds.size();
+    }
+
+    public List<UUID> getSegmentIds() {
+        return segmentIds.stream().map(UUID::fromString).collect(Collectors.toList());
+    }
+
     @Builder
-    private FileTransfer(final UUID transferId, final byte[] transactionId, final OrderType orderType, final byte[] nonce, final byte[] digest, final int segmentNumber, final int numSegments) {
-        this(transferId.toString(), transactionId, orderType, nonce, digest, segmentNumber, numSegments);
+    private FileTransfer(final UUID transferId,
+                         final byte[] transactionId,
+                         final OrderType orderType,
+                         final byte[] nonce,
+                         final byte[] digest,
+                         final int segmentNumber,
+                         final List<UUID> segmentIds) {
+        this(transferId.toString(),
+                transactionId,
+                orderType,
+                nonce,
+                digest,
+                segmentNumber,
+                segmentIds.stream().map(UUID::toString).collect(Collectors.toList()));
     }
-
-    private FileTransfer(final String transferId, final byte[] transactionId, final OrderType orderType, final byte[] nonce, final byte[] digest, final int segmentNumber, final int numSegments) {
-        this.transferId = transferId;
-        this.transactionId = transactionId;
-        this.orderType = orderType;
-        this.nonce = nonce;
-        this.digest = digest;
-        this.segmentNumber = segmentNumber;
-        this.numSegments = numSegments;
-    }
-
 
     // We all love JPA, don't we?
     private FileTransfer() {
-        this(UUID.randomUUID(), null, OrderType.INI, null, null, 0, 0);
+        this(UUID.randomUUID(), null, OrderType.INI, null, null, 0, Collections.emptyList());
     }
 }
