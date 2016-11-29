@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.c14n.InvalidCanonicalizerException;
-import org.ebics.h004.HIARequestOrderDataType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -167,7 +166,7 @@ public abstract class XmlUtil {
     private static <T> String elementNameFrom(final Class<T> clazz) {
         return Optional.ofNullable(clazz.getAnnotation(XmlRootElement.class))
                 .map(XmlRootElement::name)
-                .orElseGet(() -> elementNameFrom(clazz.getSimpleName()));
+                .orElseGet(clazz::getSimpleName);
     }
 
     private static <T> void prettyPrint(
@@ -191,14 +190,6 @@ public abstract class XmlUtil {
 
     private static <T> String namespaceFromPackageAnnotation(final Class<T> clazz) {
         return clazz.getPackage().getAnnotation(XmlSchema.class).namespace();
-    }
-
-    private static String elementNameFrom(final String clazzName) {
-        if (HIARequestOrderDataType.class.getSimpleName().equals(clazzName)) {
-            return "HIARequestOrderData";
-        } else {
-            return clazzName;
-        }
     }
 
     private static class LoggingErrorHandler implements ErrorHandler {

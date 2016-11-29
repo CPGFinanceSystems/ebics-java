@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ebicsRequest xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns="urn:org:ebics:H004" xmlns:ns3="http://www.ebics.org/S001">
+    <header authenticate="true">
+        <static>
+            <HostID>HOSTID</HostID>
+            <Nonce>6E6F6E6365</Nonce>
+            <Timestamp>2016-11-29T16:15:27.91+01:00</Timestamp>
+            <PartnerID>PARTNERID</PartnerID>
+        </static>
+        <mutable>
+            <TransactionPhase>Initialisation</TransactionPhase>
+        </mutable>
+    </header>
+    <body/>
+</ebicsRequest>
