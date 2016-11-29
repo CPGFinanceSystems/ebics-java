@@ -20,11 +20,11 @@ public class EbicsSessionParameter {
     private final String hostId;
     @NonNull
     private final URI bankUri;
+    @NonNull
+    private final PersistenceProvider persistenceProvider;
 
     private final String userName;
     private final String bankName;
     private final PasswordCallback passwordCallback;
-    private final PersistenceProvider persistenceProvider;
     private final XmlMessageTracer xmlMessageTracer;
-    private final FileTransferManager fileTransferManager;
 }

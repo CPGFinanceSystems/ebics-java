@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class EbicsUser implements Identifiable {
 
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 4L;
 
     private final EbicsSignatureKey signatureKey;
     private final EbicsEncryptionKey encryptionKey;
@@ -44,9 +44,7 @@ public class EbicsUser implements Identifiable {
     private final String userId;
     private final String name;
 
-    private final boolean initializedINI;
-    private final boolean initializedHIA;
-
+    @NonNull
     private final UserStatus status;
     private final Collection<String> permittedOrderTypes;
 
@@ -65,6 +63,6 @@ public class EbicsUser implements Identifiable {
 
     // We all love JPA, don't we?
     private EbicsUser() {
-        this(null, null, null, null, "", null, false, false, null, null, null);
+        this(null, null, null, null, "", null, UserStatus.NEW, null, null);
     }
 }

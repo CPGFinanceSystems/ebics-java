@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class DefaultFileTransferManager implements FileTransferManager {
+public final class DefaultFileTransferManager implements FileTransferManager {
 
     private final PersistenceProvider persistenceProvider;
 

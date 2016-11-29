@@ -45,7 +45,16 @@ abstract class KeyManagement {
         ClientUtil.requestExchange(session, EbicsUnsecuredRequest.class, unsecuredRequest,
                 KeyManagementResponseElement::parse, orderType.name());
 
-        return session.getUser().withInitializedINI(true);
+        final EbicsUser iniSentUser = session.getUser().withStatus(UserStatus.NEW.equals(session.getUser().getStatus())
+                ? UserStatus.PARTLY_INITIALIZED_INI
+                : UserStatus.INITIALIZED);
+        try {
+            session.getPersistenceProvider().save(EbicsUser.class, iniSentUser);
+        } catch (final IOException e) {
+            throw new EbicsException(e);
+        }
+
+        return iniSentUser;
     }
 
     /**
@@ -65,7 +74,17 @@ abstract class KeyManagement {
         ClientUtil.requestExchange(session, EbicsUnsecuredRequest.class, unsecuredRequest,
                 KeyManagementResponseElement::parse, orderType.name());
 
-        return session.getUser().withInitializedHIA(true);
+        final EbicsUser hiaSentUser = session.getUser().withStatus(UserStatus.NEW.equals(session.getUser().getStatus())
+                ? UserStatus.PARTLY_INITIALIZED_HIA
+                : UserStatus.INITIALIZED);
+
+        try {
+            session.getPersistenceProvider().save(EbicsUser.class, hiaSentUser);
+        } catch (final IOException e) {
+            throw new EbicsException(e);
+        }
+
+        return hiaSentUser;
     }
 
     /**

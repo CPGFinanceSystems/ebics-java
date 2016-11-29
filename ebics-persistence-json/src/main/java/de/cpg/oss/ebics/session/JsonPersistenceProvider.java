@@ -24,6 +24,9 @@ public class JsonPersistenceProvider implements PersistenceProvider {
     public JsonPersistenceProvider(final File storageDirectory) {
         this.objectMapper = objectMapper();
         this.storageDirectory = storageDirectory;
+        if (!this.storageDirectory.mkdirs()) {
+            log.warn("Could not create all (sub) directories for storage directory {}", this.storageDirectory);
+        }
     }
 
     @Override

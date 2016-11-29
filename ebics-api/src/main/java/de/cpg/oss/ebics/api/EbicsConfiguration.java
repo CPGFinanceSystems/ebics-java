@@ -3,7 +3,6 @@ package de.cpg.oss.ebics.api;
 import lombok.Value;
 import lombok.experimental.Wither;
 
-import java.io.File;
 import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.Optional;
@@ -14,7 +13,6 @@ public class EbicsConfiguration {
 
     private static final String EBICS_PROPERTY_ROOT = "ebics.client";
 
-    private final File rootDirectory;
     private final MessageProvider messageProvider;
 
     private final SignatureVersion signatureVersion = SignatureVersion.A006;
@@ -24,12 +22,12 @@ public class EbicsConfiguration {
     private final EbicsVersion version = EbicsVersion.H004;
     private final Charset veuDisplayFileCharset = Charset.forName("ISO-8859-1");
 
-    public EbicsConfiguration(final File rootDirectory) {
-        this(rootDirectory, Locale.getDefault());
+    public EbicsConfiguration() {
+        this(Locale.getDefault());
     }
 
-    public EbicsConfiguration(final File rootDirectory, final Locale locale) {
-        this(rootDirectory, new MessageProvider() {
+    public EbicsConfiguration(final Locale locale) {
+        this(new MessageProvider() {
             @Override
             public Locale getLocale() {
                 return locale;
@@ -37,33 +35,8 @@ public class EbicsConfiguration {
         });
     }
 
-    private EbicsConfiguration(final File rootDirectory, final MessageProvider messageProvider) {
-        this.rootDirectory = rootDirectory;
+    private EbicsConfiguration(final MessageProvider messageProvider) {
         this.messageProvider = messageProvider;
-    }
-
-    public File getSerializationDirectory() {
-        return new File(getRootDirectory(), getProperty("serialization.dir.name", "serialized"));
-    }
-
-    public File getUsersDirectory() {
-        return new File(getRootDirectory(), getProperty("users.dir.name", "users"));
-    }
-
-    public File getTransferTraceDirectory(final EbicsUser user) {
-        return new File(getUserDirectory(user), getProperty("traces.dir.name", "traces"));
-    }
-
-    public File getTransferFilesDirectory(final EbicsUser user) {
-        return new File(getUserDirectory(user), getProperty("files.dir.name", "files"));
-    }
-
-    public File getLettersDirectory(final EbicsUser user) {
-        return new File(getUserDirectory(user), getProperty("letters.dir.name", "letters"));
-    }
-
-    public File getUserDirectory(final EbicsUser user) {
-        return new File(getUsersDirectory(), user.getId());
     }
 
     public Locale getLocale() {

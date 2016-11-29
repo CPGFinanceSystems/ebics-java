@@ -5,6 +5,7 @@ import de.cpg.oss.ebics.api.exception.EbicsException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.time.LocalDate;
 import java.util.Collection;
 
@@ -13,6 +14,10 @@ public interface EbicsClient {
     EbicsSession loadOrCreateSession(EbicsSessionParameter sessionParameter) throws EbicsException;
 
     EbicsSession initializeUser(EbicsSession session) throws EbicsException;
+
+    void generateIniLetter(EbicsSession session, OutputStream pdfOutput) throws EbicsException;
+
+    void generateHiaLetter(EbicsSession session, OutputStream pdfOutput) throws EbicsException;
 
     EbicsSession collectInformation(EbicsSession session) throws EbicsException;
 

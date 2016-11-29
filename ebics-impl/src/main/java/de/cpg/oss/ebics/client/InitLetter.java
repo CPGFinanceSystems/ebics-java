@@ -5,7 +5,9 @@ import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.TemplateUtil;
 import fr.opensagres.xdocreport.core.XDocReportException;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -16,35 +18,23 @@ import java.util.Optional;
 
 abstract class InitLetter {
 
-    static OutputStream createINI(final EbicsSession session) throws EbicsException {
+    static void createINI(final EbicsSession session, final OutputStream outputStream) throws EbicsException {
         try {
-            final OutputStream pdfOutputStream = new FileOutputStream(new File(
-                    session.getConfiguration().getLettersDirectory(session.getUser()),
-                    "INILetter.pdf"));
-
             TemplateUtil.createPdfFromOdt(
                     template("iniletter", session.getMessageProvider().getLocale()),
                     templateParameters(session),
-                    pdfOutputStream);
-
-            return pdfOutputStream;
+                    outputStream);
         } catch (XDocReportException | IOException e) {
             throw new EbicsException(e);
         }
     }
 
-    static OutputStream createHIA(final EbicsSession session) throws EbicsException {
+    static void createHIA(final EbicsSession session, final OutputStream outputStream) throws EbicsException {
         try {
-            final OutputStream pdfOutputStream = new FileOutputStream(new File(
-                    session.getConfiguration().getLettersDirectory(session.getUser()),
-                    "HIALetter.pdf"));
-
             TemplateUtil.createPdfFromOdt(
                     template("hialetter", session.getMessageProvider().getLocale()),
                     templateParameters(session),
-                    pdfOutputStream);
-
-            return pdfOutputStream;
+                    outputStream);
         } catch (XDocReportException | IOException e) {
             throw new EbicsException(e);
         }

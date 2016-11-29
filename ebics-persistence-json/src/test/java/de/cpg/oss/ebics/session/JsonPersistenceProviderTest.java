@@ -31,7 +31,6 @@ public class JsonPersistenceProviderTest {
     public static void createTestData() throws Exception {
         KEY_PAIR = KeyPairGenerator.getInstance("RSA").generateKeyPair();
         DIGEST = MessageDigest.getInstance("SHA-256").digest(KEY_PAIR.getPublic().getEncoded());
-        TEST_DATA_DIR.mkdirs();
     }
 
     @Before

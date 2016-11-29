@@ -7,6 +7,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.net.URI;
 import java.security.KeyPair;
 import java.time.Instant;
@@ -17,17 +18,17 @@ public class InitLetterTest {
 
     @Test
     public void testCreateINI() throws Exception {
-        InitLetter.createINI(session).close();
+        InitLetter.createINI(session, new FileOutputStream("target/test_iniletter.pdf"));
     }
 
     @Test
     public void testCreateHIA() throws Exception {
-        InitLetter.createHIA(session).close();
+        InitLetter.createHIA(session, new FileOutputStream("target/test_hialetter.pdf"));
     }
 
     @BeforeClass
     public static void createEbicsSession() throws Exception {
-        final EbicsConfiguration configuration = new EbicsConfiguration(new File("target/test"));
+        final EbicsConfiguration configuration = new EbicsConfiguration();
         final KeyPair signatureKey = KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE);
         final KeyPair authenticationKey = KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE);
         final KeyPair encryptionKey = KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE);
@@ -46,6 +47,7 @@ public class InitLetterTest {
                 .user(EbicsUser.builder()
                         .name("User Name")
                         .userId("USERID")
+                        .status(UserStatus.INITIALIZED)
                         .signatureKey(EbicsSignatureKey.builder()
                                 .digest(KeyUtil.getKeyDigest(signatureKey.getPublic()))
                                 .publicKey(signatureKey.getPublic())
@@ -67,6 +69,5 @@ public class InitLetterTest {
                         .build())
                 .build();
         EbicsClientImpl.init(session.getConfiguration());
-        EbicsClientImpl.createUserDirectories(session.getConfiguration(), session.getUser());
     }
 }

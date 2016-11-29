@@ -44,7 +44,7 @@ abstract class ClientUtil {
             final ResponseElementParser<O> responseElementParser,
             final String baseElementName) throws EbicsException {
         final byte[] xml = IOUtil.read(XmlUtil.prettyPrint(requestClass, request));
-        session.getXmlMessageTracer().trace(IOUtil.wrap(xml), baseElementName.concat("Request"), session.getUser());
+        session.getXmlMessageTracer().trace(IOUtil.wrap(xml), baseElementName.concat("Request"));
 
         final HttpEntity httpEntity = HttpUtil.sendAndReceive(
                 session.getBank(),
@@ -57,8 +57,10 @@ abstract class ClientUtil {
             throw new EbicsException(e);
         }
 
-        session.getXmlMessageTracer().trace(response.getResponseClass(), response.getResponse(),
-                baseElementName.concat("Response"), session.getUser());
+        session.getXmlMessageTracer().trace(
+                response.getResponseClass(),
+                response.getResponse(),
+                baseElementName.concat("Response"));
         response.report(session.getMessageProvider());
         return response;
     }
@@ -73,14 +75,14 @@ abstract class ClientUtil {
                 CryptoUtil.decryptRSA(responseElement.getTransactionKey(), session.getUserEncryptionKey()))));
         try {
             final O responseOrderDataElement = responseOrderDataElementParser.parse(IOUtil.wrap(orderDataXml));
-            session.getXmlMessageTracer().trace(responseOrderDataElement.getResponseOrderDataClass(),
-                    responseOrderDataElement.getResponseOrderData(), baseElementName.concat("ResponseOrderData"),
-                    session.getUser());
+            session.getXmlMessageTracer().trace(
+                    responseOrderDataElement.getResponseOrderDataClass(),
+                    responseOrderDataElement.getResponseOrderData(), baseElementName.concat("ResponseOrderData"));
             return responseOrderDataElement;
         } catch (final EbicsException e) {
             session.getXmlMessageTracer().trace(
                     IOUtil.wrap(orderDataXml),
-                    baseElementName.concat("ResponseOrderData"), session.getUser());
+                    baseElementName.concat("ResponseOrderData"));
             throw e;
         }
     }

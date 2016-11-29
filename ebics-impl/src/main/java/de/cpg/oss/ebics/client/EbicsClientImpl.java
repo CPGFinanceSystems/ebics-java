@@ -2,12 +2,10 @@ package de.cpg.oss.ebics.client;
 
 import de.cpg.oss.ebics.api.*;
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.session.BinaryPersistenceProvider;
 import de.cpg.oss.ebics.session.DefaultFileTransferManager;
 import de.cpg.oss.ebics.session.DefaultPasswordCallback;
-import de.cpg.oss.ebics.session.DefaultXmlMessageTracer;
+import de.cpg.oss.ebics.session.NoOpXmlMessageTracer;
 import de.cpg.oss.ebics.utils.Constants;
-import de.cpg.oss.ebics.utils.IOUtil;
 import de.cpg.oss.ebics.utils.KeyUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -15,6 +13,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
@@ -48,27 +47,23 @@ public class EbicsClientImpl implements EbicsClient {
 
     @Override
     public EbicsSession loadOrCreateSession(final EbicsSessionParameter sessionParameter) throws EbicsException {
-        final EbicsSessionParameter parameter = sessionParameter
-                .withPersistenceProvider(Optional.ofNullable(sessionParameter.getPersistenceProvider())
-                        .orElseGet(() -> new BinaryPersistenceProvider(configuration.getSerializationDirectory())));
         EbicsSession ebicsSession;
         try {
-            ebicsSession = loadSession(parameter.getHostId(),
-                    parameter.getPartnerId(),
-                    parameter.getUserId(),
-                    parameter.getPersistenceProvider());
+            ebicsSession = loadSession(sessionParameter.getHostId(),
+                    sessionParameter.getPartnerId(),
+                    sessionParameter.getUserId(),
+                    sessionParameter.getPersistenceProvider());
         } catch (final FileNotFoundException e) {
             log.info("No previous session data found. Creating a new session");
-            ebicsSession = createSession(parameter);
+            ebicsSession = createSession(sessionParameter);
         } catch (final IOException e) {
             throw new EbicsException(e);
         }
 
         return ebicsSession
                 .withXmlMessageTracer(Optional.ofNullable(sessionParameter.getXmlMessageTracer())
-                        .orElseGet(() -> new DefaultXmlMessageTracer(configuration)))
-                .withFileTransferManager(Optional.ofNullable(sessionParameter.getFileTransferManager())
-                        .orElseGet(() -> new DefaultFileTransferManager(parameter.getPersistenceProvider())))
+                        .orElseGet(() -> NoOpXmlMessageTracer.INSTANCE))
+                .withFileTransferManager(new DefaultFileTransferManager(sessionParameter.getPersistenceProvider()))
                 .withUser(ebicsSession.getUser()
                         .withPasswordCallback(Optional.ofNullable(sessionParameter.getPasswordCallback())
                                 .orElseGet(() -> new DefaultPasswordCallback(sessionParameter.getUserId(), ""))));
@@ -76,35 +71,27 @@ public class EbicsClientImpl implements EbicsClient {
 
     @Override
     public EbicsSession initializeUser(final EbicsSession session) throws EbicsException {
-
-        final EbicsSession sessionWithUserWithKeys;
-        if (!session.getUser().isInitializedINI()) {
-            createUserDirectories(session.getConfiguration(), session.getUser());
-            final EbicsUser userWithKeys = createUserKeys(session);
-            InitLetter.createINI(session.withUser(userWithKeys));
-            final EbicsUser userInitSent = KeyManagement.sendINI(session.withUser(userWithKeys));
-            sessionWithUserWithKeys = session.withUser(userInitSent);
+        final EbicsSession sessionWithUserKeys;
+        if (UserStatus.NEW.equals(session.getUser().getStatus())) {
+            sessionWithUserKeys = session.withUser(KeyManagement.sendINI(session.withUser(createUserKeys(session))));
         } else {
-            sessionWithUserWithKeys = session;
+            sessionWithUserKeys = session;
         }
 
-        final EbicsSession sessionWithUserWithInitialized;
-        if (!sessionWithUserWithKeys.getUser().isInitializedHIA()) {
-            InitLetter.createHIA(sessionWithUserWithKeys);
-            final EbicsUser initializedUser = KeyManagement.sendHIA(sessionWithUserWithKeys);
-            sessionWithUserWithInitialized = sessionWithUserWithKeys.withUser(initializedUser);
-        } else {
-            sessionWithUserWithInitialized = sessionWithUserWithKeys;
+        if (UserStatus.PARTLY_INITIALIZED_INI.equals(sessionWithUserKeys.getUser().getStatus())) {
+            return sessionWithUserKeys.withUser(KeyManagement.sendHIA(sessionWithUserKeys));
         }
+        return sessionWithUserKeys;
+    }
 
-        if (!sessionWithUserWithInitialized.getUser().equals(session.getUser())) {
-            try {
-                session.getPersistenceProvider().save(EbicsUser.class, sessionWithUserWithInitialized.getUser());
-            } catch (final IOException e) {
-                throw new EbicsException(e);
-            }
-        }
-        return sessionWithUserWithInitialized;
+    @Override
+    public void generateIniLetter(final EbicsSession session, final OutputStream pdfOutput) throws EbicsException {
+        InitLetter.createINI(session, pdfOutput);
+    }
+
+    @Override
+    public void generateHiaLetter(final EbicsSession session, final OutputStream pdfOutput) throws EbicsException {
+        InitLetter.createHIA(session, pdfOutput);
     }
 
     @Override
@@ -253,9 +240,6 @@ public class EbicsClientImpl implements EbicsClient {
                 Constants.APPLICATION_BUNDLE_NAME));
         org.apache.xml.security.Init.init();
         Security.addProvider(new BouncyCastleProvider());
-        IOUtil.createDirectories(configuration.getRootDirectory());
-        IOUtil.createDirectories(configuration.getSerializationDirectory());
-        IOUtil.createDirectories(configuration.getUsersDirectory());
     }
 
     private EbicsSession loadSession(final String hostId,
@@ -307,6 +291,7 @@ public class EbicsClientImpl implements EbicsClient {
                     .userId(sessionParameter.getUserId())
                     .name(sessionParameter.getUserName())
                     .securityMedium("0100")
+                    .status(UserStatus.NEW)
                     .build();
             sessionParameter.getPersistenceProvider().save(EbicsUser.class, user);
 
@@ -326,17 +311,6 @@ public class EbicsClientImpl implements EbicsClient {
                     "user.create.error",
                     Constants.APPLICATION_BUNDLE_NAME), e);
         }
-    }
-
-    static void createUserDirectories(final EbicsConfiguration configuration, final EbicsUser user) {
-        log.info(configuration.getMessageProvider().getString(
-                "user.create.directories",
-                Constants.APPLICATION_BUNDLE_NAME,
-                user.getUserId()));
-        IOUtil.createDirectories(configuration.getUserDirectory(user));
-        IOUtil.createDirectories(configuration.getTransferTraceDirectory(user));
-        IOUtil.createDirectories(configuration.getLettersDirectory(user));
-        IOUtil.createDirectories(configuration.getTransferFilesDirectory(user));
     }
 
     private EbicsUser createUserKeys(final EbicsSession session) throws EbicsException {
