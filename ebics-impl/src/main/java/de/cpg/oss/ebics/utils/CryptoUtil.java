@@ -46,11 +46,7 @@ public abstract class CryptoUtil {
      * @return a random nonce.
      */
     public static byte[] generateNonce() {
-        try {
-            return SecureRandom.getInstance("SHA1PRNG").generateSeed(16);
-        } catch (final NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
+        return secureRandom().generateSeed(16);
     }
 
     /**
@@ -133,16 +129,8 @@ public abstract class CryptoUtil {
      * @return the password
      */
     public static String generatePassword() {
-        final SecureRandom random;
-
-        try {
-            random = SecureRandom.getInstance("SHA1PRNG");
-            final String pwd = Base64.encodeBase64String(random.generateSeed(5));
-
-            return pwd.substring(0, pwd.length() - 2);
-        } catch (final NoSuchAlgorithmException e) {
-            return "changeit";
-        }
+        final String pwd = Base64.encodeBase64String(secureRandom().generateSeed(5));
+        return pwd.substring(0, pwd.length() - 2);
     }
 
     /**
@@ -318,6 +306,14 @@ public abstract class CryptoUtil {
             return cipher.doFinal(input);
         } catch (final GeneralSecurityException e) {
             throw new EbicsException(e);
+        }
+    }
+
+    private static SecureRandom secureRandom() {
+        try {
+            return SecureRandom.getInstance("SHA1PRNG");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
         }
     }
 }
