@@ -7,16 +7,6 @@ import java.io.*;
 @Slf4j
 public abstract class IOUtil {
 
-    /**
-     * Creates many directories from a given full path.
-     */
-    public static File createDirectories(final File directory) {
-        if (!directory.mkdirs()) {
-            log.warn("Could not create all directories for {}", directory.getAbsolutePath());
-        }
-        return directory;
-    }
-
     public static byte[] read(final InputStream is) {
         try {
             try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
