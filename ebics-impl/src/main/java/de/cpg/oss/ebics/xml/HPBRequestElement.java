@@ -55,7 +55,7 @@ public abstract class HPBRequestElement {
                 .withTimestamp(OffsetDateTime.now())
                 .withPartnerID(session.getPartner().getPartnerId())
                 .withUserID(session.getUser().getUserId())
-                .withProduct(EbicsXmlFactory.unsecuredProduct(session.getProduct()))
+                .withProduct(session.getProduct().map(EbicsXmlFactory::unsecuredProduct).orElse(null))
                 .withOrderDetails(orderDetails)
                 .withSecurityMedium(session.getUser().getSecurityMedium())
                 .build();
