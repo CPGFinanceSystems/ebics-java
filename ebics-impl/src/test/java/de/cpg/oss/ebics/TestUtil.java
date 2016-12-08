@@ -1,10 +1,8 @@
 package de.cpg.oss.ebics;
 
 import de.cpg.oss.ebics.api.*;
-import de.cpg.oss.ebics.session.BinaryPersistenceProvider;
 import de.cpg.oss.ebics.utils.KeyUtil;
 
-import java.io.File;
 import java.net.URI;
 import java.security.KeyPair;
 import java.time.Instant;
@@ -19,7 +17,6 @@ public abstract class TestUtil {
 
         return EbicsSession.builder()
                 .configuration(configuration)
-                .persistenceProvider(new BinaryPersistenceProvider(new File("serialized")))
                 .bank(EbicsBank.builder()
                         .hostId("HOSTID")
                         .name("Test Bank Name")
