@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.function.Supplier;
 
 public abstract class EbicsXmlFactory {
@@ -262,7 +263,7 @@ public abstract class EbicsXmlFactory {
     private static <T extends Enum> PubKeyValueType pubKeyValue(final EbicsRsaKey ebicsRsaKey) {
         return PubKeyValueType.builder()
                 .withRSAKeyValue(XmlSignatureFactory.rsaPublicKey(ebicsRsaKey.getPublicKey()))
-                .withTimeStamp(OffsetDateTime.from(ebicsRsaKey.getCreationTime()))
+                .withTimeStamp(ebicsRsaKey.getCreationTime().atOffset(ZoneOffset.UTC))
                 .build();
     }
 

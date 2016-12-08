@@ -53,11 +53,9 @@ public class EbicsClientImpl implements EbicsClient {
                     sessionParameter.getPartnerId(),
                     sessionParameter.getUserId(),
                     sessionParameter.getPersistenceProvider());
-        } catch (final FileNotFoundException e) {
+        } catch (final IOException e) {
             log.info("No previous session data found. Creating a new session");
             ebicsSession = createSession(sessionParameter);
-        } catch (final IOException e) {
-            throw new EbicsException(e);
         }
 
         return ebicsSession

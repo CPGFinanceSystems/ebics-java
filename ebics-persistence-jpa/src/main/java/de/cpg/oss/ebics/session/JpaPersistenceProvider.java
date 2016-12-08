@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.Optional;
 
 @Component
 @Transactional
@@ -36,7 +38,11 @@ public class JpaPersistenceProvider implements PersistenceProvider {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends Identifiable> T load(final Class<T> clazz, final String id) throws IOException {
-        return (T) findRepositoryFor(clazz).findOne(id);
+        return (T) Optional.ofNullable(findRepositoryFor(clazz).findOne(id))
+                .orElseThrow(() -> new IOException(MessageFormat.format(
+                        "{0} with ID {1} not found!",
+                        clazz.getSimpleName(),
+                        id)));
     }
 
     @Override
