@@ -40,7 +40,7 @@
                     <column name="authentication_key_creation_time"/>
                 </attribute-override>
                 <attribute-override name="privateKey">
-                    <column name="authentication_private_key"/>
+                    <column name="authentication_key_private_key"/>
                 </attribute-override>
             </embedded>
             <embedded name="encryptionKey">
@@ -81,7 +81,7 @@
                     <column name="authentication_key_creation_time"/>
                 </attribute-override>
                 <attribute-override name="privateKey">
-                    <column name="authentication_private_key"/>
+                    <column name="authentication_key_private_key"/>
                 </attribute-override>
             </embedded>
             <embedded name="encryptionKey">
