@@ -1,7 +1,6 @@
 package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.EbicsSession;
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import lombok.AllArgsConstructor;
 import org.ebics.h004.EbicsRequest;
@@ -18,7 +17,7 @@ public class ReceiptRequestElement {
 
     private final byte[] transactionId;
 
-    public EbicsRequest create(final EbicsSession session) throws EbicsException {
+    public EbicsRequest create(final EbicsSession session) {
         final EbicsRequest request = request(
                 session.getConfiguration(),
                 header(

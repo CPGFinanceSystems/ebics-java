@@ -2,7 +2,6 @@ package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.CryptoUtil;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -32,7 +31,7 @@ public class VEUOrderDetailsRequestElement implements EbicsRequestElement {
     }
 
     @Override
-    public EbicsRequest createForSigning(final EbicsSession session) throws EbicsException {
+    public EbicsRequest createForSigning(final EbicsSession session) {
         final Collection<String> orderTypeStrings = orderTypes.stream().map(OrderType::name).collect(Collectors.toList());
         final JAXBElement<?> orderParams;
         final OrderType orderType;

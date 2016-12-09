@@ -1,6 +1,5 @@
 package de.cpg.oss.ebics.xml;
 
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.exception.ReturnCode;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import lombok.AccessLevel;
@@ -16,7 +15,7 @@ public class EbicsResponseElement implements ResponseElement<EbicsResponse> {
     @Getter
     private final EbicsResponse response;
 
-    public static EbicsResponseElement parse(final InputStream inputStream) throws EbicsException {
+    public static EbicsResponseElement parse(final InputStream inputStream) {
         return new EbicsResponseElement(parseXml(inputStream));
     }
 
@@ -49,12 +48,12 @@ public class EbicsResponseElement implements ResponseElement<EbicsResponse> {
 
     @Override
     public ReturnCode getReturnCode() {
-        return ReturnCode.toReturnCode(
+        return ReturnCode.valueOf(
                 getHeader().getMutable().getReturnCode(),
                 getHeader().getMutable().getReportText());
     }
 
-    static EbicsResponse parseXml(final InputStream inputStream) throws EbicsException {
+    static EbicsResponse parseXml(final InputStream inputStream) {
         return XmlUtil.parse(EbicsResponse.class, inputStream);
     }
 }

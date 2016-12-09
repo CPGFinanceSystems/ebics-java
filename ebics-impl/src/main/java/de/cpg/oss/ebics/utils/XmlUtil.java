@@ -1,7 +1,6 @@
 package de.cpg.oss.ebics.utils;
 
 import de.cpg.oss.ebics.api.EbicsUser;
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.Canonicalizer;
@@ -86,18 +85,18 @@ public abstract class XmlUtil {
         return IOUtil.wrap(outputStream.toByteArray());
     }
 
-    public static byte[] validate(final byte[] xml) throws EbicsException {
+    public static byte[] validate(final byte[] xml) {
         try {
             final Validator validator = XML_SCHEMAS.newValidator();
             validator.setErrorHandler(LoggingErrorHandler.INSTANCE);
             validator.validate(new StreamSource(IOUtil.wrap(xml)));
             return xml;
         } catch (IOException | SAXException e) {
-            throw new EbicsException(e.getMessage(), e);
+            throw new RuntimeException(e);
         }
     }
 
-    public static <T> T parse(final Class<T> clazz, final InputStream inputStream) throws EbicsException {
+    public static <T> T parse(final Class<T> clazz, final InputStream inputStream) {
         try {
             final JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
             final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
@@ -109,7 +108,7 @@ public abstract class XmlUtil {
                 return jaxbElement.getValue();
             }
         } catch (final JAXBException e) {
-            throw new EbicsException(e);
+            throw new RuntimeException(e);
         }
     }
 

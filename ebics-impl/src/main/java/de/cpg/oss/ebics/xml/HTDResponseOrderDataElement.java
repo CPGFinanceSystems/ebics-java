@@ -1,7 +1,6 @@
 package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.UserStatus;
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -18,7 +17,7 @@ public class HTDResponseOrderDataElement implements ResponseOrderDataElement<HTD
     @Getter
     private final HTDReponseOrderDataType responseOrderData;
 
-    public static HTDResponseOrderDataElement parse(final InputStream orderDataXml) throws EbicsException {
+    public static HTDResponseOrderDataElement parse(final InputStream orderDataXml) {
         return new HTDResponseOrderDataElement(XmlUtil.parse(HTDReponseOrderDataType.class, orderDataXml));
     }
 

@@ -1,7 +1,6 @@
 package de.cpg.oss.ebics.utils;
 
 import de.cpg.oss.ebics.api.EbicsSignatureKey;
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.nist.NISTObjectIdentifiers;
@@ -289,23 +288,23 @@ public abstract class CryptoUtil {
         };
     }
 
-    public static byte[] encryptRSA(final byte[] input, final PublicKey encryptionKey) throws EbicsException {
+    public static byte[] encryptRSA(final byte[] input, final PublicKey encryptionKey) {
         try {
             final Cipher cipher = Cipher.getInstance(EBICS_RSA_ALGORITHM);
             cipher.init(Cipher.ENCRYPT_MODE, encryptionKey);
             return cipher.doFinal(input);
         } catch (final GeneralSecurityException e) {
-            throw new EbicsException(e);
+            throw new RuntimeException(e);
         }
     }
 
-    public static byte[] decryptRSA(final byte[] input, final PrivateKey privateKey) throws EbicsException {
+    public static byte[] decryptRSA(final byte[] input, final PrivateKey privateKey) {
         try {
             final Cipher cipher = Cipher.getInstance(EBICS_RSA_ALGORITHM);
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
             return cipher.doFinal(input);
         } catch (final GeneralSecurityException e) {
-            throw new EbicsException(e);
+            throw new RuntimeException(e);
         }
     }
 

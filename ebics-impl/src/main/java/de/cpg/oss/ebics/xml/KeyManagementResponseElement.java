@@ -1,6 +1,5 @@
 package de.cpg.oss.ebics.xml;
 
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.exception.ReturnCode;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import lombok.AccessLevel;
@@ -22,7 +21,7 @@ public class KeyManagementResponseElement implements ResponseElement<EbicsKeyMan
     @Getter
     private EbicsKeyManagementResponse response;
 
-    public static KeyManagementResponseElement parse(final InputStream inputStream) throws EbicsException {
+    public static KeyManagementResponseElement parse(final InputStream inputStream) {
         return new KeyManagementResponseElement(XmlUtil.parse(EbicsKeyManagementResponse.class, inputStream));
     }
 
@@ -43,7 +42,7 @@ public class KeyManagementResponseElement implements ResponseElement<EbicsKeyMan
 
     @Override
     public ReturnCode getReturnCode() {
-        return ReturnCode.toReturnCode(
+        return ReturnCode.valueOf(
                 response.getHeader().getMutable().getReturnCode(),
                 response.getHeader().getMutable().getReportText());
     }

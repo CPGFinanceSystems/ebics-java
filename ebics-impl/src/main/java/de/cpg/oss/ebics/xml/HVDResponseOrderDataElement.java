@@ -4,7 +4,6 @@ import de.cpg.oss.ebics.api.DetailedVEUOrder;
 import de.cpg.oss.ebics.api.EbicsConfiguration;
 import de.cpg.oss.ebics.api.SignatureVersion;
 import de.cpg.oss.ebics.api.VEUOrder;
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -19,7 +18,7 @@ public class HVDResponseOrderDataElement implements ResponseOrderDataElement<HVD
     @Getter
     private final HVDResponseOrderDataType responseOrderData;
 
-    public static HVDResponseOrderDataElement parse(final InputStream orderDataXml) throws EbicsException {
+    public static HVDResponseOrderDataElement parse(final InputStream orderDataXml) {
         return new HVDResponseOrderDataElement(XmlUtil.parse(HVDResponseOrderDataType.class, orderDataXml));
     }
 

@@ -9,7 +9,10 @@ import de.cpg.oss.ebics.xml.*;
 import lombok.extern.slf4j.Slf4j;
 import org.ebics.h004.EbicsRequest;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 
@@ -49,13 +52,13 @@ abstract class FileTransaction {
     static FileTransfer createFileUploadTransaction(
             final EbicsSession session,
             final File inputFile,
-            final OrderType orderType) throws FileNotFoundException, EbicsException {
+            final OrderType orderType) {
         try {
             return session.getFileTransferManager().createUploadTransaction(
                     orderType,
                     new FileInputStream(inputFile));
         } catch (final IOException e) {
-            throw new EbicsException(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -88,7 +91,7 @@ abstract class FileTransaction {
             final EbicsSession session,
             final OrderType orderType,
             final LocalDate start,
-            final LocalDate end) throws FileNotFoundException, EbicsException {
+            final LocalDate end) throws EbicsException {
         final EbicsRequest request = DInitializationRequestElement.builder()
                 .orderType(orderType)
                 .startRange(start)
@@ -111,7 +114,7 @@ abstract class FileTransaction {
 
     static FileTransfer downloadFile(final EbicsSession session,
                                      final FileTransfer transaction,
-                                     final File outputFile) throws EbicsException, FileNotFoundException {
+                                     final File outputFile) throws EbicsException {
         FileTransfer current = transaction;
         try {
             while (current.hasNext()) {
@@ -136,7 +139,7 @@ abstract class FileTransaction {
                     transaction,
                     new FileOutputStream(outputFile));
         } catch (final IOException e) {
-            throw new EbicsException(e);
+            throw new RuntimeException(e);
         }
 
         return current;

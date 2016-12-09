@@ -1,7 +1,6 @@
 package de.cpg.oss.ebics.utils;
 
 import de.cpg.oss.ebics.api.EbicsBank;
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -15,7 +14,7 @@ import java.text.MessageFormat;
 
 public abstract class HttpUtil {
 
-    public static HttpEntity sendAndReceive(final EbicsBank ebicsBank, final InputStream xmlRequest) throws EbicsException {
+    public static HttpEntity sendAndReceive(final EbicsBank ebicsBank, final InputStream xmlRequest) {
         try {
             final HttpResponse httpResponse = Request.Post(ebicsBank.getUri().toString())
                     .bodyStream(xmlRequest, ContentType.APPLICATION_XML.withCharset(Charset.defaultCharset()))
@@ -29,7 +28,7 @@ public abstract class HttpUtil {
             }
             return httpResponse.getEntity();
         } catch (final IOException e) {
-            throw new EbicsException(e);
+            throw new RuntimeException(e);
         }
     }
 }

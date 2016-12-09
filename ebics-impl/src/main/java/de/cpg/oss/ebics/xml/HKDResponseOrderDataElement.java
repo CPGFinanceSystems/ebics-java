@@ -1,7 +1,6 @@
 package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.BankAccountInformation;
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -22,7 +21,7 @@ public class HKDResponseOrderDataElement implements ResponseOrderDataElement<HKD
     @Getter
     private final HKDResponseOrderDataType responseOrderData;
 
-    public static HKDResponseOrderDataElement parse(final InputStream orderDataXml) throws EbicsException {
+    public static HKDResponseOrderDataElement parse(final InputStream orderDataXml) {
         return new HKDResponseOrderDataElement(XmlUtil.parse(HKDResponseOrderDataType.class, orderDataXml));
     }
 

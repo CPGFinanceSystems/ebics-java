@@ -1,7 +1,6 @@
 package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.EbicsSession;
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import lombok.Builder;
 import lombok.NonNull;
 import org.ebics.h004.EbicsRequest;
@@ -16,7 +15,7 @@ public class DTransferRequestElement implements EbicsRequestElement {
     private final byte[] transactionId;
 
     @Override
-    public EbicsRequest createForSigning(final EbicsSession session) throws EbicsException {
+    public EbicsRequest createForSigning(final EbicsSession session) {
         return EbicsXmlFactory.request(
                 session.getConfiguration(),
                 EbicsXmlFactory.header(

@@ -3,21 +3,22 @@ package de.cpg.oss.ebics.api;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URI;
 import java.time.LocalDate;
 import java.util.Collection;
 
 public interface EbicsClient {
 
-    EbicsSession loadOrCreateSession(EbicsSessionParameter sessionParameter) throws EbicsException;
+    Collection<String> bankSupportedEbicsVersions(final String hostId, final URI endpoint) throws EbicsException;
+
+    EbicsSession loadOrCreateSession(EbicsSessionParameter sessionParameter);
 
     EbicsSession initializeUser(EbicsSession session) throws EbicsException;
 
-    void generateIniLetter(EbicsSession session, OutputStream pdfOutput) throws EbicsException;
+    void generateIniLetter(EbicsSession session, OutputStream pdfOutput);
 
-    void generateHiaLetter(EbicsSession session, OutputStream pdfOutput) throws EbicsException;
+    void generateHiaLetter(EbicsSession session, OutputStream pdfOutput);
 
     EbicsSession collectInformation(EbicsSession session) throws EbicsException;
 
@@ -35,7 +36,7 @@ public interface EbicsClient {
 
     FileTransfer createFileUploadTransaction(final EbicsSession session,
                                              final File fileLocation,
-                                             final OrderType orderType) throws FileNotFoundException, EbicsException;
+                                             final OrderType orderType) throws EbicsException;
 
     FileTransfer uploadFile(final EbicsSession session, final FileTransfer fileTransfer) throws EbicsException;
 
@@ -46,5 +47,5 @@ public interface EbicsClient {
                    LocalDate start,
                    LocalDate end) throws EbicsException;
 
-    EbicsSession save(EbicsSession session) throws IOException;
+    EbicsSession save(EbicsSession session);
 }

@@ -13,7 +13,7 @@ public class ReceiptResponseElement extends EbicsResponseElement {
         super(ebicsResponse);
     }
 
-    public static ReceiptResponseElement parse(final InputStream inputStream) throws EbicsException {
+    public static ReceiptResponseElement parse(final InputStream inputStream) {
         return new ReceiptResponseElement(parseXml(inputStream));
     }
 

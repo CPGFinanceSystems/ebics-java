@@ -6,13 +6,14 @@ import de.cpg.oss.ebics.session.DefaultFileTransferManager;
 import de.cpg.oss.ebics.session.DefaultPasswordCallback;
 import de.cpg.oss.ebics.session.NoOpXmlMessageTracer;
 import de.cpg.oss.ebics.utils.KeyUtil;
+import javaslang.control.Either;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URI;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
@@ -20,6 +21,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * The ebics client application. Performs necessary tasks to contact
@@ -46,7 +48,18 @@ public class EbicsClientImpl implements EbicsClient {
     }
 
     @Override
-    public EbicsSession loadOrCreateSession(final EbicsSessionParameter sessionParameter) throws EbicsException {
+    public Collection<String> bankSupportedEbicsVersions(final String hostId, final URI endpoint) throws EbicsException {
+        return KeyManagement.sendHEV(EbicsSession.builder()
+                .bank(EbicsBank.builder()
+                        .hostId(hostId)
+                        .uri(endpoint)
+                        .build())
+                .build()).getSupportedEbicsVersions().stream()
+                .map(Either::toString).collect(Collectors.toList());
+    }
+
+    @Override
+    public EbicsSession loadOrCreateSession(final EbicsSessionParameter sessionParameter) {
         EbicsSession ebicsSession;
         try {
             ebicsSession = loadSession(sessionParameter.getHostId(),
@@ -83,12 +96,12 @@ public class EbicsClientImpl implements EbicsClient {
     }
 
     @Override
-    public void generateIniLetter(final EbicsSession session, final OutputStream pdfOutput) throws EbicsException {
+    public void generateIniLetter(final EbicsSession session, final OutputStream pdfOutput) {
         InitLetter.createINI(session, pdfOutput);
     }
 
     @Override
-    public void generateHiaLetter(final EbicsSession session, final OutputStream pdfOutput) throws EbicsException {
+    public void generateHiaLetter(final EbicsSession session, final OutputStream pdfOutput) {
         InitLetter.createHIA(session, pdfOutput);
     }
 
@@ -105,15 +118,11 @@ public class EbicsClientImpl implements EbicsClient {
             try {
                 session.getPersistenceProvider().save(EbicsBank.class, bankWithKeys);
             } catch (final IOException e) {
-                throw new EbicsException(e);
+                throw new RuntimeException(e);
             }
         }
 
-        try {
-            return save(KeyManagement.collectInformation(session.withBank(bankWithKeys)));
-        } catch (final IOException e) {
-            throw new EbicsException(e);
-        }
+        return save(KeyManagement.collectInformation(session.withBank(bankWithKeys)));
     }
 
     /**
@@ -121,11 +130,7 @@ public class EbicsClientImpl implements EbicsClient {
      */
     @Override
     public EbicsSession revokeSubscriber(final EbicsSession session) throws EbicsException {
-        try {
-            return session.withUser(KeyManagement.lockAccess(session));
-        } catch (final IOException e) {
-            throw new EbicsException(e);
-        }
+        return session.withUser(KeyManagement.lockAccess(session));
     }
 
     @Override
@@ -159,7 +164,7 @@ public class EbicsClientImpl implements EbicsClient {
     public FileTransfer createFileUploadTransaction(
             final EbicsSession session,
             final File inputFile,
-            final OrderType orderType) throws FileNotFoundException, EbicsException {
+            final OrderType orderType) {
         return FileTransaction.createFileUploadTransaction(session, inputFile, orderType);
     }
 
@@ -179,23 +184,23 @@ public class EbicsClientImpl implements EbicsClient {
         if (isTest) {
             session.addSessionParam("TEST", "true");
         }
-        try {
-            final FileTransfer transaction = FileTransaction.createFileDownloadTransaction(session, orderType, start, end);
-            FileTransaction.downloadFile(session, transaction, new File(path));
-        } catch (final IOException e) {
-            throw new EbicsException(e);
-        }
+        final FileTransfer transaction = FileTransaction.createFileDownloadTransaction(session, orderType, start, end);
+        FileTransaction.downloadFile(session, transaction, new File(path));
     }
 
     /**
      * Performs buffers save before quitting the client application.
      */
     @Override
-    public EbicsSession save(final EbicsSession session) throws IOException {
-        session.getPersistenceProvider().save(EbicsUser.class, session.getUser());
-        session.getPersistenceProvider().save(EbicsPartner.class, session.getPartner());
-        session.getPersistenceProvider().save(EbicsBank.class, session.getBank());
-        return session;
+    public EbicsSession save(final EbicsSession session) {
+        try {
+            session.getPersistenceProvider().save(EbicsUser.class, session.getUser());
+            session.getPersistenceProvider().save(EbicsPartner.class, session.getPartner());
+            session.getPersistenceProvider().save(EbicsBank.class, session.getBank());
+            return session;
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private EbicsSession loadSession(final String hostId,
@@ -215,7 +220,7 @@ public class EbicsClientImpl implements EbicsClient {
                 .build();
     }
 
-    private EbicsSession createSession(final EbicsSessionParameter sessionParameter) throws EbicsException {
+    private EbicsSession createSession(final EbicsSessionParameter sessionParameter) {
         try {
             final EbicsBank bank = EbicsBank.builder()
                     .uri(sessionParameter.getBankUri())
@@ -245,18 +250,18 @@ public class EbicsClientImpl implements EbicsClient {
                     .persistenceProvider(sessionParameter.getPersistenceProvider())
                     .build();
         } catch (final IOException e) {
-            throw new EbicsException(e);
+            throw new RuntimeException(e);
         }
     }
 
-    private EbicsUser createUserKeys(final EbicsSession session) throws EbicsException {
+    private EbicsUser createUserKeys(final EbicsSession session) {
         return session.getUser()
                 .withSignatureKey(createSignatureKey(configuration.getSignatureVersion()))
                 .withEncryptionKey(createEncryptionKey(configuration.getEncryptionVersion()))
                 .withAuthenticationKey(createAuthenticationKey(configuration.getAuthenticationVersion()));
     }
 
-    private EbicsSignatureKey createSignatureKey(final SignatureVersion version) throws EbicsException {
+    private EbicsSignatureKey createSignatureKey(final SignatureVersion version) {
         try {
             final KeyPair keyPair = KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE);
             return EbicsSignatureKey.builder()
@@ -267,11 +272,11 @@ public class EbicsClientImpl implements EbicsClient {
                     .version(version)
                     .build();
         } catch (final NoSuchAlgorithmException e) {
-            throw new EbicsException(e);
+            throw new RuntimeException(e);
         }
     }
 
-    private EbicsEncryptionKey createEncryptionKey(final EncryptionVersion version) throws EbicsException {
+    private EbicsEncryptionKey createEncryptionKey(final EncryptionVersion version) {
         try {
             final KeyPair keyPair = KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE);
             return EbicsEncryptionKey.builder()
@@ -282,11 +287,11 @@ public class EbicsClientImpl implements EbicsClient {
                     .version(version)
                     .build();
         } catch (final NoSuchAlgorithmException e) {
-            throw new EbicsException(e);
+            throw new RuntimeException(e);
         }
     }
 
-    private EbicsAuthenticationKey createAuthenticationKey(final AuthenticationVersion version) throws EbicsException {
+    private EbicsAuthenticationKey createAuthenticationKey(final AuthenticationVersion version) {
         try {
             final KeyPair keyPair = KeyUtil.createRsaKeyPair(KeyUtil.EBICS_KEY_SIZE);
             return EbicsAuthenticationKey.builder()
@@ -297,7 +302,7 @@ public class EbicsClientImpl implements EbicsClient {
                     .version(version)
                     .build();
         } catch (final NoSuchAlgorithmException e) {
-            throw new EbicsException(e);
+            throw new RuntimeException(e);
         }
     }
 }

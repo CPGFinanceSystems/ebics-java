@@ -1,7 +1,6 @@
 package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.EbicsSession;
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import lombok.Builder;
 import lombok.NonNull;
 import org.ebics.h004.DataTransferRequestType;
@@ -21,7 +20,7 @@ public class UTransferRequestElement implements EbicsRequestElement {
     private final byte[] content;
 
     @Override
-    public EbicsRequest createForSigning(final EbicsSession session) throws EbicsException {
+    public EbicsRequest createForSigning(final EbicsSession session) {
         return request(
                 session.getConfiguration(),
                 header(

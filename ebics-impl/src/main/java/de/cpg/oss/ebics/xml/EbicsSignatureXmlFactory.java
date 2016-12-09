@@ -2,7 +2,6 @@ package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.EbicsUser;
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import org.ebics.s001.*;
 
 import javax.xml.bind.JAXBElement;
@@ -13,7 +12,7 @@ public abstract class EbicsSignatureXmlFactory {
 
     private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
 
-    public static SignaturePubKeyOrderData signaturePubKeyOrderData(final EbicsSession session) throws EbicsException {
+    public static SignaturePubKeyOrderData signaturePubKeyOrderData(final EbicsSession session) {
         final PubKeyValueType pubKeyValue = OBJECT_FACTORY.createPubKeyValueType();
         pubKeyValue.setRSAKeyValue(XmlSignatureFactory.rsaPublicKey(session.getUser().getSignatureKey().getPublicKey()));
         pubKeyValue.setTimeStamp(session.getUser().getSignatureKey().getCreationTime().atOffset(ZoneOffset.UTC));

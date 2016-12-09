@@ -1,6 +1,5 @@
 package de.cpg.oss.ebics.xml;
 
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.api.exception.ReturnCode;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import lombok.AccessLevel;
@@ -18,7 +17,7 @@ public class HEVResponseElement implements ResponseElement<EbicsHEVResponse> {
     @Getter
     private final EbicsHEVResponse response;
 
-    public static HEVResponseElement parse(final InputStream inputStream) throws EbicsException {
+    public static HEVResponseElement parse(final InputStream inputStream) {
         return new HEVResponseElement(XmlUtil.parse(EbicsHEVResponse.class, inputStream));
     }
 
@@ -29,7 +28,7 @@ public class HEVResponseElement implements ResponseElement<EbicsHEVResponse> {
 
     @Override
     public ReturnCode getReturnCode() {
-        return ReturnCode.toReturnCode(response.getSystemReturnCode().getReturnCode(),
+        return ReturnCode.valueOf(response.getSystemReturnCode().getReturnCode(),
                 response.getSystemReturnCode().getReportText());
     }
 

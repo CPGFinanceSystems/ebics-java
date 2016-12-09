@@ -3,7 +3,6 @@ package de.cpg.oss.ebics.xml;
 import de.cpg.oss.ebics.api.EbicsConfiguration;
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.CryptoUtil;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import org.ebics.h004.*;
@@ -12,7 +11,7 @@ import java.time.OffsetDateTime;
 
 public abstract class HPBRequestElement {
 
-    public static EbicsNoPubKeyDigestsRequest create(final EbicsSession session) throws EbicsException {
+    public static EbicsNoPubKeyDigestsRequest create(final EbicsSession session) {
         final EbicsNoPubKeyDigestsRequest request = ebicsNoPubKeyDigestsRequest(session);
 
         request.setAuthSignature(XmlSignatureFactory.signatureType(

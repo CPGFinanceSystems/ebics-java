@@ -5,7 +5,6 @@ import de.cpg.oss.ebics.api.OrderType;
 import de.cpg.oss.ebics.api.SignatureVersion;
 import de.cpg.oss.ebics.api.VEUOrder;
 import de.cpg.oss.ebics.api.VEUOrder.VEUOrderBuilder;
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import javaslang.control.Option;
 import lombok.AccessLevel;
@@ -27,7 +26,7 @@ public abstract class VEUResponseOrderDataElement<T> implements ResponseOrderDat
         @Getter
         private final HVUResponseOrderDataType responseOrderData;
 
-        public static Standard parse(final InputStream orderDataXml) throws EbicsException {
+        public static Standard parse(final InputStream orderDataXml) {
             return new Standard(XmlUtil.parse(HVUResponseOrderDataType.class, orderDataXml));
         }
 
@@ -55,7 +54,7 @@ public abstract class VEUResponseOrderDataElement<T> implements ResponseOrderDat
         @Getter
         private final HVZResponseOrderDataType responseOrderData;
 
-        public static Detailed parse(final InputStream orderDataXml) throws EbicsException {
+        public static Detailed parse(final InputStream orderDataXml) {
             return new Detailed(XmlUtil.parse(HVZResponseOrderDataType.class, orderDataXml));
         }
 

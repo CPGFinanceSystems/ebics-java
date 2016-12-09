@@ -1,7 +1,6 @@
 package de.cpg.oss.ebics.client;
 
 import de.cpg.oss.ebics.api.EbicsSession;
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.TemplateUtil;
 import fr.opensagres.xdocreport.core.XDocReportException;
 
@@ -18,25 +17,25 @@ import java.util.Optional;
 
 abstract class InitLetter {
 
-    static void createINI(final EbicsSession session, final OutputStream outputStream) throws EbicsException {
+    static void createINI(final EbicsSession session, final OutputStream outputStream) {
         try {
             TemplateUtil.createPdfFromOdt(
                     template("iniletter", session.getMessageProvider().getLocale()),
                     templateParameters(session),
                     outputStream);
         } catch (XDocReportException | IOException e) {
-            throw new EbicsException(e);
+            throw new RuntimeException(e);
         }
     }
 
-    static void createHIA(final EbicsSession session, final OutputStream outputStream) throws EbicsException {
+    static void createHIA(final EbicsSession session, final OutputStream outputStream) {
         try {
             TemplateUtil.createPdfFromOdt(
                     template("hialetter", session.getMessageProvider().getLocale()),
                     templateParameters(session),
                     outputStream);
         } catch (XDocReportException | IOException e) {
-            throw new EbicsException(e);
+            throw new RuntimeException(e);
         }
     }
 

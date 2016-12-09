@@ -2,7 +2,6 @@ package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import lombok.Builder;
 import lombok.NonNull;
 import org.ebics.h004.*;
@@ -21,7 +20,7 @@ public class UInitializationRequestElement implements EbicsRequestElement {
     private final int numSegments;
 
     @Override
-    public EbicsRequest createForSigning(final EbicsSession session) throws EbicsException {
+    public EbicsRequest createForSigning(final EbicsSession session) {
         final StaticHeaderOrderDetailsType orderDetails;
         if (orderType.equals(OrderType.FUL)) {
             FULOrderParamsType.Builder<Void> fULOrderParamsBuilder = FULOrderParamsType.builder()

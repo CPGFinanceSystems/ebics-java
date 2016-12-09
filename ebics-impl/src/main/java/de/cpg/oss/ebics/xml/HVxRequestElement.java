@@ -3,7 +3,6 @@ package de.cpg.oss.ebics.xml;
 import de.cpg.oss.ebics.api.EbicsPartner;
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.CryptoUtil;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -86,7 +85,7 @@ public abstract class HVxRequestElement implements EbicsRequestElement {
         }
 
         @Override
-        public EbicsRequest createForSigning(final EbicsSession session) throws EbicsException {
+        public EbicsRequest createForSigning(final EbicsSession session) {
             final EbicsRequest ebicsRequest = super.createForSigning(session);
             ebicsRequest.getHeader().getStatic().setNumSegments(BigInteger.ZERO);
             final byte[] nonce = ebicsRequest.getHeader().getStatic().getNonce();
@@ -160,7 +159,7 @@ public abstract class HVxRequestElement implements EbicsRequestElement {
     protected final String orderId;
 
     @Override
-    public EbicsRequest createForSigning(final EbicsSession session) throws EbicsException {
+    public EbicsRequest createForSigning(final EbicsSession session) {
         return request(session.getConfiguration(),
                 header(mutableHeader(TransactionPhaseType.INITIALISATION),
                         staticHeader(session,

@@ -4,7 +4,6 @@ import de.cpg.oss.ebics.api.AuthenticationVersion;
 import de.cpg.oss.ebics.api.EbicsAuthenticationKey;
 import de.cpg.oss.ebics.api.EbicsEncryptionKey;
 import de.cpg.oss.ebics.api.EncryptionVersion;
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.KeyUtil;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import lombok.AccessLevel;
@@ -22,11 +21,11 @@ public class HPBResponseOrderDataElement implements ResponseOrderDataElement<HPB
     @Getter
     private final HPBResponseOrderDataType responseOrderData;
 
-    public static HPBResponseOrderDataElement parse(final InputStream orderData) throws EbicsException {
+    public static HPBResponseOrderDataElement parse(final InputStream orderData) {
         return new HPBResponseOrderDataElement(XmlUtil.parse(HPBResponseOrderDataType.class, orderData));
     }
 
-    public EbicsAuthenticationKey getBankAuthenticationKey() throws EbicsException {
+    public EbicsAuthenticationKey getBankAuthenticationKey() {
         final RSAKeyValue rsaKey = responseOrderData.getAuthenticationPubKeyInfo().getPubKeyValue().getRSAKeyValue();
         final RSAPublicKey publicKey = KeyUtil.getPublicKey(rsaKey.getModulus(), rsaKey.getExponent());
         return EbicsAuthenticationKey.builder()
@@ -37,7 +36,7 @@ public class HPBResponseOrderDataElement implements ResponseOrderDataElement<HPB
                 .build();
     }
 
-    public EbicsEncryptionKey getBankEncryptionKey() throws EbicsException {
+    public EbicsEncryptionKey getBankEncryptionKey() {
         final RSAKeyValue rsaKey = responseOrderData.getEncryptionPubKeyInfo().getPubKeyValue().getRSAKeyValue();
         final RSAPublicKey publicKey = KeyUtil.getPublicKey(rsaKey.getModulus(), rsaKey.getExponent());
         return EbicsEncryptionKey.builder()

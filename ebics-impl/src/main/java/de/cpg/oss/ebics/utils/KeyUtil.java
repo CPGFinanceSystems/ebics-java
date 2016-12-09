@@ -1,6 +1,5 @@
 package de.cpg.oss.ebics.utils;
 
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import org.apache.commons.codec.binary.Hex;
 
 import java.io.UnsupportedEncodingException;
@@ -52,7 +51,7 @@ public abstract class KeyUtil {
      * @param publicKey the public key
      * @return the digest value
      */
-    public static byte[] getKeyDigest(final PublicKey publicKey) throws EbicsException {
+    public static byte[] getKeyDigest(final PublicKey publicKey) {
         final RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
         final String exponent = Hex.encodeHexString(rsaPublicKey.getPublicExponent().toByteArray()).replaceFirst("^0+", "");
         final String modulus = Hex.encodeHexString(rsaPublicKey.getModulus().toByteArray()).replaceFirst("^0+", "");
@@ -61,7 +60,7 @@ public abstract class KeyUtil {
         try {
             return MessageDigest.getInstance(CryptoUtil.EBICS_DIGEST_ALGORITHM).digest(hash.getBytes("US-ASCII"));
         } catch (final GeneralSecurityException | UnsupportedEncodingException e) {
-            throw new EbicsException(e.getMessage(), e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -70,7 +69,7 @@ public abstract class KeyUtil {
         try {
             final KeyFactory factory = KeyFactory.getInstance(EBICS_ENCRYPTION_KEY_ALGORITHM);
             return (RSAPublicKey) factory.generatePublic(spec);
-        } catch (final Exception e) {
+        } catch (final GeneralSecurityException e) {
             throw new RuntimeException(e);
         }
     }

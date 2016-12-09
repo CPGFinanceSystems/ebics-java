@@ -2,7 +2,6 @@ package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.CryptoUtil;
 import lombok.Builder;
 import lombok.NonNull;
@@ -23,7 +22,7 @@ public class DInitializationRequestElement implements EbicsRequestElement {
     private final LocalDate endRange;
 
     @Override
-    public EbicsRequest createForSigning(final EbicsSession session) throws EbicsException {
+    public EbicsRequest createForSigning(final EbicsSession session) {
         final StaticHeaderOrderDetailsType orderDetails;
 
         if (orderType.equals(OrderType.FDL)) {

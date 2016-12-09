@@ -1,7 +1,5 @@
 package de.cpg.oss.ebics.api;
 
-import de.cpg.oss.ebics.api.exception.EbicsException;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -10,21 +8,21 @@ public interface FileTransferManager {
     int BLOCK_SIZE = 1024 * 1024;
 
     FileTransfer createUploadTransaction(OrderType orderType,
-                                         InputStream inputStream) throws EbicsException;
+                                         InputStream inputStream);
 
     FileTransfer createDownloadTransaction(OrderType orderType,
                                            int numSegments,
                                            byte[] nonce,
-                                           byte[] remoteTransactionId) throws EbicsException;
+                                           byte[] remoteTransactionId);
 
-    FileTransfer save(FileTransfer fileTransfer) throws EbicsException;
+    FileTransfer save(FileTransfer fileTransfer);
 
-    boolean finalizeUploadTransaction(FileTransfer fileTransfer) throws EbicsException;
+    boolean finalizeUploadTransaction(FileTransfer fileTransfer);
 
     boolean finalizeDownloadTransaction(FileTransfer fileTransfer,
-                                        OutputStream outputStream) throws EbicsException;
+                                        OutputStream outputStream);
 
-    FileTransferSegment saveSegment(FileTransfer fileTransfer, byte[] orderData) throws EbicsException;
+    FileTransferSegment saveSegment(FileTransfer fileTransfer, byte[] orderData);
 
-    FileTransferSegment loadSegment(FileTransfer fileTransfer) throws EbicsException;
+    FileTransferSegment loadSegment(FileTransfer fileTransfer);
 }

@@ -1,22 +1,3 @@
-/*
- * Copyright (c) 1990-2012 kopiLeft Development SARL, Bizerte, Tunisia
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License version 2.1 as published by the Free Software Foundation.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- *
- * $Id$
- */
-
 package de.cpg.oss.ebics.api.exception;
 
 import de.cpg.oss.ebics.api.MessageProvider;
@@ -26,13 +7,10 @@ import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-
 /**
  * Representation of EBICS return codes.
  * The return codes are described in chapter 13
  * of EBICS specification.
- *
- * @author hachani
  */
 @Slf4j
 public enum ReturnCode {
@@ -179,7 +157,7 @@ public enum ReturnCode {
      * @param text the given code text
      * @return the equivalent <code>ReturnCode</code>
      */
-    public static ReturnCode toReturnCode(final String code, final String text) {
+    public static ReturnCode valueOf(final String code, final String text) {
         final ReturnCode returnCode = Stream.of(values()).filter(v -> v.getCode().equals(code)).findFirst()
                 .orElseGet(() -> EBICS_INVALID_REQUEST_CONTENT);
 

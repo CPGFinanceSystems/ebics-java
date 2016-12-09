@@ -1,7 +1,6 @@
 package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.*;
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.CryptoUtil;
 import de.cpg.oss.ebics.utils.IOUtil;
 import de.cpg.oss.ebics.utils.XmlUtil;
@@ -152,7 +151,7 @@ public abstract class EbicsXmlFactory {
 
     static DataTransferRequestType dataTransferRequest(final EbicsSession session,
                                                        final InputStream message,
-                                                       final byte[] nonce) throws EbicsException {
+                                                       final byte[] nonce) {
         return dataTransferRequest(session, () -> {
             try {
                 return CryptoUtil.signMessage(message, session.getUser().getSignatureKey());
@@ -164,7 +163,7 @@ public abstract class EbicsXmlFactory {
 
     static DataTransferRequestType dataTransferRequestWithDigest(final EbicsSession session,
                                                                  final byte[] digest,
-                                                                 final byte[] nonce) throws EbicsException {
+                                                                 final byte[] nonce) {
         return dataTransferRequest(session, () -> {
             try {
                 return CryptoUtil.signHash(digest, session.getUser().getSignatureKey());
@@ -176,7 +175,7 @@ public abstract class EbicsXmlFactory {
 
     static DataTransferRequestType dataTransferRequest(final EbicsSession session,
                                                        final Supplier<byte[]> signatureSupplier,
-                                                       final byte[] nonce) throws EbicsException {
+                                                       final byte[] nonce) {
         return DataTransferRequestType.builder()
                 .withDataEncryptionInfo(dataEncryptionInfo(
                         session.getBank().getEncryptionKey(),
@@ -199,7 +198,7 @@ public abstract class EbicsXmlFactory {
                 .build();
     }
 
-    public static HIARequestOrderDataType hiaRequestOrderData(final EbicsSession session) throws EbicsException {
+    public static HIARequestOrderDataType hiaRequestOrderData(final EbicsSession session) {
         return HIARequestOrderDataType.builder()
                 .withAuthenticationPubKeyInfo(AuthenticationPubKeyInfoType.builder()
                         .withAuthenticationVersion(session.getUser().getAuthenticationKey().getAuthenticationVersion().name())

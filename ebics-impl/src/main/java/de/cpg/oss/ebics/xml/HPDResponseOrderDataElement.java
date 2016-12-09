@@ -1,11 +1,9 @@
 package de.cpg.oss.ebics.xml;
 
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.ebics.h004.HPBResponseOrderDataType;
 import org.ebics.h004.HPDProtocolParamsType;
 import org.ebics.h004.HPDResponseOrderDataType;
 
@@ -18,7 +16,7 @@ public class HPDResponseOrderDataElement implements ResponseOrderDataElement<HPD
     @Getter
     private final HPDResponseOrderDataType responseOrderData;
 
-    public static HPDResponseOrderDataElement parse(final InputStream orderDataXml) throws EbicsException {
+    public static HPDResponseOrderDataElement parse(final InputStream orderDataXml) {
         return new HPDResponseOrderDataElement(XmlUtil.parse(HPDResponseOrderDataType.class, orderDataXml));
     }
 

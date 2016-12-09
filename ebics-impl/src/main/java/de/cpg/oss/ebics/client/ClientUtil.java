@@ -16,15 +16,14 @@ import java.util.Optional;
 abstract class ClientUtil {
 
     interface ResponseElementParser<T extends ResponseElement<?>> {
-        T parse(InputStream responseDataXml) throws EbicsException;
+        T parse(InputStream responseDataXml);
     }
 
     interface ResponseOrderDataElementParser<T extends ResponseOrderDataElement<?>> {
-        T parse(InputStream orderDataXml) throws EbicsException;
+        T parse(InputStream orderDataXml);
     }
 
-    static EbicsResponseElement requestExchange(final EbicsSession session, final EbicsRequest request)
-            throws EbicsException {
+    static EbicsResponseElement requestExchange(final EbicsSession session, final EbicsRequest request) throws EbicsException {
         return requestExchange(session, request, EbicsResponseElement::parse);
     }
 
@@ -51,7 +50,7 @@ abstract class ClientUtil {
         try {
             response = responseElementParser.parse(httpEntity.getContent());
         } catch (final IOException e) {
-            throw new EbicsException(e);
+            throw new RuntimeException(e);
         }
 
         session.getXmlMessageTracer().trace(
@@ -66,21 +65,14 @@ abstract class ClientUtil {
             final EbicsSession session,
             final I responseElement,
             final ResponseOrderDataElementParser<O> responseOrderDataElementParser,
-            final String baseElementName) throws EbicsException {
+            final String baseElementName) {
         final byte[] orderDataXml = IOUtil.read(ZipUtil.uncompress(CryptoUtil.decryptAES(
                 IOUtil.wrap(responseElement.getOrderData()),
                 CryptoUtil.decryptRSA(responseElement.getTransactionKey(), session.getUserEncryptionKey()))));
-        try {
-            final O responseOrderDataElement = responseOrderDataElementParser.parse(IOUtil.wrap(orderDataXml));
-            session.getXmlMessageTracer().trace(
-                    responseOrderDataElement.getResponseOrderDataClass(),
-                    responseOrderDataElement.getResponseOrderData(), baseElementName.concat("ResponseOrderData"));
-            return responseOrderDataElement;
-        } catch (final EbicsException e) {
-            session.getXmlMessageTracer().trace(
-                    IOUtil.wrap(orderDataXml),
-                    baseElementName.concat("ResponseOrderData"));
-            throw e;
-        }
+        final O responseOrderDataElement = responseOrderDataElementParser.parse(IOUtil.wrap(orderDataXml));
+        session.getXmlMessageTracer().trace(
+                responseOrderDataElement.getResponseOrderDataClass(),
+                responseOrderDataElement.getResponseOrderData(), baseElementName.concat("ResponseOrderData"));
+        return responseOrderDataElement;
     }
 }

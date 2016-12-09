@@ -2,7 +2,6 @@ package de.cpg.oss.ebics.xml;
 
 import de.cpg.oss.ebics.api.EbicsSession;
 import de.cpg.oss.ebics.api.OrderType;
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.CryptoUtil;
 import de.cpg.oss.ebics.utils.IOUtil;
 import org.ebics.h004.EbicsRequest;
@@ -14,7 +13,7 @@ import static de.cpg.oss.ebics.xml.EbicsXmlFactory.*;
 public class SPRRequestElement implements EbicsRequestElement {
 
     @Override
-    public EbicsRequest createForSigning(final EbicsSession session) throws EbicsException {
+    public EbicsRequest createForSigning(final EbicsSession session) {
         final byte[] nonce = CryptoUtil.generateNonce();
 
         return request(

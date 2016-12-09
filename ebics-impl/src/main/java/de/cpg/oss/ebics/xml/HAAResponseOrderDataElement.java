@@ -1,6 +1,5 @@
 package de.cpg.oss.ebics.xml;
 
-import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.utils.XmlUtil;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -17,7 +16,7 @@ public class HAAResponseOrderDataElement implements ResponseOrderDataElement<HAA
     @Getter
     private final HAAResponseOrderDataType responseOrderData;
 
-    public static HAAResponseOrderDataElement parse(final InputStream orderDataXml) throws EbicsException {
+    public static HAAResponseOrderDataElement parse(final InputStream orderDataXml) {
         return new HAAResponseOrderDataElement(XmlUtil.parse(HAAResponseOrderDataType.class, orderDataXml));
     }
 
