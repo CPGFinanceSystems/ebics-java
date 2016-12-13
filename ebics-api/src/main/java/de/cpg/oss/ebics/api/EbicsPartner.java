@@ -1,9 +1,6 @@
 package de.cpg.oss.ebics.api;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Value;
+import lombok.*;
 import lombok.experimental.Wither;
 
 import java.util.Collection;
@@ -16,6 +13,7 @@ public class EbicsPartner implements Identifiable {
 
     private static final long serialVersionUID = 2L;
 
+    @NonNull
     private final String partnerId;
 
     private final Collection<BankAccountInformation> bankAccounts;
@@ -27,6 +25,6 @@ public class EbicsPartner implements Identifiable {
 
     // We all love JPA, don't we?
     private EbicsPartner() {
-        this(null, null);
+        this("", null);
     }
 }

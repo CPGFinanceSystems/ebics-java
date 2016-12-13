@@ -18,6 +18,9 @@ public class UInitializationRequestElement implements EbicsRequestElement {
     @NonNull
     private final byte[] nonce;
     private final int numSegments;
+    private final String fileFormat;
+    private final boolean test;
+    private final boolean ebcdic;
 
     @Override
     public EbicsRequest createForSigning(final EbicsSession session) {
@@ -26,12 +29,12 @@ public class UInitializationRequestElement implements EbicsRequestElement {
             FULOrderParamsType.Builder<Void> fULOrderParamsBuilder = FULOrderParamsType.builder()
                     .withFileFormat(FileFormatType.builder()
                             .withCountryCode(session.getConfiguration().getLocale().getCountry().toUpperCase())
-                            .withValue(session.getSessionParam("FORMAT"))
+                            .withValue(fileFormat)
                             .build());
-            if (Boolean.valueOf(session.getSessionParam("TEST"))) {
+            if (test) {
                 fULOrderParamsBuilder = fULOrderParamsBuilder.addParameters(stringParameter("TEST", "TRUE"));
             }
-            if (Boolean.valueOf(session.getSessionParam("EBCDIC"))) {
+            if (ebcdic) {
                 fULOrderParamsBuilder = fULOrderParamsBuilder.addParameters(stringParameter("EBCDIC", "TRUE"));
 
             }

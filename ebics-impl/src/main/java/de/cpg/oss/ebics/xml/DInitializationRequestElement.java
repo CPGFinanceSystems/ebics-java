@@ -20,6 +20,8 @@ public class DInitializationRequestElement implements EbicsRequestElement {
     private final LocalDate startRange;
     @NonNull
     private final LocalDate endRange;
+    private final String fileFormat;
+    private final boolean test;
 
     @Override
     public EbicsRequest createForSigning(final EbicsSession session) {
@@ -29,13 +31,13 @@ public class DInitializationRequestElement implements EbicsRequestElement {
             FDLOrderParamsType.Builder<Void> fDLOrderParamsBuilder = FDLOrderParamsType.builder()
                     .withFileFormat(FileFormatType.builder()
                             .withCountryCode(session.getConfiguration().getLocale().getCountry().toUpperCase())
-                            .withValue(session.getSessionParam("FORMAT"))
+                            .withValue(fileFormat)
                             .build())
                     .withDateRange(FDLOrderParamsType.DateRange.builder()
                             .withStart(startRange)
                             .withEnd(endRange)
                             .build());
-            if (Boolean.getBoolean(session.getSessionParam("TEST"))) {
+            if (test) {
                 fDLOrderParamsBuilder = fDLOrderParamsBuilder.addParameters(stringParameter("TEST", "TRUE"));
             }
             orderDetails = orderDetails(OrderAttributeType.DZHNN, orderType,

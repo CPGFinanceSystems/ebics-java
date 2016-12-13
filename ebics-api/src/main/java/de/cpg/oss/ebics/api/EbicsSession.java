@@ -5,8 +5,6 @@ import lombok.experimental.Wither;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @Wither
@@ -22,21 +20,22 @@ public class EbicsSession {
     @Getter
     @NonNull
     private final EbicsPartner partner;
-    @NonNull
     @Getter
+    @NonNull
     private final EbicsBank bank;
     @Getter
     @NonNull
     private final EbicsConfiguration configuration;
     private final Product product;
     @Getter
+    @NonNull
     private final PersistenceProvider persistenceProvider;
     @Getter
+    @NonNull
     private final XmlMessageTracer xmlMessageTracer;
     @Getter
+    @NonNull
     private final FileTransferManager fileTransferManager;
-    @Getter
-    private final Map<String, String> parameters = new HashMap<>();
 
     public PublicKey getBankEncryptionKey() {
         return getBank().getEncryptionKey().getPublicKey();
@@ -56,16 +55,5 @@ public class EbicsSession {
 
     public Optional<Product> getProduct() {
         return Optional.ofNullable(product);
-    }
-
-    public void addSessionParam(final String key, final String value) {
-        getParameters().put(key, value);
-    }
-
-    public String getSessionParam(final String key) {
-        if (key == null) {
-            return null;
-        }
-        return getParameters().get(key);
     }
 }

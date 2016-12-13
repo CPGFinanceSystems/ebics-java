@@ -4,6 +4,7 @@ import de.cpg.oss.ebics.api.*;
 import de.cpg.oss.ebics.api.exception.EbicsException;
 import de.cpg.oss.ebics.session.DefaultFileTransferManager;
 import de.cpg.oss.ebics.session.DefaultPasswordCallback;
+import de.cpg.oss.ebics.session.InMemoryPersistenceProvider;
 import de.cpg.oss.ebics.session.NoOpXmlMessageTracer;
 import de.cpg.oss.ebics.utils.KeyUtil;
 import javaslang.control.Either;
@@ -20,7 +21,6 @@ import java.security.Security;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -50,34 +50,41 @@ public class EbicsClientImpl implements EbicsClient {
     @Override
     public Collection<String> bankSupportedEbicsVersions(final String hostId, final URI endpoint) throws EbicsException {
         return KeyManagement.sendHEV(EbicsSession.builder()
+                .user(EbicsUser.builder()
+                        .userId("DUMMY")
+                        .status(UserStatus.NEW)
+                        .build())
+                .partner(EbicsPartner.builder()
+                        .partnerId("DUMMY")
+                        .build())
                 .bank(EbicsBank.builder()
                         .hostId(hostId)
                         .uri(endpoint)
                         .build())
+                .configuration(new EbicsConfiguration())
+                .persistenceProvider(InMemoryPersistenceProvider.INSTANCE)
+                .xmlMessageTracer(NoOpXmlMessageTracer.INSTANCE)
+                .fileTransferManager(new DefaultFileTransferManager(InMemoryPersistenceProvider.INSTANCE))
                 .build()).getSupportedEbicsVersions().stream()
                 .map(Either::toString).collect(Collectors.toList());
     }
 
     @Override
     public EbicsSession loadOrCreateSession(final EbicsSessionParameter sessionParameter) {
-        EbicsSession ebicsSession;
+        EbicsSession.EbicsSessionBuilder ebicsSessionBuilder;
         try {
-            ebicsSession = loadSession(sessionParameter.getHostId(),
-                    sessionParameter.getPartnerId(),
-                    sessionParameter.getUserId(),
-                    sessionParameter.getPersistenceProvider());
+            ebicsSessionBuilder = loadSession(sessionParameter);
         } catch (final IOException e) {
             log.info("No previous session data found. Creating a new session");
-            ebicsSession = createSession(sessionParameter);
+            ebicsSessionBuilder = createSession(sessionParameter);
         }
 
-        return ebicsSession
-                .withXmlMessageTracer(Optional.ofNullable(sessionParameter.getXmlMessageTracer())
-                        .orElseGet(() -> NoOpXmlMessageTracer.INSTANCE))
-                .withFileTransferManager(new DefaultFileTransferManager(sessionParameter.getPersistenceProvider()))
-                .withUser(ebicsSession.getUser()
-                        .withPasswordCallback(Optional.ofNullable(sessionParameter.getPasswordCallback())
-                                .orElseGet(() -> new DefaultPasswordCallback(sessionParameter.getUserId(), ""))));
+        return ebicsSessionBuilder
+                .configuration(configuration)
+                .persistenceProvider(sessionParameter.getPersistenceProvider())
+                .xmlMessageTracer(sessionParameter.getXmlMessageTracer().orElse(NoOpXmlMessageTracer.INSTANCE))
+                .fileTransferManager(new DefaultFileTransferManager(sessionParameter.getPersistenceProvider()))
+                .build();
     }
 
     @Override
@@ -181,10 +188,7 @@ public class EbicsClientImpl implements EbicsClient {
                           final boolean isTest,
                           final LocalDate start,
                           final LocalDate end) throws EbicsException {
-        if (isTest) {
-            session.addSessionParam("TEST", "true");
-        }
-        final FileTransfer transaction = FileTransaction.createFileDownloadTransaction(session, orderType, start, end);
+        final FileTransfer transaction = FileTransaction.createFileDownloadTransaction(session, orderType, isTest, start, end);
         FileTransaction.downloadFile(session, transaction, new File(path));
     }
 
@@ -194,37 +198,34 @@ public class EbicsClientImpl implements EbicsClient {
     @Override
     public EbicsSession save(final EbicsSession session) {
         try {
-            session.getPersistenceProvider().save(EbicsUser.class, session.getUser());
-            session.getPersistenceProvider().save(EbicsPartner.class, session.getPartner());
-            session.getPersistenceProvider().save(EbicsBank.class, session.getBank());
-            return session;
+            final PersistenceProvider persistenceProvider = session.getPersistenceProvider();
+            persistenceProvider.save(EbicsUser.class, session.getUser());
+            persistenceProvider.save(EbicsPartner.class, session.getPartner());
+            persistenceProvider.save(EbicsBank.class, session.getBank());
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
+        return session;
     }
 
-    private EbicsSession loadSession(final String hostId,
-                                     final String partnerId,
-                                     final String userId,
-                                     final PersistenceProvider persistenceProvider) throws IOException {
-        final EbicsBank bank = persistenceProvider.load(EbicsBank.class, hostId);
-        final EbicsPartner partner = persistenceProvider.load(EbicsPartner.class, partnerId);
-        final EbicsUser user = persistenceProvider.load(EbicsUser.class, userId);
+    private EbicsSession.EbicsSessionBuilder loadSession(final EbicsSessionParameter sessionParameter) throws IOException {
+        final PersistenceProvider persistenceProvider = sessionParameter.getPersistenceProvider();
+
+        final EbicsBank bank = persistenceProvider.load(EbicsBank.class, sessionParameter.getHostId());
+        final EbicsPartner partner = persistenceProvider.load(EbicsPartner.class, sessionParameter.getPartnerId());
+        final EbicsUser user = persistenceProvider.load(EbicsUser.class, sessionParameter.getUserId());
 
         return EbicsSession.builder()
                 .bank(bank)
                 .partner(partner)
-                .user(user)
-                .configuration(configuration)
-                .persistenceProvider(persistenceProvider)
-                .build();
+                .user(user.withPasswordCallback(sessionParameter.getPasswordCallback()
+                        .orElseGet(() -> new DefaultPasswordCallback(sessionParameter.getUserId(), ""))));
     }
 
-    private EbicsSession createSession(final EbicsSessionParameter sessionParameter) {
+    private EbicsSession.EbicsSessionBuilder createSession(final EbicsSessionParameter sessionParameter) {
         try {
             final EbicsBank bank = EbicsBank.builder()
                     .uri(sessionParameter.getBankUri())
-                    .name(sessionParameter.getBankName())
                     .hostId(sessionParameter.getHostId())
                     .build();
             sessionParameter.getPersistenceProvider().save(EbicsBank.class, bank);
@@ -236,19 +237,17 @@ public class EbicsClientImpl implements EbicsClient {
 
             final EbicsUser user = EbicsUser.builder()
                     .userId(sessionParameter.getUserId())
-                    .name(sessionParameter.getUserName())
                     .securityMedium("0100")
                     .status(UserStatus.NEW)
+                    .passwordCallback(sessionParameter.getPasswordCallback()
+                            .orElseGet(() -> new DefaultPasswordCallback(sessionParameter.getUserId(), "")))
                     .build();
             sessionParameter.getPersistenceProvider().save(EbicsUser.class, user);
 
             return EbicsSession.builder()
                     .user(user)
                     .partner(partner)
-                    .bank(bank)
-                    .configuration(configuration)
-                    .persistenceProvider(sessionParameter.getPersistenceProvider())
-                    .build();
+                    .bank(bank);
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }

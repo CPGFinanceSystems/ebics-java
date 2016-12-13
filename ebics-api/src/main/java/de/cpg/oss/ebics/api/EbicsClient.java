@@ -10,7 +10,7 @@ import java.util.Collection;
 
 public interface EbicsClient {
 
-    Collection<String> bankSupportedEbicsVersions(final String hostId, final URI endpoint) throws EbicsException;
+    Collection<String> bankSupportedEbicsVersions(String hostId, URI endpoint) throws EbicsException;
 
     EbicsSession loadOrCreateSession(EbicsSessionParameter sessionParameter);
 
@@ -32,13 +32,13 @@ public interface EbicsClient {
 
     void signDetailedOrder(EbicsSession session, DetailedVEUOrder detailedVEUOrder) throws EbicsException;
 
-    void cancelSignature(final EbicsSession session, final DetailedVEUOrder detailedVEUOrder) throws EbicsException;
+    void cancelSignature(EbicsSession session, DetailedVEUOrder detailedVEUOrder) throws EbicsException;
 
-    FileTransfer createFileUploadTransaction(final EbicsSession session,
-                                             final File fileLocation,
-                                             final OrderType orderType) throws EbicsException;
+    FileTransfer createFileUploadTransaction(EbicsSession session,
+                                             File fileLocation,
+                                             OrderType orderType) throws EbicsException;
 
-    FileTransfer uploadFile(final EbicsSession session, final FileTransfer fileTransfer) throws EbicsException;
+    FileTransfer uploadFile(EbicsSession session, FileTransfer fileTransfer) throws EbicsException;
 
     void fetchFile(String path,
                    EbicsSession session,

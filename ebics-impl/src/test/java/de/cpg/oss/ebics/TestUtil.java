@@ -1,6 +1,9 @@
 package de.cpg.oss.ebics;
 
 import de.cpg.oss.ebics.api.*;
+import de.cpg.oss.ebics.session.DefaultFileTransferManager;
+import de.cpg.oss.ebics.session.InMemoryPersistenceProvider;
+import de.cpg.oss.ebics.session.NoOpXmlMessageTracer;
 import de.cpg.oss.ebics.utils.KeyUtil;
 
 import java.net.URI;
@@ -17,6 +20,9 @@ public abstract class TestUtil {
 
         return EbicsSession.builder()
                 .configuration(configuration)
+                .xmlMessageTracer(NoOpXmlMessageTracer.INSTANCE)
+                .persistenceProvider(InMemoryPersistenceProvider.INSTANCE)
+                .fileTransferManager(new DefaultFileTransferManager(InMemoryPersistenceProvider.INSTANCE))
                 .bank(EbicsBank.builder()
                         .hostId("HOSTID")
                         .name("Test Bank Name")

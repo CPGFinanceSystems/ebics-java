@@ -54,9 +54,7 @@ abstract class FileTransaction {
             final File inputFile,
             final OrderType orderType) {
         try {
-            return session.getFileTransferManager().createUploadTransaction(
-                    orderType,
-                    new FileInputStream(inputFile));
+            return session.getFileTransferManager().createUploadTransaction(orderType, new FileInputStream(inputFile));
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
@@ -90,12 +88,14 @@ abstract class FileTransaction {
     static FileTransfer createFileDownloadTransaction(
             final EbicsSession session,
             final OrderType orderType,
+            final boolean isTest,
             final LocalDate start,
             final LocalDate end) throws EbicsException {
         final EbicsRequest request = DInitializationRequestElement.builder()
                 .orderType(orderType)
                 .startRange(start)
                 .endRange(end)
+                .test(isTest)
                 .build().create(session);
 
         final DInitializationResponseElement responseElement = ClientUtil.requestExchange(session, request,
@@ -135,9 +135,7 @@ abstract class FileTransaction {
         ClientUtil.requestExchange(session, ebicsRequest, ReceiptResponseElement::parse);
 
         try {
-            session.getFileTransferManager().finalizeDownloadTransaction(
-                    transaction,
-                    new FileOutputStream(outputFile));
+            session.getFileTransferManager().finalizeDownloadTransaction(transaction, new FileOutputStream(outputFile));
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
