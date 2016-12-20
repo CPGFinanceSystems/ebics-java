@@ -1,5 +1,7 @@
 package de.cpg.oss.ebics.session;
 
+import de.cpg.oss.ebics.api.BankAccountInformation;
+import de.cpg.oss.ebics.api.EbicsPartner;
 import de.cpg.oss.ebics.api.Identifiable;
 import de.cpg.oss.ebics.api.PersistenceProvider;
 import javaslang.collection.Stream;
@@ -16,15 +18,18 @@ public class JpaPersistenceProvider implements PersistenceProvider {
 
     private final EbicsBankRepository bankRepository;
     private final EbicsPartnerRepository partnerRepository;
+    private final BankAccountRepository bankAccountRepository;
     private final EbicsUserRepository userRepository;
     private final FileTransferRepository fileTransferRepository;
 
     public JpaPersistenceProvider(final EbicsBankRepository bankRepository,
                                   final EbicsPartnerRepository partnerRepository,
+                                  final BankAccountRepository bankAccountRepository,
                                   final EbicsUserRepository userRepository,
                                   final FileTransferRepository fileTransferRepository) {
         this.bankRepository = bankRepository;
         this.partnerRepository = partnerRepository;
+        this.bankAccountRepository = bankAccountRepository;
         this.userRepository = userRepository;
         this.fileTransferRepository = fileTransferRepository;
     }
@@ -32,6 +37,10 @@ public class JpaPersistenceProvider implements PersistenceProvider {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends Identifiable> T save(final Class<T> clazz, final T object) throws IOException {
+        if (EbicsPartner.class.isAssignableFrom(clazz)) {
+            final EbicsPartner partner = (EbicsPartner) object;
+            partner.getBankAccounts().forEach(bankAccountRepository::save);
+        }
         return ((EbicsRepository<T>) findRepositoryFor(clazz)).save(object);
     }
 

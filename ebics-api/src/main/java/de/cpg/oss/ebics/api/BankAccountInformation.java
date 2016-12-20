@@ -1,13 +1,14 @@
 package de.cpg.oss.ebics.api;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Value;
 
-import java.io.Serializable;
-
 @Value
 @Builder
-public class BankAccountInformation implements Serializable {
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class BankAccountInformation implements Identifiable {
 
     private static final long serialVersionUID = 1L;
 
@@ -19,4 +20,9 @@ public class BankAccountInformation implements Serializable {
     private final String bankCode;
     private final String iban;
     private final String bic;
+
+    // We all love JPA, don't we?
+    private BankAccountInformation() {
+        this(null, null, null, null, null, null, null, null);
+    }
 }

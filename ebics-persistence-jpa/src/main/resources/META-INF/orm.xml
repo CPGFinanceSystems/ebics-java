@@ -124,7 +124,13 @@
     <entity class="EbicsPartner">
         <attributes>
             <id name="partnerId"/>
-            <element-collection name="bankAccounts"/>
+            <one-to-many name="bankAccounts" target-entity="BankAccountInformation" fetch="EAGER"/>
+        </attributes>
+    </entity>
+
+    <entity class="BankAccountInformation">
+        <attributes>
+            <id name="id"/>
         </attributes>
     </entity>
 
