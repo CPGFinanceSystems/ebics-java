@@ -10,13 +10,13 @@ import lombok.Value;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class BankAccountInformation implements Identifiable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     private final String id;
     private final String accountHolder;
     private final String currency;
     private final String description;
-    private final String accountNmber;
+    private final String accountNumber;
     private final String bankCode;
     private final String iban;
     private final String bic;

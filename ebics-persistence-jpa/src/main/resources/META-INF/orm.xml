@@ -121,16 +121,21 @@
         </attributes>
     </entity>
 
-    <entity class="EbicsPartner">
-        <attributes>
-            <id name="partnerId"/>
-            <one-to-many name="bankAccounts" target-entity="BankAccountInformation" fetch="EAGER"/>
-        </attributes>
-    </entity>
-
     <entity class="BankAccountInformation">
         <attributes>
             <id name="id"/>
+        </attributes>
+    </entity>
+
+    <entity class="EbicsPartner">
+        <attributes>
+            <id name="partnerId"/>
+            <one-to-many name="bankAccounts" target-entity="BankAccountInformation">
+                <join-table name="ebics_partner_bank_account_information">
+                    <join-column name="partner_id" referenced-column-name="partnerId"/>
+                    <inverse-join-column name="bank_account_id" referenced-column-name="id" unique="true"/>
+                </join-table>
+            </one-to-many>
         </attributes>
     </entity>
 

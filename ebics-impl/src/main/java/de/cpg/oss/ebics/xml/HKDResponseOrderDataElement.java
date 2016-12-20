@@ -9,7 +9,6 @@ import org.ebics.h004.AccountType;
 import org.ebics.h004.HKDResponseOrderDataType;
 
 import java.io.InputStream;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -30,7 +29,7 @@ public class HKDResponseOrderDataElement implements ResponseOrderDataElement<HKD
         return HKDResponseOrderDataType.class;
     }
 
-    public Collection<BankAccountInformation> getBankAccounts() {
+    public List<BankAccountInformation> getBankAccounts() {
         return Optional.ofNullable(responseOrderData.getPartnerInfo().getAccountInfos())
                 .map(infos -> infos.stream()
                         .map(info -> BankAccountInformation.builder()
@@ -38,7 +37,7 @@ public class HKDResponseOrderDataElement implements ResponseOrderDataElement<HKD
                                 .accountHolder(info.getAccountHolder())
                                 .currency(info.getCurrency())
                                 .description(info.getDescription())
-                                .accountNmber(accountNumber(info.getAccountNumbersAndNationalAccountNumbers()))
+                                .accountNumber(accountNumber(info.getAccountNumbersAndNationalAccountNumbers()))
                                 .bankCode(bankCode(info.getBankCodesAndNationalBankCodes()))
                                 .iban(iban(info.getAccountNumbersAndNationalAccountNumbers()))
                                 .bic(bic(info.getBankCodesAndNationalBankCodes()))

@@ -1,6 +1,5 @@
 package de.cpg.oss.ebics.session;
 
-import de.cpg.oss.ebics.api.BankAccountInformation;
 import de.cpg.oss.ebics.api.EbicsPartner;
 import de.cpg.oss.ebics.api.Identifiable;
 import de.cpg.oss.ebics.api.PersistenceProvider;
@@ -39,7 +38,8 @@ public class JpaPersistenceProvider implements PersistenceProvider {
     public <T extends Identifiable> T save(final Class<T> clazz, final T object) throws IOException {
         if (EbicsPartner.class.isAssignableFrom(clazz)) {
             final EbicsPartner partner = (EbicsPartner) object;
-            partner.getBankAccounts().forEach(bankAccountRepository::save);
+            Optional.ofNullable(partner.getBankAccounts())
+                    .ifPresent(accounts -> accounts.forEach(bankAccountRepository::save));
         }
         return ((EbicsRepository<T>) findRepositoryFor(clazz)).save(object);
     }

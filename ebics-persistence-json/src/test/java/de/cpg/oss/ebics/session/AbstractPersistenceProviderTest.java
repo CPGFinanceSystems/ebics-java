@@ -66,7 +66,7 @@ public abstract class AbstractPersistenceProviderTest implements PersistenceProv
                 .partnerId("PARTNERID")
                 .bankAccounts(Collections.singletonList(BankAccountInformation.builder()
                         .id("1")
-                        .accountNmber("1234")
+                        .accountNumber("1234")
                         .bankCode("5678")
                         .build()))
                 .build();
