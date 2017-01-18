@@ -2,12 +2,8 @@ package de.cpg.oss.ebics.client;
 
 import de.cpg.oss.ebics.api.*;
 import de.cpg.oss.ebics.api.exception.EbicsException;
-import de.cpg.oss.ebics.session.DefaultFileTransferManager;
-import de.cpg.oss.ebics.session.DefaultPasswordCallback;
-import de.cpg.oss.ebics.session.InMemoryPersistenceProvider;
-import de.cpg.oss.ebics.session.NoOpXmlMessageTracer;
+import de.cpg.oss.ebics.session.*;
 import de.cpg.oss.ebics.utils.KeyUtil;
-import javaslang.control.Either;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
@@ -63,10 +59,10 @@ public class EbicsClientImpl implements EbicsClient {
                         .build())
                 .configuration(new EbicsConfiguration())
                 .persistenceProvider(InMemoryPersistenceProvider.INSTANCE)
-                .xmlMessageTracer(NoOpXmlMessageTracer.INSTANCE)
+                .xmlMessageTracer(Slf4jXmlMessageTracer.INSTANCE)
                 .fileTransferManager(new DefaultFileTransferManager(InMemoryPersistenceProvider.INSTANCE))
                 .build()).getSupportedEbicsVersions().stream()
-                .map(Either::toString).collect(Collectors.toList());
+                .map(v -> v.right().getOrElse(v.getLeft().name())).collect(Collectors.toList());
     }
 
     @Override
