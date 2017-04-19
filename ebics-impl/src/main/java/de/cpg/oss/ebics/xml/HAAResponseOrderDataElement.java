@@ -7,8 +7,9 @@ import lombok.Getter;
 import org.ebics.h004.HAAResponseOrderDataType;
 
 import java.io.InputStream;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class HAAResponseOrderDataElement implements ResponseOrderDataElement<HAAResponseOrderDataType> {
@@ -20,8 +21,8 @@ public class HAAResponseOrderDataElement implements ResponseOrderDataElement<HAA
         return new HAAResponseOrderDataElement(XmlUtil.parse(HAAResponseOrderDataType.class, orderDataXml));
     }
 
-    public Collection<String> getSupportedOrderTypes() {
-        return Collections.unmodifiableCollection(responseOrderData.getOrderTypes());
+    public Set<String> getSupportedOrderTypes() {
+        return Collections.unmodifiableSet(new HashSet<>(responseOrderData.getOrderTypes()));
     }
 
     @Override

@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.net.URI;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
@@ -33,7 +32,7 @@ public abstract class AbstractPersistenceProviderTest implements PersistenceProv
     @Override
     public void testEbicsBankPersistence() throws Exception {
         final EbicsBank bank = EbicsBank.builder()
-                .uri(URI.create("http://example.org"))
+                .uri("http://example.org")
                 .hostId("HOSTID")
                 .name("Testbank")
                 .supportedEbicsVersions(Collections.singleton(EbicsVersion.H004.name()))
@@ -64,7 +63,7 @@ public abstract class AbstractPersistenceProviderTest implements PersistenceProv
     public void testEbicsPartnerPersistence() throws Exception {
         final EbicsPartner partner = EbicsPartner.builder()
                 .partnerId("PARTNERID")
-                .bankAccounts(Collections.singletonList(BankAccountInformation.builder()
+                .bankAccounts(Collections.singleton(BankAccountInformation.builder()
                         .id("1")
                         .accountNumber("1234")
                         .bankCode("5678")
@@ -106,7 +105,7 @@ public abstract class AbstractPersistenceProviderTest implements PersistenceProv
                         .version(EncryptionVersion.E002)
                         .creationTime(Instant.now())
                         .build())
-                .permittedOrderTypes(Collections.singletonList(OrderType.AEA.name()))
+                .permittedOrderTypes(Collections.singleton(OrderType.AEA.name()))
                 .build();
 
         log.info("Saved {}", persistenceProvider().save(EbicsUser.class, user));

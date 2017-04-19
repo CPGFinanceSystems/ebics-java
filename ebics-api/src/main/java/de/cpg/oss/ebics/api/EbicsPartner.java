@@ -3,7 +3,7 @@ package de.cpg.oss.ebics.api;
 import lombok.*;
 import lombok.experimental.Wither;
 
-import java.util.List;
+import java.util.Set;
 
 @Value
 @Builder
@@ -16,7 +16,7 @@ public class EbicsPartner implements Identifiable {
     @NonNull
     private final String partnerId;
 
-    private final List<BankAccountInformation> bankAccounts;
+    private final Set<BankAccountInformation> bankAccounts;
 
     @Override
     public String getId() {

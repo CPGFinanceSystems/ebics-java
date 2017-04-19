@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.Wither;
 
 import java.util.Collection;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Value
@@ -27,7 +28,7 @@ public class EbicsUser implements Identifiable {
 
     @NonNull
     private final UserStatus status;
-    private final Collection<String> permittedOrderTypes;
+    private final Set<String> permittedOrderTypes;
 
     private final transient PasswordCallback passwordCallback;
 

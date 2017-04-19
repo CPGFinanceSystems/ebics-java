@@ -4,15 +4,18 @@ import de.cpg.oss.ebics.api.EbicsPartner;
 import de.cpg.oss.ebics.api.Identifiable;
 import de.cpg.oss.ebics.api.PersistenceProvider;
 import javaslang.collection.Stream;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Optional;
 
+@Slf4j
 @Component
-@Transactional
+@Transactional(propagation = Propagation.REQUIRES_NEW)
 public class JpaPersistenceProvider implements PersistenceProvider {
 
     private final EbicsBankRepository bankRepository;
@@ -66,9 +69,12 @@ public class JpaPersistenceProvider implements PersistenceProvider {
     }
 
     private <T extends Identifiable> EbicsRepository<? extends Identifiable> findRepositoryFor(final Class<T> clazz) {
-        return Stream.of(bankRepository, partnerRepository, userRepository, fileTransferRepository)
+        final EbicsRepository<? extends Identifiable> repository = Stream
+                .of(bankRepository, partnerRepository, userRepository, fileTransferRepository)
                 .find(r -> r.getEntityType().isAssignableFrom(clazz))
                 .getOrElseThrow(() -> new IllegalArgumentException("Unknown object type " + clazz.getName()));
-
+        log.trace("Found {}:{} for {}",
+                repository.getClass().getName(), repository.getEntityType().getName(), clazz.getName());
+        return repository;
     }
 }

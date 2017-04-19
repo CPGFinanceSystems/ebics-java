@@ -2,7 +2,6 @@ package de.cpg.oss.ebics.api;
 
 import org.junit.Test;
 
-import java.net.URI;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
@@ -21,7 +20,7 @@ public class EbicsBankTest {
 
         final EbicsBank first = EbicsBank.builder()
                 .supportedOrderTypes(Collections.singleton(OrderType.AEA.name()))
-                .uri(URI.create("http://example.com"))
+                .uri("http://example.com")
                 .authenticationKey(
                         EbicsAuthenticationKey.builder()
                                 .creationTime(creationDateTime)
@@ -37,7 +36,7 @@ public class EbicsBankTest {
 
         final EbicsBank second = EbicsBank.builder()
                 .supportedOrderTypes(Collections.singleton(OrderType.AEA.name()))
-                .uri(URI.create("http://example.com"))
+                .uri("http://example.com")
                 .authenticationKey(
                         EbicsAuthenticationKey.builder()
                                 .creationTime(creationDateTime)

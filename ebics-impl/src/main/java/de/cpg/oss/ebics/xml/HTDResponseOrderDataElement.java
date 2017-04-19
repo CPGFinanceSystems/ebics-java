@@ -8,7 +8,7 @@ import lombok.Getter;
 import org.ebics.h004.HTDReponseOrderDataType;
 
 import java.io.InputStream;
-import java.util.Collection;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -28,10 +28,10 @@ public class HTDResponseOrderDataElement implements ResponseOrderDataElement<HTD
     /**
      * @return a list of {@link de.cpg.oss.ebics.api.OrderType} as string list
      */
-    public Collection<String> getPermittedUserOrderTypes() {
+    public Set<String> getPermittedUserOrderTypes() {
         return responseOrderData.getUserInfo().getPermissions().stream()
                 .flatMap(permission -> permission.getOrderTypes().stream())
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
     @Override

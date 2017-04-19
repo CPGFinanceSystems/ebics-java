@@ -6,7 +6,6 @@ import de.cpg.oss.ebics.session.InMemoryPersistenceProvider;
 import de.cpg.oss.ebics.session.NoOpXmlMessageTracer;
 import de.cpg.oss.ebics.utils.KeyUtil;
 
-import java.net.URI;
 import java.security.KeyPair;
 import java.time.Instant;
 
@@ -26,7 +25,7 @@ public abstract class TestUtil {
                 .bank(EbicsBank.builder()
                         .hostId("HOSTID")
                         .name("Test Bank Name")
-                        .uri(URI.create("https://bank.example.org"))
+                        .uri("https://bank.example.org")
                         .build())
                 .partner(EbicsPartner.builder()
                         .partnerId("PARTNERID")

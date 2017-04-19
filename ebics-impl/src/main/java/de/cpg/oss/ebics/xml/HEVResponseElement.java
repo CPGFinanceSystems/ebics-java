@@ -8,7 +8,7 @@ import lombok.Getter;
 import org.ebics.h000.EbicsHEVResponse;
 
 import java.io.InputStream;
-import java.util.Collection;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -42,9 +42,9 @@ public class HEVResponseElement implements ResponseElement<EbicsHEVResponse> {
         return new byte[0];
     }
 
-    public Collection<String> getSupportedEbicsVersions() {
+    public Set<String> getSupportedEbicsVersions() {
         return response.getVersionNumbers().stream()
                 .map(EbicsHEVResponse.VersionNumber::getProtocolVersion)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 }

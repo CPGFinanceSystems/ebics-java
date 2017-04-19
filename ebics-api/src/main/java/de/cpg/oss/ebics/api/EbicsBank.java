@@ -4,8 +4,8 @@ import javaslang.control.Either;
 import lombok.*;
 import lombok.experimental.Wither;
 
-import java.net.URI;
 import java.util.Collection;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Value
@@ -17,7 +17,7 @@ public class EbicsBank implements Identifiable {
     private static final long serialVersionUID = 4L;
 
     @NonNull
-    private final URI uri;
+    private final String uri;
 
     private final EbicsAuthenticationKey authenticationKey;
     private final EbicsEncryptionKey encryptionKey;
@@ -26,8 +26,8 @@ public class EbicsBank implements Identifiable {
     private final String hostId;
     private final String name;
 
-    private final Collection<String> supportedEbicsVersions;
-    private final Collection<String> supportedOrderTypes;
+    private final Set<String> supportedEbicsVersions;
+    private final Set<String> supportedOrderTypes;
 
     @Override
     public String getId() {
@@ -48,6 +48,6 @@ public class EbicsBank implements Identifiable {
 
     // We all love JPA, don't we?
     private EbicsBank() {
-        this(URI.create(""), null, null, "", null, null, null);
+        this("", null, null, "", null, null, null);
     }
 }

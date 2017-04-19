@@ -55,7 +55,7 @@ public class EbicsClientImpl implements EbicsClient {
                         .build())
                 .bank(EbicsBank.builder()
                         .hostId(hostId)
-                        .uri(endpoint)
+                        .uri(endpoint.toString())
                         .build())
                 .configuration(new EbicsConfiguration())
                 .persistenceProvider(InMemoryPersistenceProvider.INSTANCE)
@@ -221,7 +221,7 @@ public class EbicsClientImpl implements EbicsClient {
     private EbicsSession.EbicsSessionBuilder createSession(final EbicsSessionParameter sessionParameter) {
         try {
             final EbicsBank bank = EbicsBank.builder()
-                    .uri(sessionParameter.getBankUri())
+                    .uri(sessionParameter.getBankUri().toString())
                     .hostId(sessionParameter.getHostId())
                     .build();
             sessionParameter.getPersistenceProvider().save(EbicsBank.class, bank);
