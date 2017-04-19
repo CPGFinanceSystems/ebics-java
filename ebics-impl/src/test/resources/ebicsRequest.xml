@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ebicsRequest xmlns="urn:org:ebics:H004">
+<ebicsRequest xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns="urn:org:ebics:H004" xmlns:s1="http://www.ebics.org/S001">
     <header authenticate="true">
         <static>
             <HostID>HOSTID</HostID>
