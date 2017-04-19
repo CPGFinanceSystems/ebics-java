@@ -65,7 +65,8 @@ abstract class KeyManagement {
                 orderType,
                 ZipUtil.compress(XmlUtil.prettyPrint(
                         HIARequestOrderDataType.class,
-                        hiaRequestOrderData(session))));
+                        hiaRequestOrderData(session),
+                        "HIARequestOrderData")));
 
         ClientUtil.requestExchange(session, EbicsUnsecuredRequest.class, unsecuredRequest,
                 KeyManagementResponseElement::parse, orderType.name());

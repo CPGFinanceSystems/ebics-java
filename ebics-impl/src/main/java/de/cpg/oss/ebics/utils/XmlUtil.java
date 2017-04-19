@@ -74,9 +74,11 @@ public abstract class XmlUtil {
     }
 
     public static <T> InputStream prettyPrint(final Class<T> clazz, final T object) {
-        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        prettyPrint(clazz, object, elementNameFrom(clazz), outputStream);
-        return IOUtil.wrap(outputStream.toByteArray());
+        return prettyPrint(clazz, object, elementNameFrom(clazz));
+    }
+
+    public static <T> InputStream prettyPrint(final Class<T> clazz, final T object, final String elementName) {
+        return prettyPrint(new JAXBElement<>(new QName(namespaceFromPackageAnnotation(clazz), elementName), clazz, object));
     }
 
     public static <T> InputStream prettyPrint(final JAXBElement<T> element) {
@@ -166,16 +168,6 @@ public abstract class XmlUtil {
         return Optional.ofNullable(clazz.getAnnotation(XmlRootElement.class))
                 .map(XmlRootElement::name)
                 .orElseGet(clazz::getSimpleName);
-    }
-
-    private static <T> void prettyPrint(
-            final Class<T> clazz,
-            final T object,
-            final String elementName,
-            final OutputStream outputStream) {
-        prettyPrint(
-                new JAXBElement<>(new QName(namespaceFromPackageAnnotation(clazz), elementName), clazz, object),
-                outputStream);
     }
 
     private static byte[] canonize(final Node node) {

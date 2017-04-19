@@ -22,4 +22,10 @@
             <namespace:prefix name="ds"/>
         </jaxb:bindings>
     </jaxb:bindings>
+
+    <jaxb:bindings schemaLocation="ebics_signature.xsd" node="/xs:schema">
+        <jaxb:bindings>
+            <namespace:prefix name="s1"/>
+        </jaxb:bindings>
+    </jaxb:bindings>
 </jaxb:bindings>
