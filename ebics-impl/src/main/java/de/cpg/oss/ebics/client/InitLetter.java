@@ -54,8 +54,12 @@ abstract class InitLetter {
         templateParameters.put("dateTime", LocalDateTime.now()
                 .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
                         .withLocale(session.getMessageProvider().getLocale())));
-        templateParameters.put("user", session.getUser());
-        templateParameters.put("bank", session.getBank());
+        templateParameters.put("user", session.getUser()
+                .withName(Optional.ofNullable(session.getUser().getName())
+                        .orElse("")));
+        templateParameters.put("bank", session.getBank()
+                .withName(Optional.ofNullable(session.getBank().getName())
+                        .orElseGet(() -> session.getBank().getId())));
         templateParameters.put("partner", session.getPartner());
         templateParameters.put("signatureKey", TemplateUtil.keyInfo(session.getUser().getSignatureKey()));
         templateParameters.put("authenticationKey", TemplateUtil.keyInfo(session.getUser().getAuthenticationKey()));
